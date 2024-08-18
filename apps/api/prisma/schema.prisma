@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  photos    Photo[]
+  albums    Album[]
+  files     File[]
+  folders   Folder[]
+  sharedByUser    Share[]
+  sharedToUser    Share[] @relation("SharedToRelation")
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  path      String
+  metadata  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  albums    Album[]
+  share     Share[]
+}
+
+model Album {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  parentId  String?
+  parent    Album?   @relation("Subalbums", fields: [parentId], references: [id])
+  subalbums Album[]  @relation("Subalbums")
+  photos    Photo[]
+  share     Share[]
+}
+
+model File {
+  id        String   @id @default(cuid())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  folderId  String?
+  folder    Folder?  @relation(fields: [folderId], references: [id])
+  share     Share[]
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  parentId  String?
+  parent    Folder?  @relation("Subfolders", fields: [parentId], references: [id])
+  subfolders Folder[] @relation("Subfolders")
+  files     File[]
+  share     Share[]
+}
+
+model Share {
+  id        String   @id @default(cuid())
+  link      String   @unique
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  sharedTo  User[]  @relation("SharedToRelation")
+  albums    Album[]
+  photos    Photo[]
+  files     File[]
+  folders   Folder[]
+}
