@@ -13,7 +13,6 @@ export class AccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    console.log(request.cookies);
     const token = request.cookies["jwt"];
     if (!token) {
       throw new UnauthorizedException();

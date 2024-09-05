@@ -15,7 +15,7 @@ export class AuthController {
     const result = await this.authService.login(loginDto);
     res.cookie("jwt", result.access_token, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       sameSite: true,
     });
     return res.status(HttpStatus.OK).json(result);
@@ -32,7 +32,7 @@ export class AuthController {
     const result = await this.authService.register(registerDto);
     res.cookie("jwt", result.access_token, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       sameSite: true,
     });
     return res.status(HttpStatus.CREATED).json(result);

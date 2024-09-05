@@ -8,6 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import { compare, genSalt, hash } from "bcrypt";
+import { TokenPayload } from "./auth.types";
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,11 @@ export class AuthService {
     if (!isEqual) {
       throw new UnauthorizedException("Password does not match");
     }
-    const payload = { email: user.email, sub: user.id };
+    const payload: TokenPayload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -44,7 +49,11 @@ export class AuthService {
       role: "user",
     });
 
-    const payload = { email: user.email, sub: user.id };
+    const payload: TokenPayload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
