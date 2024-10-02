@@ -10,6 +10,7 @@ catalog:
   eslint: ^9.9.0
   prettier: ^3.3.3
   tailwindcss: ^3.4.10
+  nativewind: ^4.0.36
   typescript: ^5.5.4
   zod: ^3.23.8
 
