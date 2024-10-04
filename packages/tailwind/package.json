@@ -1,16 +1,17 @@
 {
-  "name": "@repo/ui",
+  "name": "@repo/tailwind",
   "version": "0.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./config.ts",
+  "type": "module",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "react": "catalog:react18",
-    "react-native": "catalog:react18"
+    "postcss": "^8.4.41",
+    "tailwindcss": "catalog:",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@repo/typescript": "workspace:*",
