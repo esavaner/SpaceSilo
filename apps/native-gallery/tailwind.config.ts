@@ -6,6 +6,6 @@ import nativewind from 'nativewind/preset';
 import baseConfig from '@repo/tailwind';
 
 export default {
-  content: ['./app/**/*.{js,jsx,ts,tsx}'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   presets: [baseConfig, nativewind],
 } satisfies Config;
