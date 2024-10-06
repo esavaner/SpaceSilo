@@ -1,7 +1,10 @@
 {
   "name": "@repo/tailwind",
   "version": "0.0.0",
-  "main": "./config.ts",
+  "exports": {
+    "./config": "./config.ts",
+    "./themes": "./themes.ts"
+  },
   "type": "module",
   "scripts": {
     "build": "tsup",
@@ -10,6 +13,7 @@
   },
   "dependencies": {
     "postcss": "^8.4.41",
+    "nativewind": "catalog:",
     "tailwindcss": "catalog:",
     "tailwindcss-animate": "^1.0.7"
   },
