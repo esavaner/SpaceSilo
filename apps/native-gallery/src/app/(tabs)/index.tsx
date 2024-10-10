@@ -4,9 +4,11 @@ import { useColorScheme } from 'nativewind';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Button, SText } from '@repo/ui';
+import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {
   const { setColorScheme } = useColorScheme();
+  const { t } = useTranslation();
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -18,6 +20,7 @@ export default function HomeScreen() {
         <Button onClick={() => setColorScheme('system')} text="system" />
         <SText className="SText-primary-900">test</SText>
         <SText>Welcome!</SText>
+        <SText>{t('test')}</SText>
         <HelloWave />
       </View>
       <View>
