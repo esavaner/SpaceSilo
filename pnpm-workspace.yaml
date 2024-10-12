@@ -7,6 +7,7 @@ catalog:
   '@trpc/client': ^11.0.0-rc.477
   '@trpc/react-query': ^11.0.0-rc.477
   '@trpc/server': ^11.0.0-rc.477
+  '@types/node': ^20.16.5
   eslint: ^9.9.0
   prettier: ^3.3.3
   tailwindcss: ^3.4.10
@@ -16,8 +17,9 @@ catalog:
 
 catalogs:
   react18:
-    react: 18.3.1
-    react-dom: 18.3.1
+    next: ^14.2.11
+    react: ^18.3.1
+    react-dom: ^18.3.1
     react-native: ^0.75.3
     react-native-web: ^0.19.10
     '@types/react': ^18.3.3
