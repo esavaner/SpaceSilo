@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure, protectedProcedure } from '@/trpc';
+import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TRPCError } from '@trpc/server';
@@ -7,6 +7,9 @@ import { TRPCError } from '@trpc/server';
 const filesPath = process.env.FILES_PATH || '';
 
 export const filesRouter = createTRPCRouter({
+  hello: publicProcedure.query(() => {
+    return { message: 'Hello from filesRouter' };
+  }),
   create: protectedProcedure.input(z.object({ path: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     const filePath = path.join(filesPath, input.path);
     // fs.writeFileSync(filePath, file.buffer);

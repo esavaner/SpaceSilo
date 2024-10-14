@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/react-query": "catalog:",
     "next": "catalog:react18",
     "react": "catalog:react18",
     "react-dom": "catalog:react18",
@@ -22,10 +25,10 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:react18",
     "@types/react-dom": "catalog:react18",
-    "postcss": "^8",
-    "tailwindcss": "catalog:",
     "eslint": "catalog:",
     "eslint-config-next": "14.2.15",
+    "postcss": "^8",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }
 }
