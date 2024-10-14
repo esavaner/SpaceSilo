@@ -7,9 +7,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "clean": "rm -rf dist"
+    "build": "tsc",
+    "dev": "tsc",
+    "lint": "eslint",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "postcss": "^8.4.41",
@@ -18,9 +20,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@repo/typescript": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
     "@types/react": "catalog:react18",
-    "tsup": "^8.3.0",
     "typescript": "catalog:"
   }
 }

@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@repo/tailwind": "workspace:*",
-    "@repo/typescript": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
     "@types/react": "catalog:react18",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"

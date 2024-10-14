@@ -16,8 +16,9 @@
     "react-native-web": "catalog:react18"
   },
   "devDependencies": {
+    "@repo/api": "workspace:*",
     "@repo/tailwind": "workspace:*",
-    "@repo/typescript": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:react18",
     "@types/react-dom": "catalog:react18",
