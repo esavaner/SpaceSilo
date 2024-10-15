@@ -24,8 +24,8 @@ const createContext = async (req: NextRequest) => {
   });
 };
 
-const handler = (req: NextRequest) =>
-  fetchRequestHandler({
+const handler = async (req: NextRequest) => {
+  const response = await fetchRequestHandler({
     endpoint: '/api/trpc',
     router: appRouter,
     req,
@@ -34,5 +34,8 @@ const handler = (req: NextRequest) =>
       console.error(`>>> tRPC Error on '${path}'`, error);
     },
   });
+  setCorsHeaders(response);
+  return response;
+};
 
 export { handler as GET, handler as POST };

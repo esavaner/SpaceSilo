@@ -5,10 +5,13 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Button, SText } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
+import { api } from '@/components/providers/TRPCProvider';
 
 export default function HomeScreen() {
   const { setColorScheme } = useColorScheme();
   const { t } = useTranslation();
+  const { data } = api.files.hello.useQuery();
+  console.log(data);
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -21,6 +24,7 @@ export default function HomeScreen() {
         <SText className="SText-primary-900">test</SText>
         <SText>Welcome!</SText>
         <SText>{t('test')}</SText>
+        <SText>{data?.message}</SText>
         <HelloWave />
       </View>
       <View>
