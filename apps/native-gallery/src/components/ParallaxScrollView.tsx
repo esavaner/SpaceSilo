@@ -32,7 +32,7 @@ export default function ParallaxScrollView({ children, headerImage, headerBackgr
   });
 
   return (
-    <View>
+    <View className="bg-base-100">
       <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
         <Animated.View style={[{ backgroundColor: headerBackgroundColor[colorScheme] }, headerAnimatedStyle]}>
           {headerImage}

@@ -37,6 +37,7 @@
     "nativewind": "catalog:",
     "react": "catalog:react18",
     "react-dom": "catalog:react18",
+    "react-hook-form": "^7.53.0",
     "react-i18next": "^15.0.2",
     "react-native": "catalog:react18",
     "react-native-gesture-handler": "~2.16.2",

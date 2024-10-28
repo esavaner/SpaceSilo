@@ -20,7 +20,8 @@
     "@trpc/server": "catalog:",
     "prisma": "^5.20.0",
     "superjson": "2.2.1",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zod-form-data": "^2.0.2"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",

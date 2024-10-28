@@ -3,7 +3,7 @@ import { useColorScheme } from 'nativewind';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Button, SText } from '@repo/ui';
+import { Button, SText, Input } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/components/providers/TRPCProvider';
 
@@ -25,6 +25,7 @@ export default function HomeScreen() {
         <SText>Welcome!</SText>
         <SText>{t('test')}</SText>
         <SText>{data?.message}</SText>
+        <Input label="First name" placeholder="First name" />
         <HelloWave />
       </View>
       <View>
