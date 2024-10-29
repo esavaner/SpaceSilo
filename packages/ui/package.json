@@ -8,7 +8,7 @@
     "nativewind": "catalog:",
     "react": "catalog:react18",
     "react-native": "catalog:react18",
-    "tailwind-merge": "^2.5.3"
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@repo/tailwind": "workspace:*",

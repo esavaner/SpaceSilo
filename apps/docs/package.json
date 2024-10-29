@@ -21,7 +21,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:react18",
     "@types/react-dom": "catalog:react18",
-    "babel-plugin-react-native-web": "^0.19.12",
+    "babel-plugin-react-native-web": "^0.19.13",
     "eslint": "catalog:",
     "eslint-config-next": "14.2.15",
     "typescript": "catalog:"
