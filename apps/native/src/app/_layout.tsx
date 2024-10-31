@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import '@/i18n';
 import '../styles.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { QueryProvider } from '@/components/providers/QueryProvider';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,11 +28,19 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <QueryProvider>
+      <ThemeProvider>
+        <Stack
+          screenOptions={{
+            contentStyle: {
+              backgroundColor: 'var(--color-base-200)',
+            },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </ThemeProvider>
+    </QueryProvider>
   );
 }

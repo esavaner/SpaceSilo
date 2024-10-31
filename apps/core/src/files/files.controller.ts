@@ -1,35 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Req, Query, Patch } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { CreateFileDto, UpdateFileDto } from './_dto/files.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, UpdateFileDto } from './_dto/files.dto';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Auth, AuthType } from 'src/auth/decorators/auth.decorator';
 
 @ApiTags('files')
 @Controller('files')
+@Auth(AuthType.None) // @TODO remove this
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post()
-  create(@Body() createFileDto: CreateFileDto) {
-    return this.filesService.create(createFileDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateFileDto, @Req() request: Request) {
+    const result = await this.filesService.create(dto, file, request['user']);
+    return result;
   }
 
   @Get()
-  findAll() {
-    return this.filesService.findAll();
+  findAll(@Query() dto: FindAllFilesDto) {
+    return this.filesService.findAll(dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.filesService.findOne(+id);
+  @Get('/download')
+  download(@Query() dto: DownloadFileDto) {
+    return this.filesService.download(dto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.filesService.update(+id, updateFileDto);
+  @Patch()
+  update(@Query() dto: UpdateFileDto) {
+    return this.filesService.update(dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.filesService.remove(+id);
+  @Delete()
+  remove(@Query() dto: RemoveFileDto) {
+    return this.filesService.remove(dto);
   }
 }

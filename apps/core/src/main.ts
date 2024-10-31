@@ -8,8 +8,21 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // whitelist: true,
+      // forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    })
+  );
   app.use(cookieParser());
+  app.enableCors({
+    // origin: true,
+    // credentials: true
+  });
 
   const config = new DocumentBuilder()
     .setTitle('SpaceSilo API')

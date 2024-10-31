@@ -8,6 +8,15 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: 'transparent',
+        },
+        headerStyle: {
+          backgroundColor: 'transparent',
+        },
+      }}
+      sceneContainerStyle={{
+        backgroundColor: 'transparent',
       }}
     >
       <Tabs.Screen
@@ -21,6 +30,15 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Explore',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="files"
+        options={{
+          title: 'Files',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),

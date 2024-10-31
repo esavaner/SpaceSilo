@@ -1,5 +1,17 @@
-import { PartialType } from '@nestjs/swagger';
+import { PaginationQueryDto } from 'src/common/pagination.dto';
 
-export class CreateFileDto {}
+export class CreateFileDto {
+  path: string;
+}
 
-export class UpdateFileDto extends PartialType(CreateFileDto) {}
+export class UpdateFileDto extends CreateFileDto {
+  newPath: string;
+}
+
+export class DownloadFileDto extends CreateFileDto {}
+
+export class RemoveFileDto extends CreateFileDto {}
+
+export class FindAllFilesDto extends PaginationQueryDto {
+  path: string;
+}

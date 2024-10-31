@@ -10,7 +10,7 @@ type ThemeProviderProps = {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { colorScheme } = useColorScheme();
   return (
-    <View style={themes[colorScheme ?? 'dark']} className="flex-1 bg-base-800">
+    <View style={themes[colorScheme ?? 'dark']} className="flex-1">
       {children}
     </View>
   );
