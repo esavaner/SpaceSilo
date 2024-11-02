@@ -56,3 +56,26 @@ function withTurborepoManagedCache(config) {
   config.cacheStores = [new FileStore({ root: path.join(__dirname, '.cache/metro') })];
   return config;
 }
+
+// /**
+//  *
+//  * @see https://turbo.build/repo/docs/reference/configuration#env
+//  * @param {import('expo/metro-config').MetroConfig} config
+//  * @returns {import('expo/metro-config').MetroConfig}
+//  */
+// function withSvgNativeTransformer(config) {
+//   config.transformer = {
+//     ...config.transformer,
+//     babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+//   };
+
+//   config.resolver = {
+//     ...config.resolver,
+//     assetExts: config.resolver.assetExts.filter((ext) => ext !== 'svg'),
+//     sourceExts: [...config.resolver.sourceExts, 'svg'],
+//   };
+
+//   // config.resolver.assetExts = config.resolver.assetExts.filter((ext) => ext !== 'svg');
+//   // config.resolver.sourceExts = [...config.resolver.sourceExts, 'svg'];
+//   return config;
+// }

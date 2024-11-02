@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { themes } from '@repo/tailwind/themes';
@@ -8,7 +8,12 @@ type ThemeProviderProps = {
 };
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const { colorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
+
+  useEffect(() => {
+    setColorScheme('dark');
+  }, []);
+
   return (
     <View style={themes[colorScheme ?? 'dark']} className="flex-1">
       {children}

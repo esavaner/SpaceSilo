@@ -21,7 +21,8 @@ export default function HomeScreen() {
         <SText className="SText-primary-900">test</SText>
         <SText>Welcome!</SText>
         <SText>{t('test')}</SText>
-        <Input label="First name" placeholder="First name" />
+        <Input label="First name" placeholder="First name" error="invalid input" />
+        <Input label="Last name" placeholder="Last name" />
         <HelloWave />
       </View>
       <View>
