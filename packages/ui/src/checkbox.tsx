@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { cn } from './cn';
 import { cva } from 'class-variance-authority';
+import { Text } from './text';
 
 const checkboxStyles = cva(['w-5 h-5 border rounded-md flex items-center justify-center'], {
   variants: {

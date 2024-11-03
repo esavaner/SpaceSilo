@@ -1,11 +1,12 @@
-import { TextInput, View, Text } from 'react-native';
+import { TextInput, View } from 'react-native';
 import { cn } from './cn';
+import { Text } from './text';
 
 import React from 'react';
 import { cva } from 'class-variance-authority';
 
 const inputStyles = cva(
-  ['text-base outline-none rounded-md border-2 m-px p-2 text-content hover:border-[3px] hover:m-0'],
+  ['text-base outline-none rounded-md border m-px p-2 text-content hover:border-[2px] hover:m-0'],
   {
     variants: {
       variant: {
@@ -21,10 +22,10 @@ export type InputProps = React.ComponentProps<typeof TextInput> & {
   error?: React.ReactNode;
 };
 
-export const Input = ({ className, label, error, ...props }: InputProps) => (
+export const Input = ({ className, label, error, ...rest }: InputProps) => (
   <View className="flex flex-col gap-1 ">
     {label && <Text className="text-base text-content">{label}</Text>}
-    <TextInput className={cn(inputStyles({ variant: error ? 'error' : 'default' }), className)} {...props} />
+    <TextInput {...rest} className={cn(inputStyles({ variant: error ? 'error' : 'default' }), className)} />
     {error && <Text className="text-red-600 text-base">{error}</Text>}
   </View>
 );

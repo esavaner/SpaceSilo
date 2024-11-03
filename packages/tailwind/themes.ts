@@ -1,9 +1,9 @@
 import { vars } from 'nativewind';
 
 const base = vars({
-  '--color-primary': '#a73a51',
-  '--color-primary-dark': '#7c3b4f',
-  '--color-primary-light': '#d24c57',
+  '--color-primary': '#ffc75f',
+  '--color-primary-dark': '#d8c038',
+  '--color-primary-light': '#f3dd65',
   '--color-secondary': '#f28065',
   '--color-secondary-dark': '#ef7f67',
   '--color-secondary-light': '#f8b58a',

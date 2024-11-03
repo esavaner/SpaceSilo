@@ -11,7 +11,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { colorScheme, setColorScheme } = useColorScheme();
 
   useEffect(() => {
-    setColorScheme('dark');
+    setColorScheme('light');
+    // setColorScheme('dark');
   }, []);
 
   return (

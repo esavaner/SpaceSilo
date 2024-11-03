@@ -1,4 +1,4 @@
-import { SText } from '@repo/ui';
+import { Text } from '@repo/ui';
 import { Link, Stack } from 'expo-router';
 import { View } from 'react-native';
 
@@ -7,9 +7,9 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View>
-        <SText>This screen doesn't exist.</SText>
+        <Text>This screen doesn't exist.</Text>
         <Link href="/">
-          <SText>Go to home screen!</SText>
+          <Text>Go to home screen!</Text>
         </Link>
       </View>
     </>

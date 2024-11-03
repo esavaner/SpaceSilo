@@ -1,37 +1,30 @@
-import * as React from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  GestureResponderEvent,
-  Text,
-} from "react-native";
+import React from 'react';
+import { Pressable, PressableProps } from 'react-native';
+import { cn } from './cn';
+import { cva } from 'class-variance-authority';
+import { Text } from './text';
 
-export interface ButtonProps {
-  text: string;
-  onClick?: (event: GestureResponderEvent) => void;
-}
+export type ButtonProps = PressableProps & {
+  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'secondaryOutline' | 'danger' | 'dangerOutline';
+};
 
-export function Button({ text, onClick }: ButtonProps) {
-  return (
-    <TouchableOpacity style={styles.button} onPress={onClick}>
-      <Text style={styles.text}>{text}</Text>
-    </TouchableOpacity>
-  );
-}
-
-const styles = StyleSheet.create({
-  button: {
-    maxWidth: 200,
-    textAlign: "center",
-    borderRadius: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingLeft: 30,
-    paddingRight: 30,
-    fontSize: 15,
-    backgroundColor: "#2f80ed",
-  },
-  text: {
-    color: "white",
+const buttonStyles = cva(['rounded-md border-2 p-2 text-content max-w-52 flex items-center justify-center'], {
+  variants: {
+    variant: {
+      primary: 'border-primary bg-primary text-black hover:bg-transparent hover:text-primary',
+      primaryOutline: 'border-secondary hover:border-primary-light focus-within:border-primary-light',
+      secondary: 'border-secondary hover:border-primary-light focus-within:border-primary-light',
+      secondaryOutline: 'border-secondary hover:border-primary-light focus-within:border-primary-light',
+      danger: 'border-red-600 hover:border-red-400 focus-within:border-error-light',
+      dangerOutline: 'border-red-600 hover:border-red-400 focus-within:border',
+    },
   },
 });
+
+export function Button({ variant = 'primary', className, children, ...rest }: ButtonProps) {
+  return (
+    <Pressable {...rest} className={cn(buttonStyles({ variant }), className)}>
+      {typeof children === 'string' ? <Text className="text-inherit">{children}</Text> : children}
+    </Pressable>
+  );
+}

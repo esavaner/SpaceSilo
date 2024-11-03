@@ -14,7 +14,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    InterVariable: require('../assets/fonts/Inter-Variable.ttf'),
   });
 
   useEffect(() => {
@@ -38,6 +38,17 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="login/index"
+            options={{
+              title: 'Login',
+              headerTintColor: 'var(--color-text)',
+              headerStyle: {
+                backgroundColor: 'var(--color-background)',
+              },
+              navigationBarHidden: true,
+            }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>
