@@ -5,8 +5,10 @@ import { View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { router } from 'expo-router';
 
 const schema = yup.object().shape({
+  serverUrl: yup.string().required('Server URL is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   password: yup.string().required('Password is required'),
 });
@@ -17,6 +19,9 @@ export default function LoginPage() {
   const { mutate: login } = useMutation({
     mutationKey: ['login'],
     mutationFn: Api.auth.authControllerLogin,
+    onSuccess: () => {
+      router.push('/');
+    },
   });
 
   const {
@@ -26,6 +31,7 @@ export default function LoginPage() {
   } = useForm<LoginForm>({
     resolver: yupResolver(schema),
     defaultValues: {
+      serverUrl: '',
       email: '',
       password: '',
     },
@@ -36,7 +42,20 @@ export default function LoginPage() {
   };
 
   return (
-    <View className="p-6">
+    <View className="p-6 flex gap-2 w-full max-w-96 mx-auto">
+      <Controller
+        control={control}
+        render={({ field }) => (
+          <Input
+            onBlur={field.onBlur}
+            value={field.value}
+            onChangeText={field.onChange}
+            label="Server URL"
+            error={errors.email?.message}
+          />
+        )}
+        name="serverUrl"
+      />
       <Controller
         control={control}
         render={({ field }) => (
@@ -63,7 +82,7 @@ export default function LoginPage() {
         )}
         name="password"
       />
-      <Button variant="primary" onPress={handleSubmit(onSubmit)}>
+      <Button variant="primary" onPress={handleSubmit(onSubmit)} className="w-full">
         Login
       </Button>
     </View>

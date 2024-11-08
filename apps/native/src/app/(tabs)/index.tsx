@@ -1,6 +1,6 @@
 import { Redirect, useRootNavigationState } from 'expo-router';
 
-export default function FilesPage() {
+export default function IndexPage() {
   const rootNavigationState = useRootNavigationState();
 
   if (!rootNavigationState?.key) return null;
