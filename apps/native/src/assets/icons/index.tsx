@@ -32,7 +32,7 @@ cssInterop(Fa6Icon, {
 export const AddIcon = (p: IconProps) => <FIcon name="plus" {...d} {...p} />;
 export const ChevronRightIcon = (p: IconProps) => <FIcon name="chevron-right" {...d} {...p} />;
 export const CloseIcon = (p: IconProps) => <FIcon name="x" {...d} {...p} />;
-export const EllipsisIcon = (p: IconProps) => <Fa6Icon name="ellipsis" {...d} {...p} />;
+export const EllipsisIcon = (p: IconProps) => <Fa6Icon name="ellipsis-vertical" {...d} {...p} />;
 export const FileIcon = (p: IconProps) => <MIcon name="insert-drive-file" {...d} {...p} />;
 export const FolderIcon = (p: IconProps) => <MIcon name="folder" {...d} {...p} />;
 export const HomeIcon = (p: IconProps) => <MIcon name="home" {...d} {...p} />;

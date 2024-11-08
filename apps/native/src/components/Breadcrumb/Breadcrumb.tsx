@@ -20,14 +20,12 @@ export const Breadcrumb = ({ pathItems, handlePathClick }: BreadcrumbProps) => {
   return (
     <View className="flex flex-row items-center gap-3">
       {pathItems.map((item, index) => (
-        <React.Fragment key={index}>
+        <Pressable key={index} className="flex flex-row items-center gap-3" onPress={() => handleItemClick(index)}>
           {index !== 0 && <NavigateNextIcon />}
-          <Pressable key={index} onPress={() => handleItemClick(index)}>
-            <Text className="text-content-tertiary hover:text-content hover:underline">
-              {index === 0 ? t('files.homeDir') : item}
-            </Text>
-          </Pressable>
-        </React.Fragment>
+          <Text className="text-content-tertiary hover:text-content hover:underline">
+            {index === 0 ? t('files.homeDir') : item}
+          </Text>
+        </Pressable>
       ))}
     </View>
   );

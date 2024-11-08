@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Pressable } from 'react-native';
 import { cn } from './cn';
 import { cva } from 'class-variance-authority';
 import { Text } from './text';
@@ -24,17 +24,15 @@ export type CheckboxProps = {
 };
 
 export const Checkbox = ({ className, label, error, checked, onChange }: CheckboxProps) => (
-  <View className="flex flex-col gap-1">
-    <TouchableOpacity
-      className={cn(
-        checkboxStyles({ variant: error ? (checked ? 'checkedError' : 'error') : checked ? 'checked' : 'default' }),
-        className
-      )}
-      onPress={() => onChange && onChange(!checked)}
-    >
-      {checked && <Text className="text-white">✔</Text>}
-    </TouchableOpacity>
+  <Pressable
+    className={cn(
+      checkboxStyles({ variant: error ? (checked ? 'checkedError' : 'error') : checked ? 'checked' : 'default' }),
+      className
+    )}
+    onPress={() => onChange && onChange(!checked)}
+  >
+    {checked && <Text className="text-white">✔</Text>}
     {label && <Text className="text-content text-base">{label}</Text>}
     {error && <Text className="text-red-600 text-base">{error}</Text>}
-  </View>
+  </Pressable>
 );
