@@ -1,9 +1,9 @@
-import Icon from '@expo/vector-icons/MaterialIcons';
+import { FileIcon } from '@/assets/icons';
 
 export const fileIcons = {
-  gif: <Icon name="folder" size={24} />,
-  jpeg: <Icon name="folder" size={24} />,
-  jpg: <Icon name="folder" size={24} />,
-  pdf: <Icon name="folder" size={24} />,
-  png: <Icon name="folder" size={24} />,
+  gif: <FileIcon />,
+  jpeg: <FileIcon />,
+  jpg: <FileIcon />,
+  pdf: <FileIcon />,
+  png: <FileIcon />,
 };

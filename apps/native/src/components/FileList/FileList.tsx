@@ -2,8 +2,7 @@ import { Pressable, ScrollView } from 'react-native';
 import { fileIcons } from './fileIcons';
 import { Checkbox, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
-import FIcon from '@expo/vector-icons/FontAwesome6';
-import MIcon from '@expo/vector-icons/MaterialIcons';
+import { EllipsisIcon, FolderIcon } from '@/assets/icons';
 
 type FileListProps = {
   items: any[];
@@ -12,9 +11,9 @@ type FileListProps = {
 
 export const FileList = ({ items, handleDirClick }: FileListProps) => {
   const getIcon = (item: any) => {
-    if (item.type === 'directory') return <MIcon name="folder" size={24} />;
+    if (item.type === 'directory') return <FolderIcon />;
     const ext = item.name.split('.').pop().toLowerCase();
-    return fileIcons[ext as keyof typeof fileIcons] || <MIcon name="folder" size={24} />;
+    return fileIcons[ext as keyof typeof fileIcons] || <FolderIcon />;
   };
 
   console.log('items', items);
@@ -39,7 +38,7 @@ export const FileList = ({ items, handleDirClick }: FileListProps) => {
               <Text>{item.name}</Text>
               <Text className="ml-auto text-end">{!isDirectory && fileSize(item.size)}</Text>
               <Text>
-                <FIcon name="ellipsis" size={24} />
+                <EllipsisIcon />
               </Text>
             </Pressable>
           );

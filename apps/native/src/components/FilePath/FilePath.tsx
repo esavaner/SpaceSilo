@@ -1,6 +1,6 @@
 import { Text } from '@repo/ui';
 import { Pressable, View } from 'react-native';
-import MIcon from '@expo/vector-icons/MaterialIcons';
+import { HomeIcon, NavigateNextIcon } from '@/assets/icons';
 
 type FilePathProps = {
   pathItems: string[];
@@ -21,10 +21,10 @@ export const FilePath = ({ pathItems, handlePathClick }: FilePathProps) => {
         <Pressable key={index} onPress={() => handleItemClick(index)} className="text-primary hover:text-primary-light">
           <Text className="flex items-center gap-4">
             {index === 0 ? (
-              <MIcon name="home" size={24} />
+              <HomeIcon />
             ) : (
               <>
-                <MIcon name="navigate-next" size={12} />
+                <NavigateNextIcon />
                 {item}
               </>
             )}

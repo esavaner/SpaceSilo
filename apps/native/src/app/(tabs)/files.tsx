@@ -1,6 +1,6 @@
 import { Api } from '@/api/api';
+import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { FileList } from '@/components/FileList/FileList';
-import { FilePath } from '@/components/FilePath/FilePath';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
@@ -27,7 +27,7 @@ export default function FilesPage() {
 
   return (
     <>
-      <FilePath pathItems={currentPath.split('/')} handlePathClick={handlePathClick} />
+      <Breadcrumb pathItems={currentPath.split('/')} handlePathClick={handlePathClick} />
       <FileList items={data?.data as any[]} handleDirClick={handleDirClick} />
     </>
   );
