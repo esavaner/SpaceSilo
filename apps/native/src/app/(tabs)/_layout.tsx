@@ -1,58 +1,70 @@
-import { Slot } from 'expo-router';
 import React from 'react';
 
-import { View } from 'react-native';
-import { Header } from '@/components/Header/Header';
+import { Navigation } from '@/components/Navigation/Navigation';
+import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
+import { FileIcon } from '@/assets/icons';
+import { useWindowDimensions } from 'react-native';
+import { Drawer } from 'expo-router/drawer';
+const items: NavigationItemProps[] = [
+  {
+    label: 'Welcome',
+    path: 'welcome',
+    icon: <FileIcon size={20} />,
+  },
+  {
+    label: 'Files',
+    path: 'files',
+    icon: <FileIcon size={20} />,
+    subitems: [
+      {
+        label: 'On device',
+        path: 'files/device',
+      },
+      {
+        label: 'Remote',
+        path: 'files/remote',
+      },
+      {
+        label: 'Sync',
+        path: 'files/sync',
+      },
+    ],
+  },
+  {
+    label: 'Files2',
+    path: 'files2',
+    icon: <FileIcon size={20} />,
+    subitems: [
+      {
+        label: 'On device',
+        path: 'files/device',
+      },
+      {
+        label: 'Remote',
+        path: 'files/remote',
+      },
+      {
+        label: 'Sync',
+        path: 'files/sync',
+      },
+    ],
+  },
+];
 
 export default function TabLayout() {
+  const { width } = useWindowDimensions();
+
   return (
-    <View className="bg-orange-500">
-      <Header title="Files" />
-      <View className="p-6 rounded-t-3xl bg-layer">
-        <Slot />
-      </View>
-    </View>
+    <Drawer
+      screenOptions={{
+        drawerType: width > 992 ? 'permanent' : 'slide',
+        sceneContainerStyle: { backgroundColor: 'transparent' },
+      }}
+      drawerContent={(props) => <Navigation {...props} items={items} />}
+      initialRouteName="files"
+    >
+      <Drawer.Screen name="files" />
+      <Drawer.Screen name="welcome" />
+    </Drawer>
   );
-  // return (
-  //   <Tabs
-  //     screenOptions={{
-  //       headerShown: false,
-  //       tabBarStyle: {
-  //         backgroundColor: 'transparent',
-  //       },
-  //       headerStyle: {
-  //         backgroundColor: 'transparent',
-  //       },
-  //     }}
-  //     sceneContainerStyle={{
-  //       backgroundColor: 'transparent',
-  //     }}
-  //   >
-  //     <Tabs.Screen
-  //       name="index"
-  //       options={{
-  //         title: 'Home',
-  //         tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />,
-  //       }}
-  //     />
-  //     <Tabs.Screen
-  //       name="explore"
-  //       options={{
-  //         title: 'Explore',
-  //         tabBarIcon: ({ color, focused }) => (
-  //           <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-  //         ),
-  //       }}
-  //     />
-  //     <Tabs.Screen
-  //       name="files"
-  //       options={{
-  //         title: 'Files',
-  //         tabBarIcon: ({ color, focused }) => (
-  //           <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-  //         ),
-  //       }}
-  //     />
-  //   </Tabs>
-  // );
 }

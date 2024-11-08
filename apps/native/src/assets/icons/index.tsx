@@ -1,14 +1,33 @@
 import FIcon from '@expo/vector-icons/Feather';
 import Fa6Icon from '@expo/vector-icons/FontAwesome6';
 import MIcon from '@expo/vector-icons/MaterialIcons';
+import { cssInterop } from 'nativewind';
 import React from 'react';
 
 type IconProps = Omit<React.ComponentProps<typeof FIcon> & React.ComponentProps<typeof MIcon>, 'name'>;
 
 const d = {
   size: 24,
-  color: 'var(--color-text)',
+  className: 'text-content',
 };
+
+cssInterop(FIcon, {
+  className: {
+    target: 'style',
+  },
+});
+
+cssInterop(MIcon, {
+  className: {
+    target: 'style',
+  },
+});
+
+cssInterop(Fa6Icon, {
+  className: {
+    target: 'style',
+  },
+});
 
 export const AddIcon = (p: IconProps) => <FIcon name="plus" {...d} {...p} />;
 export const ChevronRightIcon = (p: IconProps) => <FIcon name="chevron-right" {...d} {...p} />;

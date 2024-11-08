@@ -8,6 +8,7 @@ import '@/i18n';
 import '../styles.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,27 +31,29 @@ export default function RootLayout() {
   return (
     <QueryProvider>
       <ThemeProvider>
-        <Stack
-          screenOptions={{
-            contentStyle: {
-              backgroundColor: 'var(--color-background)',
-            },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="login/index"
-            options={{
-              title: 'Login',
-              headerTintColor: 'var(--color-text)',
-              headerStyle: {
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack
+            screenOptions={{
+              contentStyle: {
                 backgroundColor: 'var(--color-background)',
               },
-              navigationBarHidden: true,
             }}
-          />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="login/index"
+              options={{
+                title: 'Login',
+                headerTintColor: 'var(--color-text)',
+                headerStyle: {
+                  backgroundColor: 'var(--color-background)',
+                },
+                navigationBarHidden: true,
+              }}
+            />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </GestureHandlerRootView>
       </ThemeProvider>
     </QueryProvider>
   );

@@ -15,7 +15,7 @@ export type NavigationItemProps = Item & {
 };
 
 const itemStyles =
-  'py-1 pl-3 pr-2 mb-1 rounded hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary';
+  'py-1 pl-3 pr-2 mb-1 rounded flex-1 flex-row items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary';
 
 export const NavigationItem = ({ label, path, onPress, icon, subitems }: NavigationItemProps) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -23,12 +23,15 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
 
   return (
     <>
-      <Pressable onPress={() => onPress?.(path)} className={cn('flex-row', itemStyles)}>
+      <Pressable onPress={() => onPress?.(path)} className={cn(itemStyles)}>
         {icon}
         <Text className="ml-2">{label}</Text>
         {hasSubitems && (
-          <Pressable onPress={() => setIsOpen(!isOpen)} className="ml-auto">
-            <ChevronRightIcon className={cn('transition-all transform', isOpen && 'rotate-90')} />
+          <Pressable
+            onPress={() => setIsOpen(!isOpen)}
+            className={cn('transition-all transform ml-auto', isOpen && 'rotate-90')}
+          >
+            <ChevronRightIcon />
           </Pressable>
         )}
       </Pressable>
