@@ -1,3 +1,6 @@
 {
-  "test": "Test EN"
+  "files": {
+    "title": "Files",
+    "homeDir": "Home"
+  }
 }
