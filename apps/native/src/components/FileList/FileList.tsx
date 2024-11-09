@@ -1,8 +1,10 @@
-import { Pressable, ScrollView } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from './fileIcons';
 import { Checkbox, cn, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { EllipsisIcon, FolderIcon } from '@/assets/icons';
+import { formatInTimeZone } from 'date-fns-tz';
+import { getCalendars } from 'expo-localization';
 
 type FileListProps = {
   items: any[];
@@ -18,40 +20,49 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
     return fileIcons[ext as keyof typeof fileIcons] || <FolderIcon />;
   };
 
+  const getItemTime = (time: string) => {
+    const date = new Date(time);
+    const timeZone = getCalendars()[0].timeZone || 'UTC';
+    return formatInTimeZone(date, timeZone, 'd MMM yyyy');
+  };
+
   const hasSelectedItems = selectedItems.length > 0;
 
-  return (
+  return items?.length === 0 ? (
+    <Text className="text-center">No files</Text>
+  ) : (
     <ScrollView className="w-full">
-      {items?.length === 0 ? (
-        <Text className="text-center">No files</Text>
-      ) : (
-        items?.map((item) => {
-          const isDirectory = item.type === 'directory';
-          return (
-            <Pressable
-              key={item.name}
-              className={cn(
-                'md:flex flex-row gap-4 py-3 items-center',
-                hasSelectedItems ? 'border-b border-layer' : ''
-              )}
-              onPress={() => isDirectory && handleDirClick(item.name)}
-              onLongPress={() => handleSelectItem(item)}
-            >
-              <Checkbox
-                className={cn('md:block', hasSelectedItems ? 'block' : 'hidden')}
-                checked={selectedItems.includes(item)}
-                onChange={() => handleSelectItem(item)}
-              />
-              <Text className="text-3xl">{getIcon(item)}</Text>
-              <Text>{item.name}</Text>
-              <Text className="ml-auto text-end">{!isDirectory && fileSize(item.size)}</Text>
-              <Text>
-                <EllipsisIcon />
-              </Text>
-            </Pressable>
-          );
-        })
-      )}
+      {items?.map((item) => {
+        const isDirectory = item.type === 'directory';
+        const isSelected = selectedItems.find((i) => i.name === item.name);
+        return (
+          <Pressable
+            key={item.name}
+            className={cn(
+              'flex-row gap-4 px-3 py-1 mb-6 rounded items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
+              isSelected && 'bg-layer-secondary'
+            )}
+            onPress={() => (hasSelectedItems ? handleSelectItem(item) : isDirectory ? handleDirClick(item.name) : null)}
+            onLongPress={() => handleSelectItem(item)}
+          >
+            <Checkbox
+              className={cn('md:flex', hasSelectedItems ? 'flex' : 'hidden')}
+              checked={isSelected}
+              onChange={() => handleSelectItem(item)}
+            />
+            <Text className="text-3xl">{getIcon(item)}</Text>
+            <View>
+              <Text className="leading-5">{item.name}</Text>
+              <View className="flex-row gap-1">
+                {!isDirectory && <Text className="text-content-tertiary text-sm">{fileSize(item.size)},</Text>}
+                <Text className="text-content-tertiary text-sm">{getItemTime(item.createdAt)}</Text>
+              </View>
+            </View>
+
+            <EllipsisIcon className="text-content ml-auto" />
+          </Pressable>
+        );
+      })}
     </ScrollView>
   );
 };

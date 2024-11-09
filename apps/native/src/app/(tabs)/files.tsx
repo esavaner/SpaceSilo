@@ -17,12 +17,18 @@ export default function FilesPage() {
   });
 
   const handleDirClick = (name: string) => {
+    if (selectedItems.length > 0) {
+      return;
+    }
     const newPath = `${currentPath}/${name}`;
     setCurrentPath(newPath);
     router.setParams({ path: newPath });
   };
 
   const handlePathClick = (newPath: string) => {
+    if (selectedItems.length > 0) {
+      return;
+    }
     setCurrentPath(newPath);
     router.setParams({ path: newPath });
   };

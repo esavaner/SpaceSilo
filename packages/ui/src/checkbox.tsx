@@ -4,11 +4,11 @@ import { cn } from './cn';
 import { cva } from 'class-variance-authority';
 import { Text } from './text';
 
-const checkboxStyles = cva(['w-5 h-5 border rounded-md flex items-center justify-center'], {
+const checkboxStyles = cva(['w-5 h-5 border rounded-md flex items-center justify-center overflow-hidden'], {
   variants: {
     variant: {
-      default: 'border-secondary',
-      checked: 'border-primary bg-primary',
+      default: 'border-content',
+      checked: 'border-content bg-content',
       error: 'border-red-600',
       checkedError: 'border-red-600 bg-red-600',
     },
@@ -31,7 +31,7 @@ export const Checkbox = ({ className, label, error, checked, onChange }: Checkbo
     )}
     onPress={() => onChange && onChange(!checked)}
   >
-    {checked && <Text className="text-white">✔</Text>}
+    {checked && <Text className="text-layer">✔</Text>}
     {label && <Text className="text-content text-base">{label}</Text>}
     {error && <Text className="text-red-600 text-base">{error}</Text>}
   </Pressable>
