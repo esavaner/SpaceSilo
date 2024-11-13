@@ -46,7 +46,7 @@ export default function FilesPage() {
     <View className="flex-1 bg-layer p-4">
       <Breadcrumb pathItems={currentPath.split('/')} handlePathClick={handlePathClick} />
       <FileList
-        items={data?.data as any[]}
+        items={data?.data}
         handleDirClick={handleDirClick}
         handleSelectItem={handleSelectItem}
         selectedItems={selectedItems}

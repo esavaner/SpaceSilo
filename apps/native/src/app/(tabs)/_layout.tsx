@@ -3,8 +3,9 @@ import React from 'react';
 import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
 import { FileIcon } from '@/assets/icons';
-import { useWindowDimensions } from 'react-native';
+import { useWindowDimensions, Platform } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
+
 const items: NavigationItemProps[] = [
   {
     label: 'Welcome',
@@ -13,13 +14,17 @@ const items: NavigationItemProps[] = [
   },
   {
     label: 'Files',
-    path: 'files',
+    path: 'files/index',
     icon: <FileIcon size={20} />,
     subitems: [
-      {
-        label: 'On device',
-        path: 'files/device',
-      },
+      ...(Platform.OS === 'web'
+        ? []
+        : [
+            {
+              label: 'On device',
+              path: 'files/local',
+            },
+          ]),
       {
         label: 'Remote',
         path: 'files/remote',
@@ -37,7 +42,7 @@ const items: NavigationItemProps[] = [
     subitems: [
       {
         label: 'On device',
-        path: 'files/device',
+        path: 'files/local',
       },
       {
         label: 'Remote',
@@ -63,7 +68,8 @@ export default function TabLayout() {
       drawerContent={(props) => <Navigation {...props} items={items} />}
       initialRouteName="files"
     >
-      <Drawer.Screen name="files" />
+      <Drawer.Screen name="files/index" />
+      <Drawer.Screen name="files/local" />
       <Drawer.Screen name="welcome" />
     </Drawer>
   );

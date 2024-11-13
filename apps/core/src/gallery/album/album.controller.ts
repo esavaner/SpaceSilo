@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AlbumService } from './album.service';
-import { CreateAlbumDto, UpdateAlbumDto } from '../_dto/album.dto';
+import { CreateAlbumDto, UpdateAlbumDto } from '../../_dto/album.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('album')

@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { TokenPayload } from 'src/auth/auth.types';
-import { CreatePhotoDto } from '../_dto/photo.dto';
+import { CreatePhotoDto } from '../../_dto/photo.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const sharp = require('sharp');
 

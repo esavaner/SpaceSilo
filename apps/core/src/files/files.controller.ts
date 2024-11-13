@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Req, Query, Patch } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, UpdateFileDto } from './_dto/files.dto';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, UpdateFileDto } from '../_dto/files.dto';
+import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth, AuthType } from 'src/auth/decorators/auth.decorator';
+import { FilesEntity } from 'src/_entity/files.entity';
 
 @ApiTags('files')
 @Controller('files')
@@ -13,6 +14,7 @@ export class FilesController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({ description: 'File created successfully' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateFileDto, @Req() request: Request) {
     const result = await this.filesService.create(dto, file, request['user']);
@@ -20,6 +22,7 @@ export class FilesController {
   }
 
   @Get()
+  @ApiOkResponse({ type: FilesEntity, isArray: true })
   findAll(@Query() dto: FindAllFilesDto) {
     return this.filesService.findAll(dto);
   }

@@ -5,9 +5,10 @@ import { fileSize } from '@/utils/common';
 import { EllipsisIcon, FolderIcon } from '@/assets/icons';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
+import { FilesEntity } from '@/api/generated';
 
 type FileListProps = {
-  items: any[];
+  items?: FilesEntity[];
   selectedItems: any[];
   handleDirClick: (name: string) => void;
   handleSelectItem: (item: any) => void;
@@ -33,7 +34,6 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
   ) : (
     <ScrollView className="w-full">
       {items?.map((item) => {
-        const isDirectory = item.type === 'directory';
         const isSelected = selectedItems.find((i) => i.name === item.name);
         return (
           <Pressable
@@ -42,7 +42,9 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
               'flex-row gap-4 px-3 py-1 mb-6 rounded items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
               isSelected && 'bg-layer-secondary'
             )}
-            onPress={() => (hasSelectedItems ? handleSelectItem(item) : isDirectory ? handleDirClick(item.name) : null)}
+            onPress={() =>
+              hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? handleDirClick(item.name) : null
+            }
             onLongPress={() => handleSelectItem(item)}
           >
             <Checkbox
@@ -54,8 +56,8 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
             <View>
               <Text className="leading-5">{item.name}</Text>
               <View className="flex-row gap-1">
-                {!isDirectory && <Text className="text-content-tertiary text-sm">{fileSize(item.size)},</Text>}
-                <Text className="text-content-tertiary text-sm">{getItemTime(item.createdAt)}</Text>
+                {!item.isDirectory && <Text className="text-content-tertiary text-sm">{fileSize(item.size)},</Text>}
+                <Text className="text-content-tertiary text-sm">{getItemTime(item.modificationTime)}</Text>
               </View>
             </View>
 

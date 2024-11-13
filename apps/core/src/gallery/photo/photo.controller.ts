@@ -14,7 +14,7 @@ import { PhotoService } from './photo.service';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
-import { CreatePhotoDto } from '../_dto/photo.dto';
+import { CreatePhotoDto } from '../../_dto/photo.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('photo')

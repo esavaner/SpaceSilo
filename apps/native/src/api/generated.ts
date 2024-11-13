@@ -36,12 +36,23 @@ export interface LoginDto {
 
 export interface RegisterDto {
   name: string;
+  /** @format email */
   email: string;
   password: string;
 }
 
 export interface CreateFileDto {
   path: string;
+}
+
+export interface FilesEntity {
+  name: string;
+  uri: string;
+  size: number;
+  /** @format date-time */
+  modificationTime: string;
+  isDirectory: boolean;
+  md5: string;
 }
 
 export type CreateNoteDto = object;
@@ -650,7 +661,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       },
       params: RequestParams = {}
     ) =>
-      this.request<CreatePhotoDto, any>({
+      this.request<FilesEntity[], any>({
         path: `/files`,
         method: 'GET',
         query: query,
