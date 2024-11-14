@@ -63,10 +63,10 @@ export default function TabLayout() {
     <Drawer
       screenOptions={{
         drawerType: width > 992 ? 'permanent' : 'slide',
-        sceneContainerStyle: { backgroundColor: 'transparent' },
+        drawerStyle: { backgroundColor: 'transparent' },
       }}
       drawerContent={(props) => <Navigation {...props} items={items} />}
-      initialRouteName="files"
+      initialRouteName="files/index"
     >
       <Drawer.Screen name="files/index" />
       <Drawer.Screen name="files/local" />
