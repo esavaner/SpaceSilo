@@ -38,7 +38,7 @@ export const Dropdown = ({ className, trigger, width = 150, children }: Dropdown
             onPress={() => setVisible(false)}
           >
             <View
-              className={`absolute bg-content rounded-md shadow-md ${className}`}
+              className={`absolute bg-layer rounded-md shadow-md ${className}`}
               style={{
                 top: position.y,
                 left: position.x + position.width / 2 - width / 2,

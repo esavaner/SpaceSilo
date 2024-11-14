@@ -6,7 +6,6 @@ import 'react-native-reanimated';
 
 import '@/i18n';
 import '../styles.css';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -30,31 +29,29 @@ export default function RootLayout() {
 
   return (
     <QueryProvider>
-      <ThemeProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <Stack
-            screenOptions={{
-              contentStyle: {
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack
+          screenOptions={{
+            contentStyle: {
+              backgroundColor: 'var(--color-background)',
+            },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="login/index"
+            options={{
+              title: 'Login',
+              headerTintColor: 'var(--color-text)',
+              headerStyle: {
                 backgroundColor: 'var(--color-background)',
               },
+              navigationBarHidden: true,
             }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="login/index"
-              options={{
-                title: 'Login',
-                headerTintColor: 'var(--color-text)',
-                headerStyle: {
-                  backgroundColor: 'var(--color-background)',
-                },
-                navigationBarHidden: true,
-              }}
-            />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </GestureHandlerRootView>
-      </ThemeProvider>
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </GestureHandlerRootView>
     </QueryProvider>
   );
 }
