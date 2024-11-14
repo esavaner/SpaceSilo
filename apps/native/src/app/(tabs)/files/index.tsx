@@ -1,6 +1,7 @@
 import { Api } from '@/api/api';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { FileList } from '@/components/FileList/FileList';
+import { Dropdown, Text } from '@repo/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
@@ -51,6 +52,9 @@ export default function FilesPage() {
         handleSelectItem={handleSelectItem}
         selectedItems={selectedItems}
       />
+      <Dropdown trigger={<Text>Click</Text>}>
+        <Text>ABC</Text>
+      </Dropdown>
     </View>
   );
 }

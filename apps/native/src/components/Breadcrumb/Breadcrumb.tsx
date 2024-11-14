@@ -18,9 +18,9 @@ export const Breadcrumb = ({ pathItems, handlePathClick }: BreadcrumbProps) => {
   };
 
   return (
-    <View className="flex flex-row items-center gap-3">
+    <View className="flex flex-row items-center gap-2 h-8">
       {pathItems.map((item, index) => (
-        <Pressable key={index} className="flex flex-row items-center gap-3" onPress={() => handleItemClick(index)}>
+        <Pressable key={index} className="flex flex-row items-center gap-2" onPress={() => handleItemClick(index)}>
           {index !== 0 && <NavigateNextIcon />}
           <Text className="text-content-tertiary hover:text-content hover:underline">
             {index === 0 ? t('files.homeDir') : item}

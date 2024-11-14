@@ -29,8 +29,11 @@ export class FilesService {
       return files.map((file) => {
         const filePath = path.join(fileDir, file);
         const stats = fs.statSync(filePath);
-        const fileBuffer = fs.readFileSync(filePath);
-        const md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+        let md5Hash = '';
+        if (stats.isFile()) {
+          const fileBuffer = fs.readFileSync(filePath);
+          md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+        }
         return {
           name: file,
           uri: filePath,
