@@ -5,16 +5,16 @@
   "scripts": {},
   "dependencies": {
     "class-variance-authority": "^0.7.0",
-    "nativewind": "catalog:",
-    "react": "catalog:react18",
-    "react-native": "catalog:react18",
+    "nativewind": "^4.0.36",
+    "react": "^18.3.1",
+    "react-native": "^0.75.3",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@repo/tailwind": "workspace:*",
     "@repo/tsconfig": "workspace:*",
-    "@types/react": "catalog:react18",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "@types/react": "^18.3.3",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
   }
 }

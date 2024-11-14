@@ -14,14 +14,14 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "nativewind": "catalog:",
+    "nativewind": "^4.0.36",
     "postcss": "^8.4.47",
-    "tailwindcss": "catalog:",
+    "tailwindcss": "^3.4.10",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/react": "catalog:react18",
-    "typescript": "catalog:"
+    "@types/react": "^18.3.3",
+    "typescript": "^5.5.4"
   }
 }

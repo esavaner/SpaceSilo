@@ -10,25 +10,25 @@
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
-    "@tanstack/react-query": "catalog:",
-    "@trpc/client": "catalog:",
-    "@trpc/react-query": "catalog:",
-    "next": "catalog:react18",
-    "react": "catalog:react18",
-    "react-dom": "catalog:react18",
-    "react-native-web": "catalog:react18"
+    "@tanstack/react-query": "^5.59.13",
+    "@trpc/client": "^11.0.0-rc.477",
+    "@trpc/react-query": "^11.0.0-rc.477",
+    "next": "^14.2.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-native-web": "^0.19.10"
   },
   "devDependencies": {
     "@repo/api": "workspace:*",
     "@repo/tailwind": "workspace:*",
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "@types/react": "catalog:react18",
-    "@types/react-dom": "catalog:react18",
-    "eslint": "catalog:",
+    "@types/node": "^20.16.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.9.0",
     "eslint-config-next": "14.2.15",
     "postcss": "^8.4.47",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
   }
 }
