@@ -2,8 +2,7 @@
   "name": "@repo/tailwind",
   "version": "0.0.0",
   "exports": {
-    "./config": "./config.ts",
-    "./themes": "./themes.ts"
+    "./config": "./config.ts"
   },
   "type": "module",
   "scripts": {

@@ -52,9 +52,6 @@ export default function FilesPage() {
         handleSelectItem={handleSelectItem}
         selectedItems={selectedItems}
       />
-      <Dropdown trigger={<Text>Click</Text>}>
-        <Text>ABC</Text>
-      </Dropdown>
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from './fileIcons';
-import { Checkbox, cn, Text } from '@repo/ui';
+import { Checkbox, cn, Dropdown, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { EllipsisIcon, FolderIcon } from '@/assets/icons';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -61,7 +61,9 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
               </View>
             </View>
 
-            <EllipsisIcon className="text-content ml-auto" />
+            <Dropdown trigger={<EllipsisIcon />} className="ml-auto">
+              <Text>ABC</Text>
+            </Dropdown>
           </Pressable>
         );
       })}
