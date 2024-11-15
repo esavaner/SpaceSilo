@@ -45,7 +45,7 @@ export interface CreateFileDto {
   path: string;
 }
 
-export interface FilesEntity {
+export interface FileEntity {
   name: string;
   uri: string;
   size: number;
@@ -661,7 +661,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       },
       params: RequestParams = {}
     ) =>
-      this.request<FilesEntity[], any>({
+      this.request<FileEntity[], any>({
         path: `/files`,
         method: 'GET',
         query: query,
@@ -673,10 +673,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * No description
      *
      * @tags files
-     * @name FilesControllerUpdate
+     * @name FilesControllerMove
      * @request PATCH:/files
      */
-    filesControllerUpdate: (
+    filesControllerMove: (
       query: {
         path: string;
         newPath: string;

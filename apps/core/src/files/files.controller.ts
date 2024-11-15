@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Req, Query, Patch } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, UpdateFileDto } from '../_dto/files.dto';
+import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, MoveFileDto } from '../_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth, AuthType } from 'src/auth/decorators/auth.decorator';
-import { FilesEntity } from 'src/_entity/files.entity';
+import { FileEntity } from 'src/_entity/files.entity';
 
 @ApiTags('files')
 @Controller('files')
@@ -22,7 +22,7 @@ export class FilesController {
   }
 
   @Get()
-  @ApiOkResponse({ type: FilesEntity, isArray: true })
+  @ApiOkResponse({ type: FileEntity, isArray: true })
   findAll(@Query() dto: FindAllFilesDto) {
     return this.filesService.findAll(dto);
   }
@@ -33,8 +33,8 @@ export class FilesController {
   }
 
   @Patch()
-  update(@Query() dto: UpdateFileDto) {
-    return this.filesService.update(dto);
+  move(@Query() dto: MoveFileDto) {
+    return this.filesService.move(dto);
   }
 
   @Delete()

@@ -4,7 +4,7 @@ export class CreateFileDto {
   path: string;
 }
 
-export class UpdateFileDto extends CreateFileDto {
+export class MoveFileDto extends CreateFileDto {
   newPath: string;
 }
 

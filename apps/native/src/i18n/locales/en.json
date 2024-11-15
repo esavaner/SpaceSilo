@@ -2,5 +2,13 @@
   "files": {
     "title": "Files",
     "homeDir": "Home"
+  },
+  "dropdown": {
+    "info": "Info",
+    "share": "Share",
+    "rename": "Rename",
+    "copy": "Copy",
+    "move": "Move",
+    "delete": "Delete"
   }
 }

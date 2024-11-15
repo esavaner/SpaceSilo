@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilesEntity {
+export class FileEntity {
   @ApiProperty()
   name: string;
 

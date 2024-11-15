@@ -1,14 +1,15 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from './fileIcons';
-import { Checkbox, cn, Dropdown, Text } from '@repo/ui';
+import { Checkbox, cn, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
-import { EllipsisIcon, FolderIcon } from '@/assets/icons';
+import { FolderIcon } from '@/assets/icons';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
-import { FilesEntity } from '@/api/generated';
+import { FileEntity } from '@/api/generated';
+import { FileOptionsDropdown } from '../dropdowns/FileOptionsDropdown';
 
 type FileListProps = {
-  items?: FilesEntity[];
+  items?: FileEntity[];
   selectedItems: any[];
   handleDirClick: (name: string) => void;
   handleSelectItem: (item: any) => void;
@@ -61,9 +62,7 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
               </View>
             </View>
 
-            <Dropdown trigger={<EllipsisIcon />} className="ml-auto">
-              <Text>ABC</Text>
-            </Dropdown>
+            <FileOptionsDropdown />
           </Pressable>
         );
       })}
