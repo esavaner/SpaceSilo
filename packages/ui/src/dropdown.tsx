@@ -8,6 +8,7 @@ export type DropdownProps = {
   modalClassName?: string;
   children?: React.ReactNode;
   trigger: React.ReactNode;
+  visible?: boolean;
 };
 
 const FLIP_POINT = 0.65;
@@ -59,7 +60,7 @@ export const Dropdown = ({ className, modalClassName, trigger, children }: Dropd
       </Pressable>
       {visible && (
         <Modal visible={visible} onRequestClose={() => setVisible(false)} transparent={true} animationType="fade">
-          <Pressable className="flex-1 bg-transparent relative" onPress={() => setVisible(false)}>
+          <Pressable className="flex-1 bg-transparent relative" onPressIn={() => setVisible(false)}>
             <View
               className={cn('absolute bg-layer-secondary rounded shadow-md min-w-28', modalClassName)}
               style={{

@@ -62,7 +62,7 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
               </View>
             </View>
 
-            <FileOptionsDropdown />
+            <FileOptionsDropdown file={item} />
           </Pressable>
         );
       })}

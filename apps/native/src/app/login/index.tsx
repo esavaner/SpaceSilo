@@ -20,7 +20,7 @@ export default function LoginPage() {
     mutationKey: ['login'],
     mutationFn: Api.auth.authControllerLogin,
     onSuccess: () => {
-      router.push('/');
+      router.push('/files');
     },
   });
 
