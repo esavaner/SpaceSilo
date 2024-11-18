@@ -10,5 +10,6 @@
     "copy": "Copy",
     "move": "Move",
     "delete": "Delete"
-  }
+  },
+  "renameFile": "Rename file"
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal as RModal, View, Pressable } from 'react-native';
+import { Modal as RModal, View, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { CloseIcon } from './icons';
 import { useUi } from './UiProvider';
 import { cn } from './cn';
@@ -23,18 +23,26 @@ export const Modal = ({ id, title, children, noLayout }: ModalProps) => {
 
   return visible ? (
     <RModal transparent visible animationType="fade" onRequestClose={onClose}>
-      <Pressable className={cn('flex-1 items-center justify-center relative')} onPressIn={onClose}>
-        {noLayout ? (
-          children
-        ) : (
-          <View className="rounded bg-layer-secondary min-w-48 min-h-36 p-3">
-            <Pressable onPress={onClose}>
-              <Text>{title}</Text>
-              <CloseIcon className="ml-auto text-content" />
-            </Pressable>
-            {children}
-          </View>
-        )}
+      <Pressable
+        className={cn('flex-1 items-center justify-center relative', !noLayout && 'bg-black/60')}
+        onPress={onClose}
+      >
+        <TouchableWithoutFeedback>
+          {noLayout ? (
+            children
+          ) : (
+            <View className="rounded bg-layer-secondary min-w-48 min-h-36 p-4">
+              <View className="flex flex-row mb-3">
+                <Text className="text-lg">{title}</Text>
+                <Pressable onPress={onClose} className="ml-auto w-8">
+                  <CloseIcon />
+                </Pressable>
+              </View>
+
+              {children}
+            </View>
+          )}
+        </TouchableWithoutFeedback>
       </Pressable>
     </RModal>
   ) : (

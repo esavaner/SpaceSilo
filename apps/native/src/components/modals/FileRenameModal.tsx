@@ -1,12 +1,13 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { Button, Input, Modal } from '@repo/ui';
+import { Button, Input, Modal, ModalProps } from '@repo/ui';
 import { useMutation } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
 
-type FileRenameModalProps = {
+type FileRenameModalProps = ModalProps & {
   file: FileEntity;
 };
 
@@ -16,7 +17,8 @@ const schema = yup.object().shape({
 
 type RenameForm = yup.InferType<typeof schema>;
 
-export const FileRenameModal = ({ file }: FileRenameModalProps) => {
+export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
+  const { t } = useTranslation();
   const { mutate: rename } = useMutation({
     mutationKey: ['files', 'rename'],
     mutationFn: Api.files.filesControllerMove,
@@ -39,7 +41,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   };
 
   return (
-    <Modal id="file-rename-modal">
+    <Modal id={id} title={t('renameFile')}>
       <Controller
         control={control}
         render={({ field }) => (
