@@ -1,12 +1,13 @@
-import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
-
 import { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, View, Text } from 'react-native';
 import { readDirectoryAsync, documentDirectory, getInfoAsync, FileInfo } from 'expo-file-system';
+import { Breadcrumb } from '@repo/ui';
+import { useTranslation } from 'react-i18next';
 
 type FileItem = Extract<FileInfo, { exists: true }> & { name: string };
 
 export default function FilesLocalPage() {
+  const { t } = useTranslation();
   const [currentPath, setCurrentPath] = useState(documentDirectory || '');
   const [items, setItems] = useState<FileItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
@@ -73,14 +74,11 @@ export default function FilesLocalPage() {
 
   return (
     <View className="flex-1 bg-layer p-4">
-      <Breadcrumb pathItems={currentPath.split('/')} handlePathClick={handlePathClick} />
-      {/* <FileList
-        items={data?.data as any[]}
-        handleDirClick={handleDirClick}
-        handleSelectItem={handleSelectItem}
-        selectedItems={selectedItems}
-      /> */}
-
+      <Breadcrumb
+        pathItems={currentPath.split('/')}
+        handlePathClick={handlePathClick}
+        homeDirName={t('files.homeDir')}
+      />
       <FlatList data={items} keyExtractor={(item) => item.uri} renderItem={renderItem} />
     </View>
   );

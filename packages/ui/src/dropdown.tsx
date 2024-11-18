@@ -1,9 +1,12 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Modal, Pressable, View, Dimensions } from 'react-native';
+import { Pressable, View, Dimensions } from 'react-native';
 import { cn } from './cn';
+import { Modal } from './modal';
+import { useUi } from './UiProvider';
 
 export type DropdownProps = {
+  id: string;
   className?: string;
   modalClassName?: string;
   children?: React.ReactNode;
@@ -13,9 +16,11 @@ export type DropdownProps = {
 
 const FLIP_POINT = 0.65;
 
-export const Dropdown = ({ className, modalClassName, trigger, children }: DropdownProps) => {
+export const Dropdown = ({ id, className, modalClassName, trigger, children }: DropdownProps) => {
+  const { currentModal, setCurrentModal } = useUi();
+
+  const visible = currentModal === id;
   const triggerRef = useRef<View>(null);
-  const [visible, setVisible] = useState(false);
   const [triggerPos, setTriggerPos] = useState({
     tx: 0,
     ty: 0,
@@ -26,6 +31,10 @@ export const Dropdown = ({ className, modalClassName, trigger, children }: Dropd
     flipX: false,
     flipY: false,
   });
+
+  const toggleVisible = () => {
+    setCurrentModal(visible ? undefined : id);
+  };
 
   useEffect(() => {
     if (triggerRef.current && visible) {
@@ -53,26 +62,22 @@ export const Dropdown = ({ className, modalClassName, trigger, children }: Dropd
           'hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
           className
         )}
-        onPress={() => setVisible(true)}
+        onPress={toggleVisible}
         ref={triggerRef}
       >
         {trigger}
       </Pressable>
-      {visible && (
-        <Modal visible={visible} onRequestClose={() => setVisible(false)} transparent={true} animationType="fade">
-          <Pressable className="flex-1 bg-transparent relative" onPressIn={() => setVisible(false)}>
-            <View
-              className={cn('absolute bg-layer-secondary rounded shadow-md min-w-28', modalClassName)}
-              style={{
-                ...(triggerPos.flipX ? { right: triggerPos.bx - triggerPos.width } : { left: triggerPos.tx }),
-                ...(triggerPos.flipY ? { bottom: triggerPos.by } : { top: triggerPos.ty + triggerPos.height }),
-              }}
-            >
-              {children}
-            </View>
-          </Pressable>
-        </Modal>
-      )}
+      <Modal id={id} noLayout>
+        <View
+          className={cn('absolute bg-layer-secondary rounded shadow-md min-w-24', modalClassName)}
+          style={{
+            ...(triggerPos.flipX ? { right: triggerPos.bx - triggerPos.width } : { left: triggerPos.tx }),
+            ...(triggerPos.flipY ? { bottom: triggerPos.by } : { top: triggerPos.ty + triggerPos.height }),
+          }}
+        >
+          {children}
+        </View>
+      </Modal>
     </>
   );
 };

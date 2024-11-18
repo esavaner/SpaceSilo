@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
-import { FileIcon } from '@/assets/icons';
 import { useWindowDimensions, Platform } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
+import { FileIcon } from '@repo/ui';
 
 const items: NavigationItemProps[] = [
   {

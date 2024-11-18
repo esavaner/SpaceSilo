@@ -6,7 +6,7 @@ export default function Web() {
   return (
     <div>
       <h1>Web</h1>
-      <Button onClick={() => console.log('Pressed!')} text="Boop" />
+      <Button onPress={() => console.log('Pressed!')}>Boop</Button>
     </div>
   );
 }

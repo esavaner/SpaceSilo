@@ -1,4 +1,4 @@
-import { FileIcon } from '@/assets/icons';
+import { FileIcon } from '@repo/ui';
 
 export const fileIcons = {
   gif: <FileIcon />,

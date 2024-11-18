@@ -1,13 +1,14 @@
 import { Api } from '@/api/api';
-import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { FileList } from '@/components/FileList/FileList';
-import { Dropdown, Text } from '@repo/ui';
+import { Breadcrumb } from '@repo/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 export default function FilesPage() {
+  const { t } = useTranslation();
   const { path } = useLocalSearchParams<{ path?: string }>();
   const [currentPath, setCurrentPath] = useState(path || '');
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
@@ -45,7 +46,11 @@ export default function FilesPage() {
 
   return (
     <View className="flex-1 bg-layer p-4">
-      <Breadcrumb pathItems={currentPath.split('/')} handlePathClick={handlePathClick} />
+      <Breadcrumb
+        pathItems={currentPath.split('/')}
+        handlePathClick={handlePathClick}
+        homeDirName={t('files.homeDir')}
+      />
       <FileList
         items={data?.data}
         handleDirClick={handleDirClick}

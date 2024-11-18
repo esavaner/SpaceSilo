@@ -1,17 +1,15 @@
 import { Pressable, View } from 'react-native';
-import { Text } from '@repo/ui';
-import { useTranslation } from 'react-i18next';
 import React from 'react';
-import { NavigateNextIcon } from '@/assets/icons';
+import { NavigateNextIcon } from './icons';
+import { Text } from './text';
 
 type BreadcrumbProps = {
   pathItems: string[];
   handlePathClick: (newPath: string) => void;
+  homeDirName?: string;
 };
 
-export const Breadcrumb = ({ pathItems, handlePathClick }: BreadcrumbProps) => {
-  const { t } = useTranslation();
-
+export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: BreadcrumbProps) => {
   const handleItemClick = (index: number) => {
     const newPath = pathItems.slice(0, index + 1).join('/');
     handlePathClick(newPath);
@@ -23,7 +21,7 @@ export const Breadcrumb = ({ pathItems, handlePathClick }: BreadcrumbProps) => {
         <Pressable key={index} className="flex flex-row items-center gap-2" onPress={() => handleItemClick(index)}>
           {index !== 0 && <NavigateNextIcon />}
           <Text className="text-content-tertiary hover:text-content hover:underline">
-            {index === 0 ? t('files.homeDir') : item}
+            {index === 0 ? homeDirName : item}
           </Text>
         </Pressable>
       ))}

@@ -1,8 +1,7 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from './fileIcons';
-import { Checkbox, cn, Text } from '@repo/ui';
+import { Checkbox, cn, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
-import { FolderIcon } from '@/assets/icons';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';

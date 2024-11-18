@@ -1,7 +1,16 @@
 import { FileEntity } from '@/api/generated';
-import { CopyIcon, EditIcon, EllipsisIcon, InfoIcon, MoveIcon, ShareIcon, TrashIcon } from '@/assets/icons';
-import { Dropdown, Text } from '@repo/ui';
-import { useState } from 'react';
+import {
+  CopyIcon,
+  Dropdown,
+  EditIcon,
+  EllipsisIcon,
+  InfoIcon,
+  MoveIcon,
+  ShareIcon,
+  Text,
+  TrashIcon,
+  useUi,
+} from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 import { FileRenameModal } from '../modals/FileRenameModal';
@@ -12,12 +21,12 @@ type FileOptionsDropdownProps = {
 
 export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   const { t } = useTranslation();
-  const [visible, setVisible] = useState(false);
+  const { setCurrentModal } = useUi();
 
   const items = [
     { title: t('dropdown.info'), icon: <InfoIcon />, onPress: () => {} },
     { title: t('dropdown.share'), icon: <ShareIcon />, onPress: () => {} },
-    { title: t('dropdown.rename'), icon: <EditIcon />, onPress: () => setVisible(true) },
+    { title: t('dropdown.rename'), icon: <EditIcon />, onPress: () => setCurrentModal('file-rename-modal') },
     { title: t('dropdown.copy'), icon: <CopyIcon />, onPress: () => {} },
     { title: t('dropdown.move'), icon: <MoveIcon />, onPress: () => {} },
     { title: t('dropdown.delete'), icon: <TrashIcon className="text-red-600" />, onPress: () => {} },
@@ -25,7 +34,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
 
   return (
     <>
-      <Dropdown trigger={<EllipsisIcon />} className="ml-auto">
+      <Dropdown id={file.name} trigger={<EllipsisIcon />} className="ml-auto">
         {items.map((item) => (
           <Pressable
             key={item.title}
@@ -37,7 +46,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
           </Pressable>
         ))}
       </Dropdown>
-      <FileRenameModal visible={visible} onClose={() => setVisible(false)} file={file} />
+      <FileRenameModal file={file} />
     </>
   );
 };

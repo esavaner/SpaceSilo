@@ -1,7 +1,6 @@
-import { cn, Text } from '@repo/ui';
+import { ChevronRightIcon, cn, Text } from '@repo/ui';
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
-import { ChevronRightIcon } from '@/assets/icons';
 
 type Item = {
   label: string;

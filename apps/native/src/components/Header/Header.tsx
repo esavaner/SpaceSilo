@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Text } from '@repo/ui';
-import { MenuIcon, PersonIcon, SearchIcon } from '@/assets/icons';
+import { MenuIcon, PersonIcon, SearchIcon, Text } from '@repo/ui';
 
 type HeaderProps = {
   title?: string;
