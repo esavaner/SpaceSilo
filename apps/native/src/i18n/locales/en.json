@@ -7,9 +7,10 @@
     "info": "Info",
     "share": "Share",
     "rename": "Rename",
-    "copy": "Copy",
     "move": "Move",
-    "delete": "Delete"
+    "copy": "Copy",
+    "remove": "Remove"
   },
-  "renameFile": "Rename file"
+  "renameItem": "Rename item",
+  "removeItem": "Remove item"
 }

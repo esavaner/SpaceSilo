@@ -31,7 +31,7 @@ export const Modal = ({ id, title, children, noLayout }: ModalProps) => {
           {noLayout ? (
             children
           ) : (
-            <View className="rounded bg-layer-secondary min-w-48 min-h-36 p-4">
+            <View className="rounded-md bg-layer-secondary min-w-48 min-h-36 p-4">
               <View className="flex flex-row mb-3">
                 <Text className="text-lg">{title}</Text>
                 <Pressable onPress={onClose} className="ml-auto w-8">

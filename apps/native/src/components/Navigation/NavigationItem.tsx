@@ -14,7 +14,7 @@ export type NavigationItemProps = Item & {
 };
 
 const itemStyles =
-  'py-1 pl-3 pr-2 mb-1 rounded flex-1 flex-row items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary';
+  'py-1 pl-3 pr-2 mb-1 rounded-md flex-1 flex-row items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary';
 
 export const NavigationItem = ({ label, path, onPress, icon, subitems }: NavigationItemProps) => {
   const [isOpen, setIsOpen] = useState(true);

@@ -19,8 +19,8 @@ type RenameForm = yup.InferType<typeof schema>;
 
 export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
   const { t } = useTranslation();
-  const { setCurrentModal } = useUi();
   const queryClient = useQueryClient();
+  const { setCurrentModal, toast } = useUi();
 
   const { mutate: rename } = useMutation({
     mutationKey: ['rename', file.uri],
@@ -28,6 +28,7 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
     onSuccess: () => {
       setCurrentModal(undefined);
       queryClient.invalidateQueries({ queryKey: ['files'] });
+      toast.success('File renamed'); // @TODO add translations
     },
   });
 
@@ -49,7 +50,7 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
   };
 
   return (
-    <Modal id={id} title={t('renameFile')}>
+    <Modal id={id} title={t('renameItem')}>
       <Controller
         control={control}
         render={({ field }) => (
@@ -64,7 +65,7 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
         name="newPath"
       />
       <Button variant="primary" onPress={handleSubmit(onSubmit)} className="w-full">
-        Login
+        Rename
       </Button>
     </Modal>
   );

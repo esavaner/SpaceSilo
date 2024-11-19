@@ -29,7 +29,10 @@ cssInterop(Fa6Icon, {
   },
 });
 
+export const AlertOctagonIcon = (p: IconProps) => <FIcon name="alert-octagon" {...d} {...p} />;
+export const AlertTriangleIcon = (p: IconProps) => <FIcon name="alert-triangle" {...d} {...p} />;
 export const AddIcon = (p: IconProps) => <FIcon name="plus" {...d} {...p} />;
+export const CheckCircleIcon = (p: IconProps) => <FIcon name="check-circle" {...d} {...p} />;
 export const ChevronRightIcon = (p: IconProps) => <FIcon name="chevron-right" {...d} {...p} />;
 export const CloseIcon = (p: IconProps) => <FIcon name="x" {...d} {...p} />;
 export const CopyIcon = (p: IconProps) => <FIcon name="copy" {...d} {...p} />;

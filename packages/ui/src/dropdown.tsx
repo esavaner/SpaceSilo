@@ -58,7 +58,7 @@ export const Dropdown = ({ id, className, modalClassName, trigger, children }: D
     <>
       <Pressable
         className={cn(
-          'w-min min-w-8 min-h-8 items-center justify-center rounded',
+          'w-min min-w-8 min-h-8 items-center justify-center rounded-md',
           'hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
           className
         )}
@@ -69,7 +69,7 @@ export const Dropdown = ({ id, className, modalClassName, trigger, children }: D
       </Pressable>
       <Modal id={id} noLayout>
         <View
-          className={cn('absolute bg-layer-secondary rounded shadow-md min-w-24', modalClassName)}
+          className={cn('absolute bg-layer-secondary rounded-md shadow-md min-w-24', modalClassName)}
           style={{
             ...(triggerPos.flipX ? { right: triggerPos.bx - triggerPos.width } : { left: triggerPos.tx }),
             ...(triggerPos.flipY ? { bottom: triggerPos.by } : { top: triggerPos.ty + triggerPos.height }),

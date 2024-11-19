@@ -12,9 +12,10 @@ type FileListProps = {
   selectedItems: any[];
   handleDirClick: (name: string) => void;
   handleSelectItem: (item: any) => void;
+  className?: string;
 };
 
-export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItems }: FileListProps) => {
+export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItems, className }: FileListProps) => {
   const getIcon = (item: any) => {
     if (item.type === 'directory') return <FolderIcon />;
     const ext = item.name.split('.').pop().toLowerCase();
@@ -32,14 +33,14 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
   return items?.length === 0 ? (
     <Text className="text-center">No files</Text>
   ) : (
-    <ScrollView className="w-full">
+    <ScrollView className={cn('flex-1 w-full', className)}>
       {items?.map((item) => {
         const isSelected = selectedItems.find((i) => i.uri === item.uri);
         return (
           <Pressable
             key={item.name}
             className={cn(
-              'flex-row gap-4 px-4 py-3 mb-2 rounded items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
+              'flex-row gap-4 px-4 py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
               isSelected && 'bg-layer-secondary'
             )}
             onPress={() =>
