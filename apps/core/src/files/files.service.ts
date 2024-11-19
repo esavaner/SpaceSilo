@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException, Streamable
 import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, MoveFileDto } from '../_dto/files.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import * as fs from 'fs';
+import { moveSync } from 'fs-extra';
 import * as path from 'path';
 import { FileEntity } from 'src/_entity/files.entity';
 import * as crypto from 'crypto';
@@ -19,7 +20,7 @@ export class FilesService {
   }
 
   findAll(dto: FindAllFilesDto): FileEntity[] | NotFoundException | InternalServerErrorException {
-    const fileDir = path.join(process.env.FILES_PATH, dto?.path || '');
+    const fileDir = path.join(process.env.FILES_PATH, dto.path || '');
     if (!fs.existsSync(fileDir)) {
       return new NotFoundException('Path not found');
     }
@@ -36,7 +37,7 @@ export class FilesService {
         }
         return {
           name: file,
-          uri: filePath,
+          uri: path.join(dto.path || '', file),
           size: stats.size,
           modificationTime: stats.mtime,
           isDirectory: stats.isDirectory(),
@@ -72,7 +73,7 @@ export class FilesService {
 
     try {
       const newFilePath = path.join(process.env.FILES_PATH, dto.newPath);
-      fs.renameSync(filePath, newFilePath);
+      moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
       return { message: `File ${filePath} successfully moved to ${newFilePath}` };
     } catch (error) {
       throw new InternalServerErrorException(error);

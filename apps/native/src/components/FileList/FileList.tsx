@@ -34,12 +34,12 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
   ) : (
     <ScrollView className="w-full">
       {items?.map((item) => {
-        const isSelected = selectedItems.find((i) => i.name === item.name);
+        const isSelected = selectedItems.find((i) => i.uri === item.uri);
         return (
           <Pressable
             key={item.name}
             className={cn(
-              'flex-row gap-4 px-3 py-1 mb-6 rounded items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
+              'flex-row gap-4 px-4 py-3 mb-2 rounded items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
               isSelected && 'bg-layer-secondary'
             )}
             onPress={() =>

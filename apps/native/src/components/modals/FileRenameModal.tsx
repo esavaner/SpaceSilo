@@ -1,7 +1,7 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { Button, Input, Modal, ModalProps } from '@repo/ui';
-import { useMutation } from '@tanstack/react-query';
+import { Button, Input, Modal, ModalProps, useUi } from '@repo/ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -19,9 +19,16 @@ type RenameForm = yup.InferType<typeof schema>;
 
 export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
   const { t } = useTranslation();
+  const { setCurrentModal } = useUi();
+  const queryClient = useQueryClient();
+
   const { mutate: rename } = useMutation({
-    mutationKey: ['files', 'rename'],
+    mutationKey: ['rename', file.uri],
     mutationFn: Api.files.filesControllerMove,
+    onSuccess: () => {
+      setCurrentModal(undefined);
+      queryClient.invalidateQueries({ queryKey: ['files'] });
+    },
   });
 
   const {
@@ -36,8 +43,9 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
   });
 
   const onSubmit = (values: RenameForm) => {
-    console.log(values, file);
-    // rename({ path: file.uri, newPath: values.newPath });
+    const lastIndexOf = file.uri.lastIndexOf(file.name);
+    const newPath = `${file.uri.slice(0, lastIndexOf)}${values.newPath}`;
+    rename({ path: file.uri, newPath });
   };
 
   return (
@@ -49,7 +57,7 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
             onBlur={field.onBlur}
             value={field.value}
             onChangeText={field.onChange}
-            label="Server URL"
+            onKeyPress={(e) => e.nativeEvent.key === 'Enter' && handleSubmit(onSubmit)()}
             error={errors.newPath?.message}
           />
         )}
