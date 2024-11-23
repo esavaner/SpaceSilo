@@ -4,6 +4,7 @@ import { CloseIcon } from './icons';
 import { useUi } from './UiProvider';
 import { cn } from './cn';
 import { Text } from './text';
+import { Button } from './button';
 
 export type ModalProps = {
   id: string;
@@ -34,9 +35,9 @@ export const Modal = ({ id, title, children, noLayout }: ModalProps) => {
             <View className="rounded-md bg-layer-secondary min-w-48 min-h-36 p-4">
               <View className="flex flex-row mb-3">
                 <Text className="text-lg">{title}</Text>
-                <Pressable onPress={onClose} className="ml-auto w-8">
+                <Button onPress={onClose} className="ml-auto" variant="text">
                   <CloseIcon />
-                </Pressable>
+                </Button>
               </View>
 
               {children}

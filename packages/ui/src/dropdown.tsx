@@ -1,9 +1,10 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, View, Dimensions } from 'react-native';
+import { View, Dimensions } from 'react-native';
 import { cn } from './cn';
 import { Modal } from './modal';
 import { useUi } from './UiProvider';
+import { Button } from './button';
 
 export type DropdownProps = {
   id: string;
@@ -56,17 +57,9 @@ export const Dropdown = ({ id, className, modalClassName, trigger, children }: D
 
   return (
     <>
-      <Pressable
-        className={cn(
-          'w-min min-w-8 min-h-8 items-center justify-center rounded-md',
-          'hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
-          className
-        )}
-        onPress={toggleVisible}
-        ref={triggerRef}
-      >
+      <Button className={cn(className)} onPress={toggleVisible} variant="text" ref={triggerRef}>
         {trigger}
-      </Pressable>
+      </Button>
       <Modal id={id} noLayout>
         <View
           className={cn('absolute bg-layer-secondary rounded-md shadow-md min-w-24', modalClassName)}

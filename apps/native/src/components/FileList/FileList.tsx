@@ -9,16 +9,16 @@ import { FileOptionsDropdown } from '../dropdowns/FileOptionsDropdown';
 
 type FileListProps = {
   items?: FileEntity[];
-  selectedItems: any[];
+  selectedItems: FileEntity[];
   handleDirClick: (name: string) => void;
-  handleSelectItem: (item: any) => void;
+  handleSelectItem: (item: FileEntity) => void;
   className?: string;
 };
 
 export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItems, className }: FileListProps) => {
-  const getIcon = (item: any) => {
-    if (item.type === 'directory') return <FolderIcon />;
-    const ext = item.name.split('.').pop().toLowerCase();
+  const getIcon = (item: FileEntity) => {
+    if (item.isDirectory) return <FolderIcon />;
+    const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
     return fileIcons[ext as keyof typeof fileIcons] || <FolderIcon />;
   };
 
@@ -40,7 +40,7 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
           <Pressable
             key={item.name}
             className={cn(
-              'flex-row gap-4 px-4 py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary',
+              'flex-row gap-4 px-4 py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary',
               isSelected && 'bg-layer-secondary'
             )}
             onPress={() =>
@@ -50,7 +50,7 @@ export const FileList = ({ items, handleDirClick, handleSelectItem, selectedItem
           >
             <Checkbox
               className={cn('md:flex', hasSelectedItems ? 'flex' : 'hidden')}
-              checked={isSelected}
+              checked={!!isSelected}
               onChange={() => handleSelectItem(item)}
             />
             <Text className="text-3xl">{getIcon(item)}</Text>

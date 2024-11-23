@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, PressableProps } from 'react-native';
+import React, { forwardRef } from 'react';
+import { Pressable, PressableProps, View } from 'react-native';
 import { cn } from './cn';
 import { cva } from 'class-variance-authority';
 import { Text } from './text';
@@ -20,16 +20,20 @@ const buttonStyles = cva(['border rounded-md text-black min-w-8 min-h-8 flex ite
     variant: {
       primary: '',
       outline: 'bg-transparent text-content hover:text-black ',
-      text: 'border-none bg-transparent text-content hover:bg-layer-secondary focus:bg-layer-secondary',
+      text: 'w-min border-none bg-transparent text-content hover:bg-layer-tertiary focus:bg-layer',
       link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary focus:bg-layer-secondary',
     },
   },
 });
 
-export function Button({ variant = 'primary', color = 'primary', className, children, ...rest }: ButtonProps) {
-  return (
-    <Pressable {...rest} className={cn(buttonStyles({ variant, color }), className)}>
-      {typeof children === 'string' ? <Text className="text-inherit">{children}</Text> : children}
-    </Pressable>
-  );
-}
+export const Button = forwardRef<View, ButtonProps>(
+  ({ variant = 'primary', color = 'primary', className, children, ...rest }, ref) => {
+    return (
+      <Pressable {...rest} ref={ref} className={cn(buttonStyles({ variant, color }), className)}>
+        {typeof children === 'string' ? <Text className="text-inherit">{children}</Text> : children}
+      </Pressable>
+    );
+  }
+);
+
+Button.displayName = 'Button';
