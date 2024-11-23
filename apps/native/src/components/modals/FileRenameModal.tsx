@@ -30,6 +30,9 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
       queryClient.invalidateQueries({ queryKey: ['files'] });
       toast.success('File renamed'); // @TODO add translations
     },
+    onError: () => {
+      toast.error('Error renaming file'); // @TODO add translations
+    },
   });
 
   const {

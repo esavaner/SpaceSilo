@@ -23,6 +23,9 @@ export const FileRemoveModal = ({ id, files }: FileRemoveModalProps) => {
       queryClient.invalidateQueries({ queryKey: ['files'] });
       toast.success('File removed'); // @TODO add translations
     },
+    onError: () => {
+      toast.error('Error removing file'); // @TODO add translations
+    },
   });
 
   const handleCancel = () => {

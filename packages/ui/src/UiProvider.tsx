@@ -25,7 +25,9 @@ export const UiProvider = ({ children }: UiProviderProps) => {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
 
   const addToast = (toast: Omit<ToastProps, 'id'>) => {
-    setToasts((prev) => [...prev, { ...toast, id: Math.random().toString(36).substr(2, 9) }]);
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts((prev) => [...prev, { ...toast, id }]);
+    setTimeout(() => removeToast(id), 5000);
   };
 
   const removeToast = (id: string) => {
@@ -42,8 +44,8 @@ export const UiProvider = ({ children }: UiProviderProps) => {
   return (
     <UiContext.Provider value={{ currentModal, setCurrentModal, toast, removeToast }}>
       {children}
-      <View className="fixed bottom-0 right-0 p-4 gap-2">
-        {toasts.map((toast, index) => (
+      <View className="fixed bottom-4 right-4 gap-2 bg-transparent">
+        {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} />
         ))}
       </View>
