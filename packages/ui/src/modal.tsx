@@ -1,28 +1,19 @@
 import React from 'react';
 import { Modal as RModal, View, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { CloseIcon } from './icons';
-import { useUi } from './UiProvider';
 import { cn } from './cn';
 import { Text } from './text';
 import { Button } from './button';
 
 export type ModalProps = {
-  id: string;
   title?: string;
   noLayout?: boolean;
   children?: React.ReactNode;
+  onClose?: () => void;
 };
 
-export const Modal = ({ id, title, children, noLayout }: ModalProps) => {
-  const { currentModal, setCurrentModal } = useUi();
-
-  const visible = currentModal === id;
-
-  const onClose = () => {
-    setCurrentModal(undefined);
-  };
-
-  return visible ? (
+export const Modal = ({ title, children, noLayout, onClose }: ModalProps) => {
+  return (
     <RModal transparent visible animationType="fade" onRequestClose={onClose}>
       <Pressable
         className={cn('flex-1 items-center justify-center relative', !noLayout && 'bg-black/60')}
@@ -46,7 +37,5 @@ export const Modal = ({ id, title, children, noLayout }: ModalProps) => {
         </TouchableWithoutFeedback>
       </Pressable>
     </RModal>
-  ) : (
-    <></>
   );
 };

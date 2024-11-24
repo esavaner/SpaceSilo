@@ -1,13 +1,12 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { Button, Input, Modal, ModalProps, useUi } from '@repo/ui';
+import { Button, Input, useUi } from '@repo/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useTranslation } from 'react-i18next';
 
-type FileRenameModalProps = ModalProps & {
+type FileRenameModalProps = {
   file: FileEntity;
 };
 
@@ -17,16 +16,15 @@ const schema = yup.object().shape({
 
 type RenameForm = yup.InferType<typeof schema>;
 
-export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
-  const { t } = useTranslation();
+export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const queryClient = useQueryClient();
-  const { setCurrentModal, toast } = useUi();
+  const { toast, closeModal } = useUi();
 
   const { mutate: rename } = useMutation({
     mutationKey: ['rename', file.uri],
     mutationFn: Api.files.filesControllerMove,
     onSuccess: () => {
-      setCurrentModal(undefined);
+      closeModal();
       queryClient.invalidateQueries({ queryKey: ['files'] });
       toast.success('File renamed'); // @TODO add translations
     },
@@ -53,7 +51,7 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
   };
 
   return (
-    <Modal id={id} title={t('renameItem')}>
+    <>
       <Controller
         control={control}
         render={({ field }) => (
@@ -67,9 +65,12 @@ export const FileRenameModal = ({ id, file }: FileRenameModalProps) => {
         )}
         name="newPath"
       />
+      <Button onPress={closeModal} variant="outline">
+        Cancel
+      </Button>
       <Button variant="primary" onPress={handleSubmit(onSubmit)} className="w-full">
         Rename
       </Button>
-    </Modal>
+    </>
   );
 };

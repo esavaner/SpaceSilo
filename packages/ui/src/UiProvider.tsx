@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Toast, ToastProps } from './toast';
 import { View } from 'react-native';
+import { Modal, ModalProps } from './modal';
 
 type ContextType = {
-  currentModal?: string;
-  setCurrentModal: (modal?: string) => void;
+  openModal: (modal?: React.ReactNode, options?: ModalProps) => void;
+  closeModal: () => void;
   removeToast: (id: string) => void;
   toast: {
     error: (message: string) => void;
@@ -21,8 +22,19 @@ type UiProviderProps = {
 };
 
 export const UiProvider = ({ children }: UiProviderProps) => {
-  const [currentModal, setCurrentModal] = useState<string>();
   const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [currentModal, setCurrentModal] = useState<React.ReactNode>();
+  const [modalOptions, setModalOptions] = useState<ModalProps>();
+
+  const openModal = (modal: React.ReactNode, options?: ModalProps) => {
+    options && setModalOptions(options);
+    setCurrentModal(modal);
+  };
+
+  const closeModal = () => {
+    setCurrentModal(undefined);
+    setModalOptions(undefined);
+  };
 
   const addToast = (toast: Omit<ToastProps, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -42,8 +54,13 @@ export const UiProvider = ({ children }: UiProviderProps) => {
   };
 
   return (
-    <UiContext.Provider value={{ currentModal, setCurrentModal, toast, removeToast }}>
+    <UiContext.Provider value={{ openModal, closeModal, toast, removeToast }}>
       {children}
+      {currentModal && (
+        <Modal {...modalOptions} onClose={closeModal}>
+          {currentModal}
+        </Modal>
+      )}
       <View className="fixed bottom-4 right-4 gap-2 bg-transparent">
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} />
