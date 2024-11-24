@@ -1,4 +1,4 @@
-import { ChevronRightIcon, cn, Text } from '@repo/ui';
+import { Button, ChevronRightIcon, cn, Text } from '@repo/ui';
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
 
@@ -14,7 +14,7 @@ export type NavigationItemProps = Item & {
 };
 
 const itemStyles =
-  'py-1 pl-3 pr-2 mb-1 rounded-md flex-1 flex-row items-center hover:bg-layer-secondary active:bg-layer-secondary focus:bg-layer-secondary';
+  'py-1 px-3 mb-1 rounded-md flex-1 flex-row items-center hover:bg-layer-secondary active:bg-layer-secondary';
 
 export const NavigationItem = ({ label, path, onPress, icon, subitems }: NavigationItemProps) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -26,12 +26,13 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
         {icon}
         <Text className="ml-2">{label}</Text>
         {hasSubitems && (
-          <Pressable
+          <Button
+            variant="text"
             onPress={() => setIsOpen(!isOpen)}
             className={cn('transition-all transform ml-auto', isOpen && 'rotate-90')}
           >
             <ChevronRightIcon />
-          </Pressable>
+          </Button>
         )}
       </Pressable>
       {isOpen && hasSubitems && (

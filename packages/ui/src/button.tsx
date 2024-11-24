@@ -12,16 +12,15 @@ export type ButtonProps = PressableProps & {
 const buttonStyles = cva(['border rounded-md text-black min-w-8 min-h-8 flex items-center justify-center w-24'], {
   variants: {
     color: {
-      primary: 'border-primary bg-primary hover:bg-primary-light focus-within:bg-primary-dark focus:bg-primary-dark',
-      secondary:
-        'border-secondary bg-secondary hover:bg-secondary-light focus-within:bg-secondary-dark focus:bg-secondary-dark',
-      danger: 'border-red-400 bg-red-400 hover:bg-red-300 focus-within:bg-red-500 focus:bg-red-500',
+      primary: 'border-primary bg-primary hover:bg-primary-light active:bg-primary-dark',
+      secondary: 'border-secondary bg-secondary hover:bg-secondary-light active:bg-secondary-dark',
+      danger: 'border-red-400 bg-red-400 hover:bg-red-300 active:bg-red-500',
     },
     variant: {
       primary: '',
       outline: 'bg-transparent text-content hover:text-black ',
-      text: 'w-min border-none bg-transparent text-content hover:bg-layer-tertiary focus:bg-layer',
-      link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary focus:bg-layer-secondary',
+      text: 'w-min border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
+      link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary active:bg-layer-secondary',
     },
   },
 });

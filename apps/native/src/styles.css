@@ -22,7 +22,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* dark */
-    --color-text: #fcfcfc;
+    --color-text: #ffffff;
     --color-text-secondary: #d2d1d1;
     --color-text-tertiary: #a0a0a0;
     --color-background: #171717;

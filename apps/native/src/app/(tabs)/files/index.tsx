@@ -50,6 +50,10 @@ export default function FilesPage() {
     setSelectedItems([]);
   };
 
+  const handleSelectAll = () => {
+    setSelectedItems(data?.data || []);
+  };
+
   return (
     <View className="flex-1 bg-layer">
       {selectedItems.length > 0 ? (
@@ -64,9 +68,11 @@ export default function FilesPage() {
         </View>
       )}
       <FileList
-        items={data?.data}
+        items={data?.data || []}
         handleDirClick={handleDirClick}
         handleSelectItem={handleSelectItem}
+        handleClearSelection={handleClearSelection}
+        handleSelectAll={handleSelectAll}
         selectedItems={selectedItems}
         className="p-2"
       />
