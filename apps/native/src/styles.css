@@ -3,12 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #ffc75f;
-  --color-primary-dark: #d8c038;
-  --color-primary-light: #f3dd65;
-  --color-secondary: #f28065;
-  --color-secondary-dark: #ef7f67;
-  --color-secondary-light: #f8b58a;
+  --color-blue: #4a90e2;
+  --color-blue-dark: #3f83d1;
+  --color-blue-light: #5aa0f7;
+
+  --color-yellow: #ffc75f;
+  --color-yellow-dark: #d8c038;
+  --color-yellow-light: #f3dd65;
+
+  --color-red: #ff5f5f;
+  --color-red-dark: #e04c4c;
+  --color-red-light: #ff7b7b;
 
   /* light */
   --color-text: #0e0e0e;

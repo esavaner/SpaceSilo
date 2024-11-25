@@ -1,7 +1,7 @@
 import { FileEntity } from '@/api/generated';
 import { ShareIcon, MoveIcon, CopyIcon, TrashIcon, Text, CloseIcon, Button, useUi } from '@repo/ui';
 import { View } from 'react-native';
-import { FileRemoveModal } from '../modals/FileRemoveModal';
+import { FileRemoveModal } from '../modals/FileRemove.modal';
 import { useTranslation } from 'react-i18next';
 
 type ItemSelectionProps = {
@@ -24,7 +24,7 @@ export const ItemSelection = ({ selectedItems, handleClearSelection }: ItemSelec
   ];
 
   return (
-    <View className="flex-row px-4 h-10 items-center bg-layer-secondary gap-4">
+    <View className="flex-row px-5 h-10 items-center bg-layer-secondary gap-2">
       <Button variant="text" onPress={handleClearSelection}>
         <CloseIcon />
       </Button>

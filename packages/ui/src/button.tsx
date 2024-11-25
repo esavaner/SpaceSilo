@@ -6,7 +6,7 @@ import { Text } from './text';
 
 export type ButtonProps = PressableProps & {
   variant?: 'primary' | 'outline' | 'text' | 'link';
-  color?: 'primary' | 'secondary' | 'danger';
+  color?: 'primary' | 'secondary' | 'danger' | 'blue' | 'yellow' | 'red';
 };
 
 const buttonStyles = cva(['border rounded-md text-black min-w-8 min-h-8 flex items-center justify-center w-24'], {
@@ -15,6 +15,9 @@ const buttonStyles = cva(['border rounded-md text-black min-w-8 min-h-8 flex ite
       primary: 'border-primary bg-primary hover:bg-primary-light active:bg-primary-dark',
       secondary: 'border-secondary bg-secondary hover:bg-secondary-light active:bg-secondary-dark',
       danger: 'border-red-400 bg-red-400 hover:bg-red-300 active:bg-red-500',
+      blue: 'border-blue bg-blue hover:bg-blue-light active:bg-blue-dark',
+      yellow: 'border-yellow bg-yellow hover:bg-yellow-light active:bg-yellow-dark',
+      red: 'border-red bg-red hover:bg-red-light active:bg-red-dark',
     },
     variant: {
       primary: '',

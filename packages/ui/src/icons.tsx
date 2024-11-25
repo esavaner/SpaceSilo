@@ -7,7 +7,7 @@ import React from 'react';
 type IconProps = Omit<React.ComponentProps<typeof FIcon> & React.ComponentProps<typeof MIcon>, 'name'>;
 
 const d = {
-  size: 24,
+  size: 22,
   className: 'text-content',
 };
 

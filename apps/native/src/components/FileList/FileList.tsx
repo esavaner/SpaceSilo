@@ -5,7 +5,7 @@ import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
-import { FileOptionsDropdown } from '../dropdowns/FileOptionsDropdown';
+import { FileOptionsDropdown } from '../dropdowns/FileOptions.dropdown';
 
 type FileListProps = {
   items: FileEntity[];
@@ -47,13 +47,13 @@ export const FileList = ({
 
   return (
     <>
-      <View className="flex-row px-4 h-10 items-center bg-layer">
+      <View className="flex-row px-6 h-10 items-center bg-layer">
         <Checkbox
           checked={hasSelectedAll}
           onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
       </View>
-      <ScrollView className={cn('flex-1 w-full', className)}>
+      <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
         {items.map((item) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
           return (

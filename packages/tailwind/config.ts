@@ -6,16 +6,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: 'var(--color-primary)',
-          dark: 'var(--color-primary-dark)',
-          light: 'var(--color-primary-light)',
-        },
-        secondary: {
-          DEFAULT: 'var(--color-secondary)',
-          dark: 'var(--color-secondary-dark)',
-          light: 'var(--color-secondary-light)',
-        },
         content: {
           DEFAULT: 'var(--color-text)',
           secondary: 'var(--color-text-secondary)',
@@ -25,6 +15,21 @@ const config: Config = {
           DEFAULT: 'var(--color-background)',
           secondary: 'var(--color-background-secondary)',
           tertiary: 'var(--color-background-tertiary)',
+        },
+        red: {
+          DEFAULT: 'var(--color-red)',
+          dark: 'var(--color-red-dark)',
+          light: 'var(--color-red-light)',
+        },
+        yellow: {
+          DEFAULT: 'var(--color-yellow)',
+          dark: 'var(--color-yellow-dark)',
+          light: 'var(--color-yellow-light)',
+        },
+        blue: {
+          DEFAULT: 'var(--color-blue)',
+          dark: 'var(--color-blue-dark)',
+          light: 'var(--color-blue-light)',
         },
       },
     },

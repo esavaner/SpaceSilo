@@ -1,5 +1,6 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
+import { FileAddDropdown } from '@/components/dropdowns/FileAdd.dropdown';
 import { FileList } from '@/components/FileList/FileList';
 import { ItemSelection } from '@/components/ItemSelection/ItemSelection';
 import { Breadcrumb } from '@repo/ui';
@@ -55,7 +56,7 @@ export default function FilesPage() {
   };
 
   return (
-    <View className="flex-1 bg-layer">
+    <View className="flex-1 bg-layer relative">
       {selectedItems.length > 0 ? (
         <ItemSelection selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
       ) : (
@@ -74,8 +75,8 @@ export default function FilesPage() {
         handleClearSelection={handleClearSelection}
         handleSelectAll={handleSelectAll}
         selectedItems={selectedItems}
-        className="p-2"
       />
+      <FileAddDropdown className="absolute right-4 bottom-4" />
     </View>
   );
 }

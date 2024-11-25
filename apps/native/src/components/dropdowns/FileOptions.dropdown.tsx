@@ -13,8 +13,8 @@ import {
 } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
-import { FileRenameModal } from '../modals/FileRenameModal';
-import { FileRemoveModal } from '../modals/FileRemoveModal';
+import { FileRenameModal } from '../modals/FileRename.modal';
+import { FileRemoveModal } from '../modals/FileRemove.modal';
 
 type FileOptionsDropdownProps = {
   file: FileEntity;
@@ -46,7 +46,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
       {items.map((item) => (
         <Pressable
           key={item.title}
-          className="flex-row gap-6 py-3 px-5 hover:bg-layer active:bg-layer"
+          className="flex-row gap-6 py-3 px-4 hover:bg-layer active:bg-layer"
           onPress={item.onPress}
         >
           {item.icon}

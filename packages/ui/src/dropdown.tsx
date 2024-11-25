@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { View, Dimensions } from 'react-native';
 import { cn } from './cn';
@@ -19,57 +19,33 @@ export const Dropdown = ({ className, modalClassName, trigger, children }: Dropd
   const { openModal } = useUi();
 
   const triggerRef = useRef<View>(null);
-  const [triggerPos, setTriggerPos] = useState({
-    tx: 0,
-    ty: 0,
-    bx: 0,
-    by: 0,
-    width: 0,
-    height: 0,
-    flipX: false,
-    flipY: false,
-  });
 
-  useEffect(() => {
-    if (triggerRef.current) {
-      triggerRef.current.measure((_1, _2, width, height, tx, ty) => {
-        const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-        setTriggerPos({
-          tx,
-          ty,
-          bx: screenWidth - tx,
-          by: screenHeight - ty,
-          width,
-          height,
-          flipX: tx > screenWidth * FLIP_POINT,
-          flipY: ty + height > screenHeight * FLIP_POINT,
-        });
-      });
-    }
-  }, []);
+  const handleOpenModal = () => {
+    if (!triggerRef.current) return;
 
-  const modal = useMemo(
-    () => (
-      <View
-        className={cn('absolute bg-layer-secondary rounded-md shadow-md min-w-24', modalClassName)}
-        style={{
-          ...(triggerPos.flipX ? { right: triggerPos.bx - triggerPos.width } : { left: triggerPos.tx }),
-          ...(triggerPos.flipY ? { bottom: triggerPos.by } : { top: triggerPos.ty + triggerPos.height }),
-        }}
-      >
-        {children}
-      </View>
-    ),
-    [triggerPos, children]
-  );
+    triggerRef.current.measure((_1, _2, width, height, tx, ty) => {
+      const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+      const bx = screenWidth - tx;
+      const by = screenHeight - ty;
+      const flipX = tx > screenWidth * FLIP_POINT;
+      const flipY = ty + height > screenHeight * FLIP_POINT;
+      const modal = (
+        <View
+          className={cn('absolute bg-layer-secondary rounded-md shadow-md min-w-24', modalClassName)}
+          style={{
+            ...(flipX ? { right: bx - width } : { left: tx }),
+            ...(flipY ? { bottom: by } : { top: ty + height }),
+          }}
+        >
+          {children}
+        </View>
+      );
+      openModal(modal, { noLayout: true });
+    });
+  };
 
   return (
-    <Button
-      className={cn(className)}
-      onPress={() => openModal(modal, { noLayout: true })}
-      variant="text"
-      ref={triggerRef}
-    >
+    <Button className={cn(className)} onPress={handleOpenModal} variant="text" ref={triggerRef}>
       {trigger}
     </Button>
   );
