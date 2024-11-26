@@ -33,7 +33,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
     <>
       <ScrollView>
         {files.map((file) => (
-          <Text key={file.uri}>{file.name}</Text>
+          <Text key={file.uri}>{file.uri}</Text>
         ))}
       </ScrollView>
       <View className="flex-row gap-2">

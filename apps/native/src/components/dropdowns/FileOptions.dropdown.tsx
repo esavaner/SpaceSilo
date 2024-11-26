@@ -30,14 +30,14 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
     {
       title: t('dropdown.rename'),
       icon: <EditIcon />,
-      onPress: () => openModal(<FileRenameModal file={file} />, { title: t('renameItem') }),
+      onPress: () => openModal(<FileRenameModal file={file} />),
     },
     { title: t('dropdown.move'), icon: <MoveIcon />, onPress: () => {} },
     { title: t('dropdown.copy'), icon: <CopyIcon />, onPress: () => {} },
     {
       title: t('dropdown.remove'),
       icon: <TrashIcon className="text-red-600" />,
-      onPress: () => openModal(<FileRemoveModal files={[file]} />, { title: t('removeItem') }),
+      onPress: () => openModal(<FileRemoveModal files={[file]} />),
     },
   ];
 

@@ -2,24 +2,24 @@ import { FileEntity } from '@/api/generated';
 import { ShareIcon, MoveIcon, CopyIcon, TrashIcon, Text, CloseIcon, Button, useUi } from '@repo/ui';
 import { View } from 'react-native';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
-import { useTranslation } from 'react-i18next';
+import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
 
 type ItemSelectionProps = {
+  path: string;
   selectedItems: FileEntity[];
   handleClearSelection: () => void;
 };
 
-export const ItemSelection = ({ selectedItems, handleClearSelection }: ItemSelectionProps) => {
-  const { t } = useTranslation();
+export const ItemSelection = ({ path, selectedItems, handleClearSelection }: ItemSelectionProps) => {
   const { openModal } = useUi();
 
   const items = [
     { icon: <ShareIcon />, onPress: () => {} },
     { icon: <MoveIcon />, onPress: () => {} },
-    { icon: <CopyIcon />, onPress: () => {} },
+    { icon: <CopyIcon />, onPress: () => openModal(<FileMoveCopyModal path={path} />) },
     {
       icon: <TrashIcon className="text-red-600" />,
-      onPress: () => openModal(<FileRemoveModal files={selectedItems} />, { title: t('removeItem') }),
+      onPress: () => openModal(<FileRemoveModal files={selectedItems} />),
     },
   ];
 
