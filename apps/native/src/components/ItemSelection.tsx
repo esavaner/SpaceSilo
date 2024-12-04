@@ -1,8 +1,8 @@
 import { FileEntity } from '@/api/generated';
 import { ShareIcon, MoveIcon, CopyIcon, TrashIcon, Text, CloseIcon, Button, useUi } from '@repo/ui';
 import { View } from 'react-native';
-import { FileRemoveModal } from '../modals/FileRemove.modal';
-import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
+import { FileRemoveModal } from './modals/FileRemove.modal';
+import { FileMoveCopyModal } from './modals/FileMoveCopy.modal';
 
 type ItemSelectionProps = {
   path: string;

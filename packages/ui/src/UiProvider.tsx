@@ -26,8 +26,8 @@ export const UiProvider = ({ children }: UiProviderProps) => {
   const [currentModal, setCurrentModal] = useState<React.ReactNode>();
   const [modalOptions, setModalOptions] = useState<ModalProps>();
 
-  const openModal = (modal: React.ReactNode, options?: ModalProps) => {
-    options && setModalOptions(options);
+  const openModal = (modal: React.ReactNode, options: ModalProps = {}) => {
+    setModalOptions(options);
     setCurrentModal(modal);
   };
 

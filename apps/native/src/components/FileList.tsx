@@ -1,11 +1,11 @@
 import { Pressable, ScrollView, View } from 'react-native';
-import { fileIcons } from './fileIcons';
+import { fileIcons } from './FileList/fileIcons';
 import { Checkbox, cn, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
-import { FileOptionsDropdown } from '../dropdowns/FileOptions.dropdown';
+import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
 
 type FileListProps = {
   items: FileEntity[];

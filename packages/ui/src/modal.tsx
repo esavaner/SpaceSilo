@@ -3,6 +3,7 @@ import { Modal as RModal, View, Pressable, TouchableWithoutFeedback } from 'reac
 import { CloseIcon } from './icons';
 import { cn } from './cn';
 import { Button } from './button';
+import { Text } from './text';
 
 export type ModalProps = {
   noLayout?: boolean;
@@ -33,4 +34,8 @@ export const Modal = ({ children, noLayout, onClose }: ModalProps) => {
       </Pressable>
     </RModal>
   );
+};
+
+export const ModalTitle = ({ children }: { children: React.ReactNode }) => {
+  return <Text className="text-xl min-h-8 mb-2 flex items-center">{children}</Text>;
 };

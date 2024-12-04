@@ -11,6 +11,6 @@
     "copy": "Copy",
     "remove": "Remove"
   },
-  "renameItem": "Rename item",
-  "removeItem": "Remove item"
+  "renameItem": "Rename item(s)",
+  "removeItem": "Remove item(s)"
 }

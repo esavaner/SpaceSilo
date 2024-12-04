@@ -1,7 +1,8 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { useUi, Text, Button } from '@repo/ui';
+import { useUi, Text, Button, ModalTitle } from '@repo/ui';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 type FileRemoveModalProps = {
@@ -9,6 +10,7 @@ type FileRemoveModalProps = {
 };
 
 export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
+  const { t } = useTranslation();
   const { toast, closeModal } = useUi();
   const queryClient = useQueryClient();
 
@@ -31,6 +33,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
 
   return (
     <>
+      <ModalTitle>{t('removeItem')}</ModalTitle>
       <ScrollView>
         {files.map((file) => (
           <Text key={file.uri}>{file.uri}</Text>

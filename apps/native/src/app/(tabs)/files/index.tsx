@@ -1,6 +1,6 @@
 import { FileAddDropdown } from '@/components/dropdowns/FileAdd.dropdown';
-import { FileList } from '@/components/FileList/FileList';
-import { ItemSelection } from '@/components/ItemSelection/ItemSelection';
+import { FileList } from '@/components/FileList';
+import { ItemSelection } from '@/components/ItemSelection';
 import { useFiles } from '@/hooks/useFiles';
 import { Breadcrumb } from '@repo/ui';
 import { useLocalSearchParams, router } from 'expo-router';

@@ -1,10 +1,11 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { Button, Input, useUi } from '@repo/ui';
+import { Button, Input, useUi, ModalTitle } from '@repo/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
 
 type FileRenameModalProps = {
   file: FileEntity;
@@ -18,6 +19,7 @@ type RenameForm = yup.InferType<typeof schema>;
 
 export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { toast, closeModal } = useUi();
 
   const { mutate: rename } = useMutation({
@@ -52,6 +54,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
 
   return (
     <>
+      <ModalTitle>{t('renameItem')}</ModalTitle>
       <Controller
         control={control}
         render={({ field }) => (
