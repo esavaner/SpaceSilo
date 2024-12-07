@@ -1,4 +1,4 @@
-import { Button, ChevronRightIcon, cn, Text } from '@repo/ui';
+import { Button, ChevronDownIcon, cn, Text } from '@repo/ui';
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
 
@@ -29,9 +29,9 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
           <Button
             variant="text"
             onPress={() => setIsOpen(!isOpen)}
-            className={cn('transition-all transform ml-auto', isOpen && 'rotate-90')}
+            className={cn('transition-all transform ml-auto', !isOpen && '-rotate-90')}
           >
-            <ChevronRightIcon />
+            <ChevronDownIcon />
           </Button>
         )}
       </Pressable>

@@ -1,6 +1,7 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
 import { useQuery } from '@tanstack/react-query';
+import { compareAsc } from 'date-fns';
 import { useState } from 'react';
 
 type Props = {
@@ -8,9 +9,29 @@ type Props = {
   path?: string;
 };
 
+export type SortBy = 'name' | 'size' | 'date' | 'type';
+
+export type Comparator = {
+  sort: SortBy;
+  order: number;
+};
+
+const comparators: Record<SortBy, (a: FileEntity, b: FileEntity) => number> = {
+  name: (a, b) => a.name.localeCompare(b.name),
+  size: (a, b) => a.size - b.size,
+  date: (a, b) => compareAsc(a.modificationTime, b.modificationTime),
+  type: (a, b) => {
+    if (a.isDirectory || b.isDirectory) return 0;
+    const extA = a.name.split('.').pop() || '';
+    const extB = b.name.split('.').pop() || '';
+    return extA.localeCompare(extB);
+  },
+};
+
 export const useFiles = ({ onPathChange, path = '' }: Props) => {
   const [currentPath, setCurrentPath] = useState(path);
   const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
+  const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
 
   const { data } = useQuery({
     queryKey: ['files', currentPath],
@@ -51,6 +72,19 @@ export const useFiles = ({ onPathChange, path = '' }: Props) => {
     setSelectedItems(data?.data || []);
   };
 
+  const handleSort = (sort: SortBy) => {
+    setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
+  };
+
+  const unsorted = data?.data || [];
+  const items = unsorted
+    .sort((a, b) => comparators[comparator.sort](a, b) * comparator.order)
+    .sort((a, b) => {
+      if (a.isDirectory && !b.isDirectory) return -comparator.order;
+      if (!a.isDirectory && b.isDirectory) return comparator.order;
+      return 0;
+    });
+
   return {
     currentPath,
     selectedItems,
@@ -59,6 +93,8 @@ export const useFiles = ({ onPathChange, path = '' }: Props) => {
     handleSelectItem,
     handleClearSelection,
     handleSelectAll,
-    items: data?.data || [],
+    handleSort,
+    comparator,
+    items,
   };
 };

@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { View, Dimensions } from 'react-native';
 import { cn } from './cn';
 import { useUi } from './UiProvider';

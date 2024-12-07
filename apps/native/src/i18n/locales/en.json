@@ -3,6 +3,13 @@
     "title": "Files",
     "homeDir": "Home"
   },
+  "sort": {
+    "title": "Sort by",
+    "name": "Name",
+    "date": "Date",
+    "size": "Size",
+    "type": "Type"
+  },
   "dropdown": {
     "info": "Info",
     "share": "Share",

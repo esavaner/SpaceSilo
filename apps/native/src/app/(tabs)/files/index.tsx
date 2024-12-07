@@ -19,6 +19,8 @@ export default function FilesPage() {
     handleSelectItem,
     handleClearSelection,
     handleSelectAll,
+    handleSort,
+    comparator,
     items,
   } = useFiles({ path, onPathChange: (path) => router.setParams({ path }) });
 
@@ -41,6 +43,8 @@ export default function FilesPage() {
         handleSelectItem={handleSelectItem}
         handleClearSelection={handleClearSelection}
         handleSelectAll={handleSelectAll}
+        handleSort={handleSort}
+        comparator={comparator}
         selectedItems={selectedItems}
       />
       <FileAddDropdown className="absolute right-4 bottom-4" />

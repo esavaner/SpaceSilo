@@ -1,11 +1,14 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from './FileList/fileIcons';
-import { Checkbox, cn, FolderIcon, Text } from '@repo/ui';
+import { Button, Checkbox, ChevronDownIcon, cn, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
+import { Comparator, SortBy } from '@/hooks/useFiles';
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 type FileListProps = {
   items: FileEntity[];
@@ -14,6 +17,8 @@ type FileListProps = {
   handleSelectItem: (item: FileEntity) => void;
   handleClearSelection: () => void;
   handleSelectAll: () => void;
+  handleSort: (sort: SortBy) => void;
+  comparator: Comparator;
   className?: string;
 };
 
@@ -23,9 +28,22 @@ export const FileList = ({
   handleSelectItem,
   handleClearSelection,
   handleSelectAll,
+  handleSort,
+  comparator,
   selectedItems,
   className,
 }: FileListProps) => {
+  const { t } = useTranslation();
+  const sortOptions = useMemo(
+    () => [
+      { label: t('sort.name'), value: 'name' as SortBy },
+      { label: t('sort.size'), value: 'size' as SortBy },
+      { label: t('sort.date'), value: 'date' as SortBy },
+      { label: t('sort.type'), value: 'type' as SortBy },
+    ],
+    [t]
+  );
+
   const getIcon = (item: FileEntity) => {
     if (item.isDirectory) return <FolderIcon />;
     const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
@@ -47,11 +65,28 @@ export const FileList = ({
 
   return (
     <>
-      <View className="flex-row px-6 h-10 items-center bg-layer">
+      <View className="flex-row gap-4 px-6 py-2 items-center bg-layer border-b border-b-content">
         <Checkbox
           checked={hasSelectedAll}
           onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
+        {sortOptions.map((sort) => (
+          <Button
+            key={sort.value}
+            variant="text"
+            onPress={() => handleSort(sort.value)}
+            className="flex flex-row gap-2 justify-between items-center p-2 w-24"
+          >
+            <Text>{sort.label}</Text>
+            <ChevronDownIcon
+              className={cn(
+                'text-content hidden transition-all transform',
+                comparator.sort === sort.value && 'block',
+                comparator.order === 1 && 'rotate-180'
+              )}
+            />
+          </Button>
+        ))}
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
         {items.map((item) => {
