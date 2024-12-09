@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from '../utils/fileIcons';
-import { Button, Checkbox, ChevronDownIcon, cn, FileIcon, FolderIcon, Text } from '@repo/ui';
+import { AddIcon, Button, Checkbox, ChevronDownIcon, cn, Dropdown, FileIcon, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
@@ -9,6 +9,7 @@ import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
 import { Comparator, SortBy } from '@/hooks/useFiles';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 
 type FileListProps = {
   items: FileEntity[];
@@ -57,11 +58,7 @@ export const FileList = ({
   };
 
   const hasSelectedItems = selectedItems.length > 0;
-  const hasSelectedAll = selectedItems.length === items.length;
-
-  if (items.length === 0) {
-    return <Text className="text-center">No files</Text>;
-  }
+  const hasSelectedAll = items.length > 0 && selectedItems.length === items.length;
 
   return (
     <>
@@ -87,8 +84,10 @@ export const FileList = ({
             />
           </Button>
         ))}
+        <FileAddDropdown />
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
+        {items.length === 0 && <Text className="text-center">No files</Text>}
         {items.map((item) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
           return (

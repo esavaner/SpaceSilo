@@ -1,4 +1,3 @@
-import { FileAddDropdown } from '@/components/dropdowns/FileAdd.dropdown';
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
 import { useFiles } from '@/hooks/useFiles';
@@ -47,7 +46,6 @@ export default function FilesPage() {
         comparator={comparator}
         selectedItems={selectedItems}
       />
-      <FileAddDropdown className="absolute right-4 bottom-4" />
     </View>
   );
 }
