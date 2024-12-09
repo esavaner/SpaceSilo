@@ -2,9 +2,10 @@ import React from 'react';
 
 import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
-import { useWindowDimensions, Platform } from 'react-native';
+import { useWindowDimensions, Platform, View } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { FileIcon } from '@repo/ui';
+import { Header } from '@/components/Header';
 
 const items: NavigationItemProps[] = [
   {
@@ -64,6 +65,7 @@ export default function TabLayout() {
       screenOptions={{
         drawerType: width > 992 ? 'permanent' : 'slide',
         drawerStyle: { backgroundColor: 'transparent' },
+        header: (props) => <Header {...props} />,
       }}
       drawerContent={(props) => <Navigation {...props} items={items} />}
       initialRouteName="files/index"
