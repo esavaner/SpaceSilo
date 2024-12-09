@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, View } from 'react-native';
-import { fileIcons } from './FileList/fileIcons';
-import { Button, Checkbox, ChevronDownIcon, cn, FolderIcon, Text } from '@repo/ui';
+import { fileIcons } from '../utils/fileIcons';
+import { Button, Checkbox, ChevronDownIcon, cn, FileIcon, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
@@ -45,9 +45,9 @@ export const FileList = ({
   );
 
   const getIcon = (item: FileEntity) => {
-    if (item.isDirectory) return <FolderIcon />;
+    if (item.isDirectory) return <FolderIcon size={28} />;
     const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
-    return fileIcons[ext as keyof typeof fileIcons] || <FolderIcon />;
+    return fileIcons[ext as keyof typeof fileIcons] || <FileIcon />;
   };
 
   const getItemTime = (time: string) => {
@@ -108,7 +108,7 @@ export const FileList = ({
                 checked={!!isSelected}
                 onChange={() => handleSelectItem(item)}
               />
-              <Text className="text-3xl">{getIcon(item)}</Text>
+              <Text className="h-full w-7 flex items-center justify-center"> {getIcon(item)}</Text>
               <View className="gap-1">
                 <Text className="text-lg leading-5">{item.name}</Text>
                 <View className="flex-row gap-1">

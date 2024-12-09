@@ -20,8 +20,8 @@ const buttonStyles = cva(['border rounded-md text-black min-w-8 min-h-8 flex ite
       red: 'border-red bg-red hover:bg-red-light active:bg-red-dark',
     },
     variant: {
-      primary: '',
-      outline: 'bg-transparent text-content hover:text-black ',
+      primary: 'h-10',
+      outline: 'h-10 bg-transparent text-content hover:text-black ',
       text: 'w-min border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
       link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary active:bg-layer-secondary',
     },

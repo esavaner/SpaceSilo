@@ -1,9 +1,10 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { useUi, Text, Button, ModalTitle } from '@repo/ui';
+import { useUi, Text, ModalTitle } from '@repo/ui';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
+import { ButtonGroup } from './ButtonGroup';
 
 type FileRemoveModalProps = {
   files: FileEntity[];
@@ -39,12 +40,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
           <Text key={file.uri}>{file.uri}</Text>
         ))}
       </ScrollView>
-      <View className="flex-row gap-2">
-        <Button onPress={closeModal} variant="outline">
-          Cancel
-        </Button>
-        <Button onPress={handleRemove}>Remove</Button>
-      </View>
+      <ButtonGroup okText={t('remove')} onOk={handleRemove} onCancel={closeModal} />
     </>
   );
 };

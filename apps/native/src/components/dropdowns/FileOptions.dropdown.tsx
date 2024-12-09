@@ -46,7 +46,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
       {items.map((item) => (
         <Pressable
           key={item.title}
-          className="flex-row gap-6 py-3 px-4 hover:bg-layer active:bg-layer"
+          className="flex-row gap-5 py-3 px-4 hover:bg-layer active:bg-layer"
           onPress={item.onPress}
         >
           {item.icon}

@@ -15,6 +15,14 @@
   --color-red-dark: #e04c4c;
   --color-red-light: #ff7b7b;
 
+  --color-primary: #ffc75f;
+  --color-primary-dark: #d8c038;
+  --color-primary-light: #f3dd65;
+
+  --color-secondary: #4a90e2;
+  --color-secondary-dark: #3f83d1;
+  --color-secondary-light: #5aa0f7;
+
   /* light */
   --color-text: #0e0e0e;
   --color-text-secondary: #222222;

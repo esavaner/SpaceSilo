@@ -16,6 +16,16 @@ const config: Config = {
           secondary: 'var(--color-background-secondary)',
           tertiary: 'var(--color-background-tertiary)',
         },
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          dark: 'var(--color-primary-dark)',
+          light: 'var(--color-primary-light)',
+        },
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+          dark: 'var(--color-secondary-dark)',
+          light: 'var(--color-secondary-light)',
+        },
         red: {
           DEFAULT: 'var(--color-red)',
           dark: 'var(--color-red-dark)',

@@ -1,11 +1,12 @@
 import { Api } from '@/api/api';
 import { FileEntity } from '@/api/generated';
-import { Button, Input, useUi, ModalTitle } from '@repo/ui';
+import { Input, useUi, ModalTitle } from '@repo/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
+import { ButtonGroup } from './ButtonGroup';
 
 type FileRenameModalProps = {
   file: FileEntity;
@@ -68,12 +69,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
         )}
         name="newPath"
       />
-      <Button onPress={closeModal} variant="outline">
-        Cancel
-      </Button>
-      <Button variant="primary" onPress={handleSubmit(onSubmit)} className="w-full">
-        Rename
-      </Button>
+      <ButtonGroup okText={t('rename')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
     </>
   );
 };

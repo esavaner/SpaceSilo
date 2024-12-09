@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import React from 'react';
 import { NavigateNextIcon } from './icons';
 import { Text } from './text';
@@ -16,15 +16,15 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: Breadcru
   };
 
   return (
-    <View className="flex flex-row items-center gap-2 h-8">
+    <ScrollView horizontal className="h-8">
       {pathItems.map((item, index) => (
-        <Pressable key={index} className="flex flex-row items-center gap-2" onPress={() => handleItemClick(index)}>
+        <Pressable key={index} className="flex flex-row items-center gap-2 mr-2" onPress={() => handleItemClick(index)}>
           {index !== 0 && <NavigateNextIcon />}
           <Text className="text-content-tertiary hover:text-content hover:underline">
             {index === 0 ? homeDirName : item}
           </Text>
         </Pressable>
       ))}
-    </View>
+    </ScrollView>
   );
 };
