@@ -10,7 +10,7 @@ export type ButtonProps = PressableProps & {
 };
 
 const buttonStyles = cva(
-  ['border rounded-md text-black min-w-8 min-h-8 p-2 flex flex-row gap-2 items-center justify-center'],
+  ['border rounded-md text-black min-w-8 min-h-8 flex flex-row gap-2 items-center justify-center'],
   {
     variants: {
       color: {
@@ -22,9 +22,9 @@ const buttonStyles = cva(
         red: 'border-red bg-red hover:bg-red-light active:bg-red-dark',
       },
       variant: {
-        primary: 'h-10',
-        outline: 'h-10 bg-transparent text-content hover:text-black ',
-        text: 'w-min border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
+        primary: 'h-10 px-2',
+        outline: 'h-10 px-2 bg-transparent text-content hover:text-black ',
+        text: 'border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
         link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary active:bg-layer-secondary',
       },
     },

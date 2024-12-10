@@ -1,5 +1,4 @@
-import { AddIcon, Dropdown, Button, Text } from '@repo/ui';
-import { Pressable } from 'react-native';
+import { AddIcon, Dropdown, Button, Text, DropdownItem, FolderIcon, FileIcon } from '@repo/ui';
 
 type FileAddDropdownProps = {
   className?: string;
@@ -7,23 +6,20 @@ type FileAddDropdownProps = {
 
 export const FileAddDropdown = ({ className }: FileAddDropdownProps) => {
   const items = [
-    { label: 'Folder', value: 'folder' },
-    { label: 'File', value: 'file' },
+    { label: 'Folder', icon: <FolderIcon />, onPress: () => {} },
+    { label: 'File', icon: <FileIcon />, onPress: () => {} },
   ];
   return (
     <Dropdown
-      className="ml-auto p-0"
-      trigger={
-        <Button>
+      trigger={(ref, handleOpen) => (
+        <Button ref={ref} onPress={handleOpen} className="ml-auto">
           <Text className="text-black">Add</Text>
           <AddIcon className="text-black" />
         </Button>
-      }
+      )}
     >
       {items.map((item) => (
-        <Pressable key={item.value} className="flex-row gap-5 py-3 px-4 hover:bg-layer active:bg-layer">
-          <Text>{item.label}</Text>
-        </Pressable>
+        <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
       ))}
     </Dropdown>
   );

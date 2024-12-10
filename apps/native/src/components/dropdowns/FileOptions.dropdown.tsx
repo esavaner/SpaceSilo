@@ -1,18 +1,18 @@
 import { FileEntity } from '@/api/generated';
 import {
+  Button,
   CopyIcon,
   Dropdown,
+  DropdownItem,
   EditIcon,
   EllipsisIcon,
   InfoIcon,
   MoveIcon,
   ShareIcon,
-  Text,
   TrashIcon,
   useUi,
 } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
-import { Pressable } from 'react-native';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
 
@@ -25,33 +25,32 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   const { openModal } = useUi();
 
   const items = [
-    { title: t('dropdown.info'), icon: <InfoIcon />, onPress: () => {} },
-    { title: t('dropdown.share'), icon: <ShareIcon />, onPress: () => {} },
+    { label: t('dropdown.info'), icon: <InfoIcon />, onPress: () => {} },
+    { label: t('dropdown.share'), icon: <ShareIcon />, onPress: () => {} },
     {
-      title: t('dropdown.rename'),
+      label: t('dropdown.rename'),
       icon: <EditIcon />,
       onPress: () => openModal(<FileRenameModal file={file} />),
     },
-    { title: t('dropdown.move'), icon: <MoveIcon />, onPress: () => {} },
-    { title: t('dropdown.copy'), icon: <CopyIcon />, onPress: () => {} },
+    { label: t('dropdown.move'), icon: <MoveIcon />, onPress: () => {} },
+    { label: t('dropdown.copy'), icon: <CopyIcon />, onPress: () => {} },
     {
-      title: t('dropdown.remove'),
+      label: t('dropdown.remove'),
       icon: <TrashIcon className="text-red-600" />,
       onPress: () => openModal(<FileRemoveModal files={[file]} />),
     },
   ];
 
   return (
-    <Dropdown trigger={<EllipsisIcon />} className="ml-auto">
+    <Dropdown
+      trigger={(ref, handleOpen) => (
+        <Button variant="text" ref={ref} onPress={handleOpen} className="ml-auto">
+          <EllipsisIcon />
+        </Button>
+      )}
+    >
       {items.map((item) => (
-        <Pressable
-          key={item.title}
-          className="flex-row gap-5 py-3 px-4 hover:bg-layer active:bg-layer"
-          onPress={item.onPress}
-        >
-          {item.icon}
-          <Text>{item.title}</Text>
-        </Pressable>
+        <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
       ))}
     </Dropdown>
   );

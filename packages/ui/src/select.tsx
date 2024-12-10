@@ -27,12 +27,16 @@ export const Select = ({ options, onChange, value, className }: SelectProps) => 
 
   return (
     <Dropdown
-      trigger={
-        <View className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-content-secondary rounded-md">
+      trigger={(ref, handleOpen) => (
+        <Pressable
+          className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-content-secondary rounded-md"
+          ref={ref}
+          onPress={handleOpen}
+        >
           <Text>{label}</Text>
           <ChevronDownIcon className={cn('text-content', selected && 'rotate-180')} />
-        </View>
-      }
+        </Pressable>
+      )}
       className={className}
     >
       {options.map((option) => (

@@ -22,7 +22,7 @@ export const Modal = ({ children, noLayout, onClose }: ModalProps) => {
           {noLayout ? (
             children
           ) : (
-            <View className="relative rounded-md bg-layer-secondary min-w-48 min-h-36 p-4">
+            <View className="relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4">
               <Button onPress={onClose} className="absolute top-4 right-4 z-10" variant="text">
                 <CloseIcon />
               </Button>
