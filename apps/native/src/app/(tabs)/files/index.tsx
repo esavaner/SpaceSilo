@@ -1,6 +1,6 @@
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
-import { useFiles } from '@/hooks/useFiles';
+import { useFileList } from '@/hooks/useFileList';
 import { Breadcrumb } from '@repo/ui';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +21,7 @@ export default function FilesPage() {
     handleSort,
     comparator,
     items,
-  } = useFiles({ path, onPathChange: (path) => router.setParams({ path }) });
+  } = useFileList({ path, onPathChange: (path) => router.setParams({ path }) });
 
   return (
     <View className="flex-1 bg-layer relative">

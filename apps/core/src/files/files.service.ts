@@ -6,6 +6,7 @@ import {
   RemoveFileDto,
   MoveFileDto,
   CreateFolderDto,
+  CopyFileDto,
 } from '../_dto/files.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import * as fs from 'fs';
@@ -81,13 +82,17 @@ export class FilesService {
 
   move(dto: MoveFileDto) {
     const filePath = path.join(process.env.FILES_PATH, dto.path);
+    let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
 
+    if (filePath === newFilePath || fs.existsSync(newFilePath)) {
+      newFilePath = `${newFilePath}_copy`;
+    }
+
     try {
-      const newFilePath = path.join(process.env.FILES_PATH, dto.newPath);
       fsa.moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
       return { message: `File ${filePath} successfully moved to ${newFilePath}` };
     } catch (error) {
@@ -105,6 +110,26 @@ export class FilesService {
     try {
       fsa.removeSync(filePath);
       return { message: `File ${filePath} successfully removed` };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  copy(dto: CopyFileDto) {
+    const filePath = path.join(process.env.FILES_PATH, dto.path);
+    let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('File not found');
+    }
+
+    if (filePath === newFilePath || fs.existsSync(newFilePath)) {
+      newFilePath = `${newFilePath}_copy`;
+    }
+
+    try {
+      fsa.copySync(filePath, newFilePath);
+      return { message: `File ${filePath} successfully copied to ${newFilePath}` };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

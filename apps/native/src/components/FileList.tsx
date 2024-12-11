@@ -6,7 +6,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
-import { Comparator, SortBy } from '@/hooks/useFiles';
+import { Comparator, SortBy } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';

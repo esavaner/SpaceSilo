@@ -10,7 +10,10 @@ export class CreateFolderDto extends CreateFileDto {
 
 export class MoveFileDto extends CreateFileDto {
   newPath: string;
+  name: string;
 }
+
+export class CopyFileDto extends MoveFileDto {}
 
 export class DownloadFileDto extends CreateFileDto {}
 

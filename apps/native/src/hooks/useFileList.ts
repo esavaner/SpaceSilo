@@ -28,7 +28,7 @@ const comparators: Record<SortBy, (a: FileEntity, b: FileEntity) => number> = {
   },
 };
 
-export const useFiles = ({ onPathChange, path = '' }: Props) => {
+export const useFileList = ({ onPathChange, path = '' }: Props) => {
   const [currentPath, setCurrentPath] = useState(path);
   const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });

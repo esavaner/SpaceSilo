@@ -1,11 +1,10 @@
 import { Input, ModalTitle, useUi } from '@repo/ui';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Api } from '@/api/api';
+import { useFileActions } from '@/hooks/useFileActions';
 
 type FileCreateFolderModalProps = {
   currentPath?: string;
@@ -18,22 +17,9 @@ const schema = yup.object().shape({
 type CreateFolderForm = yup.InferType<typeof schema>;
 
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { toast, closeModal } = useUi();
-
-  const { mutate: create } = useMutation({
-    mutationKey: ['createFolder'],
-    mutationFn: Api.files.filesControllerCreateFolder,
-    onSuccess: (_, { name }) => {
-      closeModal();
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-      toast.success(`Folder created: ${name}`); // @TODO add translations
-    },
-    onError: (_, { name }) => {
-      toast.error(`Error creating folder: ${name}`); // @TODO add translations
-    },
-  });
+  const { closeModal } = useUi();
+  const { create } = useFileActions();
 
   const {
     handleSubmit,

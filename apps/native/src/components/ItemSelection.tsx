@@ -16,7 +16,7 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
   const items = [
     { icon: <ShareIcon />, onPress: () => {} },
     { icon: <MoveIcon />, onPress: () => {} },
-    { icon: <CopyIcon />, onPress: () => openModal(<FileMoveCopyModal path={path} />) },
+    { icon: <CopyIcon />, onPress: () => openModal(<FileMoveCopyModal path={path} selectedItems={selectedItems} />) },
     {
       icon: <TrashIcon className="text-red-600" />,
       onPress: () => openModal(<FileRemoveModal files={selectedItems} />),

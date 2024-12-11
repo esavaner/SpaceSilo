@@ -685,6 +685,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       query: {
         path: string;
         newPath: string;
+        name: string;
       },
       params: RequestParams = {}
     ) =>
@@ -747,6 +748,28 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       this.request<void, any>({
         path: `/files/download`,
         method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags files
+     * @name FilesControllerCopy
+     * @request POST:/files/copy
+     */
+    filesControllerCopy: (
+      query: {
+        path: string;
+        newPath: string;
+        name: string;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<void, any>({
+        path: `/files/copy`,
+        method: 'POST',
         query: query,
         ...params,
       }),

@@ -7,6 +7,7 @@ import {
   RemoveFileDto,
   MoveFileDto,
   CreateFolderDto,
+  CopyFileDto,
 } from '../_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -49,6 +50,11 @@ export class FilesController {
   @Patch()
   move(@Query() dto: MoveFileDto) {
     return this.filesService.move(dto);
+  }
+
+  @Post('/copy')
+  copy(@Query() dto: CopyFileDto) {
+    return this.filesService.copy(dto);
   }
 
   @Delete()
