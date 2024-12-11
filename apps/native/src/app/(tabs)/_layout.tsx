@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
-import { useWindowDimensions, Platform, View } from 'react-native';
+import { useWindowDimensions, Platform } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { FileIcon } from '@repo/ui';
 import { Header } from '@/components/Header';

@@ -1,4 +1,5 @@
 import { Api } from '@/api/api';
+import { useFilesContext } from '@/providers/FilesProvider';
 import { useUi } from '@repo/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -6,15 +7,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 export const useFileActions = () => {
   const queryClient = useQueryClient();
   const { closeModal, toast } = useUi();
+  const { handleClearSelection } = useFilesContext();
+
+  const success = (message: string) => {
+    closeModal();
+    handleClearSelection();
+    toast.success(message);
+    queryClient.invalidateQueries({ queryKey: ['files'] });
+  };
 
   const { mutate: copy } = useMutation({
     mutationKey: ['copy'],
     mutationFn: Api.files.filesControllerCopy,
-    onSuccess: () => {
-      closeModal();
-      toast.success('File copied');
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-    },
+    onSuccess: () => success('File copied'),
     onError: () => {
       toast.error('Error copying file');
     },
@@ -23,11 +28,7 @@ export const useFileActions = () => {
   const { mutate: create } = useMutation({
     mutationKey: ['createFolder'],
     mutationFn: Api.files.filesControllerCreateFolder,
-    onSuccess: (_, { name }) => {
-      closeModal();
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-      toast.success(`Folder created: ${name}`);
-    },
+    onSuccess: (_, { name }) => success(`Folder ${name} created`),
     onError: (_, { name }) => {
       toast.error(`Error creating folder: ${name}`);
     },
@@ -36,11 +37,7 @@ export const useFileActions = () => {
   const { mutate: move } = useMutation({
     mutationKey: ['move'],
     mutationFn: Api.files.filesControllerMove,
-    onSuccess: () => {
-      closeModal();
-      toast.success('File moved');
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-    },
+    onSuccess: () => success('File moved'),
     onError: () => {
       toast.error('Error moving file');
     },
@@ -49,11 +46,7 @@ export const useFileActions = () => {
   const { mutate: remove } = useMutation({
     mutationKey: ['remove'],
     mutationFn: Api.files.filesControllerRemove,
-    onSuccess: () => {
-      closeModal();
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-      toast.success('File removed');
-    },
+    onSuccess: () => success('File removed'),
     onError: () => {
       toast.error('Error removing file');
     },
@@ -62,11 +55,7 @@ export const useFileActions = () => {
   const { mutate: rename } = useMutation({
     mutationKey: ['rename'],
     mutationFn: Api.files.filesControllerMove,
-    onSuccess: () => {
-      closeModal();
-      queryClient.invalidateQueries({ queryKey: ['files'] });
-      toast.success('File renamed');
-    },
+    onSuccess: () => success('File renamed'),
     onError: () => {
       toast.error('Error renaming file');
     },

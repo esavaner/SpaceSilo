@@ -1,14 +1,12 @@
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
-import { useFileList } from '@/hooks/useFileList';
+import { useFilesContext } from '@/providers/FilesProvider';
 import { Breadcrumb } from '@repo/ui';
-import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 export default function FilesPage() {
   const { t } = useTranslation();
-  const { path } = useLocalSearchParams<{ path?: string }>();
 
   const {
     currentPath,
@@ -21,7 +19,7 @@ export default function FilesPage() {
     handleSort,
     comparator,
     items,
-  } = useFileList({ path, onPathChange: (path) => router.setParams({ path }) });
+  } = useFilesContext();
 
   return (
     <View className="flex-1 bg-layer relative">
