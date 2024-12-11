@@ -44,6 +44,7 @@ export default function FilesPage() {
         handleSelectAll={handleSelectAll}
         handleSort={handleSort}
         comparator={comparator}
+        currentPath={currentPath}
         selectedItems={selectedItems}
       />
     </View>

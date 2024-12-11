@@ -20,6 +20,7 @@ type FileListProps = {
   handleSelectAll: () => void;
   handleSort: (sort: SortBy) => void;
   comparator: Comparator;
+  currentPath: string;
   className?: string;
 };
 
@@ -32,6 +33,7 @@ export const FileList = ({
   handleSort,
   comparator,
   selectedItems,
+  currentPath,
   className,
 }: FileListProps) => {
   const { t } = useTranslation();
@@ -84,7 +86,7 @@ export const FileList = ({
             />
           </Button>
         ))}
-        <FileAddDropdown />
+        <FileAddDropdown currentPath={currentPath} />
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
         {items.length === 0 && <Text className="text-center">No files</Text>}

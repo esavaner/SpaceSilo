@@ -58,6 +58,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
       <ModalTitle>{t('renameItem')}</ModalTitle>
       <Controller
         control={control}
+        name="newPath"
         render={({ field }) => (
           <Input
             onBlur={field.onBlur}
@@ -67,7 +68,6 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
             error={errors.newPath?.message}
           />
         )}
-        name="newPath"
       />
       <ButtonGroup okText={t('rename')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
     </>

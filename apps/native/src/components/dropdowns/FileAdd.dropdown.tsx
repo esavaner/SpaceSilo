@@ -1,12 +1,19 @@
-import { AddIcon, Dropdown, Button, Text, DropdownItem, FolderIcon, FileIcon } from '@repo/ui';
+import { AddIcon, Dropdown, Button, Text, DropdownItem, FolderIcon, FileIcon, useUi } from '@repo/ui';
+import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
 
 type FileAddDropdownProps = {
+  currentPath: string;
   className?: string;
 };
 
-export const FileAddDropdown = ({ className }: FileAddDropdownProps) => {
+export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps) => {
+  const { openModal } = useUi();
   const items = [
-    { label: 'Folder', icon: <FolderIcon />, onPress: () => {} },
+    {
+      label: 'Folder',
+      icon: <FolderIcon />,
+      onPress: () => openModal(<FileCreateFolderModal currentPath={currentPath} />),
+    },
     { label: 'File', icon: <FileIcon />, onPress: () => {} },
   ];
   return (

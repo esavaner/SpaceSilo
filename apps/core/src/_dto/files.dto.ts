@@ -4,6 +4,10 @@ export class CreateFileDto {
   path: string;
 }
 
+export class CreateFolderDto extends CreateFileDto {
+  name: string;
+}
+
 export class MoveFileDto extends CreateFileDto {
   newPath: string;
 }

@@ -1,15 +1,22 @@
 import { Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
-import { CreateFileDto, FindAllFilesDto, DownloadFileDto, RemoveFileDto, MoveFileDto } from '../_dto/files.dto';
+import {
+  CreateFileDto,
+  FindAllFilesDto,
+  DownloadFileDto,
+  RemoveFileDto,
+  MoveFileDto,
+  CreateFolderDto,
+} from '../_dto/files.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import * as fs from 'fs';
-import { moveSync } from 'fs-extra';
+import * as fsa from 'fs-extra';
 import * as path from 'path';
 import { FileEntity } from 'src/_entity/files.entity';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class FilesService {
-  async create(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
+  async createFile(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
     const fileDir = path.join(process.env.FILES_PATH, dto.path);
     const filePath = path.join(fileDir, file.originalname);
     if (!fs.existsSync(fileDir)) {
@@ -17,6 +24,14 @@ export class FilesService {
     }
     fs.writeFileSync(filePath, file.buffer);
     return { message: 'File created successfully', filePath };
+  }
+
+  async createFolder(dto: CreateFolderDto, user: TokenPayload) {
+    const folderDir = path.join(process.env.FILES_PATH, dto.path, dto.name);
+    if (!fs.existsSync(folderDir)) {
+      fs.mkdirSync(folderDir, { recursive: true });
+    }
+    return { message: 'Folder created successfully', folderDir };
   }
 
   findAll(dto: FindAllFilesDto): FileEntity[] | NotFoundException | InternalServerErrorException {
@@ -73,7 +88,7 @@ export class FilesService {
 
     try {
       const newFilePath = path.join(process.env.FILES_PATH, dto.newPath);
-      moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
+      fsa.moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
       return { message: `File ${filePath} successfully moved to ${newFilePath}` };
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -88,7 +103,7 @@ export class FilesService {
     }
 
     try {
-      fs.unlinkSync(filePath);
+      fsa.removeSync(filePath);
       return { message: `File ${filePath} successfully removed` };
     } catch (error) {
       throw new InternalServerErrorException(error);

@@ -45,6 +45,11 @@ export interface CreateFileDto {
   path: string;
 }
 
+export interface CreateFolderDto {
+  path: string;
+  name: string;
+}
+
 export interface FileEntity {
   name: string;
   uri: string;
@@ -707,6 +712,22 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         path: `/files`,
         method: 'DELETE',
         query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags files
+     * @name FilesControllerCreateFolder
+     * @request POST:/files/folder
+     */
+    filesControllerCreateFolder: (data: CreateFolderDto, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/files/folder`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 
