@@ -15,7 +15,6 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
 
   const items = [
     { icon: <ShareIcon />, onPress: () => {} },
-    { icon: <MoveIcon />, onPress: () => {} },
     { icon: <CopyIcon />, onPress: () => openModal(<FileMoveCopyModal path={path} selectedItems={selectedItems} />) },
     {
       icon: <TrashIcon className="text-red-600" />,
@@ -24,13 +23,13 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
   ];
 
   return (
-    <View className="flex-row px-5 h-10 items-center bg-layer-secondary gap-2">
-      <Button variant="text" onPress={handleClearSelection}>
+    <View className="flex-row px-4 h-11 items-center bg-layer-secondary gap-2">
+      <Button variant="icon" onPress={handleClearSelection}>
         <CloseIcon />
       </Button>
       <Text className="mr-auto">{selectedItems.length} item(s) selected</Text>
       {items.map((item, index) => (
-        <Button key={index} onPress={item.onPress} variant="text">
+        <Button key={index} onPress={item.onPress} variant="icon">
           {item.icon}
         </Button>
       ))}

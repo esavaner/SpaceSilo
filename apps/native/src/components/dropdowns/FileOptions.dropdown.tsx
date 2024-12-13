@@ -15,6 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
+import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
 
 type FileOptionsDropdownProps = {
   file: FileEntity;
@@ -32,8 +33,11 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
       icon: <EditIcon />,
       onPress: () => openModal(<FileRenameModal file={file} />),
     },
-    { label: t('dropdown.move'), icon: <MoveIcon />, onPress: () => {} },
-    { label: t('dropdown.copy'), icon: <CopyIcon />, onPress: () => {} },
+    {
+      label: `${t('dropdown.move')} / ${t('dropdown.copy')}`,
+      icon: <CopyIcon />,
+      onPress: () => openModal(<FileMoveCopyModal selectedItems={[file]} />),
+    },
     {
       label: t('dropdown.remove'),
       icon: <TrashIcon className="text-red-600" />,
@@ -44,7 +48,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   return (
     <Dropdown
       trigger={(ref, handleOpen) => (
-        <Button variant="text" ref={ref} onPress={handleOpen} className="ml-auto">
+        <Button variant="icon" ref={ref} onPress={handleOpen} className="ml-auto">
           <EllipsisIcon />
         </Button>
       )}

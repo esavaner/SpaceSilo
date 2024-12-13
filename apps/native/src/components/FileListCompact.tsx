@@ -4,11 +4,11 @@ import { FileEntity } from '@/api/generated';
 
 type Props = {
   items: FileEntity[];
-  handleDirClick: (name: string) => void;
+  handleItemClick: (item: FileEntity) => void;
   className?: string;
 };
 
-export const FileListCompact = ({ items, handleDirClick, className }: Props) => {
+export const FileListCompact = ({ items, handleItemClick, className }: Props) => {
   const filteredItems = items.filter((i) => i.isDirectory);
   return (
     <>
@@ -22,7 +22,7 @@ export const FileListCompact = ({ items, handleDirClick, className }: Props) => 
               className={cn(
                 'flex-row gap-4 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary'
               )}
-              onPress={() => handleDirClick(item.name)}
+              onPress={() => handleItemClick(item)}
             >
               <Text>
                 <FolderIcon />

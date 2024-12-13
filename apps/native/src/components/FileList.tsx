@@ -6,37 +6,32 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
-import { Comparator, SortBy } from '@/hooks/useFileList';
+import { SortBy } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
+import { useFilesContext } from '@/providers/FilesProvider';
 
 type FileListProps = {
-  items: FileEntity[];
-  selectedItems: FileEntity[];
-  handleDirClick: (name: string) => void;
-  handleSelectItem: (item: FileEntity) => void;
-  handleClearSelection: () => void;
-  handleSelectAll: () => void;
-  handleSort: (sort: SortBy) => void;
-  comparator: Comparator;
-  currentPath: string;
   className?: string;
 };
 
-export const FileList = ({
-  items,
-  handleDirClick,
-  handleSelectItem,
-  handleClearSelection,
-  handleSelectAll,
-  handleSort,
-  comparator,
-  selectedItems,
-  currentPath,
-  className,
-}: FileListProps) => {
+export const FileList = ({ className }: FileListProps) => {
   const { t } = useTranslation();
+  const {
+    comparator,
+    currentPath,
+    items,
+    handleClearSelection,
+    handleItemClick,
+    handleSelectAll,
+    handleSelectItem,
+    handleSort,
+    hasSelectedAll,
+    hasSelectedItems,
+    selectedItems,
+  } = useFilesContext();
+
   const sortOptions = useMemo(
     () => [
       { label: t('sort.name'), value: 'name' as SortBy },
@@ -58,9 +53,6 @@ export const FileList = ({
     const timeZone = getCalendars()[0].timeZone || 'UTC';
     return formatInTimeZone(date, timeZone, 'd MMM yyyy');
   };
-
-  const hasSelectedItems = selectedItems.length > 0;
-  const hasSelectedAll = items.length > 0 && selectedItems.length === items.length;
 
   return (
     <>
@@ -99,9 +91,7 @@ export const FileList = ({
                 'flex-row gap-4 px-5 py-4 md:px-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary',
                 isSelected && 'bg-layer-secondary'
               )}
-              onPress={() =>
-                hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? handleDirClick(item.name) : null
-              }
+              onPress={() => handleItemClick(item)}
               onLongPress={() => handleSelectItem(item)}
             >
               <Checkbox

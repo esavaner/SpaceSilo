@@ -13,11 +13,11 @@ export const Header = ({ title, navigation, ...rest }: HeaderProps) => {
 
   return (
     <View className="p-2 flex flex-row gap-4 items-center bg-layer-secondary">
-      {width <= 992 && (
-        <Pressable onPress={navigation.toggleDrawer}>
-          <MenuIcon />
-        </Pressable>
-      )}
+      {/* {width <= 992 && ( */}
+      <Pressable onPress={navigation.toggleDrawer}>
+        <MenuIcon />
+      </Pressable>
+      {/* )} */}
       <Text className="text-gray-50 text-lg">{title}</Text>
       <Pressable className="ml-auto">
         <SearchIcon />

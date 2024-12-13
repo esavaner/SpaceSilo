@@ -5,12 +5,12 @@ import { cva } from 'class-variance-authority';
 import { Text } from './text';
 
 export type ButtonProps = PressableProps & {
-  variant?: 'primary' | 'outline' | 'text' | 'link';
+  variant?: 'primary' | 'outline' | 'text' | 'link' | 'icon';
   color?: 'primary' | 'secondary' | 'danger' | 'blue' | 'yellow' | 'red';
 };
 
 const buttonStyles = cva(
-  ['border rounded-md text-black min-w-8 min-h-8 flex flex-row gap-2 items-center justify-center'],
+  ['border rounded-md text-black min-w-10 min-h-10 flex flex-row gap-2 items-center justify-center'],
   {
     variants: {
       color: {
@@ -22,10 +22,11 @@ const buttonStyles = cva(
         red: 'border-red bg-red hover:bg-red-light active:bg-red-dark',
       },
       variant: {
-        primary: 'h-10 px-2',
-        outline: 'h-10 px-2 bg-transparent text-content hover:text-black ',
+        primary: 'px-2',
+        outline: 'px-2 bg-transparent text-content hover:text-black ',
         text: 'border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
-        link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-secondary active:bg-layer-secondary',
+        link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-tertiary active:bg-layer',
+        icon: 'border-none bg-transparent rounded-full hover:bg-layer-tertiary active:bg-layer',
       },
     },
   }

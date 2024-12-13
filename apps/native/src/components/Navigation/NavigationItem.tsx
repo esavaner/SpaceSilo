@@ -27,7 +27,7 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
         <Text className="ml-2">{label}</Text>
         {hasSubitems && (
           <Button
-            variant="text"
+            variant="icon"
             onPress={() => setIsOpen(!isOpen)}
             className={cn('transition-all transform ml-auto', !isOpen && '-rotate-90')}
           >

@@ -14,7 +14,7 @@ type Props = {
 export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
   const { t } = useTranslation();
   const { closeModal } = useUi();
-  const { currentPath, handleDirClick, handlePathClick, items } = useFileList({ path });
+  const { currentPath, handleItemClick, handlePathClick, items } = useFileList({ path });
   const { copy, move } = useFileActions();
 
   const handleMove = () => {
@@ -38,7 +38,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
         handlePathClick={handlePathClick}
         homeDirName={t('files.homeDir')}
       />
-      <FileListCompact items={items} handleDirClick={handleDirClick} className="min-h-64 max-h-64" />
+      <FileListCompact items={items} handleItemClick={handleItemClick} className="min-h-64 max-h-64" />
       <View className="flex-row gap-2 mt-2">
         <Button variant="outline" onPress={closeModal}>
           Cancel

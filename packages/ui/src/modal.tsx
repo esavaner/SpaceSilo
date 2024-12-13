@@ -23,7 +23,7 @@ export const Modal = ({ children, noLayout, onClose }: ModalProps) => {
             children
           ) : (
             <View className="relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4">
-              <Button onPress={onClose} className="absolute top-4 right-4 z-10" variant="text">
+              <Button onPress={onClose} className="absolute top-3 right-3 z-10" variant="icon">
                 <CloseIcon />
               </Button>
 
@@ -37,5 +37,5 @@ export const Modal = ({ children, noLayout, onClose }: ModalProps) => {
 };
 
 export const ModalTitle = ({ children }: { children: React.ReactNode }) => {
-  return <Text className="text-xl min-h-8 mb-2 flex items-center">{children}</Text>;
+  return <Text className="text-xl min-h-8 mb-3 flex items-center">{children}</Text>;
 };

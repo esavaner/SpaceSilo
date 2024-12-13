@@ -38,14 +38,17 @@ export const useFileList = ({ onPathChange, path = '' }: Props) => {
     queryFn: () => Api.files.filesControllerFindAll({ path: currentPath }),
   });
 
-  const handleDirClick = (name: string) => {
-    if (selectedItems.length > 0) {
-      return;
-    }
-    const newPath = `${currentPath}/${name}`;
-    setCurrentPath(newPath);
-    onPathChange?.(newPath);
-  };
+  const unsorted = data?.data || [];
+  const items = unsorted
+    .sort((a, b) => comparators[comparator.sort](a, b) * comparator.order)
+    .sort((a, b) => {
+      if (a.isDirectory && !b.isDirectory) return -comparator.order;
+      if (!a.isDirectory && b.isDirectory) return comparator.order;
+      return 0;
+    });
+
+  const hasSelectedItems = selectedItems.length > 0;
+  const hasSelectedAll = items.length > 0 && selectedItems.length === items.length;
 
   const handlePathClick = (newPath: string) => {
     if (selectedItems.length > 0) {
@@ -76,25 +79,31 @@ export const useFileList = ({ onPathChange, path = '' }: Props) => {
     setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
   };
 
-  const unsorted = data?.data || [];
-  const items = unsorted
-    .sort((a, b) => comparators[comparator.sort](a, b) * comparator.order)
-    .sort((a, b) => {
-      if (a.isDirectory && !b.isDirectory) return -comparator.order;
-      if (!a.isDirectory && b.isDirectory) return comparator.order;
-      return 0;
-    });
+  const onDirClick = (name: string) => {
+    if (selectedItems.length > 0) {
+      return;
+    }
+    const newPath = `${currentPath}/${name}`;
+    setCurrentPath(newPath);
+    onPathChange?.(newPath);
+  };
+
+  const handleItemClick = (item: FileEntity) => {
+    hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item.name) : null;
+  };
 
   return {
-    currentPath,
-    selectedItems,
-    handleDirClick,
-    handlePathClick,
-    handleSelectItem,
-    handleClearSelection,
-    handleSelectAll,
-    handleSort,
     comparator,
+    currentPath,
     items,
+    handleItemClick,
+    handleClearSelection,
+    handlePathClick,
+    handleSelectAll,
+    handleSelectItem,
+    handleSort,
+    hasSelectedAll,
+    hasSelectedItems,
+    selectedItems,
   };
 };
