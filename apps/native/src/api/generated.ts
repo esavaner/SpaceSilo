@@ -42,11 +42,12 @@ export interface RegisterDto {
 }
 
 export interface CreateFileDto {
-  path: string;
+  newPath: string;
+  name: string;
 }
 
 export interface CreateFolderDto {
-  path: string;
+  newPath: string;
   name: string;
 }
 
@@ -683,9 +684,9 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerMove: (
       query: {
-        path: string;
         newPath: string;
         name: string;
+        fileUri: string;
       },
       params: RequestParams = {}
     ) =>
@@ -705,7 +706,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerRemove: (
       query: {
-        path: string;
+        fileUri: string;
       },
       params: RequestParams = {}
     ) =>
@@ -741,7 +742,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerDownload: (
       query: {
-        path: string;
+        fileUri: string;
       },
       params: RequestParams = {}
     ) =>
@@ -761,9 +762,9 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerCopy: (
       query: {
-        path: string;
         newPath: string;
         name: string;
+        fileUri: string;
       },
       params: RequestParams = {}
     ) =>

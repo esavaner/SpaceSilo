@@ -15,15 +15,15 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { remove } = useFileActions();
 
   const handleRemove = () => {
-    files.forEach((file) => remove({ path: file.uri }));
+    files.forEach((file) => remove({ fileUri: file.uri }));
   };
 
   return (
     <>
       <ModalTitle>{t('removeItem')}</ModalTitle>
-      <ScrollView>
+      <ScrollView className="mb-4">
         {files.map((file) => (
-          <Text key={file.uri}>{file.uri}</Text>
+          <Text key={file.uri}>{file.name}</Text>
         ))}
       </ScrollView>
       <ButtonGroup okText={t('remove')} onOk={handleRemove} onCancel={closeModal} />

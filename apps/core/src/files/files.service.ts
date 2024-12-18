@@ -18,7 +18,7 @@ import * as crypto from 'crypto';
 @Injectable()
 export class FilesService {
   async createFile(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
-    const fileDir = path.join(process.env.FILES_PATH, dto.path);
+    const fileDir = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
     if (!fs.existsSync(fileDir)) {
       fs.mkdirSync(fileDir, { recursive: true });
@@ -28,7 +28,7 @@ export class FilesService {
   }
 
   async createFolder(dto: CreateFolderDto, user: TokenPayload) {
-    const folderDir = path.join(process.env.FILES_PATH, dto.path, dto.name);
+    const folderDir = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
     if (!fs.existsSync(folderDir)) {
       fs.mkdirSync(folderDir, { recursive: true });
     }
@@ -66,7 +66,7 @@ export class FilesService {
   }
 
   download(dto: DownloadFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto?.path);
+    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
 
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
@@ -74,14 +74,14 @@ export class FilesService {
 
     try {
       const fileContents = fs.createReadStream(filePath);
-      return new StreamableFile(fileContents, { type: 'image/jpeg' });
+      return new StreamableFile(fileContents);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
 
   move(dto: MoveFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.path);
+    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {
@@ -101,7 +101,7 @@ export class FilesService {
   }
 
   remove(dto: RemoveFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.path);
+    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
 
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
@@ -116,7 +116,7 @@ export class FilesService {
   }
 
   copy(dto: CopyFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.path);
+    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {

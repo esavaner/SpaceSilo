@@ -43,6 +43,17 @@ export default function RootLayout() {
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
+                name="view/index"
+                options={{
+                  title: 'View',
+                  headerTintColor: 'var(--color-text)',
+                  headerStyle: {
+                    backgroundColor: 'var(--color-background)',
+                  },
+                  navigationBarHidden: true,
+                }}
+              />
+              <Stack.Screen
                 name="login/index"
                 options={{
                   title: 'Login',

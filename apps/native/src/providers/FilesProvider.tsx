@@ -1,8 +1,10 @@
 import { useFileList } from '@/hooks/useFileList';
-import { useLocalSearchParams, router } from 'expo-router';
-import { createContext, useContext } from 'react';
+import { router } from 'expo-router';
+import { createContext, useContext, useState } from 'react';
 
-type FilesContextType = ReturnType<typeof useFileList>;
+type FilesContextType = ReturnType<typeof useFileList> & {
+  setInitialPath: (path: string) => void;
+};
 
 export const FilesContext = createContext<FilesContextType | undefined>(undefined);
 
@@ -11,11 +13,16 @@ type FilesProviderProps = {
 };
 
 export const FilesProvider = ({ children }: FilesProviderProps) => {
-  const { path } = useLocalSearchParams<{ path?: string }>();
+  const [initialPath, setInitialPath] = useState('');
 
-  const fileList = useFileList({ path, onPathChange: (path) => router.setParams({ path }) });
+  const fileList = useFileList({
+    path: initialPath,
+    onPathChange: (path) => router.setParams({ path }),
+    // @ts-ignore
+    onFileSelect: (fileUri) => router.push({ pathname: '/view', params: { fileUri } }),
+  });
 
-  return <FilesContext.Provider value={{ ...fileList }}>{children}</FilesContext.Provider>;
+  return <FilesContext.Provider value={{ ...fileList, setInitialPath }}>{children}</FilesContext.Provider>;
 };
 
 export const useFilesContext = () => {

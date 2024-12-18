@@ -33,7 +33,7 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   });
 
   const onSubmit = (values: CreateFolderForm) => {
-    create({ path: currentPath, name: values.folder });
+    create({ newPath: currentPath, name: values.folder });
   };
 
   return (

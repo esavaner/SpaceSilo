@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 type Props = {
   onPathChange?: (path: string) => void;
+  onFileSelect?: (fileUri: string) => void;
   path?: string;
 };
 
@@ -28,7 +29,7 @@ const comparators: Record<SortBy, (a: FileEntity, b: FileEntity) => number> = {
   },
 };
 
-export const useFileList = ({ onPathChange, path = '' }: Props) => {
+export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) => {
   const [currentPath, setCurrentPath] = useState(path);
   const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
@@ -79,17 +80,23 @@ export const useFileList = ({ onPathChange, path = '' }: Props) => {
     setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
   };
 
-  const onDirClick = (name: string) => {
+  const onDirClick = (dirUri: string) => {
     if (selectedItems.length > 0) {
       return;
     }
-    const newPath = `${currentPath}/${name}`;
-    setCurrentPath(newPath);
-    onPathChange?.(newPath);
+    setCurrentPath(dirUri);
+    onPathChange?.(dirUri);
+  };
+
+  const onFileClick = (fileUri: string) => {
+    if (selectedItems.length > 0) {
+      return;
+    }
+    onFileSelect?.(fileUri);
   };
 
   const handleItemClick = (item: FileEntity) => {
-    hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item.name) : null;
+    hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item.uri) : onFileClick(item.uri);
   };
 
   return {

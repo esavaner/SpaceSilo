@@ -19,13 +19,13 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
 
   const handleMove = () => {
     selectedItems.forEach((item) => {
-      move({ path: item.uri, newPath: currentPath, name: item.name });
+      move({ fileUri: item.uri, newPath: currentPath, name: item.name });
     });
   };
 
   const handleCopy = () => {
     selectedItems.forEach((item) => {
-      copy({ path: item.uri, newPath: currentPath, name: item.name });
+      copy({ fileUri: item.uri, newPath: currentPath, name: item.name });
     });
   };
 
@@ -34,7 +34,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
       <ModalTitle>Move or copy</ModalTitle>
       <Text>{selectedItems.length} item(s) selected</Text>
       <Breadcrumb
-        pathItems={currentPath.split('/')}
+        pathItems={currentPath.split('/|\\')}
         handlePathClick={handlePathClick}
         homeDirName={t('files.homeDir')}
       />
