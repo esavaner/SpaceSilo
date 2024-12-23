@@ -25,7 +25,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('SpaceSilo API')
+    .setTitle('HomeSilo API')
     .setDescription('The API description')
     .setVersion('1.0')
     .build();

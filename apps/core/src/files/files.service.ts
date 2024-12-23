@@ -53,7 +53,7 @@ export class FilesService {
         }
         return {
           name: file,
-          uri: path.join(dto.path || '', file),
+          uri: path.join('/', dto.path || '', file),
           size: stats.size,
           modificationTime: stats.mtime,
           isDirectory: stats.isDirectory(),

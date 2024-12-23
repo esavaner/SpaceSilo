@@ -65,6 +65,10 @@ export type CreateNoteDto = object;
 
 export type UpdateNoteDto = object;
 
+export type CreateGroupDto = object;
+
+export type UpdateGroupDto = object;
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -276,7 +280,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title SpaceSilo API
+ * @title HomeSilo API
  * @version 1.0
  * @contact
  *
@@ -850,6 +854,86 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     notesControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/notes/${id}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+  };
+  groups = {
+    /**
+     * No description
+     *
+     * @tags Groups
+     * @name GroupsControllerCreate
+     * @request POST:/groups
+     */
+    groupsControllerCreate: (data: CreateGroupDto, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/groups`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Groups
+     * @name GroupsControllerFindAll
+     * @request GET:/groups
+     */
+    groupsControllerFindAll: (params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/groups`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Groups
+     * @name GroupsControllerFindOne
+     * @request GET:/groups/{id}
+     */
+    groupsControllerFindOne: (id: string, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/groups/${id}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Groups
+     * @name GroupsControllerUpdate
+     * @request PATCH:/groups/{id}
+     */
+    groupsControllerUpdate: (id: string, data: UpdateGroupDto, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/groups/${id}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Groups
+     * @name GroupsControllerRemove
+     * @request DELETE:/groups/{id}
+     */
+    groupsControllerRemove: (id: string, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/groups/${id}`,
         method: 'DELETE',
         format: 'json',
         ...params,

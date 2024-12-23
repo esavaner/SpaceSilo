@@ -24,7 +24,8 @@ export class LoggerMiddleware implements NestMiddleware {
         chunks.push(Buffer.from(restArgs[0]));
       }
       const body = Buffer.concat(chunks).toString('utf8');
-      this.logger.log(`Response: ${method} ${originalUrl} - ${res.statusCode} - ${body}`);
+      // this.logger.log(`Response: ${method} ${originalUrl} - ${res.statusCode} - ${body}`);
+      this.logger.log(`Response: ${method} ${originalUrl} - ${res.statusCode}`);
       return oldEnd.apply(res, restArgs);
     };
 

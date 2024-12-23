@@ -24,10 +24,8 @@ model User {
 
   photos    Photo[]
   albums    Album[]
-  files     File[]
-  folders   Folder[]
-  sharedByUser    Space[]
-  sharedToUser SpaceUser[]
+  sharedByUser    Group[]
+  sharedToUser GroupMember[]
 }
 
 
@@ -44,7 +42,7 @@ model Photo {
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
   albums    Album[]
-  space     Space[]
+  Group     Group[]
 }
 
 model Album {
@@ -59,57 +57,27 @@ model Album {
   parent    Album?   @relation("Subalbums", fields: [parentId], references: [id])
   subalbums Album[]  @relation("Subalbums")
   photos    Photo[]
-  space     Space[]
+  Group     Group[]
 }
 
-model File {
-  id        String   @id @default(cuid())
-  name      String
-  path      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  folderId  String?
-  folder    Folder?  @relation(fields: [folderId], references: [id])
-  space     Space[]
-}
-
-model Folder {
+model Group {
   id        String   @id @default(cuid())
+  groupId   String 
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
-  parentId  String?
-  parent    Folder?  @relation("Subfolders", fields: [parentId], references: [id])
-  subfolders Folder[] @relation("Subfolders")
-  files     File[]
-  space     Space[]
-}
-
-model Space {
-  id        String   @id @default(cuid())
-  spaceId   String 
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  sharedTo  SpaceUser[]
+  sharedTo  GroupMember[]
   albums    Album[]
   photos    Photo[]
-  files     File[]
-  folders   Folder[]
 }
 
-model SpaceUser {
-  spaceId   String
-  space     Space    @relation(fields: [spaceId], references: [id])
+model GroupMember {
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   admin     Boolean  @default(false)
@@ -117,5 +85,5 @@ model SpaceUser {
   delete    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@id([spaceId, userId])
+  @@id([groupId, userId])
 }

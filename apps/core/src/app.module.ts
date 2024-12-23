@@ -7,9 +7,10 @@ import { FilesModule } from './files/files.module';
 import { NotesModule } from './notes/notes.module';
 import { LoggerMiddleware } from './common/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), GalleryModule, CommonModule, UsersModule, AuthModule, FilesModule, NotesModule],
+  imports: [ConfigModule.forRoot(), GalleryModule, CommonModule, UsersModule, AuthModule, FilesModule, NotesModule, GroupsModule],
   controllers: [],
   providers: [],
 })

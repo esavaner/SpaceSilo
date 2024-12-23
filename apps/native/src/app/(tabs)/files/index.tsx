@@ -19,8 +19,6 @@ export default function FilesPage() {
     }
   }, []);
 
-  console.log(currentPath.split(/\/|\\/));
-
   return (
     <View className="flex-1 bg-layer relative">
       {selectedItems.length > 0 ? (
