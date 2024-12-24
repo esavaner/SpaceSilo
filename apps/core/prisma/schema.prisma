@@ -24,8 +24,8 @@ model User {
 
   photos    Photo[]
   albums    Album[]
-  sharedByUser    Group[]
-  sharedToUser GroupMember[]
+  ownerOf   Group[]
+  memberOf  GroupMember[]
 }
 
 
@@ -42,7 +42,7 @@ model Photo {
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
   albums    Album[]
-  Group     Group[]
+  group     Group[]
 }
 
 model Album {
@@ -57,20 +57,20 @@ model Album {
   parent    Album?   @relation("Subalbums", fields: [parentId], references: [id])
   subalbums Album[]  @relation("Subalbums")
   photos    Photo[]
-  Group     Group[]
+  group     Group[]
 }
 
 
 model Group {
   id        String   @id @default(cuid())
-  groupId   String 
+  groupId   String?   @unique
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
-  sharedTo  GroupMember[]
+  members   GroupMember[]
   albums    Album[]
   photos    Photo[]
 }

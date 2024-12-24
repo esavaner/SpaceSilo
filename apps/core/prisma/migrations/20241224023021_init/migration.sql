@@ -41,7 +41,7 @@ CREATE TABLE "Album" (
 -- CreateTable
 CREATE TABLE "Group" (
     "id" TEXT NOT NULL,
-    "groupId" TEXT NOT NULL,
+    "groupId" TEXT,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -89,6 +89,9 @@ CREATE TABLE "_GroupToPhoto" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Group_groupId_key" ON "Group"("groupId");
 
 -- CreateIndex
 CREATE INDEX "_AlbumToPhoto_B_index" ON "_AlbumToPhoto"("B");
