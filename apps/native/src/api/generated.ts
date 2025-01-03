@@ -74,8 +74,8 @@ export interface AddMemberDto {
 
 export interface CreateGroupDto {
   groupId: string;
-  name: string;
-  members: AddMemberDto[];
+  groupName: string;
+  members?: AddMemberDto[];
 }
 
 export interface RemoveMemberDto {

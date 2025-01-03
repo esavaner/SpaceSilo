@@ -1,6 +1,5 @@
 import { NavigationItem, NavigationItemProps } from './NavigationItem';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import React from 'react';
 
 type NavigationProps = DrawerContentComponentProps & {
   items: NavigationItemProps[];

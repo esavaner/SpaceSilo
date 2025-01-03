@@ -4,7 +4,7 @@ import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
 import { useWindowDimensions, Platform } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
-import { FileIcon } from '@repo/ui';
+import { FileIcon, UserGroupIcon } from '@repo/ui';
 import { Header } from '@/components/Header';
 
 const items: NavigationItemProps[] = [
@@ -37,21 +37,13 @@ const items: NavigationItemProps[] = [
     ],
   },
   {
-    label: 'Files2',
-    path: 'files2',
-    icon: <FileIcon size={20} />,
+    label: 'Sharing',
+    path: 'sharing/groups',
+    icon: <UserGroupIcon size={18} />,
     subitems: [
       {
-        label: 'On device',
-        path: 'files/local',
-      },
-      {
-        label: 'Remote',
-        path: 'files/remote',
-      },
-      {
-        label: 'Sync',
-        path: 'files/sync',
+        label: 'Groups',
+        path: 'sharing/groups',
       },
     ],
   },

@@ -50,5 +50,6 @@ export const SearchIcon = (p: IconProps) => <FIcon name="search" {...d} {...p} /
 export const SettingsIcon = (p: IconProps) => <FIcon name="settings" {...d} {...p} />;
 export const ShareIcon = (p: IconProps) => <FIcon name="share" {...d} {...p} />;
 export const TrashIcon = (p: IconProps) => <FIcon name="trash-2" {...d} {...p} />;
+export const UserGroupIcon = (p: IconProps) => <Fa6Icon name="user-group" {...d} {...p} />;
 
 export const CodeIcon = (p: IconProps) => <Fa6Icon name="code" {...d} {...p} />;

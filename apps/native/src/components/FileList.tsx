@@ -88,19 +88,19 @@ export const FileList = ({ className }: FileListProps) => {
             <Pressable
               key={item.name}
               className={cn(
-                'flex-row gap-4 px-5 py-4 md:px-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
+                'flex-row px-5 py-4 md:px-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
                 isSelected && 'bg-layer-secondary'
               )}
               onPress={() => handleItemClick(item)}
               onLongPress={() => handleSelectItem(item)}
             >
-              <Checkbox
-                // className={cn('md:flex', hasSelectedItems ? 'flex' : 'hidden')}
-                className={cn('transition-all transform', hasSelectedItems ? '' : 'w-0')}
-                checked={!!isSelected}
-                onChange={() => handleSelectItem(item)}
-              />
-              <Text className="h-full w-7 flex items-center justify-center transition-all transform">
+              <View
+                className={cn('transition-all transform overflow-hidden', hasSelectedItems ? 'w-5 mr-4' : 'w-0 mr-0')}
+              >
+                <Checkbox checked={!!isSelected} onChange={() => handleSelectItem(item)} />
+              </View>
+
+              <Text className="h-full w-7 flex items-center justify-center transition-all transform mr-4">
                 {getIcon(item)}
               </Text>
               <View className="gap-1">

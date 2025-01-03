@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import { router } from 'expo-router';
 
 const schema = yup.object().shape({
-  serverUrl: yup.string().required('Server URL is required'),
+  // serverUrl: yup.string().required('Server URL is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   password: yup.string().required('Password is required'),
 });
@@ -31,7 +31,7 @@ export default function LoginPage() {
   } = useForm<LoginForm>({
     resolver: yupResolver(schema),
     defaultValues: {
-      serverUrl: '',
+      // serverUrl: '',
       email: '',
       password: '',
     },
@@ -43,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <View className="p-6 flex gap-2 w-full max-w-96 mx-auto">
-      <Controller
+      {/* <Controller
         control={control}
         render={({ field }) => (
           <Input
@@ -55,7 +55,7 @@ export default function LoginPage() {
           />
         )}
         name="serverUrl"
-      />
+      /> */}
       <Controller
         control={control}
         render={({ field }) => (

@@ -10,15 +10,21 @@ export class GroupsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateGroupDto, user: TokenPayload) {
+    const existingGroup = await this.prisma.group.findUnique({ where: { groupId: dto.groupId } });
+
+    if (existingGroup) {
+      throw new Error('Group with this ID already exists');
+    }
+
+    const res = await this.prisma.group.create({
+      data: { ...dto, ownerId: user.sub, name: dto.groupName, members: { create: dto.members } },
+    });
+
     const groupPath = path.join(process.env.FILES_PATH, dto.groupId);
     if (!fs.existsSync(groupPath)) {
       fs.mkdirSync(groupPath, { recursive: true });
-    } else {
-      throw new Error('Group with this ID already exists');
     }
-    const res = await this.prisma.group.create({
-      data: { ...dto, ownerId: user.sub, members: { create: dto.members } },
-    });
+
     return res;
   }
 

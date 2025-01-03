@@ -15,6 +15,6 @@ export class UpdateMemberDto extends PartialType(AddMemberDto) {}
 
 export class CreateGroupDto {
   groupId: string;
-  name: string;
-  members: AddMemberDto[];
+  groupName: string;
+  members?: AddMemberDto[];
 }

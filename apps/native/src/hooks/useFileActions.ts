@@ -17,7 +17,7 @@ export const useFileActions = () => {
   };
 
   const { mutate: copy } = useMutation({
-    mutationKey: ['copy'],
+    mutationKey: ['copyFiles'],
     mutationFn: Api.files.filesControllerCopy,
     onSuccess: () => success('File copied'),
     onError: () => {
@@ -35,7 +35,7 @@ export const useFileActions = () => {
   });
 
   const { mutate: move } = useMutation({
-    mutationKey: ['move'],
+    mutationKey: ['moveFiles'],
     mutationFn: Api.files.filesControllerMove,
     onSuccess: () => success('File moved'),
     onError: () => {
@@ -44,7 +44,7 @@ export const useFileActions = () => {
   });
 
   const { mutate: remove } = useMutation({
-    mutationKey: ['remove'],
+    mutationKey: ['removeFiles'],
     mutationFn: Api.files.filesControllerRemove,
     onSuccess: () => success('File removed'),
     onError: () => {
@@ -53,7 +53,7 @@ export const useFileActions = () => {
   });
 
   const { mutate: rename } = useMutation({
-    mutationKey: ['rename'],
+    mutationKey: ['renameFiles'],
     mutationFn: Api.files.filesControllerMove,
     onSuccess: () => success('File renamed'),
     onError: () => {
