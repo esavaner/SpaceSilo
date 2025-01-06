@@ -16,9 +16,9 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
     res.cookie('jwt', result.access_token, {
-      httpOnly: true,
+      // httpOnly: true, @TODO
       // secure: true,
-      sameSite: true,
+      // sameSite: true,
     });
     return res.status(HttpStatus.OK).json(result);
   }

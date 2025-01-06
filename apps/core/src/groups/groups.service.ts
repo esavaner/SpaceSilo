@@ -17,7 +17,7 @@ export class GroupsService {
     }
 
     const res = await this.prisma.group.create({
-      data: { ...dto, ownerId: user.sub, name: dto.groupName, members: { create: dto.members } },
+      data: { ownerId: user.sub, name: dto.groupName, groupId: dto.groupId, members: { create: dto.members } },
     });
 
     const groupPath = path.join(process.env.FILES_PATH, dto.groupId);
