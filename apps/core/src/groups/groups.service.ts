@@ -1,23 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AddMemberDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { GroupEntity } from 'src/_entity/group.entity';
 
 @Injectable()
 export class GroupsService {
+  private readonly options = { include: { members: true } };
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateGroupDto, user: TokenPayload) {
+  async create(dto: CreateGroupDto, user: TokenPayload): Promise<GroupEntity> {
     const existingGroup = await this.prisma.group.findUnique({ where: { groupId: dto.groupId } });
 
     if (existingGroup) {
-      throw new Error('Group with this ID already exists');
+      throw new ForbiddenException('Group with this ID already exists');
     }
 
     const res = await this.prisma.group.create({
       data: { ownerId: user.sub, name: dto.groupName, groupId: dto.groupId, members: { create: dto.members } },
+      ...this.options,
     });
 
     const groupPath = path.join(process.env.FILES_PATH, dto.groupId);
@@ -28,17 +32,18 @@ export class GroupsService {
     return res;
   }
 
-  async findAll() {
-    return await this.prisma.group.findMany();
+  async findAll(): Promise<GroupEntity[]> {
+    return await this.prisma.group.findMany({ ...this.options });
   }
 
-  async findOne(groupId: string) {
+  async findOne(groupId: string): Promise<GroupEntity> {
     return await this.prisma.group.findUnique({
       where: { groupId },
+      ...this.options,
     });
   }
 
-  async addMember(groupId: string, dto: AddMemberDto) {
+  async addMember(groupId: string, dto: AddMemberDto): Promise<GroupEntity> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -46,10 +51,11 @@ export class GroupsService {
           create: { ...dto },
         },
       },
+      ...this.options,
     });
   }
 
-  async removeMember(groupId: string, dto: RemoveMemberDto) {
+  async removeMember(groupId: string, dto: RemoveMemberDto): Promise<GroupEntity> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -57,10 +63,11 @@ export class GroupsService {
           delete: { groupId_userId: { groupId, userId: dto.userId } },
         },
       },
+      ...this.options,
     });
   }
 
-  async updateMember(groupId: string, dto: UpdateMemberDto) {
+  async updateMember(groupId: string, dto: UpdateMemberDto): Promise<GroupEntity> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -68,12 +75,14 @@ export class GroupsService {
           update: { where: { groupId_userId: { groupId, userId: dto.userId } }, data: { ...dto } },
         },
       },
+      ...this.options,
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<GroupEntity> {
     return await this.prisma.group.delete({
       where: { id },
+      ...this.options,
     });
   }
 }

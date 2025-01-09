@@ -14,6 +14,14 @@ import { FilesProvider } from '@/providers/FilesProvider';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const commonOptions: React.ComponentProps<typeof Stack.Screen>['options'] = {
+  headerTintColor: 'var(--color-text)',
+  headerStyle: {
+    backgroundColor: 'var(--color-background)',
+  },
+  navigationBarHidden: true,
+};
+
 export default function RootLayout() {
   const [loaded] = useFonts({
     InterVariable: require('../assets/fonts/Inter-Variable.ttf'),
@@ -42,27 +50,15 @@ export default function RootLayout() {
               }}
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="view/index" options={commonOptions} />
+              <Stack.Screen name="login/index" options={commonOptions} />
               <Stack.Screen
-                name="view/index"
-                options={{
-                  title: 'View',
-                  headerTintColor: 'var(--color-text)',
-                  headerStyle: {
-                    backgroundColor: 'var(--color-background)',
-                  },
-                  navigationBarHidden: true,
-                }}
-              />
-              <Stack.Screen
-                name="login/index"
-                options={{
-                  title: 'Login',
-                  headerTintColor: 'var(--color-text)',
-                  headerStyle: {
-                    backgroundColor: 'var(--color-background)',
-                  },
-                  navigationBarHidden: true,
-                }}
+                name="/group/[groupId]"
+                options={({ route }) => ({
+                  // @ts-ignore
+                  title: `Group ${route?.params.groupId}`,
+                  ...commonOptions,
+                })}
               />
               <Stack.Screen name="+not-found" />
             </Stack>

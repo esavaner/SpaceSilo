@@ -78,6 +78,21 @@ export interface CreateGroupDto {
   members?: AddMemberDto[];
 }
 
+export interface MemberEntity {
+  userId: string;
+  admin: boolean;
+  write: boolean;
+  delete: boolean;
+}
+
+export interface GroupEntity {
+  id: string;
+  name: string;
+  groupId: string;
+  members: MemberEntity[];
+  ownerId: string;
+}
+
 export interface RemoveMemberDto {
   userId: string;
 }
@@ -888,11 +903,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request POST:/groups
      */
     groupsControllerCreate: (data: CreateGroupDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -904,9 +920,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request GET:/groups
      */
     groupsControllerFindAll: (params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity[], any>({
         path: `/groups`,
         method: 'GET',
+        format: 'json',
         ...params,
       }),
 
@@ -918,11 +935,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request PATCH:/groups/{id}/add_member
      */
     groupsControllerAddMember: (id: string, data: AddMemberDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups/${id}/add_member`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -934,11 +952,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request PATCH:/groups/{id}/remove_member
      */
     groupsControllerRemoveMember: (id: string, data: RemoveMemberDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups/${id}/remove_member`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -950,11 +969,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request PATCH:/groups/{id}/update_member
      */
     groupsControllerUpdateMember: (id: string, data: UpdateMemberDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups/${id}/update_member`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -966,9 +986,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request GET:/groups/{id}
      */
     groupsControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups/${id}`,
         method: 'GET',
+        format: 'json',
         ...params,
       }),
 
@@ -980,9 +1001,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request DELETE:/groups/{id}
      */
     groupsControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<GroupEntity, any>({
         path: `/groups/${id}`,
         method: 'DELETE',
+        format: 'json',
         ...params,
       }),
   };

@@ -37,15 +37,9 @@ const items: NavigationItemProps[] = [
     ],
   },
   {
-    label: 'Sharing',
-    path: 'sharing/groups',
+    label: 'Groups',
+    path: 'groups',
     icon: <UserGroupIcon size={18} />,
-    subitems: [
-      {
-        label: 'Groups',
-        path: 'sharing/groups',
-      },
-    ],
   },
 ];
 
