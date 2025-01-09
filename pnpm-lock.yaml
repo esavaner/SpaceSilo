@@ -293,6 +293,9 @@ importers:
       expo-font:
         specifier: ~13.0.1
         version: 13.0.1(expo@52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      expo-image:
+        specifier: ^2.0.3
+        version: 2.0.3(expo@52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react-native-web@0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1)
       expo-linking:
         specifier: ~7.0.2
         version: 7.0.2(expo@52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1)
@@ -3824,6 +3827,17 @@ packages:
       expo: '*'
       react: '*'
 
+  expo-image@2.0.3:
+    resolution: {integrity: sha512-+YnHTQv8jbXaut3FY7TDhNiSiGZ927C329mHvTZWV4Fyj32/Hjhhmk7dqq9I6LrA0nqBBiJjFj3u6VdHvCBnZg==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+      react-native-web: '*'
+    peerDependenciesMeta:
+      react-native-web:
+        optional: true
+
   expo-keep-awake@14.0.1:
     resolution: {integrity: sha512-c5mGCAIk2YM+Vsdy90BlEJ4ZX+KG5Au9EkJUIxXWlpnuKmDAJ3N+5nEZ7EUO1ZTheqoSBeAo4jJ8rTWPU+JXdw==}
     peerDependencies:
@@ -6555,6 +6569,7 @@ packages:
 
   sudo-prompt@9.2.1:
     resolution: {integrity: sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   superagent@9.0.2:
     resolution: {integrity: sha512-xuW7dzkUpcJq7QnhOsnNUgtYp3xRwpt2F7abdRYIpCsAt0hhUqia0EdxyXZQQpNmGtsCzYHryaKSV3q3GJnq7w==}
@@ -9016,7 +9031,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.17.3
+      '@types/node': 22.10.1
       '@types/yargs': 15.0.19
       chalk: 4.1.2
     optional: true
@@ -11455,8 +11470,8 @@ snapshots:
       '@typescript-eslint/parser': 8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3)
       eslint: 9.13.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
+      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6))
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.13.0(jiti@1.21.6))
       eslint-plugin-react: 7.37.2(eslint@9.13.0(jiti@1.21.6))
       eslint-plugin-react-hooks: 5.0.0(eslint@9.13.0(jiti@1.21.6))
@@ -11498,19 +11513,19 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)):
+  eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.3.7
       enhanced-resolve: 5.17.1
       eslint: 9.13.0(jiti@1.21.6)
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
       fast-glob: 3.3.2
       get-tsconfig: 4.8.1
       is-bun-module: 1.2.1
       is-glob: 4.0.3
     optionalDependencies:
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
     transitivePeerDependencies:
       - '@typescript-eslint/parser'
       - eslint-import-resolver-node
@@ -11528,14 +11543,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3)
       eslint: 9.13.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
+      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6))
     transitivePeerDependencies:
       - supports-color
 
@@ -11568,7 +11583,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
@@ -11579,7 +11594,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.13.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -11849,6 +11864,14 @@ snapshots:
       expo: 52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1)
       fontfaceobserver: 2.3.0
       react: 18.3.1
+
+  expo-image@2.0.3(expo@52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react-native-web@0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1):
+    dependencies:
+      expo: 52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-native: 0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)
+    optionalDependencies:
+      react-native-web: 0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   expo-keep-awake@14.0.1(expo@52.0.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@expo/metro-runtime@4.0.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1)))(graphql@15.8.0)(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@react-native-community/cli-server-api@14.1.0)(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:

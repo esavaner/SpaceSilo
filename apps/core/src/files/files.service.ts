@@ -74,7 +74,7 @@ export class FilesService {
 
     try {
       const fileContents = fs.createReadStream(filePath);
-      return new StreamableFile(fileContents);
+      return new StreamableFile(fileContents, { type: 'image/jpeg' });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

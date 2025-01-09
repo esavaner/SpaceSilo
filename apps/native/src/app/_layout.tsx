@@ -52,14 +52,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="view/index" options={commonOptions} />
               <Stack.Screen name="login/index" options={commonOptions} />
-              <Stack.Screen
-                name="/group/[groupId]"
-                options={({ route }) => ({
-                  // @ts-ignore
-                  title: `Group ${route?.params.groupId}`,
-                  ...commonOptions,
-                })}
-              />
+              <Stack.Screen name="/group/[groupId]" options={commonOptions} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </UiProvider>
