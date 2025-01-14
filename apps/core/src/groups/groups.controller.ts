@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { GroupsService } from './groups.service';
-import { AddMemberDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
+import { AddMemberDto, AddMembersDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GroupEntity } from 'src/_entity/group.entity';
 
@@ -19,6 +19,12 @@ export class GroupsController {
   @ApiOkResponse({ type: GroupEntity })
   addMember(@Param('id') id: string, @Body() dto: AddMemberDto) {
     return this.groupsService.addMember(id, dto);
+  }
+
+  @Patch(':id/add_members')
+  @ApiOkResponse({ type: GroupEntity })
+  addMembers(@Param('id') id: string, @Body() dto: AddMembersDto) {
+    return this.groupsService.addMembers(id, dto);
   }
 
   @Patch(':id/remove_member')

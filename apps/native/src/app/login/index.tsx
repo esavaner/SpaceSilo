@@ -42,7 +42,7 @@ export default function LoginPage() {
   };
 
   return (
-    <View className="p-6 flex gap-2 w-full max-w-96 mx-auto">
+    <View className="p-6 flex flex-1 gap-2 w-full max-w-96 mx-auto bg-layer">
       {/* <Controller
         control={control}
         render={({ field }) => (

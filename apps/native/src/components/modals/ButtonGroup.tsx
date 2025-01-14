@@ -12,7 +12,7 @@ type Props = {
 export const ButtonGroup = ({ okText, cancelText, onOk, onCancel }: Props) => {
   const { t } = useTranslation();
   return (
-    <View className="flex flex-row gap-2 w-full">
+    <View className="flex flex-row gap-2 w-full mt-auto">
       <Button onPress={onCancel} variant="outline" className="flex-1">
         {cancelText || t('cancel')}
       </Button>

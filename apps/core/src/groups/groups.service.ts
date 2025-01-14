@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AddMemberDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
+import { AddMemberDto, AddMembersDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
@@ -49,6 +49,18 @@ export class GroupsService {
       data: {
         members: {
           create: { ...dto },
+        },
+      },
+      ...this.options,
+    });
+  }
+
+  async addMembers(groupId: string, dto: AddMembersDto): Promise<GroupEntity> {
+    return await this.prisma.group.update({
+      where: { id: groupId },
+      data: {
+        members: {
+          createMany: { data: dto.members },
         },
       },
       ...this.options,

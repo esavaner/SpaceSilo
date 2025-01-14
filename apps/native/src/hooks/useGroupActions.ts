@@ -23,6 +23,16 @@ export const useGroupActions = () => {
     },
   });
 
+  const { mutate: addMembers } = useMutation({
+    mutationKey: ['addMembers'],
+    mutationFn: ({ id, members }: { id: string; members: AddMemberDto[] }) =>
+      Api.groups.groupsControllerAddMembers(id, { members }),
+    onSuccess: () => success('Members added'),
+    onError: () => {
+      toast.error('Error adding members');
+    },
+  });
+
   const { mutate: createGroup } = useMutation({
     mutationKey: ['createGroup'],
     mutationFn: Api.groups.groupsControllerCreate,
@@ -61,6 +71,7 @@ export const useGroupActions = () => {
 
   return {
     addMember,
+    addMembers,
     createGroup,
     removeGroup,
     removeMember,

@@ -93,6 +93,10 @@ export interface GroupEntity {
   ownerId: string;
 }
 
+export interface AddMembersDto {
+  members: AddMemberDto[];
+}
+
 export interface RemoveMemberDto {
   userId: string;
 }
@@ -937,6 +941,23 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     groupsControllerAddMember: (id: string, data: AddMemberDto, params: RequestParams = {}) =>
       this.request<GroupEntity, any>({
         path: `/groups/${id}/add_member`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags groups
+     * @name GroupsControllerAddMembers
+     * @request PATCH:/groups/{id}/add_members
+     */
+    groupsControllerAddMembers: (id: string, data: AddMembersDto, params: RequestParams = {}) =>
+      this.request<GroupEntity, any>({
+        path: `/groups/${id}/add_members`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,

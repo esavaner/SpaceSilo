@@ -2,12 +2,12 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { Text } from './text';
 import { AlertOctagonIcon, AlertTriangleIcon, CheckCircleIcon, InfoIcon } from './icons';
-import { useUi } from './UiProvider';
 
 export type ToastProps = {
   id: string;
   message: string;
   type: 'error' | 'info' | 'success' | 'warning';
+  removeToast: (id: string) => void;
 };
 
 const icons: Record<ToastProps['type'], React.ReactNode> = {
@@ -17,9 +17,7 @@ const icons: Record<ToastProps['type'], React.ReactNode> = {
   warning: <AlertTriangleIcon className="text-yellow-600" />,
 };
 
-export const Toast = ({ id, message, type }: ToastProps) => {
-  const { removeToast } = useUi();
-
+export const Toast = ({ id, message, removeToast, type }: ToastProps) => {
   return (
     <Pressable
       className="flex-row p-4 gap-4 items-center rounded-md bg-layer-secondary"

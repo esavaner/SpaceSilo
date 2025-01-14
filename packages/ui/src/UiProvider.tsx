@@ -22,7 +22,7 @@ type UiProviderProps = {
 };
 
 export const UiProvider = ({ children }: UiProviderProps) => {
-  const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [toasts, setToasts] = useState<Omit<ToastProps, 'removeToast'>[]>([]);
   const [currentModal, setCurrentModal] = useState<React.ReactNode>();
   const [modalOptions, setModalOptions] = useState<ModalProps>();
 
@@ -36,7 +36,7 @@ export const UiProvider = ({ children }: UiProviderProps) => {
     setModalOptions(undefined);
   };
 
-  const addToast = (toast: Omit<ToastProps, 'id'>) => {
+  const addToast = (toast: Omit<ToastProps, 'id' | 'removeToast'>) => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { ...toast, id }]);
     setTimeout(() => removeToast(id), 5000);
@@ -63,7 +63,7 @@ export const UiProvider = ({ children }: UiProviderProps) => {
       )}
       <View className="fixed bottom-4 right-4 gap-2 bg-transparent">
         {toasts.map((toast) => (
-          <Toast key={toast.id} {...toast} />
+          <Toast key={toast.id} {...toast} removeToast={removeToast} />
         ))}
       </View>
     </UiContext.Provider>

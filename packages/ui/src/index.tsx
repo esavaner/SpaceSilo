@@ -5,6 +5,7 @@ export * from './dropdown';
 export * from './icons';
 export * from './input';
 export { ModalTitle } from './modal';
+export * from './search';
 export * from './select';
 export * from './text';
 export * from './toast';

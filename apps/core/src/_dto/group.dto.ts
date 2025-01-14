@@ -7,6 +7,10 @@ export class AddMemberDto {
   delete?: boolean;
 }
 
+export class AddMembersDto {
+  members: AddMemberDto[];
+}
+
 export class RemoveMemberDto {
   userId: string;
 }
