@@ -6,6 +6,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        basedark: 'var(--color-dark)',
+        baselight: 'var(--color-light)',
         content: {
           DEFAULT: 'var(--color-text)',
           secondary: 'var(--color-text-secondary)',

@@ -40,7 +40,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
       />
       <FileListCompact items={items} handleItemClick={handleItemClick} className="min-h-64 max-h-64" />
       <View className="flex-row gap-2 mt-2">
-        <Button variant="outline" onPress={closeModal}>
+        <Button variant="primaryOutline" onPress={closeModal}>
           Cancel
         </Button>
         <Button variant="primary" onPress={handleCopy}>

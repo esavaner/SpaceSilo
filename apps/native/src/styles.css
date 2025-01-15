@@ -8,26 +8,29 @@
   --color-blue-light: #5aa0f7;
 
   --color-yellow: #ffc75f;
-  --color-yellow-dark: #d8c038;
+  --color-yellow-dark: #d9c344;
   --color-yellow-light: #f3dd65;
 
   --color-red: #ff5f5f;
   --color-red-dark: #e04c4c;
   --color-red-light: #ff7b7b;
 
-  --color-primary: #ffc75f;
-  --color-primary-dark: #d8c038;
-  --color-primary-light: #f3dd65;
+  --color-light: #fdfdfd;
+  --color-dark: #131313;
 
-  --color-secondary: #4a90e2;
-  --color-secondary-dark: #3f83d1;
-  --color-secondary-light: #5aa0f7;
+  --color-primary: var(--color-yellow);
+  --color-primary-dark: var(--color-yellow-dark);
+  --color-primary-light: var(--color-yellow-light);
+
+  --color-secondary: var(--color-blue);
+  --color-secondary-dark: var(--color-blue-dark);
+  --color-secondary-light: var(--color-blue-light);
 
   /* light */
-  --color-text: #0e0e0e;
+  --color-text: var(--color-dark);
   --color-text-secondary: #222222;
   --color-text-tertiary: #464646;
-  --color-background: #fdfdfd;
+  --color-background: var(--color-light);
   --color-background-secondary: #f7f7f7;
   --color-background-tertiary: #e5e5e5;
 }
@@ -35,10 +38,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* dark */
-    --color-text: #ffffff;
+    --color-text: var(--color-light);
     --color-text-secondary: #d2d1d1;
     --color-text-tertiary: #a0a0a0;
-    --color-background: #171717;
+    --color-background: var(--color-dark);
     --color-background-secondary: #272727;
     --color-background-tertiary: #424242;
   }

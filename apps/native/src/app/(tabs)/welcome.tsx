@@ -1,23 +1,40 @@
-import { Platform, View } from 'react-native';
+import { Platform, ScrollView, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 
-import { Button, Text, Input } from '@repo/ui';
+import { Button, Text, Input, PersonIcon } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {
   const { setColorScheme } = useColorScheme();
   const { t } = useTranslation();
   return (
-    <>
+    <ScrollView className="flex-1 bg-layer">
       <View>
-        <Button onPress={() => setColorScheme('light')} />
-        <Button onPress={() => setColorScheme('dark')} />
-        <Button onPress={() => setColorScheme('system')} />
-        <Text className="Text-primary-900">test</Text>
+        <Button onPress={() => setColorScheme('light')}>light</Button>
+        <Button onPress={() => setColorScheme('dark')}>dark</Button>
+        <Button onPress={() => setColorScheme('system')}>system</Button>
+        {/* <Text className="Text-primary-900">test</Text>
         <Text>Welcome!</Text>
         <Text>{t('test')}</Text>
         <Input label="First name" placeholder="First name" error="invalid input" />
-        <Input label="Last name" placeholder="Last name" />
+        <Input label="Last name" placeholder="Last name" /> */}
+      </View>
+      <View className="gap-2 mb-6 mt-4">
+        <Button variant="primary">Primary Button</Button>
+        <Button variant="secondary">Secondary Button</Button>
+        <Button variant="danger">Danger Button</Button>
+      </View>
+      <View className="gap-2 mb-6">
+        <Button variant="primaryOutline">Primary Button</Button>
+        <Button variant="secondaryOutline">Secondary Button</Button>
+        <Button variant="dangerOutline">Danger Button</Button>
+      </View>
+      <View className="gap-2 mb-6">
+        <Button variant="text">Primary Button</Button>
+        <Button variant="link">Secondary Button</Button>
+        <Button variant="icon">
+          <PersonIcon />
+        </Button>
       </View>
       <View>
         <Text>Step 1: Try it</Text>
@@ -37,6 +54,6 @@ export default function HomeScreen() {
           move the current <Text>app</Text> to <Text>app-example</Text>.
         </Text>
       </View>
-    </>
+    </ScrollView>
   );
 }
