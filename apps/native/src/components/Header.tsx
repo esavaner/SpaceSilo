@@ -23,7 +23,7 @@ export const Header = ({ title, navigation, ...rest }: HeaderProps) => {
         <SearchIcon />
       </Button>
 
-      <Link href="/login">
+      <Link href="/login" asChild>
         <Button variant="icon">
           <PersonIcon />
         </Button>

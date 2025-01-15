@@ -10,6 +10,7 @@ import { QueryProvider } from '@/providers/QueryProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { UiProvider } from '@repo/ui';
 import { FilesProvider } from '@/providers/FilesProvider';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -38,26 +39,30 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <FilesProvider>
-          <UiProvider>
-            <Stack
-              screenOptions={{
-                contentStyle: {
-                  backgroundColor: 'var(--color-background)',
-                },
-              }}
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="view/index" options={commonOptions} />
-              <Stack.Screen name="login/index" options={commonOptions} />
-              <Stack.Screen name="group/[groupId]" options={commonOptions} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-          </UiProvider>
-        </FilesProvider>
-      </GestureHandlerRootView>
-    </QueryProvider>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'var(--color-background)' }}>
+        <QueryProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <FilesProvider>
+              <UiProvider>
+                <Stack
+                  screenOptions={{
+                    contentStyle: {
+                      backgroundColor: 'var(--color-background)',
+                    },
+                  }}
+                >
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="view/index" options={commonOptions} />
+                  <Stack.Screen name="login/index" options={commonOptions} />
+                  <Stack.Screen name="group/[groupId]" options={commonOptions} />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+              </UiProvider>
+            </FilesProvider>
+          </GestureHandlerRootView>
+        </QueryProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

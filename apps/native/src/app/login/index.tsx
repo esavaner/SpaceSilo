@@ -42,8 +42,9 @@ export default function LoginPage() {
   };
 
   return (
-    <View className="p-6 flex flex-1 gap-2 w-full max-w-96 mx-auto bg-layer">
-      {/* <Controller
+    <View className="p-6 flex flex-1 gap-2 bg-layer items-center">
+      <View className="mt-48 max-w-sm w-full">
+        {/* <Controller
         control={control}
         render={({ field }) => (
           <Input
@@ -56,35 +57,36 @@ export default function LoginPage() {
         )}
         name="serverUrl"
       /> */}
-      <Controller
-        control={control}
-        render={({ field }) => (
-          <Input
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            label="Email"
-            error={errors.email?.message}
-          />
-        )}
-        name="email"
-      />
-      <Controller
-        control={control}
-        render={({ field }) => (
-          <Input
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            label="Password"
-            error={errors.password?.message}
-          />
-        )}
-        name="password"
-      />
-      <Button variant="primary" onPress={handleSubmit(onSubmit)} className="w-full">
-        Login
-      </Button>
+        <Controller
+          control={control}
+          render={({ field }) => (
+            <Input
+              onBlur={field.onBlur}
+              value={field.value}
+              onChangeText={field.onChange}
+              label="Email"
+              error={errors.email?.message}
+            />
+          )}
+          name="email"
+        />
+        <Controller
+          control={control}
+          render={({ field }) => (
+            <Input
+              onBlur={field.onBlur}
+              value={field.value}
+              onChangeText={field.onChange}
+              label="Password"
+              error={errors.password?.message}
+            />
+          )}
+          name="password"
+        />
+        <Button variant="primary" onPress={handleSubmit(onSubmit)} className="">
+          Login
+        </Button>
+      </View>
     </View>
   );
 }

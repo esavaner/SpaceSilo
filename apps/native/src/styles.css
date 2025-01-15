@@ -31,8 +31,8 @@
   --color-text-secondary: #222222;
   --color-text-tertiary: #464646;
   --color-background: var(--color-light);
-  --color-background-secondary: #f7f7f7;
-  --color-background-tertiary: #e5e5e5;
+  --color-background-secondary: #dcdcdc;
+  --color-background-tertiary: #b1b1b1;
 }
 
 @media (prefers-color-scheme: dark) {
