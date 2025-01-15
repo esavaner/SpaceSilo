@@ -1,7 +1,7 @@
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
 import { useFilesContext } from '@/providers/FilesProvider';
-import { Breadcrumb } from '@repo/ui';
+import { Breadcrumb, cn } from '@repo/ui';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,8 @@ export default function FilesPage() {
   const { t } = useTranslation();
   const { path } = useLocalSearchParams<{ path?: string }>();
 
-  const { currentPath, handlePathClick, handleClearSelection, selectedItems, setInitialPath } = useFilesContext();
+  const { currentPath, handlePathClick, handleClearSelection, hasSelectedItems, selectedItems, setInitialPath } =
+    useFilesContext();
 
   useEffect(() => {
     if (path) {
@@ -21,17 +22,19 @@ export default function FilesPage() {
 
   return (
     <View className="flex-1 bg-layer relative">
-      {selectedItems.length > 0 ? (
-        <ItemSelection path={currentPath} selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
-      ) : (
-        <View className="flex-row px-4 h-11 items-center bg-layer">
+      <View
+        className={cn('flex-row px-4 py-2 h-12 items-center', hasSelectedItems ? 'bg-layer-secondary' : 'bg-layer')}
+      >
+        {hasSelectedItems ? (
+          <ItemSelection path={currentPath} selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
+        ) : (
           <Breadcrumb
             pathItems={currentPath.split(/\/|\\/)}
             handlePathClick={handlePathClick}
             homeDirName={t('files.homeDir')}
           />
-        </View>
-      )}
+        )}
+      </View>
       <FileList />
     </View>
   );

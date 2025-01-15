@@ -6,11 +6,11 @@ import { Text } from './text';
 
 export type ButtonProps = PressableProps & {
   variant?: 'primary' | 'outline' | 'text' | 'link' | 'icon';
-  color?: 'primary' | 'secondary' | 'danger' | 'blue' | 'yellow' | 'red';
+  color?: 'primary' | 'secondary' | 'danger' | 'blue' | 'yellow' | 'red' | 'none';
 };
 
 const buttonStyles = cva(
-  ['border rounded-md text-black min-w-10 min-h-10 flex flex-row gap-2 items-center justify-center'],
+  ['rounded-md text-black min-w-10 min-h-10 px-2 flex flex-row gap-2 items-center justify-center'],
   {
     variants: {
       color: {
@@ -20,13 +20,14 @@ const buttonStyles = cva(
         blue: 'border-blue bg-blue hover:bg-blue-light active:bg-blue-dark',
         yellow: 'border-yellow bg-yellow hover:bg-yellow-light active:bg-yellow-dark',
         red: 'border-red bg-red hover:bg-red-light active:bg-red-dark',
+        none: '',
       },
       variant: {
-        primary: 'px-2',
-        outline: 'px-2 bg-transparent text-content hover:text-black ',
-        text: 'border-none bg-transparent text-content hover:bg-layer-tertiary active:bg-layer',
-        link: 'border-none bg-transparent hover:underline text-blue-600 hover:bg-layer-tertiary active:bg-layer',
-        icon: 'border-none bg-transparent rounded-full hover:bg-layer-tertiary active:bg-layer',
+        primary: 'border',
+        outline: 'border bg-transparent text-content hover:text-black ',
+        text: 'text-content hover:bg-layer-tertiary active:bg-layer',
+        link: 'hover:underline text-blue-600 hover:bg-layer-tertiary active:bg-layer',
+        icon: 'rounded-full hover:bg-layer-tertiary active:bg-layer',
       },
     },
   }
@@ -35,7 +36,11 @@ const buttonStyles = cva(
 export const Button = forwardRef<View, ButtonProps>(
   ({ variant = 'primary', color = 'primary', className, children, ...rest }, ref) => {
     return (
-      <Pressable {...rest} ref={ref} className={cn(buttonStyles({ variant, color }), className)}>
+      <Pressable
+        {...rest}
+        ref={ref}
+        className={cn(buttonStyles({ variant, color: ['icon', 'text'].includes(variant) ? 'none' : color }), className)}
+      >
         {typeof children === 'string' ? <Text className="text-inherit">{children}</Text> : children}
       </Pressable>
     );

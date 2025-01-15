@@ -7,7 +7,7 @@ import { cva } from 'class-variance-authority';
 
 const inputStyles = cva(
   [
-    'h-10 text-base outline-none rounded-md border py-2 px-3 text-content placeholder:opacity-60',
+    'h-12 text-base outline-none rounded-md border px-3 text-content placeholder:opacity-60',
     'disabled:cursor-not-allowed disabled:opacity-50',
   ],
   {

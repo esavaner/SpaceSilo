@@ -23,7 +23,7 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
   ];
 
   return (
-    <View className="flex-row px-4 h-11 items-center bg-layer-secondary gap-2">
+    <View className="flex-row w-full items-center gap-2">
       <Button variant="icon" onPress={handleClearSelection}>
         <CloseIcon />
       </Button>
