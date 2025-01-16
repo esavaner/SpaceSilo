@@ -2,14 +2,13 @@ import { FileEntity } from '@/api/generated';
 import {
   Button,
   CopyIcon,
-  Dropdown,
   DropdownItem,
   EditIcon,
   EllipsisIcon,
   InfoIcon,
-  MoveIcon,
   ShareIcon,
   TrashIcon,
+  useDropdown,
   useUi,
 } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +23,7 @@ type FileOptionsDropdownProps = {
 export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   const { t } = useTranslation();
   const { openModal } = useUi();
+  const { ref, openDropdown } = useDropdown();
 
   const items = [
     { label: t('dropdown.info'), icon: <InfoIcon />, onPress: () => {} },
@@ -45,17 +45,13 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
     },
   ];
 
+  const dropdownItems = items.map((item) => (
+    <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
+  ));
+
   return (
-    <Dropdown
-      trigger={(ref, handleOpen) => (
-        <Button variant="icon" ref={ref} onPress={handleOpen} className="ml-auto">
-          <EllipsisIcon />
-        </Button>
-      )}
-    >
-      {items.map((item) => (
-        <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
-      ))}
-    </Dropdown>
+    <Button variant="icon" ref={ref} onPress={() => openDropdown(dropdownItems)} className="ml-auto">
+      <EllipsisIcon />
+    </Button>
   );
 };

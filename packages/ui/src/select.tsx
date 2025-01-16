@@ -1,6 +1,6 @@
 import React from 'react';
-import { Dropdown } from './dropdown';
-import { Pressable, View } from 'react-native';
+import { useDropdown } from './dropdown';
+import { Pressable } from 'react-native';
 import { ChevronDownIcon } from './icons';
 import { Text } from './text';
 import { useUi } from './UiProvider';
@@ -16,6 +16,7 @@ type SelectProps = {
 
 export const Select = ({ options, onChange, value, className }: SelectProps) => {
   const { closeModal } = useUi();
+  const { ref, openDropdown } = useDropdown();
 
   const handleSelect = (value: string) => {
     onChange(value);
@@ -25,25 +26,20 @@ export const Select = ({ options, onChange, value, className }: SelectProps) => 
   const selected = options.find((option) => option.value === value);
   const label = selected?.label || options[0]?.label || '';
 
+  const dropdownItems = options.map((option) => (
+    <Pressable key={option.value} onPress={() => handleSelect(option.value)} className="py-2 px-3">
+      <Text>{option.label}</Text>
+    </Pressable>
+  ));
+
   return (
-    <Dropdown
-      trigger={(ref, handleOpen) => (
-        <Pressable
-          className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-content-secondary rounded-md"
-          ref={ref}
-          onPress={handleOpen}
-        >
-          <Text>{label}</Text>
-          <ChevronDownIcon className={cn('text-content', selected && 'rotate-180')} />
-        </Pressable>
-      )}
-      className={className}
+    <Pressable
+      className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-content-secondary rounded-md"
+      ref={ref}
+      onPress={() => openDropdown(dropdownItems, { className })}
     >
-      {options.map((option) => (
-        <Pressable key={option.value} onPress={() => handleSelect(option.value)} className="py-2 px-3">
-          <Text>{option.label}</Text>
-        </Pressable>
-      ))}
-    </Dropdown>
+      <Text>{label}</Text>
+      <ChevronDownIcon className={cn('text-content', selected && 'rotate-180')} />
+    </Pressable>
   );
 };

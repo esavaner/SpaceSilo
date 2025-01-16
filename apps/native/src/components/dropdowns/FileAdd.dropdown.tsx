@@ -1,4 +1,4 @@
-import { AddIcon, Dropdown, Button, Text, DropdownItem, FolderIcon, FileIcon, useUi } from '@repo/ui';
+import { AddIcon, Button, Text, DropdownItem, FolderIcon, FileIcon, useUi, useDropdown } from '@repo/ui';
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
 
 type FileAddDropdownProps = {
@@ -8,6 +8,8 @@ type FileAddDropdownProps = {
 
 export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps) => {
   const { openModal } = useUi();
+  const { ref, openDropdown } = useDropdown();
+
   const items = [
     {
       label: 'Folder',
@@ -16,18 +18,14 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
     },
     { label: 'File', icon: <FileIcon />, onPress: () => {} },
   ];
+
+  const dropdownItems = items.map((item) => (
+    <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
+  ));
   return (
-    <Dropdown
-      trigger={(ref, handleOpen) => (
-        <Button ref={ref} onPress={handleOpen} className="ml-auto">
-          <Text className="text-black">Add</Text>
-          <AddIcon className="text-black" />
-        </Button>
-      )}
-    >
-      {items.map((item) => (
-        <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
-      ))}
-    </Dropdown>
+    <Button ref={ref} onPress={() => openDropdown(dropdownItems)} className="ml-auto">
+      <Text className="text-black">Add</Text>
+      <AddIcon className="text-black" />
+    </Button>
   );
 };

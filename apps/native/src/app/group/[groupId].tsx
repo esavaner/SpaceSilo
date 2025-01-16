@@ -3,14 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import { AddIcon, Button, Text, useUi } from '@repo/ui';
+import { AddIcon, Button, Search, Text, useUi } from '@repo/ui';
 import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
+import { useState } from 'react';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
   const { t } = useTranslation();
   const { openModal } = useUi();
+  const [isAdding, setIsAdding] = useState(false);
+  const [options, setOptions] = useState<React.ReactNode[]>([]);
+  const [value, setValue] = useState<string>('');
+
+  const toggle = () => setIsAdding((prev) => !prev);
 
   const { data, isLoading } = useQuery({
     queryKey: ['groups', groupId],
@@ -18,6 +24,15 @@ export default function SingleGroupPage() {
   });
 
   const group = data?.data;
+
+  const onChangeText = (text: string) => {
+    setValue(text);
+
+    if (text.length < 3) {
+      return;
+    }
+    setOptions([<Text>{text}</Text>]);
+  };
 
   if (isLoading) {
     return;
@@ -37,10 +52,16 @@ export default function SingleGroupPage() {
       </View>
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-content-tertiary">{group.groupId}</Text>
-      <Button onPress={() => openModal(<GroupAddMembersModal />)}>
-        <Text className="text-black">Add members</Text>
-        <AddIcon className="text-black" />
-      </Button>
+      {isAdding ? (
+        <>
+          <Search options={options} onChangeText={onChangeText} />
+        </>
+      ) : (
+        <Button onPress={toggle}>
+          <Text className="text-black">Add members</Text>
+          <AddIcon className="text-black" />
+        </Button>
+      )}
     </View>
   );
 }

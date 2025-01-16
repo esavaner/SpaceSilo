@@ -14,15 +14,20 @@ export type DropdownProps = {
 const FLIP_POINT = 0.65;
 const SPACING = 5;
 
-export const Dropdown = ({ className, trigger, children }: DropdownProps) => {
+type DropdownOptions = {
+  className?: string;
+  fullWidth?: boolean;
+};
+
+export const useDropdown = () => {
   const { openModal } = useUi();
 
-  const triggerRef = useRef<View>(null);
+  const ref = useRef<View>(null);
 
-  const handleOpen = () => {
-    if (!triggerRef.current) return;
+  const openDropdown = (children: React.ReactNode, options?: DropdownOptions) => {
+    if (!ref.current) return;
 
-    triggerRef.current.measure((_1, _2, width, height, tx, ty) => {
+    ref.current.measure((_1, _2, width, height, tx, ty) => {
       const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
       const bx = screenWidth - tx;
       const by = screenHeight - ty;
@@ -30,7 +35,11 @@ export const Dropdown = ({ className, trigger, children }: DropdownProps) => {
       const flipY = ty + height > screenHeight * FLIP_POINT;
       const modal = (
         <View
-          className={cn('absolute bg-layer-secondary rounded-md shadow-md min-w-24', className)}
+          className={cn(
+            'absolute bg-layer-secondary rounded-md shadow-md min-w-24',
+            options?.fullWidth && `w-[${width}]`,
+            options?.className
+          )}
           style={{
             ...(flipX ? { right: bx - width } : { left: tx }),
             ...(flipY ? { bottom: by + SPACING } : { top: ty + height + SPACING }),
@@ -43,7 +52,7 @@ export const Dropdown = ({ className, trigger, children }: DropdownProps) => {
     });
   };
 
-  return trigger(triggerRef, handleOpen);
+  return { ref, openDropdown };
 };
 
 type DropdownItemProps = {
