@@ -3,16 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import { AddIcon, Button, Search, Text, useUi } from '@repo/ui';
+import { AddIcon, Button, DropdownItem, Search, Text, UserGroupIcon } from '@repo/ui';
 import { getInitials } from '@/utils/common';
-import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { useState } from 'react';
 import { useUserSearch } from '@/hooks/useUserSearch';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
   const { t } = useTranslation();
-  const { openModal } = useUi();
   const { searchUsers, results, isSearchLoading } = useUserSearch();
 
   const [isAdding, setIsAdding] = useState(false);
@@ -26,9 +24,7 @@ export default function SingleGroupPage() {
   const group = data?.data;
 
   const options = results.map((user) => (
-    <View key={user.id}>
-      <Text>{user.name}</Text>
-    </View>
+    <DropdownItem key={user.id} label={user.name} subLabel={user.email} icon={<UserGroupIcon />} onPress={() => {}} />
   ));
 
   if (isLoading) {
@@ -51,7 +47,7 @@ export default function SingleGroupPage() {
       <Text className="text-content-tertiary">{group.groupId}</Text>
       {isAdding ? (
         <>
-          <Search options={options} onChangeText={searchUsers} />
+          <Search options={options} onChangeText={searchUsers} className="w-72" />
         </>
       ) : (
         <Button onPress={toggle}>

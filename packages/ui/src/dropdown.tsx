@@ -26,7 +26,6 @@ export const useDropdown = () => {
 
   const openDropdown = (children: React.ReactNode, options?: DropdownOptions) => {
     if (!ref.current) return;
-
     ref.current.measure((_1, _2, width, height, tx, ty) => {
       const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
       const bx = screenWidth - tx;
@@ -57,14 +56,22 @@ export const useDropdown = () => {
 
 type DropdownItemProps = {
   label: string;
+  subLabel?: string;
   icon: React.ReactNode;
   onPress: () => void;
 };
-export const DropdownItem = ({ label, icon, onPress }: DropdownItemProps) => {
+export const DropdownItem = ({ label, subLabel, icon, onPress }: DropdownItemProps) => {
   return (
-    <Pressable key={label} className="flex-row gap-5 py-3 px-4 hover:bg-layer active:bg-layer" onPress={onPress}>
+    <Pressable
+      key={label}
+      className="flex-row gap-5 py-3 px-4 items-center hover:bg-layer active:bg-layer"
+      onPress={onPress}
+    >
       {icon}
-      <Text>{label}</Text>
+      <View className="flex flex-col">
+        <Text>{label}</Text>
+        <Text className="text-content-tertiary text-sm">{subLabel}</Text>
+      </View>
     </Pressable>
   );
 };

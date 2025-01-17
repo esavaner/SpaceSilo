@@ -1,9 +1,6 @@
-import React, { useEffect } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, TextInput, View } from 'react-native';
 import { cn } from './cn';
-import { useDropdown } from './dropdown';
-import { ChevronDownIcon } from './icons';
-import { Text } from './text';
 import { Input } from './input';
 
 type Props = React.ComponentProps<typeof TextInput> & {
@@ -13,17 +10,21 @@ type Props = React.ComponentProps<typeof TextInput> & {
 };
 
 export const Search = ({ options, label, className, ...rest }: Props) => {
-  const { ref, openDropdown } = useDropdown();
+  const ref = useRef<View>(null);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    if (options.length > 0) {
-      openDropdown(options, { className });
-    }
+    setDropdownOpen(options.length > 0);
   }, [options]);
 
   return (
-    <View ref={ref}>
+    <View ref={ref} className={cn('relative', className)}>
       <Input {...rest} />
+      {isDropdownOpen && (
+        <ScrollView className={cn(`absolute bg-layer-secondary rounded-md shadow-md min-w-24 left-0 right-0 top-12`)}>
+          {options}
+        </ScrollView>
+      )}
     </View>
   );
 };
