@@ -3,18 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import { AddIcon, Button, DropdownItem, Search, Text, UserGroupIcon } from '@repo/ui';
+import { AddIcon, Button, Text, useUi } from '@repo/ui';
 import { getInitials } from '@/utils/common';
-import { useState } from 'react';
-import { useUserSearch } from '@/hooks/useUserSearch';
+import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
   const { t } = useTranslation();
-  const { searchUsers, results, isSearchLoading } = useUserSearch();
-
-  const [isAdding, setIsAdding] = useState(false);
-  const toggle = () => setIsAdding((prev) => !prev);
+  const { openModal } = useUi();
 
   const { data, isLoading } = useQuery({
     queryKey: ['groups', groupId],
@@ -22,10 +18,6 @@ export default function SingleGroupPage() {
   });
 
   const group = data?.data;
-
-  const options = results.map((user) => (
-    <DropdownItem key={user.id} label={user.name} subLabel={user.email} icon={<UserGroupIcon />} onPress={() => {}} />
-  ));
 
   if (isLoading) {
     return;
@@ -45,16 +37,10 @@ export default function SingleGroupPage() {
       </View>
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-content-tertiary">{group.groupId}</Text>
-      {isAdding ? (
-        <>
-          <Search options={options} onChangeText={searchUsers} className="w-72" />
-        </>
-      ) : (
-        <Button onPress={toggle}>
-          <Text className="text-black">Add members</Text>
-          <AddIcon className="text-black" />
-        </Button>
-      )}
+      <Button onPress={() => openModal(<GroupAddMembersModal />)}>
+        <Text className="text-black">Add members</Text>
+        <AddIcon className="text-black" />
+      </Button>
     </View>
   );
 }

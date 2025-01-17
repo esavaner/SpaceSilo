@@ -15,9 +15,15 @@ export const useUserSearch = () => {
     setQuery(text);
   };
 
+  const resetSearch = () => {
+    setQuery('');
+  };
+
   return {
-    results: data?.data || [],
     isSearchLoading: isLoading,
+    query,
+    resetSearch,
+    results: query.length > 0 ? data?.data || [] : [],
     searchUsers,
   };
 };

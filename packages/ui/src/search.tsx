@@ -21,7 +21,9 @@ export const Search = ({ options, label, className, ...rest }: Props) => {
     <View ref={ref} className={cn('relative', className)}>
       <Input {...rest} />
       {isDropdownOpen && (
-        <ScrollView className={cn(`absolute bg-layer-secondary rounded-md shadow-md min-w-24 left-0 right-0 top-12`)}>
+        <ScrollView
+          className={cn(`absolute bg-layer-secondary rounded-md shadow-md min-w-24 left-0 right-0 top-12 max-h-80`)}
+        >
           {options}
         </ScrollView>
       )}
