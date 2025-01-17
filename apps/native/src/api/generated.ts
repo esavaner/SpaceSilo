@@ -22,6 +22,13 @@ export interface CreateUserDto {
   role: string;
 }
 
+export interface SearchUserEntity {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export interface UpdateUserDto {
   name?: string;
   email?: string;
@@ -626,6 +633,21 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       this.request<void, any>({
         path: `/users/${id}`,
         method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerSearch
+     * @request GET:/users/search/{query}
+     */
+    usersControllerSearch: (query: string, params: RequestParams = {}) =>
+      this.request<SearchUserEntity[], any>({
+        path: `/users/search/${query}`,
+        method: 'GET',
+        format: 'json',
         ...params,
       }),
   };

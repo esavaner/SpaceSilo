@@ -7,15 +7,15 @@ import { AddIcon, Button, Search, Text, useUi } from '@repo/ui';
 import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { useState } from 'react';
+import { useUserSearch } from '@/hooks/useUserSearch';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
   const { t } = useTranslation();
   const { openModal } = useUi();
-  const [isAdding, setIsAdding] = useState(false);
-  const [options, setOptions] = useState<React.ReactNode[]>([]);
-  const [value, setValue] = useState<string>('');
+  const { searchUsers, results, isSearchLoading } = useUserSearch();
 
+  const [isAdding, setIsAdding] = useState(false);
   const toggle = () => setIsAdding((prev) => !prev);
 
   const { data, isLoading } = useQuery({
@@ -25,14 +25,11 @@ export default function SingleGroupPage() {
 
   const group = data?.data;
 
-  const onChangeText = (text: string) => {
-    setValue(text);
-
-    if (text.length < 3) {
-      return;
-    }
-    setOptions([<Text>{text}</Text>]);
-  };
+  const options = results.map((user) => (
+    <View key={user.id}>
+      <Text>{user.name}</Text>
+    </View>
+  ));
 
   if (isLoading) {
     return;
@@ -54,7 +51,7 @@ export default function SingleGroupPage() {
       <Text className="text-content-tertiary">{group.groupId}</Text>
       {isAdding ? (
         <>
-          <Search options={options} onChangeText={onChangeText} />
+          <Search options={options} onChangeText={searchUsers} />
         </>
       ) : (
         <Button onPress={toggle}>

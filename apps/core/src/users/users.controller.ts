@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from 'src/_dto/user.dto';
+import { SearchUserEntity } from 'src/_entity/user.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -21,6 +22,12 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Get('search/:query')
+  @ApiOkResponse({ type: SearchUserEntity, isArray: true })
+  search(@Param('query') query: string) {
+    return this.usersService.search(query);
   }
 
   @Patch(':id')
