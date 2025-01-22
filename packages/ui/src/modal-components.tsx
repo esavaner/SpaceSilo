@@ -18,7 +18,6 @@ export const ModalLayout = ({ children, className }: ModalLayoutProps) => {
       <Button onPress={closeModal} className="absolute top-3 right-3 z-10" variant="icon">
         <CloseIcon />
       </Button>
-
       {children}
     </View>
   );
