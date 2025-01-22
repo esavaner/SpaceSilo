@@ -1,5 +1,5 @@
 import { FileEntity } from '@/api/generated';
-import { useUi, Text, ModalTitle } from '@repo/ui';
+import { useUi, Text, ModalTitle, ModalLayout } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { ButtonGroup } from './ButtonGroup';
@@ -19,7 +19,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   };
 
   return (
-    <>
+    <ModalLayout>
       <ModalTitle>{t('removeItem')}</ModalTitle>
       <ScrollView className="mb-4">
         {files.map((file) => (
@@ -27,6 +27,6 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
         ))}
       </ScrollView>
       <ButtonGroup okText={t('remove')} onOk={handleRemove} onCancel={closeModal} />
-    </>
+    </ModalLayout>
   );
 };

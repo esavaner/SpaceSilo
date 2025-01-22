@@ -1,4 +1,4 @@
-import { Input, ModalTitle, useUi } from '@repo/ui';
+import { Input, ModalLayout, ModalTitle, useUi } from '@repo/ui';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
@@ -37,7 +37,7 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   };
 
   return (
-    <>
+    <ModalLayout>
       <ModalTitle>{t('createFolder')}</ModalTitle>
       <Controller
         control={control}
@@ -53,6 +53,6 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
         )}
       />
       <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
-    </>
+    </ModalLayout>
   );
 };

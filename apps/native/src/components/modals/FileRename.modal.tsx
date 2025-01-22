@@ -1,5 +1,5 @@
 import { FileEntity } from '@/api/generated';
-import { Input, useUi, ModalTitle } from '@repo/ui';
+import { Input, useUi, ModalTitle, ModalLayout } from '@repo/ui';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -40,7 +40,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   };
 
   return (
-    <>
+    <ModalLayout>
       <ModalTitle>{t('renameItem')}</ModalTitle>
       <Controller
         control={control}
@@ -56,6 +56,6 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
         )}
       />
       <ButtonGroup okText={t('rename')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
-    </>
+    </ModalLayout>
   );
 };

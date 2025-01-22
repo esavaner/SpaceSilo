@@ -1,5 +1,5 @@
 import { useFileList } from '@/hooks/useFileList';
-import { Breadcrumb, Button, ModalTitle, Text, useUi } from '@repo/ui';
+import { Breadcrumb, Button, ModalLayout, ModalTitle, Text, useUi } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import { FileListCompact } from '../FileListCompact';
 import { View } from 'react-native';
@@ -30,7 +30,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
   };
 
   return (
-    <>
+    <ModalLayout>
       <ModalTitle>Move or copy</ModalTitle>
       <Text>{selectedItems.length} item(s) selected</Text>
       <Breadcrumb
@@ -50,6 +50,6 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
           Move here
         </Button>
       </View>
-    </>
+    </ModalLayout>
   );
 };

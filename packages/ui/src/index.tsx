@@ -4,7 +4,7 @@ export * from './checkbox';
 export * from './dropdown';
 export * from './icons';
 export * from './input';
-export { ModalTitle } from './modal';
+export * from './modal-components';
 export * from './search';
 export * from './select';
 export * from './text';

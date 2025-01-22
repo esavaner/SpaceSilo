@@ -1,7 +1,18 @@
 import { AddMembersDto, SearchUserEntity } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import { Shape } from '@/utils/types';
-import { ModalTitle, Search, useUi, Text, DropdownItem, UserGroupIcon, Button, CloseIcon, Checkbox } from '@repo/ui';
+import {
+  ModalTitle,
+  Search,
+  useUi,
+  Text,
+  DropdownItem,
+  UserGroupIcon,
+  Button,
+  CloseIcon,
+  Checkbox,
+  ModalLayout,
+} from '@repo/ui';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 import { ButtonGroup } from './ButtonGroup';
@@ -43,7 +54,7 @@ export const GroupAddMembersModal = () => {
     ));
 
   return (
-    <>
+    <ModalLayout>
       <ModalTitle>{t('addMembers')}</ModalTitle>
       <View className="flex-row gap-2 p-2">
         <Text>{selectedMembers.length}</Text>
@@ -67,6 +78,6 @@ export const GroupAddMembersModal = () => {
       </ScrollView>
       <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
       <ButtonGroup okText={t('Add')} onCancel={closeModal} onOk={() => null} className="-z-10" />
-    </>
+    </ModalLayout>
   );
 };
