@@ -23,7 +23,3 @@ export const Modal = ({ children, noLayout, onClose }: ModalProps) => {
     </View>
   );
 };
-
-export const ModalTitle = ({ children }: { children: React.ReactNode }) => {
-  return <Text className="text-xl min-h-8 mb-3 flex items-center">{children}</Text>;
-};

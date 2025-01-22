@@ -2,7 +2,7 @@ import { TextInput, View } from 'react-native';
 import { cn } from './cn';
 import { Text } from './text';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { cva } from 'class-variance-authority';
 
 const inputStyles = cva(
@@ -25,10 +25,12 @@ export type InputProps = React.ComponentProps<typeof TextInput> & {
   error?: React.ReactNode;
 };
 
-export const Input = ({ className, label, error, ...rest }: InputProps) => (
+export const Input = forwardRef<TextInput, InputProps>(({ className, label, error, ...rest }, ref) => (
   <View className="flex flex-col">
     {label && <Text className="mb-1">{label}</Text>}
-    <TextInput {...rest} className={cn(inputStyles({ color: error ? 'danger' : 'primary' }), className)} />
+    <TextInput {...rest} ref={ref} className={cn(inputStyles({ color: error ? 'danger' : 'primary' }), className)} />
     <Text className="text-red-600 text-sm h-5 mt-1">{error}</Text>
   </View>
-);
+));
+
+Input.displayName = 'Input';

@@ -14,7 +14,7 @@ type ModalLayoutProps = {
 export const ModalLayout = ({ children, className }: ModalLayoutProps) => {
   const { closeModal } = useUi();
   return (
-    <View className={cn('relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4 w-min', className)}>
+    <View className={cn('relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4 w-min max-h-[70%]', className)}>
       <Button onPress={closeModal} className="absolute top-3 right-3 z-10" variant="icon">
         <CloseIcon />
       </Button>
