@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class User {
@@ -13,8 +14,8 @@ export class User {
   @ApiPropertyOptional({ type: String })
   name?: string;
 
-  @ApiProperty({ type: String })
-  role: string = 'user';
+  @ApiProperty({ enum: Role, enumName: 'Role' })
+  role: Role = Role.user;
 
   @ApiProperty({ type: Date })
   createdAt: Date;

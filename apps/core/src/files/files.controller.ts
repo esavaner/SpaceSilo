@@ -8,11 +8,11 @@ import {
   MoveFileDto,
   CreateFolderDto,
   CopyFileDto,
+  FileEntity,
 } from '../_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth, AuthType } from 'src/auth/decorators/auth.decorator';
-import { FileEntity } from 'src/_entity/files.entity';
 
 @ApiTags('files')
 @Controller('files')

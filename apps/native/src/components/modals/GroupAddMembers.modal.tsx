@@ -1,4 +1,4 @@
-import { AddMembersDto, AddMemberDto, SearchUserEntity } from '@/api/generated';
+import { AddMembersDto, AddMemberDto, SearchUserDto, Role } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import { Shape } from '@/utils/types';
 import {
@@ -24,7 +24,7 @@ const schema = yup.object<Shape<AddMembersDto>>({
   members: yup.array().of(yup.string().required('Member is required')),
 });
 
-type SelectedUser = SearchUserEntity & AddMemberDto;
+type SelectedUser = SearchUserDto & AddMemberDto;
 
 export const GroupAddMembersModal = () => {
   const { t } = useTranslation();
@@ -34,17 +34,13 @@ export const GroupAddMembersModal = () => {
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 
-  const handleSelect = (user: SearchUserEntity) => {
-    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, admin: false, write: true, delete: true }]);
+  const handleSelect = (user: SearchUserDto) => {
+    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: 'read' }]);
     resetSearch();
   };
 
-  const handleDeselect = (user: SearchUserEntity) => {
+  const handleDeselect = (user: SearchUserDto) => {
     setSelectedMembers(selectedMembers.filter((m) => m.id !== user.id));
-  };
-
-  const togglePermission = (member: SelectedUser, key: 'admin' | 'write' | 'delete') => {
-    setSelectedMembers(selectedMembers.map((m) => (m.id === member.id ? { ...m, [key]: !m[key] } : m)));
   };
 
   const handleSubmit = () => {
@@ -77,9 +73,6 @@ export const GroupAddMembersModal = () => {
         {selectedMembers.map((member) => (
           <View key={member.id} className="flex-row items-center gap-2 p-2">
             <Text className="flex-1">{member.name}</Text>
-            <Checkbox checked={member.admin} onChange={() => togglePermission(member, 'admin')} />
-            <Checkbox checked={member.write} onChange={() => togglePermission(member, 'write')} />
-            <Checkbox checked={member.delete} onChange={() => togglePermission(member, 'delete')} />
             <Button onPress={() => handleDeselect(member)} variant="icon">
               <CloseIcon />
             </Button>

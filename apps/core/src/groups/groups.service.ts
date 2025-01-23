@@ -4,7 +4,10 @@ import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { GroupEntity } from 'src/_entity/group.entity';
+import { PrismaModel } from 'src/_gen/prisma-class';
+
+// with members
+type WithMembers = PrismaModel.Group & { members: PrismaModel.GroupMember[] };
 
 @Injectable()
 export class GroupsService {
@@ -12,7 +15,7 @@ export class GroupsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateGroupDto, user: TokenPayload): Promise<GroupEntity> {
+  async create(dto: CreateGroupDto, user: TokenPayload): Promise<WithMembers> {
     const existingGroup = await this.prisma.group.findUnique({ where: { groupId: dto.groupId } });
 
     if (existingGroup) {
@@ -20,7 +23,7 @@ export class GroupsService {
     }
 
     const res = await this.prisma.group.create({
-      data: { ownerId: user.sub, name: dto.groupName, groupId: dto.groupId, members: { create: dto.members } },
+      data: { ownerId: user.sub, name: dto.name, groupId: dto.groupId, members: { create: dto.members } },
       ...this.options,
     });
 
@@ -32,18 +35,18 @@ export class GroupsService {
     return res;
   }
 
-  async findAll(): Promise<GroupEntity[]> {
+  async findAll(): Promise<WithMembers[]> {
     return await this.prisma.group.findMany({ ...this.options });
   }
 
-  async findOne(groupId: string): Promise<GroupEntity> {
+  async findOne(groupId: string): Promise<WithMembers> {
     return await this.prisma.group.findUnique({
       where: { groupId },
       ...this.options,
     });
   }
 
-  async addMember(groupId: string, dto: AddMemberDto): Promise<GroupEntity> {
+  async addMember(groupId: string, dto: AddMemberDto): Promise<WithMembers> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -55,7 +58,7 @@ export class GroupsService {
     });
   }
 
-  async addMembers(groupId: string, dto: AddMembersDto): Promise<GroupEntity> {
+  async addMembers(groupId: string, dto: AddMembersDto): Promise<WithMembers> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -67,7 +70,7 @@ export class GroupsService {
     });
   }
 
-  async removeMember(groupId: string, dto: RemoveMemberDto): Promise<GroupEntity> {
+  async removeMember(groupId: string, dto: RemoveMemberDto): Promise<WithMembers> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -79,7 +82,7 @@ export class GroupsService {
     });
   }
 
-  async updateMember(groupId: string, dto: UpdateMemberDto): Promise<GroupEntity> {
+  async updateMember(groupId: string, dto: UpdateMemberDto): Promise<WithMembers> {
     return await this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -91,7 +94,7 @@ export class GroupsService {
     });
   }
 
-  async remove(id: string): Promise<GroupEntity> {
+  async remove(id: string): Promise<WithMembers> {
     return await this.prisma.group.delete({
       where: { id },
       ...this.options,

@@ -7,12 +7,12 @@ import {
   MoveFileDto,
   CreateFolderDto,
   CopyFileDto,
+  FileEntity,
 } from '../_dto/files.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
-import { FileEntity } from 'src/_entity/files.entity';
 import * as crypto from 'crypto';
 
 @Injectable()

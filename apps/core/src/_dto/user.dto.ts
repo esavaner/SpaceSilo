@@ -1,10 +1,14 @@
-import { PartialType } from '@nestjs/swagger';
+import { OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { PrismaModel } from 'src/_gen/prisma-class';
 
-export class CreateUserDto {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-}
+/* ------------------------- Requests -------------------------- */
+
+export class CreateUserDto extends PickType(PrismaModel.User, ['name', 'email', 'password', 'role'] as const) {}
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+/* ------------------------- Responses ------------------------- */
+
+export class GetUserDto extends PrismaModel.User {}
+
+export class SearchUserDto extends OmitType(PrismaModel.User, ['password'] as const) {}

@@ -36,9 +36,9 @@ export const useGroupActions = () => {
   const { mutate: createGroup } = useMutation({
     mutationKey: ['createGroup'],
     mutationFn: Api.groups.groupsControllerCreate,
-    onSuccess: (_, { groupName }) => success(`Group ${groupName} created`),
-    onError: (_, { groupName }) => {
-      toast.error(`Error creating group: ${groupName}`);
+    onSuccess: (_, { name }) => success(`Group ${name} created`),
+    onError: (_, { name }) => {
+      toast.error(`Error creating group: ${name}`);
     },
   });
 

@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useGroupActions } from '@/hooks/useGroupActions';
 
 const schema = yup.object().shape({
-  groupName: yup.string().required('Group name is required'),
+  name: yup.string().required('Group name is required'),
   groupId: yup.string().required('Group id is required'),
 });
 
@@ -26,9 +26,9 @@ export const GroupCreateModal = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = ({ groupId, groupName }: CreateGroupForm) => {
+  const onSubmit = ({ groupId, name }: CreateGroupForm) => {
     // create({ newPath: currentPath, name: values.folder });
-    createGroup({ groupId, groupName });
+    createGroup({ groupId, name, members: [] });
   };
 
   return (
@@ -36,14 +36,14 @@ export const GroupCreateModal = () => {
       <ModalTitle>{t('createFolder')}</ModalTitle>
       <Controller
         control={control}
-        name="groupName"
+        name="name"
         render={({ field }) => (
           <Input
-            label={t('groupName')}
+            label={t('name')}
             onBlur={field.onBlur}
             value={field.value}
             onChangeText={field.onChange}
-            error={errors.groupName?.message}
+            error={errors.name?.message}
           />
         )}
       />

@@ -55,7 +55,7 @@ export const useDropdown = () => {
 };
 
 type DropdownItemProps = {
-  label: string;
+  label?: string;
   subLabel?: string;
   icon: React.ReactNode;
   onPress: () => void;
