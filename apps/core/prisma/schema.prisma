@@ -8,6 +8,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator prismaClassGenerator {
+  provider = "prisma-class-generator"
+  separateRelationFields = true
+  dryRun = false
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -75,14 +81,18 @@ model Group {
   photos    Photo[]
 }
 
+enum AccessLevel {
+  admin
+  edit
+  read
+}
+
 model GroupMember {
   groupId   String
   group     Group    @relation(fields: [groupId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  admin     Boolean  @default(false)
-  write     Boolean  @default(false)
-  delete    Boolean  @default(false)
+  access    AccessLevel @default(read)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@id([groupId, userId])

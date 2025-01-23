@@ -4,6 +4,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { PrismaModel } from './_gen/prisma-class';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,7 +31,7 @@ async function bootstrap() {
     .setDescription('The API description')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, { extraModels: [...PrismaModel.extraModels] });
   SwaggerModule.setup('api', app, document, {
     jsonDocumentUrl: 'api/json',
   });
