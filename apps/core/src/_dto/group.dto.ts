@@ -14,7 +14,7 @@ export class RemoveMemberDto extends PickType(PrismaModel.GroupMember, ['userId'
 export class UpdateMemberDto extends PartialType(AddMemberDto) {}
 
 export class CreateGroupDto extends PickType(IntersectionType(PrismaModel.Group, PrismaModel.GroupRelations), [
-  'groupId',
+  'id',
   'name',
   'members',
 ] as const) {}

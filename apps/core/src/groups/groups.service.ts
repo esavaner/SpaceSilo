@@ -1,33 +1,44 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AddMemberDto, AddMembersDto, CreateGroupDto, RemoveMemberDto, UpdateMemberDto } from 'src/_dto/group.dto';
+import {
+  AddMemberDto,
+  AddMembersDto,
+  CreateGroupDto,
+  GetGroupDto,
+  RemoveMemberDto,
+  UpdateMemberDto,
+} from 'src/_dto/group.dto';
 import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaModel } from 'src/_gen/prisma-class';
 
-// with members
-type WithMembers = PrismaModel.Group & { members: PrismaModel.GroupMember[] };
-
 @Injectable()
 export class GroupsService {
-  private readonly options = { include: { members: true } };
+  private readonly options = {
+    include: { members: { include: { user: { select: { email: true, name: true } } } } },
+  };
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateGroupDto, user: TokenPayload): Promise<WithMembers> {
-    const existingGroup = await this.prisma.group.findUnique({ where: { groupId: dto.groupId } });
+  private extractUser(groupMember: PrismaModel.GroupMember & { user: { email: string; name: string } }) {
+    const { user, ...group } = groupMember;
+    return { ...group, email: user.email, name: user.name };
+  }
+
+  async create(dto: CreateGroupDto, user: TokenPayload): Promise<GetGroupDto> {
+    const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
 
     if (existingGroup) {
       throw new ForbiddenException('Group with this ID already exists');
     }
 
     const res = await this.prisma.group.create({
-      data: { ownerId: user.sub, name: dto.name, groupId: dto.groupId, members: { create: dto.members } },
+      data: { ownerId: user.sub, name: dto.name, id: dto.id, members: { create: dto.members } },
       ...this.options,
     });
 
-    const groupPath = path.join(process.env.FILES_PATH, dto.groupId);
+    const groupPath = path.join(process.env.FILES_PATH, dto.id);
     if (!fs.existsSync(groupPath)) {
       fs.mkdirSync(groupPath, { recursive: true });
     }
@@ -35,20 +46,21 @@ export class GroupsService {
     return res;
   }
 
-  async findAll(): Promise<WithMembers[]> {
-    return await this.prisma.group.findMany({ ...this.options });
+  async findAll() {
+    const res = await this.prisma.group.findMany({ ...this.options });
+    return res.map((g) => ({ ...g, members: g.members.map((m) => this.extractUser(m)) }));
   }
 
-  async findOne(groupId: string): Promise<WithMembers> {
+  async findOne(id: string): Promise<GetGroupDto> {
     return await this.prisma.group.findUnique({
-      where: { groupId },
+      where: { id },
       ...this.options,
     });
   }
 
-  async addMember(groupId: string, dto: AddMemberDto): Promise<WithMembers> {
+  async addMember(id: string, dto: AddMemberDto): Promise<GetGroupDto> {
     return await this.prisma.group.update({
-      where: { id: groupId },
+      where: { id },
       data: {
         members: {
           create: { ...dto },
@@ -58,9 +70,9 @@ export class GroupsService {
     });
   }
 
-  async addMembers(groupId: string, dto: AddMembersDto): Promise<WithMembers> {
+  async addMembers(id: string, dto: AddMembersDto): Promise<GetGroupDto> {
     return await this.prisma.group.update({
-      where: { id: groupId },
+      where: { id },
       data: {
         members: {
           createMany: { data: dto.members },
@@ -70,31 +82,31 @@ export class GroupsService {
     });
   }
 
-  async removeMember(groupId: string, dto: RemoveMemberDto): Promise<WithMembers> {
+  async removeMember(id: string, dto: RemoveMemberDto): Promise<GetGroupDto> {
     return await this.prisma.group.update({
-      where: { id: groupId },
+      where: { id },
       data: {
         members: {
-          delete: { groupId_userId: { groupId, userId: dto.userId } },
+          delete: { groupId_userId: { groupId: id, userId: dto.userId } },
         },
       },
       ...this.options,
     });
   }
 
-  async updateMember(groupId: string, dto: UpdateMemberDto): Promise<WithMembers> {
+  async updateMember(id: string, dto: UpdateMemberDto): Promise<GetGroupDto> {
     return await this.prisma.group.update({
-      where: { id: groupId },
+      where: { id },
       data: {
         members: {
-          update: { where: { groupId_userId: { groupId, userId: dto.userId } }, data: { ...dto } },
+          update: { where: { groupId_userId: { groupId: id, userId: dto.userId } }, data: { ...dto } },
         },
       },
       ...this.options,
     });
   }
 
-  async remove(id: string): Promise<WithMembers> {
+  async remove(id: string): Promise<GetGroupDto> {
     return await this.prisma.group.delete({
       where: { id },
       ...this.options,

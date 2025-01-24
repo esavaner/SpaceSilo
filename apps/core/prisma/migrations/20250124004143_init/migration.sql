@@ -1,10 +1,16 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('owner', 'admin', 'user');
+
+-- CreateEnum
+CREATE TYPE "AccessLevel" AS ENUM ('admin', 'edit', 'read');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "name" TEXT,
-    "role" TEXT NOT NULL DEFAULT 'user',
+    "role" "Role" NOT NULL DEFAULT 'user',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -41,7 +47,6 @@ CREATE TABLE "Album" (
 -- CreateTable
 CREATE TABLE "Group" (
     "id" TEXT NOT NULL,
-    "groupId" TEXT,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -54,9 +59,7 @@ CREATE TABLE "Group" (
 CREATE TABLE "GroupMember" (
     "groupId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "admin" BOOLEAN NOT NULL DEFAULT false,
-    "write" BOOLEAN NOT NULL DEFAULT false,
-    "delete" BOOLEAN NOT NULL DEFAULT false,
+    "access" "AccessLevel" NOT NULL DEFAULT 'read',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -89,9 +92,6 @@ CREATE TABLE "_GroupToPhoto" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Group_groupId_key" ON "Group"("groupId");
 
 -- CreateIndex
 CREATE INDEX "_AlbumToPhoto_B_index" ON "_AlbumToPhoto"("B");

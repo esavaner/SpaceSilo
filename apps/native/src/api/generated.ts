@@ -103,14 +103,24 @@ export interface GroupMember {
 }
 
 export interface CreateGroupDto {
-  groupId?: string;
+  id: string;
   name: string;
   members: GroupMember[];
 }
 
 export interface WithMembers {
   id: string;
-  groupId?: string;
+  name: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  ownerId: string;
+  members: GroupMember[];
+}
+
+export interface GetGroupDto {
+  id: string;
   name: string;
   /** @format date-time */
   createdAt: string;
@@ -165,7 +175,6 @@ export interface Album {
 
 export interface Group {
   id: string;
-  groupId?: string;
   name: string;
   /** @format date-time */
   createdAt: string;

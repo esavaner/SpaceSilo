@@ -1,11 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class Group {
   @ApiProperty({ type: String })
   id: string;
-
-  @ApiPropertyOptional({ type: String })
-  groupId?: string;
 
   @ApiProperty({ type: String })
   name: string;

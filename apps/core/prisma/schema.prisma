@@ -74,8 +74,7 @@ model Album {
 
 
 model Group {
-  id        String   @id @default(cuid())
-  groupId   String?   @unique
+  id   String   @id
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

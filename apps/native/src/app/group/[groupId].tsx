@@ -36,11 +36,19 @@ export default function SingleGroupPage() {
         <Text className="text-3xl">{getInitials(group.name)}</Text>
       </View>
       <Text className="text-xl">{group.name}</Text>
-      <Text className="text-content-tertiary">{group.groupId}</Text>
-      <Button onPress={() => openModal(<GroupAddMembersModal />)}>
+      <Text className="text-content-tertiary">{group.id}</Text>
+      <Button onPress={() => openModal(<GroupAddMembersModal groupId={groupId} />)}>
         <Text className="text-black">Add members</Text>
         <AddIcon className="text-black" />
       </Button>
+      <View>
+        {group.members.map((member) => (
+          <View key={member.userId} className="flex-row items-center gap-2 p-2">
+            <Text className="flex-1">{member.userId}</Text>
+            <Text>{member.access}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

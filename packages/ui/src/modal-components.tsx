@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable } from 'react-native';
 import { CloseIcon } from './icons';
 import { Button } from './button';
 import { cn } from './cn';
@@ -14,12 +14,18 @@ type ModalLayoutProps = {
 export const ModalLayout = ({ children, className }: ModalLayoutProps) => {
   const { closeModal } = useUi();
   return (
-    <View className={cn('relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4 w-min max-h-[70%]', className)}>
+    <Pressable
+      className={cn(
+        'relative rounded-md bg-layer-secondary min-w-56 min-h-36 p-4 w-min max-h-[70%] cursor-default',
+        className
+      )}
+      onPress={() => {}}
+    >
       <Button onPress={closeModal} className="absolute top-3 right-3 z-10" variant="icon">
         <CloseIcon />
       </Button>
       {children}
-    </View>
+    </Pressable>
   );
 };
 
