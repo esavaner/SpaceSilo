@@ -11,20 +11,20 @@ import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { PrismaModel } from 'src/_gen/prisma-class';
 
 @Injectable()
 export class GroupsService {
   private readonly options = {
-    include: { members: { include: { user: { select: { email: true, name: true } } } } },
+    include: {
+      members: {
+        include: {
+          user: { select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true } },
+        },
+      },
+    },
   };
 
   constructor(private readonly prisma: PrismaService) {}
-
-  private extractUser(groupMember: PrismaModel.GroupMember & { user: { email: string; name: string } }) {
-    const { user, ...group } = groupMember;
-    return { ...group, email: user.email, name: user.name };
-  }
 
   async create(dto: CreateGroupDto, user: TokenPayload): Promise<GetGroupDto> {
     const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
@@ -47,8 +47,7 @@ export class GroupsService {
   }
 
   async findAll() {
-    const res = await this.prisma.group.findMany({ ...this.options });
-    return res.map((g) => ({ ...g, members: g.members.map((m) => this.extractUser(m)) }));
+    return await this.prisma.group.findMany({ ...this.options });
   }
 
   async findOne(id: string): Promise<GetGroupDto> {

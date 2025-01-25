@@ -2,7 +2,7 @@ import { Api } from '@/api/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { AddIcon, Button, Text, useUi } from '@repo/ui';
 import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
@@ -41,12 +41,16 @@ export default function SingleGroupPage() {
         <Text className="text-black">Add members</Text>
         <AddIcon className="text-black" />
       </Button>
-      <View>
+      <View className="flex-1 flex-row flex-wrap w-full p-2 gap-2">
         {group.members.map((member) => (
-          <View key={member.userId} className="flex-row items-center gap-2 p-2">
-            <Text className="flex-1">{member.userId}</Text>
+          <Pressable
+            key={member.userId}
+            className="flex-row flex-1 items-center gap-2 p-4 h-min rounded-md hover:bg-layer-secondary active:bg-layer-secondary"
+          >
+            <Text>{member.user.name}</Text>
+            <Text>{member.user.email}</Text>
             <Text>{member.access}</Text>
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>
