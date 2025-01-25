@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { AddIcon, Button, Text, useUi } from '@repo/ui';
+import { AddIcon, Avatar, Button, Text, useUi } from '@repo/ui';
 import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 
@@ -32,23 +32,24 @@ export default function SingleGroupPage() {
   }
   return (
     <View className="flex-1 bg-layer relative items-center gap-2 p-4">
-      <View className="w-20 h-20 bg-layer-tertiary rounded-full items-center justify-center">
-        <Text className="text-3xl">{getInitials(group.name)}</Text>
-      </View>
+      <Avatar alt={group.name} size="lg" />
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-content-tertiary">{group.id}</Text>
-      <Button onPress={() => openModal(<GroupAddMembersModal groupId={groupId} />)}>
+      <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
         <Text className="text-black">Add members</Text>
         <AddIcon className="text-black" />
       </Button>
-      <View className="flex-1 flex-row flex-wrap w-full p-2 gap-2">
+      <View className="flex-row flex-wrap p-2 gap-2">
         {group.members.map((member) => (
           <Pressable
             key={member.userId}
-            className="flex-row flex-1 items-center gap-2 p-4 h-min rounded-md hover:bg-layer-secondary active:bg-layer-secondary"
+            className="flex-row items-center gap-2 p-4 h-min rounded-md bg-layer-secondary hover:bg-layer-tertiary active:bg-layer-tertiary"
           >
-            <Text>{member.user.name}</Text>
-            <Text>{member.user.email}</Text>
+            <Avatar alt={member.user.name} />
+            <View>
+              <Text>{member.user.name}</Text>
+              <Text>{member.user.email}</Text>
+            </View>
             <Text>{member.access}</Text>
           </Pressable>
         ))}

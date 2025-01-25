@@ -1,6 +1,5 @@
-import { AddMembersDto, AddMemberDto, SearchUserDto } from '@/api/generated';
+import { AddMemberDto, SearchUserDto, GetGroupDto } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
-import { Shape } from '@/utils/types';
 import {
   ModalTitle,
   Search,
@@ -10,20 +9,14 @@ import {
   UserGroupIcon,
   Button,
   CloseIcon,
-  Checkbox,
   ModalLayout,
   Select,
 } from '@repo/ui';
 import { useTranslation } from 'react-i18next';
-import * as yup from 'yup';
 import { ButtonGroup } from './ButtonGroup';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-
-const schema = yup.object<Shape<AddMembersDto>>({
-  members: yup.array().of(yup.string().required('Member is required')),
-});
 
 const selectOptions = [
   { label: 'Admin', value: 'admin' },
@@ -34,10 +27,10 @@ const selectOptions = [
 type SelectedUser = SearchUserDto & AddMemberDto;
 
 type Props = {
-  groupId: string;
+  group: GetGroupDto;
 };
 
-export const GroupAddMembersModal = ({ groupId }: Props) => {
+export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
   const { closeModal } = useUi();
   const { addMembers } = useGroupActions();
@@ -55,11 +48,16 @@ export const GroupAddMembersModal = ({ groupId }: Props) => {
   };
 
   const handleSubmit = () => {
-    addMembers({ id: groupId, members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })) });
+    addMembers({ id: group.id, members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })) });
   };
 
+  console.log(group.members);
+
   const options = results
-    .filter((user) => !selectedMembers.find((member) => member.id === user.id))
+    .filter(
+      (user) =>
+        !selectedMembers.find((member) => member.id === user.id) && !group.members.find((m) => m.userId === user.id)
+    )
     .map((user) => (
       <DropdownItem
         key={user.id}
@@ -73,11 +71,13 @@ export const GroupAddMembersModal = ({ groupId }: Props) => {
   return (
     <ModalLayout className="w-full">
       <ModalTitle>{t('addMembers')}</ModalTitle>
-      <View className="flex-row gap-2 p-2">
-        <Text>{selectedMembers.length}</Text>
-        <Text>Access</Text>
-        <Text>Remove</Text>
-      </View>
+      {selectedMembers.length > 0 && (
+        <View className="flex-row gap-2 p-2">
+          <Text>{selectedMembers.length}</Text>
+          <Text>Access</Text>
+          <Text>Remove</Text>
+        </View>
+      )}
       <ScrollView className="h-max-96">
         {selectedMembers.map((member) => (
           <View key={member.id} className="flex-row items-center gap-2 p-2">

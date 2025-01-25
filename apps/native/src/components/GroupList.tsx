@@ -1,6 +1,5 @@
-import { Pressable, ScrollView, View } from 'react-native';
-import { Text } from '@repo/ui';
-import { getInitials } from '@/utils/common';
+import { Pressable, ScrollView } from 'react-native';
+import { Avatar, Text } from '@repo/ui';
 import { Link } from 'expo-router';
 import { GetGroupDto } from '@/api/generated';
 
@@ -14,9 +13,7 @@ export const GroupList = ({ groups }: Props) => {
       {groups.map((group) => (
         <Link key={group.id} href={`/group/${group.id}`} asChild>
           <Pressable className="w-full flex flex-row items-center p-2 gap-2 rounded-md hover:bg-layer-secondary active:bg-layer-secondary">
-            <View className="w-10 h-10 bg-layer-tertiary rounded-full items-center justify-center">
-              <Text>{getInitials(group.name)}</Text>
-            </View>
+            <Avatar alt={group.name} />
             <Text>{group.name}</Text>
           </Pressable>
         </Link>
