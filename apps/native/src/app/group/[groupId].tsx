@@ -39,7 +39,7 @@ export default function SingleGroupPage() {
         <Text className="text-black">Add members</Text>
         <AddIcon className="text-black" />
       </Button>
-      <View className="flex-row flex-wrap p-2 gap-2">
+      <View className="p-2 gap-2">
         {group.members.map((member) => (
           <Pressable
             key={member.userId}

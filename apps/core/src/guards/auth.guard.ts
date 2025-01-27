@@ -1,12 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { AuthType } from "../decorators/auth.decorator";
-import { AccessGuard } from "./access.guard";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthType } from 'src/decorators/auth.decorator';
+import { AccessGuard } from './access.guard';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,7 +17,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const authTypes = this.reflector.getAllAndOverride<AuthType[]>("authType", [
+    const authTypes = this.reflector.getAllAndOverride<AuthType[]>('authType', [
       context.getHandler(),
       context.getClass(),
     ]) ?? [this.defaultAuthType];
@@ -30,9 +25,7 @@ export class AuthGuard implements CanActivate {
     let error = new UnauthorizedException();
 
     for (const instance of guards) {
-      const canActivate = await Promise.resolve(
-        instance.canActivate(context)
-      ).catch((err) => {
+      const canActivate = await Promise.resolve(instance.canActivate(context)).catch((err) => {
         error = err;
       });
 

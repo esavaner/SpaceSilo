@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   AddMemberDto,
   AddMembersDto,
@@ -11,6 +11,8 @@ import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { AccessLevel } from '@prisma/client';
+import { PrismaModel } from 'src/_gen/prisma-class';
 
 @Injectable()
 export class GroupsService {
@@ -25,6 +27,26 @@ export class GroupsService {
   };
 
   constructor(private readonly prisma: PrismaService) {}
+
+  async getAccess(groupId: string, user: TokenPayload) {
+    const member = await this.prisma.groupMember.findFirst({
+      // find a group by id where the user is a member or the owner
+      where: {
+        groupId,
+        OR: [{ group: { members: { some: { userId: user.sub } } } }, { group: { ownerId: user.sub } }],
+      },
+      include: {
+        group: true,
+      },
+    });
+    if (user.role === 'owner' || member.group.ownerId === user.sub) {
+      return 'owner';
+    } else if (member) {
+      return member.access;
+    } else {
+      return new NotFoundException('Group not found');
+    }
+  }
 
   async create(dto: CreateGroupDto, user: TokenPayload): Promise<GetGroupDto> {
     const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
