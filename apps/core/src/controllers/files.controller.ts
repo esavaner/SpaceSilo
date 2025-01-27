@@ -1,5 +1,4 @@
 import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Req, Query, Patch } from '@nestjs/common';
-import { FilesService } from './files.service';
 import {
   CreateFileDto,
   FindAllFilesDto,
@@ -9,10 +8,11 @@ import {
   CreateFolderDto,
   CopyFileDto,
   FileEntity,
-} from '../_dto/files.dto';
+} from 'src/_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth, AuthType } from 'src/decorators/auth.decorator';
+import { FilesService } from 'src/services/files.service';
 
 @ApiTags('files')
 @Controller('files')

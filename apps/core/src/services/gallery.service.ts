@@ -1,11 +1,11 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
-import { CreatePhotoDto } from '../_dto/photo.dto';
+import { CreatePhotoDto } from 'src/_dto/photo.dto';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { TokenPayload } from 'src/auth/auth.types';
+import { TokenPayload } from 'src/common/types';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const sharp = require('sharp');
 

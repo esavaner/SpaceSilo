@@ -8,12 +8,12 @@ import {
   CreateFolderDto,
   CopyFileDto,
   FileEntity,
-} from '../_dto/files.dto';
-import { TokenPayload } from 'src/auth/auth.types';
+} from 'src/_dto/files.dto';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { TokenPayload } from 'src/common/types';
 
 @Injectable()
 export class FilesService {

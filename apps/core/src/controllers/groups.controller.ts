@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
-import { GroupsService } from './groups.service';
+import { GroupsService } from 'src/services/groups.service';
 import {
   AddMemberDto,
   AddMembersDto,

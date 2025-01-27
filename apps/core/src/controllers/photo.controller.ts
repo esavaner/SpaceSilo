@@ -10,12 +10,12 @@ import {
   UploadedFile,
   Req,
 } from '@nestjs/common';
-import { PhotoService } from './photo.service';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
-import { CreatePhotoDto } from '../../_dto/photo.dto';
+import { CreatePhotoDto } from 'src/_dto/photo.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PhotoService } from 'src/services/photo.service';
 
 @ApiTags('photo')
 @Controller('gallery/photo')

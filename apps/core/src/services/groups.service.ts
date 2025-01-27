@@ -7,12 +7,12 @@ import {
   RemoveMemberDto,
   UpdateMemberDto,
 } from 'src/_dto/group.dto';
-import { TokenPayload } from 'src/auth/auth.types';
 import { PrismaService } from 'src/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AccessLevel } from '@prisma/client';
 import { PrismaModel } from 'src/_gen/prisma-class';
+import { TokenPayload } from 'src/common/types';
 
 @Injectable()
 export class GroupsService {
