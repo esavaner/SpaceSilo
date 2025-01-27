@@ -23,7 +23,7 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<GetUserDto> {
-    const { id: groupId, ...data } = dto;
+    const { groupId, ...data } = dto;
     const user = await this.prisma.user.create({
       data,
     });

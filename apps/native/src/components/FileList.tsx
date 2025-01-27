@@ -1,16 +1,15 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from '../utils/fileIcons';
-import { Button, Checkbox, ChevronDownIcon, cn, FileIcon, FolderIcon, Text } from '@repo/ui';
+import { Checkbox, cn, FileIcon, FolderIcon, Text } from '@repo/ui';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileEntity } from '@/api/generated';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
-import { SortBy } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
+import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 
 type FileListProps = {
   className?: string;
@@ -32,16 +31,6 @@ export const FileList = ({ className }: FileListProps) => {
     selectedItems,
   } = useFilesContext();
 
-  const sortOptions = useMemo(
-    () => [
-      { label: t('sort.name'), value: 'name' as SortBy },
-      { label: t('sort.size'), value: 'size' as SortBy },
-      { label: t('sort.date'), value: 'date' as SortBy },
-      { label: t('sort.type'), value: 'type' as SortBy },
-    ],
-    [t]
-  );
-
   const getIcon = (item: FileEntity) => {
     if (item.isDirectory) return <FolderIcon size={28} />;
     const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
@@ -61,23 +50,7 @@ export const FileList = ({ className }: FileListProps) => {
           checked={hasSelectedAll}
           onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
-        {sortOptions.map((sort) => (
-          <Button
-            key={sort.value}
-            variant="text"
-            onPress={() => handleSort(sort.value)}
-            className="flex flex-row gap-2 justify-between items-center p-2 w-24"
-          >
-            <Text>{sort.label}</Text>
-            <ChevronDownIcon
-              className={cn(
-                'text-content hidden transition-all transform',
-                comparator.sort === sort.value && 'block',
-                comparator.order === 1 && 'rotate-180'
-              )}
-            />
-          </Button>
-        ))}
+        <FileSortDropdown handleSort={handleSort} comparator={comparator} />
         <FileAddDropdown currentPath={currentPath} />
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>

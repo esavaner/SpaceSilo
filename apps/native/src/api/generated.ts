@@ -25,7 +25,7 @@ export interface RegisterDto {
   password: string;
   name?: string;
   role: Role;
-  id: string;
+  groupId: string;
 }
 
 export interface CreateFileDto {
@@ -131,7 +131,7 @@ export interface CreateUserDto {
   password: string;
   name?: string;
   role: Role;
-  id: string;
+  groupId: string;
 }
 
 export interface GetUserDto {
@@ -152,7 +152,7 @@ export interface UpdateUserDto {
   password?: string;
   name?: string;
   role?: Role;
-  id?: string;
+  groupId?: string;
 }
 
 export interface Photo {

@@ -13,6 +13,7 @@ CREATE TABLE "User" (
     "role" "Role" NOT NULL DEFAULT 'user',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "settings" JSONB,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -51,6 +52,7 @@ CREATE TABLE "Group" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "ownerId" TEXT NOT NULL,
+    "personal" BOOLEAN DEFAULT false,
 
     CONSTRAINT "Group_pkey" PRIMARY KEY ("id")
 );

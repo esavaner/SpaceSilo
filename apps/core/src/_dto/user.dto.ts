@@ -1,4 +1,4 @@
-import { ApiPropertyOptional, IntersectionType, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { JsonValue } from '@prisma/client/runtime/library';
 import { PrismaModel } from 'src/_gen/prisma-class';
 
@@ -9,10 +9,10 @@ class FixUserSettings extends OmitType(PrismaModel.User, ['settings']) {
 
 /* ------------------------- Requests -------------------------- */
 
-export class CreateUserDto extends IntersectionType(
-  PickType(FixUserSettings, ['name', 'email', 'password', 'role']),
-  PickType(PrismaModel.Group, ['id'])
-) {}
+export class CreateUserDto extends PickType(FixUserSettings, ['name', 'email', 'password', 'role']) {
+  @ApiProperty({ type: String })
+  groupId: string;
+}
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
