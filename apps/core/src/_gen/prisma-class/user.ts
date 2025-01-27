@@ -22,4 +22,7 @@ export class User {
 
   @ApiProperty({ type: Date })
   updatedAt: Date;
+
+  @ApiPropertyOptional({ type: Object })
+  settings?: object;
 }

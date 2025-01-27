@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class Group {
   @ApiProperty({ type: String })
@@ -15,4 +15,7 @@ export class Group {
 
   @ApiProperty({ type: String })
   ownerId: string;
+
+  @ApiPropertyOptional({ type: Boolean })
+  personal?: boolean;
 }

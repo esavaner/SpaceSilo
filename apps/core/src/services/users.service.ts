@@ -11,6 +11,7 @@ export class UsersService {
       name: true,
       email: true,
       role: true,
+      settings: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -26,7 +27,7 @@ export class UsersService {
     const user = await this.prisma.user.create({
       data,
     });
-    await this.groupsService.create({ id: groupId, name: 'Personal', members: [] }, user.id);
+    await this.groupsService.create({ id: groupId, name: 'Personal', members: [], personal: true }, user.id);
     return user;
   }
 

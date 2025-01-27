@@ -18,6 +18,7 @@ export class CreateGroupDto extends PickType(IntersectionType(PrismaModel.Group,
   'id',
   'name',
   'members',
+  'personal',
 ]) {}
 
 /* ------------------------- Responses ------------------------- */

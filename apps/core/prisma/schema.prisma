@@ -33,6 +33,7 @@ model User {
   role      Role     @default(user)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  settings  Json?
 
   photos    Photo[]
   albums    Album[]
@@ -80,6 +81,7 @@ model Group {
   updatedAt DateTime @updatedAt
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
+  personal  Boolean?  @default(false)
   members   GroupMember[]
   albums    Album[]
   photos    Photo[]

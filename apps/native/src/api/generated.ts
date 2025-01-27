@@ -65,6 +65,7 @@ export interface GroupMember {
 export interface CreateGroupDto {
   id: string;
   name: string;
+  personal?: boolean;
   members: GroupMember[];
 }
 
@@ -77,6 +78,7 @@ export interface SearchUserDto {
   createdAt: string;
   /** @format date-time */
   updatedAt: string;
+  settings?: object | null;
 }
 
 export interface GroupMemberWithUser {
@@ -98,6 +100,7 @@ export interface GetGroupDto {
   /** @format date-time */
   updatedAt: string;
   ownerId: string;
+  personal?: boolean;
   members: GroupMemberWithUser[];
 }
 
@@ -141,6 +144,7 @@ export interface GetUserDto {
   createdAt: string;
   /** @format date-time */
   updatedAt: string;
+  settings?: object | null;
 }
 
 export interface UpdateUserDto {
@@ -184,6 +188,7 @@ export interface Group {
   /** @format date-time */
   updatedAt: string;
   ownerId: string;
+  personal?: boolean;
 }
 
 export interface UserRelations {
@@ -203,6 +208,7 @@ export interface User {
   createdAt: string;
   /** @format date-time */
   updatedAt: string;
+  settings?: object;
 }
 
 export interface PhotoRelations {
