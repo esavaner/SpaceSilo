@@ -9,61 +9,23 @@
  * ---------------------------------------------------------------
  */
 
-export type CreatePhotoDto = object;
-
 export type CreateAlbumDto = object;
 
 export type UpdateAlbumDto = object;
-
-export type Role = 'owner' | 'admin' | 'user';
-
-export interface CreateUserDto {
-  email: string;
-  password: string;
-  name?: string;
-  role: Role;
-}
-
-export interface GetUserDto {
-  id: string;
-  email: string;
-  password: string;
-  name?: string;
-  role: Role;
-  /** @format date-time */
-  createdAt: string;
-  /** @format date-time */
-  updatedAt: string;
-}
-
-export interface SearchUserDto {
-  id: string;
-  email: string;
-  name?: string;
-  role: Role;
-  /** @format date-time */
-  createdAt: string;
-  /** @format date-time */
-  updatedAt: string;
-}
-
-export interface UpdateUserDto {
-  email?: string;
-  password?: string;
-  name?: string;
-  role?: Role;
-}
 
 export interface LoginDto {
   email: string;
   password: string;
 }
 
+export type Role = 'owner' | 'admin' | 'user';
+
 export interface RegisterDto {
-  name: string;
-  /** @format email */
   email: string;
   password: string;
+  name?: string;
+  role: Role;
+  id: string;
 }
 
 export interface CreateFileDto {
@@ -86,9 +48,7 @@ export interface FileEntity {
   md5: string;
 }
 
-export type CreateNoteDto = object;
-
-export type UpdateNoteDto = object;
+export type CreatePhotoDto = object;
 
 export type AccessLevel = 'admin' | 'edit' | 'read';
 
@@ -106,6 +66,17 @@ export interface CreateGroupDto {
   id: string;
   name: string;
   members: GroupMember[];
+}
+
+export interface SearchUserDto {
+  id: string;
+  email: string;
+  name?: string;
+  role: Role;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
 }
 
 export interface GroupMemberWithUser {
@@ -146,6 +117,38 @@ export interface RemoveMemberDto {
 export interface UpdateMemberDto {
   userId?: string;
   access?: AccessLevel;
+}
+
+export type CreateNoteDto = object;
+
+export type UpdateNoteDto = object;
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  name?: string;
+  role: Role;
+  id: string;
+}
+
+export interface GetUserDto {
+  id: string;
+  email: string;
+  password: string;
+  name?: string;
+  role: Role;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+}
+
+export interface UpdateUserDto {
+  email?: string;
+  password?: string;
+  name?: string;
+  role?: Role;
+  id?: string;
 }
 
 export interface Photo {
@@ -450,154 +453,6 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     /**
      * No description
      *
-     * @tags gallery
-     * @name GalleryControllerUploadFile
-     * @request POST:/gallery
-     */
-    galleryControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
-      this.request<CreatePhotoDto, any>({
-        path: `/gallery`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags gallery
-     * @name GalleryControllerFindAll
-     * @request GET:/gallery
-     */
-    galleryControllerFindAll: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags gallery
-     * @name GalleryControllerFindOne
-     * @request GET:/gallery/{id}
-     */
-    galleryControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery/${id}`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags gallery
-     * @name GalleryControllerRemove
-     * @request DELETE:/gallery/{id}
-     */
-    galleryControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery/${id}`,
-        method: 'DELETE',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags gallery
-     * @name GalleryControllerFindThumbnail
-     * @request GET:/gallery/{id}/thumbnail
-     */
-    galleryControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
-      this.request<CreatePhotoDto, any>({
-        path: `/gallery/${id}/thumbnail`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags photo
-     * @name PhotoControllerUploadFile
-     * @request POST:/gallery/photo
-     */
-    photoControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
-      this.request<CreatePhotoDto, any>({
-        path: `/gallery/photo`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags photo
-     * @name PhotoControllerFindAll
-     * @request GET:/gallery/photo
-     */
-    photoControllerFindAll: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery/photo`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags photo
-     * @name PhotoControllerFindOne
-     * @request GET:/gallery/photo/{id}
-     */
-    photoControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery/photo/${id}`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags photo
-     * @name PhotoControllerRemove
-     * @request DELETE:/gallery/photo/{id}
-     */
-    photoControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/gallery/photo/${id}`,
-        method: 'DELETE',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags photo
-     * @name PhotoControllerFindThumbnail
-     * @request GET:/gallery/photo/{id}/thumbnail
-     */
-    photoControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
-      this.request<CreatePhotoDto, any>({
-        path: `/gallery/photo/${id}/thumbnail`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
      * @tags album
      * @name AlbumControllerCreate
      * @request POST:/gallery/album
@@ -673,18 +528,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         format: 'json',
         ...params,
       }),
-  };
-  users = {
+
     /**
      * No description
      *
-     * @tags users
-     * @name UsersControllerCreate
-     * @request POST:/users
+     * @tags gallery
+     * @name GalleryControllerUploadFile
+     * @request POST:/gallery
      */
-    usersControllerCreate: (data: CreateUserDto, params: RequestParams = {}) =>
-      this.request<GetUserDto, any>({
-        path: `/users`,
+    galleryControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
+      this.request<CreateAlbumDto, any>({
+        path: `/gallery`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -695,13 +549,55 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     /**
      * No description
      *
-     * @tags users
-     * @name UsersControllerFindAll
-     * @request GET:/users
+     * @tags gallery
+     * @name GalleryControllerFindAll
+     * @request GET:/gallery
      */
-    usersControllerFindAll: (params: RequestParams = {}) =>
-      this.request<GetUserDto[], any>({
-        path: `/users`,
+    galleryControllerFindAll: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags gallery
+     * @name GalleryControllerFindOne
+     * @request GET:/gallery/{id}
+     */
+    galleryControllerFindOne: (id: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags gallery
+     * @name GalleryControllerRemove
+     * @request DELETE:/gallery/{id}
+     */
+    galleryControllerRemove: (id: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery/${id}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags gallery
+     * @name GalleryControllerFindThumbnail
+     * @request GET:/gallery/{id}/thumbnail
+     */
+    galleryControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
+      this.request<CreateAlbumDto, any>({
+        path: `/gallery/${id}/thumbnail`,
         method: 'GET',
         format: 'json',
         ...params,
@@ -710,29 +606,14 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     /**
      * No description
      *
-     * @tags users
-     * @name UsersControllerFindOne
-     * @request GET:/users/{id}
+     * @tags photo
+     * @name PhotoControllerUploadFile
+     * @request POST:/gallery/photo
      */
-    usersControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<GetUserDto, any>({
-        path: `/users/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UsersControllerUpdate
-     * @request PATCH:/users/{id}
-     */
-    usersControllerUpdate: (id: string, data: UpdateUserDto, params: RequestParams = {}) =>
-      this.request<SearchUserDto, any>({
-        path: `/users/${id}`,
-        method: 'PATCH',
+    photoControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
+      this.request<CreateAlbumDto, any>({
+        path: `/gallery/photo`,
+        method: 'POST',
         body: data,
         type: ContentType.Json,
         format: 'json',
@@ -742,28 +623,55 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     /**
      * No description
      *
-     * @tags users
-     * @name UsersControllerRemove
-     * @request DELETE:/users/{id}
+     * @tags photo
+     * @name PhotoControllerFindAll
+     * @request GET:/gallery/photo
      */
-    usersControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<SearchUserDto, any>({
-        path: `/users/${id}`,
-        method: 'DELETE',
-        format: 'json',
+    photoControllerFindAll: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery/photo`,
+        method: 'GET',
         ...params,
       }),
 
     /**
      * No description
      *
-     * @tags users
-     * @name UsersControllerSearch
-     * @request GET:/users/search/{query}
+     * @tags photo
+     * @name PhotoControllerFindOne
+     * @request GET:/gallery/photo/{id}
      */
-    usersControllerSearch: (query: string, params: RequestParams = {}) =>
-      this.request<SearchUserDto[], any>({
-        path: `/users/search/${query}`,
+    photoControllerFindOne: (id: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery/photo/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags photo
+     * @name PhotoControllerRemove
+     * @request DELETE:/gallery/photo/{id}
+     */
+    photoControllerRemove: (id: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/gallery/photo/${id}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags photo
+     * @name PhotoControllerFindThumbnail
+     * @request GET:/gallery/photo/{id}/thumbnail
+     */
+    photoControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
+      this.request<CreateAlbumDto, any>({
+        path: `/gallery/photo/${id}/thumbnail`,
         method: 'GET',
         format: 'json',
         ...params,
@@ -958,86 +866,6 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         ...params,
       }),
   };
-  notes = {
-    /**
-     * No description
-     *
-     * @tags notes
-     * @name NotesControllerCreate
-     * @request POST:/notes
-     */
-    notesControllerCreate: (data: CreateNoteDto, params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/notes`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notes
-     * @name NotesControllerFindAll
-     * @request GET:/notes
-     */
-    notesControllerFindAll: (params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/notes`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notes
-     * @name NotesControllerFindOne
-     * @request GET:/notes/{id}
-     */
-    notesControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/notes/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notes
-     * @name NotesControllerUpdate
-     * @request PATCH:/notes/{id}
-     */
-    notesControllerUpdate: (id: string, data: UpdateNoteDto, params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/notes/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notes
-     * @name NotesControllerRemove
-     * @request DELETE:/notes/{id}
-     */
-    notesControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/notes/${id}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-  };
   groups = {
     /**
      * No description
@@ -1165,6 +993,181 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       this.request<GetGroupDto, any>({
         path: `/groups/${id}`,
         method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+  };
+  notes = {
+    /**
+     * No description
+     *
+     * @tags notes
+     * @name NotesControllerCreate
+     * @request POST:/notes
+     */
+    notesControllerCreate: (data: CreateNoteDto, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/notes`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notes
+     * @name NotesControllerFindAll
+     * @request GET:/notes
+     */
+    notesControllerFindAll: (params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/notes`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notes
+     * @name NotesControllerFindOne
+     * @request GET:/notes/{id}
+     */
+    notesControllerFindOne: (id: string, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/notes/${id}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notes
+     * @name NotesControllerUpdate
+     * @request PATCH:/notes/{id}
+     */
+    notesControllerUpdate: (id: string, data: UpdateNoteDto, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/notes/${id}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notes
+     * @name NotesControllerRemove
+     * @request DELETE:/notes/{id}
+     */
+    notesControllerRemove: (id: string, params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/notes/${id}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+  };
+  users = {
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerCreate
+     * @request POST:/users
+     */
+    usersControllerCreate: (data: CreateUserDto, params: RequestParams = {}) =>
+      this.request<GetUserDto, any>({
+        path: `/users`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerFindAll
+     * @request GET:/users
+     */
+    usersControllerFindAll: (params: RequestParams = {}) =>
+      this.request<GetUserDto[], any>({
+        path: `/users`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerFindOne
+     * @request GET:/users/{id}
+     */
+    usersControllerFindOne: (id: string, params: RequestParams = {}) =>
+      this.request<GetUserDto, any>({
+        path: `/users/${id}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerUpdate
+     * @request PATCH:/users/{id}
+     */
+    usersControllerUpdate: (id: string, data: UpdateUserDto, params: RequestParams = {}) =>
+      this.request<SearchUserDto, any>({
+        path: `/users/${id}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerRemove
+     * @request DELETE:/users/{id}
+     */
+    usersControllerRemove: (id: string, params: RequestParams = {}) =>
+      this.request<SearchUserDto, any>({
+        path: `/users/${id}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UsersControllerSearch
+     * @request GET:/users/search/{query}
+     */
+    usersControllerSearch: (query: string, params: RequestParams = {}) =>
+      this.request<SearchUserDto[], any>({
+        path: `/users/search/${query}`,
+        method: 'GET',
         format: 'json',
         ...params,
       }),

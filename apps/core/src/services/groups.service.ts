@@ -48,7 +48,7 @@ export class GroupsService {
     }
   }
 
-  async create(dto: CreateGroupDto, user: TokenPayload): Promise<GetGroupDto> {
+  async create(dto: CreateGroupDto, userId: string): Promise<GetGroupDto> {
     const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
 
     if (existingGroup) {
@@ -56,7 +56,7 @@ export class GroupsService {
     }
 
     const res = await this.prisma.group.create({
-      data: { ownerId: user.sub, name: dto.name, id: dto.id, members: { create: dto.members } },
+      data: { ownerId: userId, name: dto.name, id: dto.id, members: { create: dto.members } },
       ...this.options,
     });
 

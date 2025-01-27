@@ -20,7 +20,7 @@ export class GroupsController {
   @Post()
   @ApiOkResponse({ type: GetGroupDto })
   create(@Body() dto: CreateGroupDto, @User() user: TokenPayload) {
-    return this.groupsService.create(dto, user);
+    return this.groupsService.create(dto, user.sub);
   }
 
   @Patch(':id/add_member')

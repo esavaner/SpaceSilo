@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, GetUserDto, SearchUserDto, UpdateUserDto } from 'src/_dto/user.dto';
 import { PrismaService } from 'src/common/prisma.service';
+import { GroupsService } from './groups.service';
 
 @Injectable()
 export class UsersService {
@@ -15,12 +16,18 @@ export class UsersService {
     },
   };
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly groupsService: GroupsService
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<GetUserDto> {
-    return await this.prisma.user.create({
-      data: createUserDto,
+  async create(dto: CreateUserDto): Promise<GetUserDto> {
+    const { id: groupId, ...data } = dto;
+    const user = await this.prisma.user.create({
+      data,
     });
+    await this.groupsService.create({ id: groupId, name: 'Personal', members: [] }, user.id);
+    return user;
   }
 
   async findAll(): Promise<GetUserDto[]> {
