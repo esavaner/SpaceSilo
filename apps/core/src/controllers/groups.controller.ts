@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { GroupsService } from 'src/services/groups.service';
 import {
   AddMemberDto,
@@ -9,6 +9,8 @@ import {
   UpdateMemberDto,
 } from 'src/_dto/group.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { TokenPayload } from 'src/common/types';
+import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('groups')
 @Controller('groups')
@@ -17,8 +19,8 @@ export class GroupsController {
 
   @Post()
   @ApiOkResponse({ type: GetGroupDto })
-  create(@Body() dto: CreateGroupDto, @Req() request: Request) {
-    return this.groupsService.create(dto, request['user']);
+  create(@Body() dto: CreateGroupDto, @User() user: TokenPayload) {
+    return this.groupsService.create(dto, user);
   }
 
   @Patch(':id/add_member')

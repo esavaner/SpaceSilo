@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Req, Query, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Query, Patch } from '@nestjs/common';
 import {
   CreateFileDto,
   FindAllFilesDto,
@@ -13,6 +13,8 @@ import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth, AuthType } from 'src/decorators/auth.decorator';
 import { FilesService } from 'src/services/files.service';
+import { TokenPayload } from 'src/common/types';
+import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('files')
 @Controller('files')
@@ -24,15 +26,15 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   @ApiOkResponse({ description: 'File created successfully' })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateFileDto, @Req() request: Request) {
-    const result = await this.filesService.createFile(dto, file, request['user']);
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateFileDto, @User() user: TokenPayload) {
+    const result = await this.filesService.createFile(dto, file, user);
     return result;
   }
 
   @Post('/folder')
   @ApiOkResponse({ description: 'Folder created successfully' })
-  async createFolder(@Body() dto: CreateFolderDto, @Req() request: Request) {
-    const result = await this.filesService.createFolder(dto, request['user']);
+  async createFolder(@Body() dto: CreateFolderDto, @User() user: TokenPayload) {
+    const result = await this.filesService.createFolder(dto, user);
     return result;
   }
 

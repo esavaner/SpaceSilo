@@ -8,14 +8,14 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Req,
 } from '@nestjs/common';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
 import { CreatePhotoDto } from 'src/_dto/photo.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PhotoService } from 'src/services/photo.service';
+import { TokenPayload } from 'src/common/types';
+import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('photo')
 @Controller('gallery/photo')
@@ -27,9 +27,9 @@ export class PhotoController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body() createPhotoDto: CreatePhotoDto,
-    @Req() request: Request
+    @User() user: TokenPayload
   ) {
-    const photo = await this.photoService.create(createPhotoDto, file, request['user']);
+    const photo = await this.photoService.create(createPhotoDto, file, user);
     return photo;
   }
 

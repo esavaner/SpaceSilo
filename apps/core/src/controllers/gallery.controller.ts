@@ -8,14 +8,14 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Req,
 } from '@nestjs/common';
 import { CreatePhotoDto } from 'src/_dto/photo.dto';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { GalleryService } from 'src/services/gallery.service';
+import { User } from 'src/decorators/user.decorator';
+import { TokenPayload } from 'src/common/types';
 
 @ApiTags('gallery')
 @Controller('gallery')
@@ -27,9 +27,9 @@ export class GalleryController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body() createPhotoDto: CreatePhotoDto,
-    @Req() request: Request
+    @User() user: TokenPayload
   ) {
-    const photo = await this.galleryService.create(createPhotoDto, file, request['user']);
+    const photo = await this.galleryService.create(createPhotoDto, file, user);
     return photo;
   }
 

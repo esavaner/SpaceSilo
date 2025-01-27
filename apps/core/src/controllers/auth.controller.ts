@@ -33,9 +33,9 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
     const result = await this.authService.register(registerDto);
     res.cookie('jwt', result.access_token, {
-      httpOnly: true,
+      // httpOnly: true, @TODO
       // secure: true,
-      sameSite: true,
+      // sameSite: true,
     });
     return res.status(HttpStatus.CREATED).json(result);
   }
