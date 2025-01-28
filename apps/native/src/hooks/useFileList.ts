@@ -3,6 +3,7 @@ import { FileEntity, GetGroupDto } from '@/api/generated';
 import { useQuery } from '@tanstack/react-query';
 import { compareAsc } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { useGroupList } from './useGroupList';
 
 type Props = {
   onPathChange?: (path: string) => void;
@@ -34,15 +35,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
   const [selectedGroupIds, setSelectedGroupIds] = useState<GetGroupDto['id'][]>([]);
-
-  const { data: g, isLoading } = useQuery({
-    queryKey: ['groups'],
-    queryFn: Api.groups.groupsControllerFindAll,
-  });
-
-  const groups = g?.data || [];
-  const groupsPersonal = groups.filter((group: GetGroupDto) => group.personal);
-  const groupsShared = groups.filter((group: GetGroupDto) => !group.personal);
+  const { groups, groupsPersonal, groupsShared, isGroupsLoading } = useGroupList();
 
   useEffect(() => {
     setSelectedGroupIds(groups.map((group) => group.id));
@@ -51,7 +44,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const { data: f, refetch } = useQuery({
     queryKey: ['files', currentPath],
     queryFn: () => Api.files.filesControllerFindAll({ path: currentPath, groupIds: selectedGroupIds }),
-    enabled: !isLoading && groups.length > 0,
+    enabled: !isGroupsLoading && groups.length > 0,
   });
 
   const unsorted = f?.data || [];

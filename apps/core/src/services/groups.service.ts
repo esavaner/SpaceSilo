@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   AddMemberDto,
   AddMembersDto,
@@ -69,8 +69,22 @@ export class GroupsService {
     return res;
   }
 
-  async findAll() {
-    return await this.prisma.group.findMany({ ...this.options });
+  async findAll(user: TokenPayload) {
+    if (user.role !== 'admin') {
+      throw new UnauthorizedException('You are not allowed to access this resource');
+    }
+    return await this.prisma.group.findMany({
+      ...this.options,
+    });
+  }
+
+  async findUserGroups(user: TokenPayload) {
+    return await this.prisma.group.findMany({
+      where: {
+        OR: [{ members: { some: { userId: user.sub } } }, { ownerId: user.sub }],
+      },
+      ...this.options,
+    });
   }
 
   async findOne(id: string): Promise<GetGroupDto> {

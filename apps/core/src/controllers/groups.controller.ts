@@ -11,6 +11,7 @@ import {
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { TokenPayload } from 'src/common/types';
 import { User } from 'src/decorators/user.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @ApiTags('groups')
 @Controller('groups')
@@ -49,8 +50,15 @@ export class GroupsController {
 
   @Get()
   @ApiOkResponse({ type: GetGroupDto, isArray: true })
-  findAll() {
-    return this.groupsService.findAll();
+  findUserGroups(@User() user: TokenPayload) {
+    return this.groupsService.findUserGroups(user);
+  }
+
+  @Get('/all')
+  @ApiOkResponse({ type: GetGroupDto, isArray: true })
+  @Roles('admin', 'owner')
+  findAll(@User() user: TokenPayload) {
+    return this.groupsService.findAll(user);
   }
 
   @Get(':id')

@@ -899,10 +899,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * No description
      *
      * @tags groups
-     * @name GroupsControllerFindAll
+     * @name GroupsControllerFindUserGroups
      * @request GET:/groups
      */
-    groupsControllerFindAll: (params: RequestParams = {}) =>
+    groupsControllerFindUserGroups: (params: RequestParams = {}) =>
       this.request<GetGroupDto[], any>({
         path: `/groups`,
         method: 'GET',
@@ -974,6 +974,21 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags groups
+     * @name GroupsControllerFindAll
+     * @request GET:/groups/all
+     */
+    groupsControllerFindAll: (params: RequestParams = {}) =>
+      this.request<GetGroupDto[], any>({
+        path: `/groups/all`,
+        method: 'GET',
         format: 'json',
         ...params,
       }),

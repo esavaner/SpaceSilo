@@ -39,9 +39,8 @@ export class FilesService {
   }
 
   findAll(dto: FindAllFilesDto, user: TokenPayload): FileEntity[] {
-    console.log(dto);
     if (!dto.groupIds) {
-      throw new NotFoundException('Group not found');
+      return [];
     }
     let files: FileEntity[] = [];
     const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
