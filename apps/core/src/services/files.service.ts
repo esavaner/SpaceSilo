@@ -14,9 +14,12 @@ import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { TokenPayload } from 'src/common/types';
+import { GroupsService } from './groups.service';
 
 @Injectable()
 export class FilesService {
+  constructor(private readonly groupService: GroupsService) {}
+
   async createFile(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
     const fileDir = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
@@ -35,34 +38,47 @@ export class FilesService {
     return { message: 'Folder created successfully', folderDir };
   }
 
-  findAll(dto: FindAllFilesDto): FileEntity[] | NotFoundException | InternalServerErrorException {
-    const fileDir = path.join(process.env.FILES_PATH, dto.path || '');
-    if (!fs.existsSync(fileDir)) {
-      return new NotFoundException('Path not found');
+  findAll(dto: FindAllFilesDto, user: TokenPayload): FileEntity[] {
+    console.log(dto);
+    if (!dto.groupIds) {
+      throw new NotFoundException('Group not found');
     }
+    let files: FileEntity[] = [];
+    for (const groupId of dto.groupIds) {
+      const groupMember = this.groupService.findGroupMember(groupId, user);
+      if (!groupMember) {
+        throw new NotFoundException('Group not found');
+      }
+      const fileDir = path.join(process.env.FILES_PATH, groupId, dto.path || '');
+      if (!fs.existsSync(fileDir)) {
+        continue;
+      }
 
-    try {
-      const files = fs.readdirSync(fileDir);
-      return files.map((file) => {
-        const filePath = path.join(fileDir, file);
-        const stats = fs.statSync(filePath);
-        let md5Hash = '';
-        if (stats.isFile()) {
-          const fileBuffer = fs.readFileSync(filePath);
-          md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+      try {
+        const fileList = fs.readdirSync(fileDir);
+        for (const fileName of fileList) {
+          const filePath = path.join(fileDir, fileName);
+          const stats = fs.statSync(filePath);
+          let md5Hash = '';
+          if (stats.isFile()) {
+            const fileBuffer = fs.readFileSync(filePath);
+            md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+          }
+          files.push({
+            name: fileName,
+            uri: path.join('/', dto.path || '', fileName),
+            size: stats.size,
+            modificationTime: stats.mtime,
+            isDirectory: stats.isDirectory(),
+            md5: md5Hash,
+            groupId,
+          });
         }
-        return {
-          name: file,
-          uri: path.join('/', dto.path || '', file),
-          size: stats.size,
-          modificationTime: stats.mtime,
-          isDirectory: stats.isDirectory(),
-          md5: md5Hash,
-        };
-      });
-    } catch (error) {
-      return new InternalServerErrorException(error);
+      } catch (error) {
+        throw new InternalServerErrorException(error);
+      }
     }
+    return files;
   }
 
   download(dto: DownloadFileDto) {

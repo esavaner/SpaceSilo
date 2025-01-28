@@ -46,6 +46,7 @@ export interface FileEntity {
   modificationTime: string;
   isDirectory: boolean;
   md5: string;
+  groupId: string;
 }
 
 export type CreatePhotoDto = object;
@@ -756,6 +757,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerFindAll: (
       query: {
+        /** List of group IDs */
+        groupIds: string[];
         path: string;
         /** @min 1 */
         take?: number;

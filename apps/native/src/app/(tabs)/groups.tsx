@@ -17,8 +17,8 @@ export default function GroupsPage() {
   });
 
   const response = data?.data || [];
-  const groups = response.filter((group: GetGroupDto) => !group.personal);
   const personal = response.filter((group: GetGroupDto) => group.personal);
+  const groups = response.filter((group: GetGroupDto) => !group.personal);
 
   return (
     <View className="flex-1 bg-layer relative">

@@ -24,6 +24,9 @@ export class RemoveFileDto extends DownloadFileDto {}
 
 export class FindAllFilesDto extends PaginationQueryDto {
   path: string;
+
+  @ApiProperty({ type: [String] })
+  groupIds: string[];
 }
 
 /* ------------------------- Responses ------------------------- */
@@ -46,4 +49,7 @@ export class FileEntity {
 
   @ApiProperty()
   md5: string;
+
+  @ApiProperty()
+  groupId: string;
 }

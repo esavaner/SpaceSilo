@@ -28,7 +28,7 @@ export class GroupsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAccess(groupId: string, user: TokenPayload) {
+  async findGroupMember(groupId: string, user: TokenPayload) {
     const member = await this.prisma.groupMember.findFirst({
       // find a group by id where the user is a member or the owner
       where: {
@@ -39,13 +39,7 @@ export class GroupsService {
         group: true,
       },
     });
-    if (user.role === 'owner' || member.group.ownerId === user.sub) {
-      return 'owner';
-    } else if (member) {
-      return member.access;
-    } else {
-      return new NotFoundException('Group not found');
-    }
+    return member;
   }
 
   async create(dto: CreateGroupDto, userId: string): Promise<GetGroupDto> {

@@ -11,14 +11,12 @@ import {
 } from 'src/_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Auth, AuthType } from 'src/decorators/auth.decorator';
 import { FilesService } from 'src/services/files.service';
 import { TokenPayload } from 'src/common/types';
 import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('files')
 @Controller('files')
-@Auth(AuthType.None) // @TODO remove this
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
@@ -40,8 +38,8 @@ export class FilesController {
 
   @Get()
   @ApiOkResponse({ type: FileEntity, isArray: true })
-  findAll(@Query() dto: FindAllFilesDto) {
-    return this.filesService.findAll(dto);
+  findAll(@Query() dto: FindAllFilesDto, @User() user: TokenPayload) {
+    return this.filesService.findAll(dto, user);
   }
 
   @Get('/download')

@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
+import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
 
 type FileListProps = {
   className?: string;
@@ -51,6 +52,7 @@ export const FileList = ({ className }: FileListProps) => {
           onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
         <FileSortDropdown handleSort={handleSort} comparator={comparator} />
+        <FileFilterDropdown />
         <FileAddDropdown currentPath={currentPath} />
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
@@ -59,7 +61,7 @@ export const FileList = ({ className }: FileListProps) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
           return (
             <Pressable
-              key={item.name}
+              key={item.name + item.groupId}
               className={cn(
                 'flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
                 isSelected && 'bg-layer-secondary'
