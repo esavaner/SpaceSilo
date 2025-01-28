@@ -82,7 +82,7 @@ export class FilesService {
     return files;
   }
 
-  download(dto: DownloadFileDto) {
+  download(dto: DownloadFileDto, user: TokenPayload) {
     const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
 
     if (!fs.existsSync(filePath)) {

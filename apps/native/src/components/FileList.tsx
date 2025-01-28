@@ -77,9 +77,7 @@ export const FileList = ({ className }: FileListProps) => {
                 <Checkbox checked={!!isSelected} onChange={() => handleSelectItem(item)} />
               </View>
 
-              <Text className="h-full w-7 flex items-center justify-center transition-all transform mr-4">
-                {getIcon(item)}
-              </Text>
+              <View className="w-7 items-center justify-center transition-all transform mr-4">{getIcon(item)}</View>
               <View className="gap-1">
                 <Text className="text-lg leading-5">{item.name}</Text>
                 <View className="flex-row gap-1">

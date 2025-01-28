@@ -43,8 +43,8 @@ export class FilesController {
   }
 
   @Get('/download')
-  download(@Query() dto: DownloadFileDto) {
-    return this.filesService.download(dto);
+  download(@Query() dto: DownloadFileDto, @User() user: TokenPayload) {
+    return this.filesService.download(dto, user);
   }
 
   @Patch()
