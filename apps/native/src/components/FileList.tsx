@@ -21,6 +21,7 @@ export const FileList = ({ className }: FileListProps) => {
   const {
     comparator,
     currentPath,
+    groups,
     items,
     handleClearSelection,
     handleItemClick,
@@ -59,11 +60,12 @@ export const FileList = ({ className }: FileListProps) => {
         {items.length === 0 && <Text className="text-center">No files</Text>}
         {items.map((item) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
+          const color = groups.find((g) => g.id === item.groupId)?.color;
           return (
             <Pressable
               key={item.name + item.groupId}
               className={cn(
-                'flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
+                'relative flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
                 isSelected && 'bg-layer-secondary'
               )}
               onPress={() => handleItemClick(item)}
@@ -87,6 +89,11 @@ export const FileList = ({ className }: FileListProps) => {
               </View>
 
               {!hasSelectedItems && <FileOptionsDropdown file={item} />}
+
+              <View
+                className={cn('absolute w-1 h-7 left-0 rounded-md')}
+                {...(color && { style: { backgroundColor: color } })}
+              />
             </Pressable>
           );
         })}

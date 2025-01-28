@@ -18,4 +18,7 @@ export class Group {
 
   @ApiPropertyOptional({ type: Boolean })
   personal?: boolean;
+
+  @ApiPropertyOptional({ type: String })
+  color?: string;
 }

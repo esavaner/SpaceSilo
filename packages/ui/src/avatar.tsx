@@ -10,9 +10,10 @@ type Props = {
   alt?: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  color?: string;
 };
 
-const avatarStyles = cva('bg-layer-tertiary rounded-full items-center justify-center', {
+const avatarStyles = cva('rounded-full items-center justify-center', {
   variants: {
     size: {
       sm: 'w-8 h-8',
@@ -39,9 +40,12 @@ export const getInitials = (name?: string) => {
   return `${first[0]}${last[0]}`.toUpperCase();
 };
 
-export const Avatar = ({ src, alt, size = 'md', className }: Props) => {
+export const Avatar = ({ src, alt, color, size = 'md', className }: Props) => {
   return (
-    <Pressable className={cn(avatarStyles({ size }), className)}>
+    <Pressable
+      className={cn(avatarStyles({ size }), color ? '' : 'bg-layer-tertiary ', className)}
+      {...(color && { style: { backgroundColor: color } })}
+    >
       {src ? (
         <Image source={{ uri: src }} alt={alt} />
       ) : (

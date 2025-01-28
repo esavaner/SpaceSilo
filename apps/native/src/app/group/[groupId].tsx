@@ -32,7 +32,7 @@ export default function SingleGroupPage() {
   }
   return (
     <View className="flex-1 bg-layer relative items-center gap-2 p-4">
-      <Avatar alt={group.name} size="lg" />
+      <Avatar alt={group.name} size="lg" color={group.color} />
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-content-tertiary">{group.id}</Text>
       <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>

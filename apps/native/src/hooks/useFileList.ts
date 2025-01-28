@@ -51,7 +51,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const { data: f, refetch } = useQuery({
     queryKey: ['files', currentPath],
     queryFn: () => Api.files.filesControllerFindAll({ path: currentPath, groupIds: selectedGroupIds }),
-    enabled: !isLoading,
+    enabled: !isLoading && groups.length > 0,
   });
 
   const unsorted = f?.data || [];
@@ -131,6 +131,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     comparator,
     currentPath,
     items,
+    groups,
     groupsPersonal,
     groupsShared,
     handleApplyGroupSelect,

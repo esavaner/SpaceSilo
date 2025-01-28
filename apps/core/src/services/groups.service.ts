@@ -50,7 +50,14 @@ export class GroupsService {
     }
 
     const res = await this.prisma.group.create({
-      data: { ownerId: userId, name: dto.name, id: dto.id, personal: dto.personal, members: { create: dto.members } },
+      data: {
+        ownerId: userId,
+        name: dto.name,
+        id: dto.id,
+        personal: dto.personal,
+        color: dto.color,
+        members: { create: dto.members },
+      },
       ...this.options,
     });
 

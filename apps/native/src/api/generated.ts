@@ -67,6 +67,7 @@ export interface CreateGroupDto {
   id: string;
   name: string;
   personal?: boolean;
+  color?: string;
   members: GroupMember[];
 }
 
@@ -102,6 +103,7 @@ export interface GetGroupDto {
   updatedAt: string;
   ownerId: string;
   personal?: boolean;
+  color?: string;
   members: GroupMemberWithUser[];
 }
 
@@ -190,6 +192,7 @@ export interface Group {
   updatedAt: string;
   ownerId: string;
   personal?: boolean;
+  color?: string;
 }
 
 export interface UserRelations {
@@ -757,7 +760,6 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      */
     filesControllerFindAll: (
       query: {
-        /** List of group IDs */
         groupIds: string[];
         path: string;
         /** @min 1 */

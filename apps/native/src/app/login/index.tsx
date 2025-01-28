@@ -79,6 +79,7 @@ export default function LoginPage() {
               onChangeText={field.onChange}
               label="Password"
               error={errors.password?.message}
+              secureTextEntry
             />
           )}
           name="password"

@@ -44,7 +44,8 @@ export class FilesService {
       throw new NotFoundException('Group not found');
     }
     let files: FileEntity[] = [];
-    for (const groupId of dto.groupIds) {
+    const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
+    for (const groupId of ids) {
       const groupMember = this.groupService.findGroupMember(groupId, user);
       if (!groupMember) {
         throw new NotFoundException('Group not found');

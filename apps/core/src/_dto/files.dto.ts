@@ -26,7 +26,7 @@ export class FindAllFilesDto extends PaginationQueryDto {
   path: string;
 
   @ApiProperty({ type: [String] })
-  groupIds: string[];
+  groupIds: string | string[];
 }
 
 /* ------------------------- Responses ------------------------- */

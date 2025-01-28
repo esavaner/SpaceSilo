@@ -22,9 +22,10 @@ export default function GroupsPage() {
 
   return (
     <View className="flex-1 bg-layer relative">
+      <Text className="px-4 py-2">{t('Personal')}</Text>
       <PersonalGroupList groups={personal} />
-      <View className="flex-row px-4 py-2 items-center justify-between border-b border-b-content">
-        <Text>{t('groups.groups')}</Text>
+      <View className="flex-row px-4 py-2 items-center gap-4">
+        <Text>{t('Shared Groups')}</Text>
         <Button onPress={() => openModal(<GroupCreateModal />)}>
           <Text className="text-black">Create</Text>
           <AddIcon className="text-black" />

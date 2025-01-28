@@ -18,7 +18,7 @@ export const FilesProvider = ({ children }: FilesProviderProps) => {
   const fileList = useFileList({
     path: initialPath,
     // @TODO
-    onPathChange: (path) => router.setParams({ path, groups: ['a', 'b'] }),
+    onPathChange: (path) => router.setParams({ path }),
     // @ts-ignore
     onFileSelect: (fileUri) => router.push({ pathname: '/view', params: { fileUri } }),
   });

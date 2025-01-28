@@ -90,7 +90,8 @@ export const GroupAddMembersModal = ({ group }: Props) => {
         ))}
       </ScrollView>
       <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
-      <ButtonGroup okText={t('Add')} onCancel={closeModal} onOk={handleSubmit} />
+      {/* @TODO */}
+      <ButtonGroup okText={t('Add')} onCancel={closeModal} onOk={handleSubmit} className="z-[-2]" />
     </ModalLayout>
   );
 };

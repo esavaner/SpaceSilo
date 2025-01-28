@@ -13,7 +13,7 @@ export const PersonalGroupList = ({ groups }: Props) => {
       {groups.map((group) => (
         <Link key={group.id} href={`/group/${group.id}`} asChild>
           <Pressable className="w-full flex flex-row items-center p-2 gap-2 rounded-md hover:bg-layer-secondary active:bg-layer-secondary">
-            <Avatar alt={group.name} />
+            <Avatar alt={group.name} color={group.color} />
             <Text>{group.name}</Text>
           </Pressable>
         </Link>

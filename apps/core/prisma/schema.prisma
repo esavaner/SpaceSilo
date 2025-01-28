@@ -82,6 +82,7 @@ model Group {
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
   personal  Boolean?  @default(false)
+  color     String?
   members   GroupMember[]
   albums    Album[]
   photos    Photo[]
