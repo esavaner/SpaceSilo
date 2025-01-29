@@ -22,13 +22,16 @@ export class AuthService {
     if (!isEqual) {
       throw new UnauthorizedException('Password does not match');
     }
+
     const payload: TokenPayload = {
       email: user.email,
       sub: user.id,
       role: user.role,
     };
+    const { password, ...userWithoutPassword } = user;
     return {
       access_token: this.jwtService.sign(payload),
+      user: userWithoutPassword,
     };
   }
 
@@ -50,8 +53,11 @@ export class AuthService {
       sub: user.id,
       role: user.role,
     };
+
+    const { password, ...userWithoutPassword } = user;
     return {
       access_token: this.jwtService.sign(payload),
+      user: userWithoutPassword,
     };
   }
 }

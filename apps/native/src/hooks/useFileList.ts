@@ -1,9 +1,10 @@
 import { Api } from '@/api/api';
-import { FileEntity, GetGroupDto } from '@/api/generated';
+import { FileEntity } from '@/api/generated';
 import { useQuery } from '@tanstack/react-query';
 import { compareAsc } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useGroupList } from './useGroupList';
+import { useUserContext } from '@/providers/UserProvider';
 
 type Props = {
   onPathChange?: (path: string) => void;
@@ -31,23 +32,20 @@ const comparators: Record<SortBy, (a: FileEntity, b: FileEntity) => number> = {
 };
 
 export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) => {
+  const { user } = useUserContext();
+  const { groups, groupsPersonal, groupsShared, handleSelectGroup, isGroupsLoading, selectedGroupIds } = useGroupList();
   const [currentPath, setCurrentPath] = useState(path);
   const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
-  const [selectedGroupIds, setSelectedGroupIds] = useState<GetGroupDto['id'][]>([]);
-  const { groups, groupsPersonal, groupsShared, isGroupsLoading } = useGroupList();
-
-  useEffect(() => {
-    setSelectedGroupIds(groups.map((group) => group.id));
-  }, [groups]);
 
   const { data: f, refetch } = useQuery({
     queryKey: ['files', currentPath],
     queryFn: () => Api.files.filesControllerFindAll({ path: currentPath, groupIds: selectedGroupIds }),
-    enabled: !isGroupsLoading && groups.length > 0,
+    enabled: !isGroupsLoading && selectedGroupIds.length > 0 && !!user,
+    select: (data) => data.data,
   });
 
-  const unsorted = f?.data || [];
+  const unsorted = f || [];
   const items = unsorted
     .sort((a, b) => comparators[comparator.sort](a, b) * comparator.order)
     .sort((a, b) => {
@@ -107,15 +105,6 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item.uri) : onFileClick(item.uri);
   };
 
-  const handleGroupSelect = (group: GetGroupDto) => {
-    const isSelected = selectedGroupIds.includes(group.id);
-    if (isSelected) {
-      setSelectedGroupIds(selectedGroupIds.filter((id) => id !== group.id));
-    } else {
-      setSelectedGroupIds([...selectedGroupIds, group.id]);
-    }
-  };
-
   const handleApplyGroupSelect = () => {
     refetch();
   };
@@ -130,7 +119,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     handleApplyGroupSelect,
     handleItemClick,
     handleClearSelection,
-    handleGroupSelect,
+    handleSelectGroup,
     handlePathClick,
     handleSelectAll,
     handleSelectItem,

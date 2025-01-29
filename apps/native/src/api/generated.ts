@@ -20,6 +20,18 @@ export interface LoginDto {
 
 export type Role = 'owner' | 'admin' | 'user';
 
+export interface SearchUserDto {
+  id: string;
+  email: string;
+  name?: string;
+  role: Role;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  settings?: object | null;
+}
+
 export interface RegisterDto {
   email: string;
   password: string;
@@ -69,18 +81,6 @@ export interface CreateGroupDto {
   personal?: boolean;
   color?: string;
   members: GroupMember[];
-}
-
-export interface SearchUserDto {
-  id: string;
-  email: string;
-  name?: string;
-  role: Role;
-  /** @format date-time */
-  createdAt: string;
-  /** @format date-time */
-  updatedAt: string;
-  settings?: object | null;
 }
 
 export interface GroupMemberWithUser {
@@ -696,11 +696,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request POST:/auth/login
      */
     authControllerLogin: (data: LoginDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<SearchUserDto, any>({
         path: `/auth/login`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -726,11 +727,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @request POST:/auth/register
      */
     authControllerRegister: (data: RegisterDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<SearchUserDto, any>({
         path: `/auth/register`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
   };

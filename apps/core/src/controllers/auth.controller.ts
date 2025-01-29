@@ -3,8 +3,9 @@ import { LoginDto } from 'src/_dto/login.dto';
 import { Response } from 'express';
 import { Auth, AuthType } from 'src/decorators/auth.decorator';
 import { RegisterDto } from 'src/_dto/register.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from 'src/services/auth.service';
+import { SearchUserDto } from 'src/_dto/user.dto';
 
 @ApiTags('auth')
 @Auth(AuthType.None)
@@ -13,6 +14,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @ApiOkResponse({ type: SearchUserDto })
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
     res.cookie('jwt', result.access_token, {
@@ -20,7 +22,7 @@ export class AuthController {
       // secure: true,
       // sameSite: true,
     });
-    return res.status(HttpStatus.OK).json(result);
+    return res.status(HttpStatus.OK).json(result.user);
   }
 
   @Post('logout')
@@ -30,6 +32,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiOkResponse({ type: SearchUserDto })
   async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
     const result = await this.authService.register(registerDto);
     res.cookie('jwt', result.access_token, {
@@ -37,6 +40,6 @@ export class AuthController {
       // secure: true,
       // sameSite: true,
     });
-    return res.status(HttpStatus.CREATED).json(result);
+    return res.status(HttpStatus.CREATED).json(result.user);
   }
 }

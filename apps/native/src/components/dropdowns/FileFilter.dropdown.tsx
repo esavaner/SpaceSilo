@@ -21,7 +21,7 @@ export const FileFilterDropdown = ({ className }: Props) => {
 
 const FilterDropdown = () => {
   const { closeModal } = useUi();
-  const { groupsPersonal, groupsShared, handleApplyGroupSelect, handleGroupSelect, selectedGroupIds } =
+  const { groupsPersonal, groupsShared, handleApplyGroupSelect, handleSelectGroup, selectedGroupIds } =
     useFilesContext();
 
   const handleApply = () => {
@@ -36,7 +36,7 @@ const FilterDropdown = () => {
         <FilterGroupItem
           key={group.id}
           group={group}
-          onPress={handleGroupSelect}
+          onPress={handleSelectGroup}
           checked={selectedGroupIds.includes(group.id)}
         />
       ))}
@@ -45,7 +45,7 @@ const FilterDropdown = () => {
         <FilterGroupItem
           key={group.id}
           group={group}
-          onPress={handleGroupSelect}
+          onPress={handleSelectGroup}
           checked={selectedGroupIds.includes(group.id)}
         />
       ))}

@@ -6,6 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { router } from 'expo-router';
+import { useUserContext } from '@/providers/UserProvider';
 
 const schema = yup.object().shape({
   // serverUrl: yup.string().required('Server URL is required'),
@@ -16,10 +17,13 @@ const schema = yup.object().shape({
 type LoginForm = yup.InferType<typeof schema>;
 
 export default function LoginPage() {
+  const { setUser } = useUserContext();
+
   const { mutate: login } = useMutation({
     mutationKey: ['login'],
     mutationFn: Api.auth.authControllerLogin,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setUser(data.data);
       router.push('/files');
     },
   });
