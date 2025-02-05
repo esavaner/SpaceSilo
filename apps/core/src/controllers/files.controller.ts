@@ -8,6 +8,7 @@ import {
   CreateFolderDto,
   CopyFileDto,
   FileEntity,
+  FindFileDto,
 } from 'src/_dto/files.dto';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -36,10 +37,16 @@ export class FilesController {
     return result;
   }
 
-  @Get()
+  @Get('/all')
   @ApiOkResponse({ type: FileEntity, isArray: true })
   findAll(@Query() dto: FindAllFilesDto, @User() user: TokenPayload) {
     return this.filesService.findAll(dto, user);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: FileEntity })
+  find(@Query() dto: FindFileDto, @User() user: TokenPayload) {
+    return this.filesService.findFile(dto, user);
   }
 
   @Get('/download')

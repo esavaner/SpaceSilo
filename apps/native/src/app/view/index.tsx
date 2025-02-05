@@ -5,35 +5,53 @@ import { Text } from '@repo/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Api } from '@/api/api';
 import { Image } from 'expo-image';
+import { fileTypes } from '@/utils/files';
 
 export default function ViewPage() {
   const { t } = useTranslation();
-  const { fileUri } = useLocalSearchParams<{ fileUri?: string }>();
+  const { groupId, fileUri } = useLocalSearchParams<{ groupId: string; fileUri: string }>();
 
-  // const { data } = useQuery({
-  //   queryKey: ['download', fileUri],
+  const { data: file } = useQuery({
+    queryKey: ['file', groupId, fileUri],
+    queryFn: async () => {
+      if (!fileUri || !groupId) return;
+      const r = await Api.files.filesControllerFind({ fileUri, groupId });
+      return r.data;
+    },
+  });
+
+  // const fileType = Object.entries(fileTypes).find(([key, value]) => file?.type && value.includes(file?.type))?.[0];
+
+  // console.log(file);
+
+  // const { data: fileData } = useQuery({
+  //   queryKey: ['download', groupId, fileUri],
   //   queryFn: async () => {
   //     if (!fileUri) return;
-  //     const r = await Api.files.filesControllerDownload({ fileUri });
+  //     const r = await Api.files.filesControllerDownload({ fileUri, groupId });
   //     const s = await r.text();
   //     return s;
 
-  //     if (!fileUri) return;
-  //     const r = await Api.files.filesControllerDownload({ fileUri });
-  //     const arrayBuffer = await r.arrayBuffer();
-  //     const base64String = Buffer.from(arrayBuffer).toString('base64');
-  //     return `data:image/jpeg;base64,${base64String}`;
+  //     // if (!fileUri) return;
+  //     // const r = await Api.files.filesControllerDownload({ fileUri });
+  //     // const arrayBuffer = await r.arrayBuffer();
+  //     // const base64String = Buffer.from(arrayBuffer).toString('base64');
+  //     // return `data:image/jpeg;base64,${base64String}`;
   //   },
+  //   enabled: fileType !== 'image',
   // });
 
   return (
     <View className="flex-1 bg-layer relative">
       <View className="flex-1 bg-layer">
-        {/* <Text>{data}</Text> */}
+        {/* {fileType === 'image' ? ( */}
         <Image
-          source={`http://localhost:3100/files/download?fileUri=${fileUri}`}
+          source={`http://192.168.0.176:3100/files/download?groupId=${groupId}&fileUri=${fileUri}`}
           className="flex-1 max-h-96 max-w-96"
         />
+        {/* // ) : (
+        //   <Text>{fileData}</Text>
+        // )} */}
       </View>
     </View>
   );

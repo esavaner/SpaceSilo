@@ -18,7 +18,7 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
     res.cookie('jwt', result.access_token, {
-      // httpOnly: true, @TODO
+      httpOnly: true, //@TODO
       // secure: true,
       // sameSite: true,
     });
@@ -36,7 +36,7 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
     const result = await this.authService.register(registerDto);
     res.cookie('jwt', result.access_token, {
-      // httpOnly: true, @TODO
+      httpOnly: true, // @TODO
       // secure: true,
       // sameSite: true,
     });

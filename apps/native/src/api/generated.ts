@@ -59,6 +59,7 @@ export interface FileEntity {
   isDirectory: boolean;
   md5: string;
   groupId: string;
+  type?: string;
 }
 
 export type CreatePhotoDto = object;
@@ -757,21 +758,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * No description
      *
      * @tags files
-     * @name FilesControllerFindAll
+     * @name FilesControllerFind
      * @request GET:/files
      */
-    filesControllerFindAll: (
+    filesControllerFind: (
       query: {
-        groupIds: string[];
-        path: string;
-        /** @min 1 */
-        take?: number;
-        /** @min 1 */
-        skip?: number;
+        fileUri: string;
+        groupId: string;
       },
       params: RequestParams = {}
     ) =>
-      this.request<FileEntity[], any>({
+      this.request<FileEntity, any>({
         path: `/files`,
         method: 'GET',
         query: query,
@@ -811,6 +808,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     filesControllerRemove: (
       query: {
         fileUri: string;
+        groupId: string;
       },
       params: RequestParams = {}
     ) =>
@@ -841,12 +839,39 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * No description
      *
      * @tags files
+     * @name FilesControllerFindAll
+     * @request GET:/files/all
+     */
+    filesControllerFindAll: (
+      query: {
+        groupIds: string[];
+        path: string;
+        /** @min 1 */
+        take?: number;
+        /** @min 1 */
+        skip?: number;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<FileEntity[], any>({
+        path: `/files/all`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags files
      * @name FilesControllerDownload
      * @request GET:/files/download
      */
     filesControllerDownload: (
       query: {
         fileUri: string;
+        groupId: string;
       },
       params: RequestParams = {}
     ) =>

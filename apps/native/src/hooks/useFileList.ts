@@ -8,7 +8,7 @@ import { useUserContext } from '@/providers/UserProvider';
 
 type Props = {
   onPathChange?: (path: string) => void;
-  onFileSelect?: (fileUri: string) => void;
+  onFileSelect?: (fileUri: string, groupId: string) => void;
   path?: string;
 };
 
@@ -86,23 +86,23 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
   };
 
-  const onDirClick = (dirUri: string) => {
+  const onDirClick = (dir: FileEntity) => {
     if (selectedItems.length > 0) {
       return;
     }
-    setCurrentPath(dirUri);
-    onPathChange?.(dirUri);
+    setCurrentPath(dir.uri);
+    onPathChange?.(dir.uri);
   };
 
-  const onFileClick = (fileUri: string) => {
+  const onFileClick = (file: FileEntity) => {
     if (selectedItems.length > 0) {
       return;
     }
-    onFileSelect?.(fileUri);
+    onFileSelect?.(file.uri, file.groupId);
   };
 
   const handleItemClick = (item: FileEntity) => {
-    hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item.uri) : onFileClick(item.uri);
+    hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item) : onFileClick(item);
   };
 
   const handleApplyGroupSelect = () => {

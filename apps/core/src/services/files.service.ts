@@ -8,6 +8,7 @@ import {
   CreateFolderDto,
   CopyFileDto,
   FileEntity,
+  FindFileDto,
 } from 'src/_dto/files.dto';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
@@ -70,6 +71,7 @@ export class FilesService {
             size: stats.size,
             modificationTime: stats.mtime,
             isDirectory: stats.isDirectory(),
+            type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
             md5: md5Hash,
             groupId,
           });
@@ -81,10 +83,36 @@ export class FilesService {
     return files;
   }
 
-  download(dto: DownloadFileDto, user: TokenPayload) {
-    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
+  findFile(dto: FindFileDto, user: TokenPayload): FileEntity {
+    const groupMember = this.groupService.findGroupMember(dto.groupId, user);
+    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    if (!fs.existsSync(filePath) || !groupMember) {
+      throw new NotFoundException('File not found');
+    }
+    const stats = fs.statSync(filePath);
+    let md5Hash = '';
+    if (stats.isFile()) {
+      const fileBuffer = fs.readFileSync(filePath);
+      md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+    }
 
-    if (!fs.existsSync(filePath)) {
+    return {
+      name: path.basename(filePath),
+      uri: dto.fileUri,
+      size: stats.size,
+      modificationTime: stats.mtime,
+      isDirectory: stats.isDirectory(),
+      type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
+      md5: md5Hash,
+      groupId: dto.groupId,
+    };
+  }
+
+  download(dto: DownloadFileDto, user: TokenPayload) {
+    const groupMember = this.groupService.findGroupMember(dto.groupId, user);
+    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+
+    if (!fs.existsSync(filePath) || !groupMember) {
       throw new NotFoundException('File not found');
     }
 

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationQueryDto } from 'src/common/pagination.dto';
 
 /* ------------------------- Requests -------------------------- */
@@ -18,9 +18,13 @@ export class CopyFileDto extends MoveFileDto {}
 
 export class DownloadFileDto {
   fileUri: string;
+
+  groupId: string;
 }
 
 export class RemoveFileDto extends DownloadFileDto {}
+
+export class FindFileDto extends DownloadFileDto {}
 
 export class FindAllFilesDto extends PaginationQueryDto {
   path: string;
@@ -52,4 +56,7 @@ export class FileEntity {
 
   @ApiProperty()
   groupId: string;
+
+  @ApiPropertyOptional()
+  type?: string;
 }

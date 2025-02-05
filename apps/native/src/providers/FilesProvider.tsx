@@ -20,7 +20,7 @@ export const FilesProvider = ({ children }: FilesProviderProps) => {
     // @TODO
     onPathChange: (path) => router.setParams({ path }),
     // @ts-ignore
-    onFileSelect: (fileUri) => router.push({ pathname: '/view', params: { fileUri } }),
+    onFileSelect: (fileUri, groupId) => router.push({ pathname: '/view', params: { fileUri, groupId } }),
   });
 
   return <FilesContext.Provider value={{ ...fileList, setInitialPath }}>{children}</FilesContext.Provider>;
