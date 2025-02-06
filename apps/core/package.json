@@ -34,6 +34,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "fs-extra": "^11.2.0",
+    "mime": "^4.0.6",
     "prisma": "^6.0.1",
     "prisma-class-generator": "^0.2.11",
     "reflect-metadata": "^0.2.2",

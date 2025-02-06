@@ -60,7 +60,7 @@ export const FileList = ({ className }: FileListProps) => {
         {items.length === 0 && <Text className="text-center">No files</Text>}
         {items.map((item) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
-          const color = groups.find((g) => g.id === item.groupId)?.color;
+          const color = groups?.find((g) => g.id === item.groupId)?.color;
           return (
             <Pressable
               key={item.name + item.groupId}

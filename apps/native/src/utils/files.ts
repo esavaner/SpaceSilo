@@ -1,5 +1,13 @@
 export type FileType = 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'OTHER';
 
+export const FileType: Record<FileType, FileType> = {
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO',
+  AUDIO: 'AUDIO',
+  DOCUMENT: 'DOCUMENT',
+  OTHER: 'OTHER',
+} as const;
+
 export const fileTypes: Record<FileType, string[]> = {
   IMAGE: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'],
   VIDEO: ['mp4', 'avi', 'mkv', 'webm', 'mov', 'flv'],

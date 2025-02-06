@@ -8,23 +8,25 @@ export const useGroupList = () => {
   const { user } = useUserContext();
   const [selectedGroupIds, setSelectedGroupIds] = useState<GetGroupDto['id'][]>([]);
 
-  const { data: g, isLoading: isGroupsLoading } = useQuery({
+  const { data: groups, isLoading: isGroupsLoading } = useQuery({
     queryKey: ['groups'],
     queryFn: Api.groups.groupsControllerFindUserGroups,
     enabled: !!user,
     select: (data) => data.data,
   });
 
-  const groups = g || [];
-  const groupsPersonal = groups.filter((group: GetGroupDto) => group.personal);
-  const groupsShared = groups.filter((group: GetGroupDto) => !group.personal);
+  const groupsPersonal = groups?.filter((group: GetGroupDto) => group.personal);
+  const groupsShared = groups?.filter((group: GetGroupDto) => !group.personal);
 
   useEffect(() => {
-    setSelectedGroupIds(groups.map((group) => group.id));
+    if (groups) {
+      setSelectedGroupIds(groups.map((group) => group.id));
+    }
   }, [groups]);
 
   const handleSelectAllGroups = () => {
-    setSelectedGroupIds(groups.map((group) => group.id));
+    const g = groups || [];
+    setSelectedGroupIds(g.map((group) => group.id));
   };
 
   const handleSelectGroup = (group: GetGroupDto) => {

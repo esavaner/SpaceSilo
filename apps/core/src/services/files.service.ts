@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
+// import mime from 'mime';
 import { TokenPayload } from 'src/common/types';
 import { GroupsService } from './groups.service';
 
@@ -118,7 +119,10 @@ export class FilesService {
 
     try {
       const fileContents = fs.createReadStream(filePath);
-      return new StreamableFile(fileContents, { type: 'image/jpeg' });
+      // const mimeType = mime.getType(filePath) || 'application/octet-stream';
+      const mimeType = 'application/octet-stream';
+      console.log(mimeType);
+      return new StreamableFile(fileContents, { type: mimeType });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

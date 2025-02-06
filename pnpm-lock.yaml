@@ -53,6 +53,9 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
+      mime:
+        specifier: ^4.0.6
+        version: 4.0.6
       prisma:
         specifier: ^6.0.1
         version: 6.0.1
@@ -5088,6 +5091,11 @@ packages:
   mime@2.6.0:
     resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
     engines: {node: '>=4.0.0'}
+    hasBin: true
+
+  mime@4.0.6:
+    resolution: {integrity: sha512-4rGt7rvQHBbaSOF9POGkk1ocRP16Md1x36Xma8sz8h8/vfCUI2OtEIeCqe4Ofes853x4xDoPiFLIT47J5fI/7A==}
+    engines: {node: '>=16'}
     hasBin: true
 
   mimic-fn@1.2.0:
@@ -13560,6 +13568,8 @@ snapshots:
   mime@1.6.0: {}
 
   mime@2.6.0: {}
+
+  mime@4.0.6: {}
 
   mimic-fn@1.2.0: {}
 
