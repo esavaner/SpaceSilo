@@ -32,7 +32,7 @@ const FilterDropdown = () => {
   return (
     <View className="p-3 gap-2">
       <Text>Personal</Text>
-      {groupsPersonal.map((group) => (
+      {groupsPersonal?.map((group) => (
         <FilterGroupItem
           key={group.id}
           group={group}
@@ -41,7 +41,7 @@ const FilterDropdown = () => {
         />
       ))}
       <Text>Groups</Text>
-      {groupsShared.map((group) => (
+      {groupsShared?.map((group) => (
         <FilterGroupItem
           key={group.id}
           group={group}

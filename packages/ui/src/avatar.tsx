@@ -3,13 +3,12 @@ import { Text } from './text';
 import React from 'react';
 import { cva } from 'class-variance-authority';
 import { cn } from './cn';
-import { Pressable } from 'react-native';
+import { Pressable, PressableProps } from 'react-native';
 
-type Props = {
+type Props = PressableProps & {
   src?: string;
   alt?: string;
   size?: 'sm' | 'md' | 'lg';
-  className?: string;
   color?: string;
 };
 
@@ -40,11 +39,13 @@ export const getInitials = (name?: string) => {
   return `${first[0]}${last[0]}`.toUpperCase();
 };
 
-export const Avatar = ({ src, alt, color, size = 'md', className }: Props) => {
+export const Avatar = ({ src, alt, color, size = 'md', className, onPress = () => {}, ...rest }: Props) => {
   return (
     <Pressable
       className={cn(avatarStyles({ size }), color ? '' : 'bg-layer-tertiary ', className)}
+      onPress={onPress}
       {...(color && { style: { backgroundColor: color } })}
+      {...rest}
     >
       {src ? (
         <Image source={{ uri: src }} alt={alt} />
