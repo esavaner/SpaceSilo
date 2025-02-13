@@ -19,13 +19,14 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
 
   const handleMove = () => {
     selectedItems.forEach((item) => {
-      move({ fileUri: item.uri, newPath: currentPath, name: item.name });
+      move({ fileUri: item.uri, newPath: currentPath, name: item.name, groupId: item.groupId });
     });
   };
 
   const handleCopy = () => {
+    // @TODO copy files between groups
     selectedItems.forEach((item) => {
-      copy({ fileUri: item.uri, newPath: currentPath, name: item.name });
+      copy({ fileUri: item.uri, newPath: currentPath, name: item.name, groupId: item.groupId });
     });
   };
 

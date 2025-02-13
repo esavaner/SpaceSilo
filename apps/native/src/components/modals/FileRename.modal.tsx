@@ -36,7 +36,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const onSubmit = (values: RenameForm) => {
     const lastIndexOf = file.uri.lastIndexOf(file.name);
     const newPath = file.uri.slice(0, lastIndexOf);
-    rename({ fileUri: file.uri, newPath, name: values.newName });
+    rename({ fileUri: file.uri, newPath, name: values.newName, groupId: file.groupId });
   };
 
   return (

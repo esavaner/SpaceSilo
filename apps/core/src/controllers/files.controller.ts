@@ -55,17 +55,17 @@ export class FilesController {
   }
 
   @Patch()
-  move(@Query() dto: MoveFileDto) {
-    return this.filesService.move(dto);
+  move(@Query() dto: MoveFileDto, @User() user: TokenPayload) {
+    return this.filesService.move(dto, user);
   }
 
   @Post('/copy')
-  copy(@Query() dto: CopyFileDto) {
-    return this.filesService.copy(dto);
+  copy(@Query() dto: CopyFileDto, @User() user: TokenPayload) {
+    return this.filesService.copy(dto, user);
   }
 
   @Delete()
-  remove(@Query() dto: RemoveFileDto) {
-    return this.filesService.remove(dto);
+  remove(@Query() dto: RemoveFileDto, @User() user: TokenPayload) {
+    return this.filesService.remove(dto, user);
   }
 }

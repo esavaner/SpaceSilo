@@ -43,11 +43,13 @@ export interface RegisterDto {
 export interface CreateFileDto {
   newPath: string;
   name: string;
+  groupId: string;
 }
 
 export interface CreateFolderDto {
   newPath: string;
   name: string;
+  groupId: string;
 }
 
 export interface FileEntity {
@@ -787,6 +789,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       query: {
         newPath: string;
         name: string;
+        groupId: string;
         fileUri: string;
       },
       params: RequestParams = {}
@@ -893,6 +896,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
       query: {
         newPath: string;
         name: string;
+        groupId: string;
         fileUri: string;
       },
       params: RequestParams = {}

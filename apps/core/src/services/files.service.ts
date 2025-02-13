@@ -22,8 +22,18 @@ import { GroupsService } from './groups.service';
 export class FilesService {
   constructor(private readonly groupService: GroupsService) {}
 
+  private groupCheck(groupId: string, user: TokenPayload) {
+    const groupMember = this.groupService.findGroupMember(groupId, user);
+    if (!groupMember) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return groupMember;
+  }
+
   async createFile(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
-    const fileDir = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
+    this.groupCheck(dto.groupId, user);
+    const fileDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
     if (!fs.existsSync(fileDir)) {
       fs.mkdirSync(fileDir, { recursive: true });
@@ -33,24 +43,22 @@ export class FilesService {
   }
 
   async createFolder(dto: CreateFolderDto, user: TokenPayload) {
-    const folderDir = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
+    this.groupCheck(dto.groupId, user);
+    const folderDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(folderDir)) {
       fs.mkdirSync(folderDir, { recursive: true });
     }
     return { message: 'Folder created successfully', folderDir };
   }
 
-  findAll(dto: FindAllFilesDto, user: TokenPayload): FileEntity[] {
+  async findAll(dto: FindAllFilesDto, user: TokenPayload): Promise<FileEntity[]> {
     if (!dto.groupIds) {
       return [];
     }
     let files: FileEntity[] = [];
     const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
     for (const groupId of ids) {
-      const groupMember = this.groupService.findGroupMember(groupId, user);
-      if (!groupMember) {
-        throw new NotFoundException('Group not found');
-      }
+      this.groupCheck(groupId, user);
       const fileDir = path.join(process.env.FILES_PATH, groupId, dto.path || '');
       if (!fs.existsSync(fileDir)) {
         continue;
@@ -84,10 +92,10 @@ export class FilesService {
     return files;
   }
 
-  findFile(dto: FindFileDto, user: TokenPayload): FileEntity {
-    const groupMember = this.groupService.findGroupMember(dto.groupId, user);
+  async findFile(dto: FindFileDto, user: TokenPayload): Promise<FileEntity> {
+    this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
-    if (!fs.existsSync(filePath) || !groupMember) {
+    if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
     const stats = fs.statSync(filePath);
@@ -109,11 +117,10 @@ export class FilesService {
     };
   }
 
-  download(dto: DownloadFileDto, user: TokenPayload) {
-    const groupMember = this.groupService.findGroupMember(dto.groupId, user);
+  async download(dto: DownloadFileDto, user: TokenPayload) {
+    this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
-
-    if (!fs.existsSync(filePath) || !groupMember) {
+    if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
 
@@ -128,10 +135,10 @@ export class FilesService {
     }
   }
 
-  move(dto: MoveFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
-    let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
-
+  async move(dto: MoveFileDto, user: TokenPayload) {
+    this.groupCheck(dto.groupId, user);
+    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
@@ -148,9 +155,9 @@ export class FilesService {
     }
   }
 
-  remove(dto: RemoveFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
-
+  async remove(dto: RemoveFileDto, user: TokenPayload) {
+    this.groupCheck(dto.groupId, user);
+    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
@@ -163,9 +170,10 @@ export class FilesService {
     }
   }
 
-  copy(dto: CopyFileDto) {
-    const filePath = path.join(process.env.FILES_PATH, dto.fileUri);
-    let newFilePath = path.join(process.env.FILES_PATH, dto.newPath, dto.name);
+  async copy(dto: CopyFileDto, user: TokenPayload) {
+    this.groupCheck(dto.groupId, user);
+    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');

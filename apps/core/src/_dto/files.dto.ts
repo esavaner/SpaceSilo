@@ -6,6 +6,7 @@ import { PaginationQueryDto } from 'src/common/pagination.dto';
 export class CreateFileDto {
   newPath: string;
   name: string;
+  groupId: string;
 }
 
 export class CreateFolderDto extends CreateFileDto {}
@@ -18,7 +19,6 @@ export class CopyFileDto extends MoveFileDto {}
 
 export class DownloadFileDto {
   fileUri: string;
-
   groupId: string;
 }
 

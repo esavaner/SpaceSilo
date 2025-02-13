@@ -15,7 +15,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { remove } = useFileActions();
 
   const handleRemove = () => {
-    files.forEach((file) => remove({ fileUri: file.uri }));
+    files.forEach((file) => remove({ fileUri: file.uri, groupId: file.groupId }));
   };
 
   return (
