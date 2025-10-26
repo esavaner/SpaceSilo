@@ -1,5 +1,5 @@
 import { FileEntity } from '@/api/generated';
-import { Input, useUi, ModalTitle, ModalLayout } from '@repo/ui';
+import { Input, useUi, ModalTitle, ModalLayout } from '@repo/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';

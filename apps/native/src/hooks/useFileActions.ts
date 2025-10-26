@@ -1,6 +1,6 @@
 import { Api } from '@/api/api';
 import { useFilesContext } from '@/providers/FilesProvider';
-import { useUi } from '@repo/ui';
+import { useUi } from '@repo/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // @TODO add translations

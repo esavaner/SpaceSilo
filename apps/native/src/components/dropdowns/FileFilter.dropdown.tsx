@@ -1,4 +1,4 @@
-import { useDropdown, Button, Text, FilterIcon, Checkbox, useUi } from '@repo/ui';
+import { useDropdown, Button, Text, FilterIcon, Checkbox, useUi } from '@repo/shared';
 import { ButtonGroup } from '../modals/ButtonGroup';
 import { Pressable, View } from 'react-native';
 import { GetGroupDto } from '@/api/generated';

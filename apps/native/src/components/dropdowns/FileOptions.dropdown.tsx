@@ -10,7 +10,7 @@ import {
   TrashIcon,
   useDropdown,
   useUi,
-} from '@repo/ui';
+} from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';

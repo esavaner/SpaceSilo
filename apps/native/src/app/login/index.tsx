@@ -1,5 +1,5 @@
 import { Api } from '@/api/api';
-import { Button, Input } from '@repo/ui';
+import { Button, Input } from '@repo/shared';
 import { useMutation } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';

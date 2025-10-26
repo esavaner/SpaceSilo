@@ -1,5 +1,5 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
-import { Button, Text, useUi, useDropdown, ChevronDownIcon, cn } from '@repo/ui';
+import { Button, Text, useUi, useDropdown, ChevronDownIcon, cn } from '@repo/shared';
 import { t } from 'i18next';
 import { useMemo } from 'react';
 import { Pressable } from 'react-native';

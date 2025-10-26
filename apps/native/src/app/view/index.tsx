@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { Text } from '@repo/ui';
+import { Text } from '@repo/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Api } from '@/api/api';
 import { Image } from 'expo-image';

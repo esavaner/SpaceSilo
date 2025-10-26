@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/tsconfig/nextjs.json",
+  "extends": "@repo/shared/tsconfig",
   "compilerOptions": {
     "moduleResolution": "bundler",
     "plugins": [{ "name": "next" }],

@@ -1,4 +1,4 @@
-import { CodeIcon, FileIcon } from '@repo/ui';
+import { CodeIcon, FileIcon } from '@repo/shared';
 
 export const fileIcons = {
   gif: <FileIcon />,

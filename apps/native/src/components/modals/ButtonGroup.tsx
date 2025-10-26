@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Button, cn } from '@repo/ui';
+import { Button, cn } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 
 type Props = {

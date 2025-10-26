@@ -1,4 +1,4 @@
-import { cn, FolderIcon, Text } from '@repo/ui';
+import { cn, FolderIcon, Text } from '@repo/shared';
 import { ScrollView, Pressable } from 'react-native';
 import { FileEntity } from '@/api/generated';
 

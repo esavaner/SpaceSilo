@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { AddIcon, Avatar, Button, Text, useUi } from '@repo/ui';
+import { AddIcon, Avatar, Button, Text, useUi } from '@repo/shared';
 import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 

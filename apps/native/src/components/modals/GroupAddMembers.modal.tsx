@@ -11,7 +11,7 @@ import {
   CloseIcon,
   ModalLayout,
   Select,
-} from '@repo/ui';
+} from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import { useUserSearch } from '@/hooks/useUserSearch';

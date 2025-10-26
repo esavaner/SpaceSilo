@@ -1,5 +1,5 @@
 import { FileEntity } from '@/api/generated';
-import { useUi, Text, ModalTitle, ModalLayout } from '@repo/ui';
+import { useUi, Text, ModalTitle, ModalLayout } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { ButtonGroup } from './ButtonGroup';

@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 
-import { Button, Text, Input, PersonIcon } from '@repo/ui';
+import { Button, Text, Input, PersonIcon } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {

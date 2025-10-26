@@ -4,7 +4,7 @@ import { Navigation } from '@/components/Navigation/Navigation';
 import { NavigationItemProps } from '@/components/Navigation/NavigationItem';
 import { useWindowDimensions, Platform } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
-import { FileIcon, UserGroupIcon } from '@repo/ui';
+import { FileIcon, UserGroupIcon } from '@repo/shared';
 import { Header } from '@/components/Header';
 
 const items: NavigationItemProps[] = [

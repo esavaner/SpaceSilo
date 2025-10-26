@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { AddIcon, Button, Text, useUi } from '@repo/ui';
+import { AddIcon, Button, Text, useUi } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';

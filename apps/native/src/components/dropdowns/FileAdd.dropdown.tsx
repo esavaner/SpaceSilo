@@ -1,4 +1,4 @@
-import { AddIcon, Button, Text, DropdownItem, FolderIcon, FileIcon, useUi, useDropdown } from '@repo/ui';
+import { AddIcon, Button, Text, DropdownItem, FolderIcon, FileIcon, useUi, useDropdown } from '@repo/shared';
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
 
 type FileAddDropdownProps = {

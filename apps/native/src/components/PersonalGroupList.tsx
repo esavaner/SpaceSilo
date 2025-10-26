@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, View } from 'react-native';
-import { Avatar, Text } from '@repo/ui';
+import { Avatar, Text } from '@repo/shared';
 import { Link } from 'expo-router';
 import { GetGroupDto } from '@/api/generated';
 

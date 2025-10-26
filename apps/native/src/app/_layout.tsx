@@ -8,7 +8,7 @@ import '@/i18n';
 import '../styles.css';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { UiProvider } from '@repo/ui';
+import { UiProvider } from '@repo/shared';
 import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';

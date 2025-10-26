@@ -1,5 +1,5 @@
 import { useFileList } from '@/hooks/useFileList';
-import { Breadcrumb, Button, ModalLayout, ModalTitle, Text, useUi } from '@repo/ui';
+import { Breadcrumb, Button, ModalLayout, ModalTitle, Text, useUi } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { FileListCompact } from '../FileListCompact';
 import { View } from 'react-native';

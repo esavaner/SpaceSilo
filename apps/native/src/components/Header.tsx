@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
-import { Button, MenuIcon, PersonIcon, SearchIcon, Text } from '@repo/ui';
+import { Button, MenuIcon, PersonIcon, SearchIcon, Text } from '@repo/shared';
 import { DrawerHeaderProps } from '@react-navigation/drawer';
 
 type HeaderProps = DrawerHeaderProps & {

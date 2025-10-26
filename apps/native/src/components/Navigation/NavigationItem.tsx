@@ -1,4 +1,4 @@
-import { Button, ChevronDownIcon, cn, Text } from '@repo/ui';
+import { Button, ChevronDownIcon, cn, Text } from '@repo/shared';
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
 

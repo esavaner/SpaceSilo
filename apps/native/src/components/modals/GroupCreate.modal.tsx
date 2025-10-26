@@ -1,4 +1,4 @@
-import { useUi, ModalTitle, Input, ModalLayout } from '@repo/ui';
+import { useUi, ModalTitle, Input, ModalLayout } from '@repo/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';

@@ -1,7 +1,7 @@
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
 import { useFilesContext } from '@/providers/FilesProvider';
-import { Breadcrumb, cn } from '@repo/ui';
+import { Breadcrumb, cn } from '@repo/shared';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
