@@ -26,6 +26,7 @@ const commonOptions: React.ComponentProps<typeof Stack.Screen>['options'] = {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     InterVariable: require('../assets/fonts/Inter-Variable.ttf'),
   });
 

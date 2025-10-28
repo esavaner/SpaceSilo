@@ -101,9 +101,8 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     onFileSelect?.(file.uri, file.groupId);
   };
 
-  const handleItemClick = (item: FileEntity) => {
+  const handleItemClick = (item: FileEntity) =>
     hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item) : onFileClick(item);
-  };
 
   const handleApplyGroupSelect = () => {
     refetch();

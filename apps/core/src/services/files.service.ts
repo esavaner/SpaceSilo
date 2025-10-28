@@ -55,7 +55,7 @@ export class FilesService {
     if (!dto.groupIds) {
       return [];
     }
-    let files: FileEntity[] = [];
+    const files: FileEntity[] = [];
     const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
     for (const groupId of ids) {
       this.groupCheck(groupId, user);

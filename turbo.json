@@ -10,7 +10,18 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {},
+    "lint": {
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "{projectDir}/eslint.config.*",
+        "{projectDir}/.eslintrc.*",
+        "{workspaceRoot}/apps/shared/eslint.config.mjs",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/.prettierrc"
+      ],
+      "dependsOn": ["^lint"]
+    },
     "clean": {
       "cache": false
     }

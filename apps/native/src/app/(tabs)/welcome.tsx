@@ -45,13 +45,13 @@ export default function HomeScreen() {
       </View>
       <View>
         <Text>Step 2: Explore</Text>
-        <Text>Tap the Explore tab to learn more about what's included in this starter app.</Text>
+        <Text>Tap the Explore tab to learn more about what&apos;s included in this starter app.</Text>
       </View>
       <View>
         <Text>Step 3: Get a fresh start</Text>
         <Text>
-          When you're ready, run <Text>npm run reset-project</Text> to get a fresh <Text>app</Text> directory. This will
-          move the current <Text>app</Text> to <Text>app-example</Text>.
+          When you&apos;re ready, run <Text>npm run reset-project</Text> to get a fresh <Text>app</Text> directory. This
+          will move the current <Text>app</Text> to <Text>app-example</Text>.
         </Text>
       </View>
     </ScrollView>

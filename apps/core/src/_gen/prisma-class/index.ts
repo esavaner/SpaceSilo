@@ -9,6 +9,7 @@ import { Album as _Album } from './album';
 import { Group as _Group } from './group';
 import { GroupMember as _GroupMember } from './group_member';
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace PrismaModel {
   export class UserRelations extends _UserRelations {}
   export class PhotoRelations extends _PhotoRelations {}

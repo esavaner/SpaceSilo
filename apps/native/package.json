@@ -10,7 +10,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint",
+    "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
     "api": "swagger-typescript-api -p http://localhost:3100/api/json -o ./src/api -n generated.ts --api-class-name GeneratedApi --union-enums"
   },
   "jest": {
