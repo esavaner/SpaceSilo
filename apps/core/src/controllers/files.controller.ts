@@ -13,7 +13,7 @@ import {
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/services/files.service';
-import { TokenPayload } from 'src/common/types';
+import { type TokenPayload } from 'src/common/types';
 import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('files')
@@ -55,17 +55,20 @@ export class FilesController {
   }
 
   @Patch()
-  move(@Query() dto: MoveFileDto, @User() user: TokenPayload) {
+  @ApiOkResponse({ description: 'File moved successfully' })
+  move(@Body() dto: MoveFileDto, @User() user: TokenPayload) {
     return this.filesService.move(dto, user);
   }
 
   @Post('/copy')
-  copy(@Query() dto: CopyFileDto, @User() user: TokenPayload) {
+  @ApiOkResponse({ description: 'File copied successfully' })
+  copy(@Body() dto: CopyFileDto, @User() user: TokenPayload) {
     return this.filesService.copy(dto, user);
   }
 
   @Delete()
-  remove(@Query() dto: RemoveFileDto, @User() user: TokenPayload) {
+  @ApiOkResponse({ description: 'File removed successfully' })
+  remove(@Body() dto: RemoveFileDto, @User() user: TokenPayload) {
     return this.filesService.remove(dto, user);
   }
 }

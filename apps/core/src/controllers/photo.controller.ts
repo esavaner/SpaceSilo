@@ -14,7 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreatePhotoDto } from 'src/_dto/photo.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PhotoService } from 'src/services/photo.service';
-import { TokenPayload } from 'src/common/types';
+import { type TokenPayload } from 'src/common/types';
 import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('photo')

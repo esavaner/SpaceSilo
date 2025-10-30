@@ -15,7 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { GalleryService } from 'src/services/gallery.service';
 import { User } from 'src/decorators/user.decorator';
-import { TokenPayload } from 'src/common/types';
+import { type TokenPayload } from 'src/common/types';
 
 @ApiTags('gallery')
 @Controller('gallery')

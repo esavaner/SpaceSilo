@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaModel } from './_gen/prisma-class';
 
@@ -19,6 +18,8 @@ async function bootstrap() {
       },
     })
   );
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const cookieParser = require('cookie-parser');
   app.use(cookieParser());
   app.enableCors({
     origin: 'http://localhost:8081', // @TODO

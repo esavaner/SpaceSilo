@@ -9,7 +9,7 @@ import {
   UpdateMemberDto,
 } from 'src/_dto/group.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { TokenPayload } from 'src/common/types';
+import { type TokenPayload } from 'src/common/types';
 import { User } from 'src/decorators/user.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 

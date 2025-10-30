@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, OmitType, PartialType, PickType } from '@nestjs/swagger';
-import { JsonValue } from '@prisma/client/runtime/library';
+import { type JsonValue } from '@prisma/client/runtime/library';
 import { PrismaModel } from 'src/_gen/prisma-class';
 
 class FixUserSettings extends OmitType(PrismaModel.User, ['settings']) {

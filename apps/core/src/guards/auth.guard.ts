@@ -6,15 +6,17 @@ import { AccessGuard } from './access.guard';
 @Injectable()
 export class AuthGuard implements CanActivate {
   private readonly defaultAuthType = AuthType.Bearer;
-  private readonly authTypeMap: Record<AuthType, CanActivate> = {
-    [AuthType.Bearer]: this.accessGuard,
-    [AuthType.None]: { canActivate: () => true },
-  };
+  private readonly authTypeMap: Record<AuthType, CanActivate>;
 
   constructor(
     private readonly reflector: Reflector,
     private readonly accessGuard: AccessGuard
-  ) {}
+  ) {
+    this.authTypeMap = {
+      [AuthType.Bearer]: this.accessGuard,
+      [AuthType.None]: { canActivate: () => true },
+    };
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const authTypes = this.reflector.getAllAndOverride<AuthType[]>('authType', [
