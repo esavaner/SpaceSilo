@@ -6,6 +6,6 @@ export default defineConfig([
   ...base({ cwd: import.meta.dirname }),
   nextPlugin.configs['core-web-vitals'],
   {
-    ignores: ['.next/**', 'eslint.config.*'],
+    ignores: ['.next/**', 'out/**', 'build/**', 'next-env.d.ts'],
   },
 ]);
