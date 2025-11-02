@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -9,6 +10,18 @@
  * ---------------------------------------------------------------
  */
 
+export enum AccessLevel {
+  Admin = "admin",
+  Edit = "edit",
+  Read = "read",
+}
+
+export enum Role {
+  Owner = "owner",
+  Admin = "admin",
+  User = "user",
+}
+
 export type CreateAlbumDto = object;
 
 export type UpdateAlbumDto = object;
@@ -17,8 +30,6 @@ export interface LoginDto {
   email: string;
   password: string;
 }
-
-export type Role = 'owner' | 'admin' | 'user';
 
 export interface SearchUserDto {
   id: string;
@@ -64,9 +75,26 @@ export interface FileEntity {
   type?: string;
 }
 
-export type CreatePhotoDto = object;
+export interface MoveFileDto {
+  newPath: string;
+  name: string;
+  groupId: string;
+  fileUri: string;
+}
 
-export type AccessLevel = 'admin' | 'edit' | 'read';
+export interface CopyFileDto {
+  newPath: string;
+  name: string;
+  groupId: string;
+  fileUri: string;
+}
+
+export interface RemoveFileDto {
+  fileUri: string;
+  groupId: string;
+}
+
+export type CreatePhotoDto = object;
 
 export interface GroupMember {
   groupId: string;
@@ -245,9 +273,9 @@ export interface GroupMemberRelations {
 }
 
 export type QueryParamsType = Record<string | number, any>;
-export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
+export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
-export interface FullRequestParams extends Omit<RequestInit, 'body'> {
+export interface FullRequestParams extends Omit<RequestInit, "body"> {
   /** set parameter to `true` for call `securityWorker` for this request */
   secure?: boolean;
   /** request path */
@@ -266,16 +294,22 @@ export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>;
+export type RequestParams = Omit<
+  FullRequestParams,
+  "body" | "method" | "query" | "path"
+>;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
-  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>;
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
+  baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
+  securityWorker?: (
+    securityData: SecurityDataType | null,
+  ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -283,24 +317,26 @@ export interface HttpResponse<D extends unknown, E extends unknown = unknown> ex
 type CancelToken = Symbol | string | number;
 
 export enum ContentType {
-  Json = 'application/json',
-  FormData = 'multipart/form-data',
-  UrlEncoded = 'application/x-www-form-urlencoded',
-  Text = 'text/plain',
+  Json = "application/json",
+  JsonApi = "application/vnd.api+json",
+  FormData = "multipart/form-data",
+  UrlEncoded = "application/x-www-form-urlencoded",
+  Text = "text/plain",
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = '';
+  public baseUrl: string = "";
   private securityData: SecurityDataType | null = null;
-  private securityWorker?: ApiConfig<SecurityDataType>['securityWorker'];
+  private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
+    fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
-    credentials: 'same-origin',
+    credentials: "same-origin",
     headers: {},
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
+    redirect: "follow",
+    referrerPolicy: "no-referrer",
   };
 
   constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
@@ -313,7 +349,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(typeof value === 'number' ? value : `${value}`)}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -322,43 +358,66 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected addArrayQueryParam(query: QueryParamsType, key: string) {
     const value = query[key];
-    return value.map((v: any) => this.encodeQueryParam(key, v)).join('&');
+    return value.map((v: any) => this.encodeQueryParam(key, v)).join("&");
   }
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter((key) => 'undefined' !== typeof query[key]);
+    const keys = Object.keys(query).filter(
+      (key) => "undefined" !== typeof query[key],
+    );
     return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
-      .join('&');
+      .map((key) =>
+        Array.isArray(query[key])
+          ? this.addArrayQueryParam(query, key)
+          : this.addQueryParam(query, key),
+      )
+      .join("&");
   }
 
   protected addQueryParams(rawQuery?: QueryParamsType): string {
     const queryString = this.toQueryString(rawQuery);
-    return queryString ? `?${queryString}` : '';
+    return queryString ? `?${queryString}` : "";
   }
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === 'object' || typeof input === 'string') ? JSON.stringify(input) : input,
-    [ContentType.Text]: (input: any) => (input !== null && typeof input !== 'string' ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.JsonApi]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.Text]: (input: any) =>
+      input !== null && typeof input !== "string"
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
           property instanceof Blob
             ? property
-            : typeof property === 'object' && property !== null
+            : typeof property === "object" && property !== null
               ? JSON.stringify(property)
-              : `${property}`
+              : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
+  protected mergeRequestParams(
+    params1: RequestParams,
+    params2?: RequestParams,
+  ): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -371,7 +430,9 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
+  protected createAbortSignal = (
+    cancelToken: CancelToken,
+  ): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -406,7 +467,7 @@ export class HttpClient<SecurityDataType = unknown> {
     ...params
   }: FullRequestParams): Promise<HttpResponse<T, E>> => {
     const secureParams =
-      ((typeof secure === 'boolean' ? secure : this.baseApiParams.secure) &&
+      ((typeof secure === "boolean" ? secure : this.baseApiParams.secure) &&
         this.securityWorker &&
         (await this.securityWorker(this.securityData))) ||
       {};
@@ -415,22 +476,34 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(`${baseUrl || this.baseUrl || ''}${path}${queryString ? `?${queryString}` : ''}`, {
-      ...requestParams,
-      headers: {
-        ...(requestParams.headers || {}),
-        ...(type && type !== ContentType.FormData ? { 'Content-Type': type } : {}),
+    return this.customFetch(
+      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
+      {
+        ...requestParams,
+        headers: {
+          ...(requestParams.headers || {}),
+          ...(type && type !== ContentType.FormData
+            ? { "Content-Type": type }
+            : {}),
+        },
+        signal:
+          (cancelToken
+            ? this.createAbortSignal(cancelToken)
+            : requestParams.signal) || null,
+        body:
+          typeof body === "undefined" || body === null
+            ? null
+            : payloadFormatter(body),
       },
-      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
-      body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body),
-    }).then(async (response) => {
-      const r = response.clone() as HttpResponse<T, E>;
+    ).then(async (response) => {
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
+      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await response[responseFormat]()
+        : await responseToParse[responseFormat]()
             .then((data) => {
               if (r.ok) {
                 r.data = data;
@@ -461,7 +534,9 @@ export class HttpClient<SecurityDataType = unknown> {
  *
  * The API description
  */
-export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+export class GeneratedApi<
+  SecurityDataType extends unknown,
+> extends HttpClient<SecurityDataType> {
   gallery = {
     /**
      * No description
@@ -473,10 +548,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     albumControllerCreate: (data: CreateAlbumDto, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/gallery/album`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -490,8 +565,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     albumControllerFindAll: (params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/gallery/album`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -505,8 +580,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     albumControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/gallery/album/${id}`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -517,13 +592,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name AlbumControllerUpdate
      * @request PATCH:/gallery/album/{id}
      */
-    albumControllerUpdate: (id: string, data: UpdateAlbumDto, params: RequestParams = {}) =>
+    albumControllerUpdate: (
+      id: string,
+      data: UpdateAlbumDto,
+      params: RequestParams = {},
+    ) =>
       this.request<string, any>({
         path: `/gallery/album/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -537,8 +616,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     albumControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/gallery/album/${id}`,
-        method: 'DELETE',
-        format: 'json',
+        method: "DELETE",
+        format: "json",
         ...params,
       }),
 
@@ -549,13 +628,16 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GalleryControllerUploadFile
      * @request POST:/gallery
      */
-    galleryControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
+    galleryControllerUploadFile: (
+      data: CreatePhotoDto,
+      params: RequestParams = {},
+    ) =>
       this.request<CreateAlbumDto, any>({
         path: `/gallery`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -569,7 +651,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     galleryControllerFindAll: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery`,
-        method: 'GET',
+        method: "GET",
         ...params,
       }),
 
@@ -583,7 +665,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     galleryControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery/${id}`,
-        method: 'GET',
+        method: "GET",
         ...params,
       }),
 
@@ -597,7 +679,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     galleryControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
         ...params,
       }),
 
@@ -611,8 +693,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     galleryControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
       this.request<CreateAlbumDto, any>({
         path: `/gallery/${id}/thumbnail`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -623,13 +705,16 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name PhotoControllerUploadFile
      * @request POST:/gallery/photo
      */
-    photoControllerUploadFile: (data: CreatePhotoDto, params: RequestParams = {}) =>
+    photoControllerUploadFile: (
+      data: CreatePhotoDto,
+      params: RequestParams = {},
+    ) =>
       this.request<CreateAlbumDto, any>({
         path: `/gallery/photo`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -643,7 +728,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     photoControllerFindAll: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery/photo`,
-        method: 'GET',
+        method: "GET",
         ...params,
       }),
 
@@ -657,7 +742,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     photoControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery/photo/${id}`,
-        method: 'GET',
+        method: "GET",
         ...params,
       }),
 
@@ -671,7 +756,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     photoControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/gallery/photo/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
         ...params,
       }),
 
@@ -685,8 +770,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     photoControllerFindThumbnail: (id: string, params: RequestParams = {}) =>
       this.request<CreateAlbumDto, any>({
         path: `/gallery/photo/${id}/thumbnail`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };
@@ -701,10 +786,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     authControllerLogin: (data: LoginDto, params: RequestParams = {}) =>
       this.request<SearchUserDto, any>({
         path: `/auth/login`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -718,7 +803,7 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     authControllerLogout: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/auth/logout`,
-        method: 'POST',
+        method: "POST",
         ...params,
       }),
 
@@ -732,10 +817,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     authControllerRegister: (data: RegisterDto, params: RequestParams = {}) =>
       this.request<SearchUserDto, any>({
         path: `/auth/register`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
   };
@@ -747,10 +832,13 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name FilesControllerUploadFile
      * @request POST:/files
      */
-    filesControllerUploadFile: (data: CreateFileDto, params: RequestParams = {}) =>
+    filesControllerUploadFile: (
+      data: CreateFileDto,
+      params: RequestParams = {},
+    ) =>
       this.request<void, any>({
         path: `/files`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.FormData,
         ...params,
@@ -768,13 +856,13 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         fileUri: string;
         groupId: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<FileEntity, any>({
         path: `/files`,
-        method: 'GET',
+        method: "GET",
         query: query,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -785,19 +873,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name FilesControllerMove
      * @request PATCH:/files
      */
-    filesControllerMove: (
-      query: {
-        newPath: string;
-        name: string;
-        groupId: string;
-        fileUri: string;
-      },
-      params: RequestParams = {}
-    ) =>
+    filesControllerMove: (data: MoveFileDto, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/files`,
-        method: 'PATCH',
-        query: query,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 
@@ -808,17 +889,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name FilesControllerRemove
      * @request DELETE:/files
      */
-    filesControllerRemove: (
-      query: {
-        fileUri: string;
-        groupId: string;
-      },
-      params: RequestParams = {}
-    ) =>
+    filesControllerRemove: (data: RemoveFileDto, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/files`,
-        method: 'DELETE',
-        query: query,
+        method: "DELETE",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 
@@ -829,10 +905,13 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name FilesControllerCreateFolder
      * @request POST:/files/folder
      */
-    filesControllerCreateFolder: (data: CreateFolderDto, params: RequestParams = {}) =>
+    filesControllerCreateFolder: (
+      data: CreateFolderDto,
+      params: RequestParams = {},
+    ) =>
       this.request<void, any>({
         path: `/files/folder`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
         ...params,
@@ -854,13 +933,13 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         /** @min 1 */
         skip?: number;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<FileEntity[], any>({
         path: `/files/all`,
-        method: 'GET',
+        method: "GET",
         query: query,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -876,11 +955,11 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
         fileUri: string;
         groupId: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<void, any>({
         path: `/files/download`,
-        method: 'GET',
+        method: "GET",
         query: query,
         ...params,
       }),
@@ -892,19 +971,12 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name FilesControllerCopy
      * @request POST:/files/copy
      */
-    filesControllerCopy: (
-      query: {
-        newPath: string;
-        name: string;
-        groupId: string;
-        fileUri: string;
-      },
-      params: RequestParams = {}
-    ) =>
+    filesControllerCopy: (data: CopyFileDto, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/files/copy`,
-        method: 'POST',
-        query: query,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };
@@ -916,13 +988,16 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GroupsControllerCreate
      * @request POST:/groups
      */
-    groupsControllerCreate: (data: CreateGroupDto, params: RequestParams = {}) =>
+    groupsControllerCreate: (
+      data: CreateGroupDto,
+      params: RequestParams = {},
+    ) =>
       this.request<GetGroupDto, any>({
         path: `/groups`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -936,8 +1011,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     groupsControllerFindUserGroups: (params: RequestParams = {}) =>
       this.request<GetGroupDto[], any>({
         path: `/groups`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -948,13 +1023,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GroupsControllerAddMember
      * @request PATCH:/groups/{id}/add_member
      */
-    groupsControllerAddMember: (id: string, data: AddMemberDto, params: RequestParams = {}) =>
+    groupsControllerAddMember: (
+      id: string,
+      data: AddMemberDto,
+      params: RequestParams = {},
+    ) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}/add_member`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -965,13 +1044,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GroupsControllerAddMembers
      * @request PATCH:/groups/{id}/add_members
      */
-    groupsControllerAddMembers: (id: string, data: AddMembersDto, params: RequestParams = {}) =>
+    groupsControllerAddMembers: (
+      id: string,
+      data: AddMembersDto,
+      params: RequestParams = {},
+    ) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}/add_members`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -982,13 +1065,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GroupsControllerRemoveMember
      * @request PATCH:/groups/{id}/remove_member
      */
-    groupsControllerRemoveMember: (id: string, data: RemoveMemberDto, params: RequestParams = {}) =>
+    groupsControllerRemoveMember: (
+      id: string,
+      data: RemoveMemberDto,
+      params: RequestParams = {},
+    ) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}/remove_member`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -999,13 +1086,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name GroupsControllerUpdateMember
      * @request PATCH:/groups/{id}/update_member
      */
-    groupsControllerUpdateMember: (id: string, data: UpdateMemberDto, params: RequestParams = {}) =>
+    groupsControllerUpdateMember: (
+      id: string,
+      data: UpdateMemberDto,
+      params: RequestParams = {},
+    ) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}/update_member`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -1019,8 +1110,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     groupsControllerFindAll: (params: RequestParams = {}) =>
       this.request<GetGroupDto[], any>({
         path: `/groups/all`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1034,8 +1125,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     groupsControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1049,8 +1140,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     groupsControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<GetGroupDto, any>({
         path: `/groups/${id}`,
-        method: 'DELETE',
-        format: 'json',
+        method: "DELETE",
+        format: "json",
         ...params,
       }),
   };
@@ -1065,10 +1156,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     notesControllerCreate: (data: CreateNoteDto, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/notes`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -1082,8 +1173,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     notesControllerFindAll: (params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/notes`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1097,8 +1188,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     notesControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/notes/${id}`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1109,13 +1200,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name NotesControllerUpdate
      * @request PATCH:/notes/{id}
      */
-    notesControllerUpdate: (id: string, data: UpdateNoteDto, params: RequestParams = {}) =>
+    notesControllerUpdate: (
+      id: string,
+      data: UpdateNoteDto,
+      params: RequestParams = {},
+    ) =>
       this.request<string, any>({
         path: `/notes/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -1129,8 +1224,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     notesControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/notes/${id}`,
-        method: 'DELETE',
-        format: 'json',
+        method: "DELETE",
+        format: "json",
         ...params,
       }),
   };
@@ -1145,10 +1240,10 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     usersControllerCreate: (data: CreateUserDto, params: RequestParams = {}) =>
       this.request<GetUserDto, any>({
         path: `/users`,
-        method: 'POST',
+        method: "POST",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -1162,8 +1257,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     usersControllerFindAll: (params: RequestParams = {}) =>
       this.request<GetUserDto[], any>({
         path: `/users`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1177,8 +1272,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     usersControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<GetUserDto, any>({
         path: `/users/${id}`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1189,13 +1284,17 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
      * @name UsersControllerUpdate
      * @request PATCH:/users/{id}
      */
-    usersControllerUpdate: (id: string, data: UpdateUserDto, params: RequestParams = {}) =>
+    usersControllerUpdate: (
+      id: string,
+      data: UpdateUserDto,
+      params: RequestParams = {},
+    ) =>
       this.request<SearchUserDto, any>({
         path: `/users/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
         type: ContentType.Json,
-        format: 'json',
+        format: "json",
         ...params,
       }),
 
@@ -1209,8 +1308,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     usersControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<SearchUserDto, any>({
         path: `/users/${id}`,
-        method: 'DELETE',
-        format: 'json',
+        method: "DELETE",
+        format: "json",
         ...params,
       }),
 
@@ -1224,8 +1323,8 @@ export class GeneratedApi<SecurityDataType extends unknown> extends HttpClient<S
     usersControllerSearch: (query: string, params: RequestParams = {}) =>
       this.request<SearchUserDto[], any>({
         path: `/users/search/${query}`,
-        method: 'GET',
-        format: 'json',
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };

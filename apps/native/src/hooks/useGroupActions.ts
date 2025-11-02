@@ -1,5 +1,5 @@
 import { Api } from '@/api/api';
-import { AddMemberDto } from '@/api/generated';
+import { AddMemberDto, CreateGroupDto } from '@/api/generated';
 import { useUi } from '@repo/shared';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
@@ -35,7 +35,7 @@ export const useGroupActions = () => {
 
   const { mutate: createGroup } = useMutation({
     mutationKey: ['createGroup'],
-    mutationFn: Api.groups.groupsControllerCreate,
+    mutationFn: (data: CreateGroupDto) => Api.groups.groupsControllerCreate(data),
     onSuccess: (_, { name }) => success(`Group ${name} created`),
     onError: (_, { name }) => {
       toast.error(`Error creating group: ${name}`);
@@ -44,7 +44,7 @@ export const useGroupActions = () => {
 
   const { mutate: removeGroup } = useMutation({
     mutationKey: ['removeGroup'],
-    mutationFn: Api.groups.groupsControllerRemove,
+    mutationFn: (id: string) => Api.groups.groupsControllerRemove(id),
     onSuccess: () => success('Group removed'),
     onError: () => {
       toast.error('Error removing group');

@@ -1,4 +1,5 @@
 import { Api } from '@/api/api';
+import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useUi } from '@repo/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +19,7 @@ export const useFileActions = () => {
 
   const { mutate: copy } = useMutation({
     mutationKey: ['copyFiles'],
-    mutationFn: Api.files.filesControllerCopy,
+    mutationFn: (data: CopyFileDto) => Api.files.filesControllerCopy(data),
     onSuccess: () => success('File copied'),
     onError: () => {
       toast.error('Error copying file');
@@ -27,7 +28,7 @@ export const useFileActions = () => {
 
   const { mutate: create } = useMutation({
     mutationKey: ['createFolder'],
-    mutationFn: Api.files.filesControllerCreateFolder,
+    mutationFn: (data: CreateFolderDto) => Api.files.filesControllerCreateFolder(data),
     onSuccess: (_, { name }) => success(`Folder ${name} created`),
     onError: (_, { name }) => {
       toast.error(`Error creating folder: ${name}`);
@@ -36,7 +37,7 @@ export const useFileActions = () => {
 
   const { mutate: move } = useMutation({
     mutationKey: ['moveFiles'],
-    mutationFn: Api.files.filesControllerMove,
+    mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
     onSuccess: () => success('File moved'),
     onError: () => {
       toast.error('Error moving file');
@@ -45,7 +46,7 @@ export const useFileActions = () => {
 
   const { mutate: remove } = useMutation({
     mutationKey: ['removeFiles'],
-    mutationFn: Api.files.filesControllerRemove,
+    mutationFn: (data: RemoveFileDto) => Api.files.filesControllerRemove(data),
     onSuccess: () => success('File removed'),
     onError: () => {
       toast.error('Error removing file');
@@ -54,7 +55,7 @@ export const useFileActions = () => {
 
   const { mutate: rename } = useMutation({
     mutationKey: ['renameFiles'],
-    mutationFn: Api.files.filesControllerMove,
+    mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
     onSuccess: () => success('File renamed'),
     onError: () => {
       toast.error('Error renaming file');

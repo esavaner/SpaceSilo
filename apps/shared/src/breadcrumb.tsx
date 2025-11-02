@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 import React from 'react';
 import { NavigateNextIcon } from './icons';
 import { Text } from './text';

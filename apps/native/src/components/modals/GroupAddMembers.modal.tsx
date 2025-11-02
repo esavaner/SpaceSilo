@@ -1,4 +1,4 @@
-import { AddMemberDto, SearchUserDto, GetGroupDto } from '@/api/generated';
+import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import {
   ModalTitle,
@@ -39,7 +39,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 
   const handleSelect = (user: SearchUserDto) => {
-    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: 'read' }]);
+    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: AccessLevel.Read }]);
     resetSearch();
   };
 

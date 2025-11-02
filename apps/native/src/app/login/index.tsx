@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { router } from 'expo-router';
 import { useUserContext } from '@/providers/UserProvider';
+import { LoginDto } from '@/api/generated';
 
 const schema = yup.object().shape({
   // serverUrl: yup.string().required('Server URL is required'),
@@ -21,7 +22,7 @@ export default function LoginPage() {
 
   const { mutate: login } = useMutation({
     mutationKey: ['login'],
-    mutationFn: Api.auth.authControllerLogin,
+    mutationFn: (data: LoginDto) => Api.auth.authControllerLogin(data),
     onSuccess: (data) => {
       setUser(data.data);
       router.push('/files');
