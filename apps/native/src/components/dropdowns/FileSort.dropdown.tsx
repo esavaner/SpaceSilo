@@ -1,8 +1,13 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
-import { Button, Text, useUi, useDropdown, ChevronDownIcon, cn } from '@repo/shared';
 import { t } from 'i18next';
 import { useMemo } from 'react';
 import { Pressable } from 'react-native';
+import { useUi } from '@/providers/UiProvider';
+import { Text } from '../text';
+import { Button } from '../button';
+import { cn } from '../cn';
+import { useDropdown } from '../dropdown';
+import { ChevronDownIcon } from '../icons';
 
 type Props = {
   handleSort: (sortBy: SortBy) => void;

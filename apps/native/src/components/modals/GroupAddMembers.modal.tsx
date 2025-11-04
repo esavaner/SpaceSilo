@@ -1,22 +1,19 @@
 import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
-import {
-  ModalTitle,
-  Search,
-  useUi,
-  Text,
-  DropdownItem,
-  UserGroupIcon,
-  Button,
-  CloseIcon,
-  ModalLayout,
-  Select,
-} from '@repo/shared';
+
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
+import { useUi } from '@/providers/UiProvider';
+import { Text } from '../text';
+import { Button } from '../button';
+import { DropdownItem } from '../dropdown';
+import { UserGroupIcon, CloseIcon } from '../icons';
+import { ModalLayout, ModalTitle } from '../modal-components';
+import { Search } from '../search';
+import { Select } from '../select';
 
 const selectOptions = [
   { label: 'Admin', value: 'admin' },
@@ -34,7 +31,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
   const { closeModal } = useUi();
   const { addMembers } = useGroupActions();
-  const { isSearchLoading, query, resetSearch, results, searchUsers } = useUserSearch();
+  const { query, resetSearch, results, searchUsers } = useUserSearch();
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 

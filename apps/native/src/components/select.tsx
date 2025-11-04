@@ -3,7 +3,7 @@ import { useDropdown } from './dropdown';
 import { Pressable } from 'react-native';
 import { ChevronDownIcon } from './icons';
 import { Text } from './text';
-import { useUi } from './UiProvider';
+import { useUi } from '@/providers/UiProvider';
 import { cn } from './cn';
 
 type SelectProps = {

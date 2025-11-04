@@ -3,9 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { AddIcon, Avatar, Button, Text, useUi } from '@repo/shared';
-import { getInitials } from '@/utils/common';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
+import { Avatar } from '@/components/avatar';
+import { AddIcon } from '@/components/icons';
+import { useUi } from '@/providers/UiProvider';
+import { Text } from '@/components/text';
+import { Button } from '@/components/button';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();

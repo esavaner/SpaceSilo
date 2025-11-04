@@ -1,8 +1,13 @@
-import { useDropdown, Button, Text, FilterIcon, Checkbox, useUi } from '@repo/shared';
 import { ButtonGroup } from '../modals/ButtonGroup';
 import { Pressable, View } from 'react-native';
 import { GetGroupDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
+import { useUi } from '@/providers/UiProvider';
+import { Checkbox } from '../checkbox';
+import { useDropdown } from '../dropdown';
+import { FilterIcon } from '../icons';
+import { Text } from '../text';
+import { Button } from '../button';
 
 type Props = {
   className?: string;

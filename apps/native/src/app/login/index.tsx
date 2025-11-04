@@ -1,5 +1,4 @@
 import { Api } from '@/api/api';
-import { Button, Input } from '@repo/shared';
 import { useMutation } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
@@ -8,6 +7,8 @@ import * as yup from 'yup';
 import { router } from 'expo-router';
 import { useUserContext } from '@/providers/UserProvider';
 import { LoginDto } from '@/api/generated';
+import { Input } from '@/components/input';
+import { Button } from '@/components/button';
 
 const schema = yup.object().shape({
   // serverUrl: yup.string().required('Server URL is required'),

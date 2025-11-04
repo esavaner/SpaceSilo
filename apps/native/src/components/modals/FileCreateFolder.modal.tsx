@@ -1,10 +1,12 @@
-import { Input, ModalLayout, ModalTitle, useUi } from '@repo/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useFileActions } from '@/hooks/useFileActions';
+import { useUi } from '@/providers/UiProvider';
+import { ModalLayout, ModalTitle } from '../modal-components';
+import { Input } from '../input';
 
 type FileCreateFolderModalProps = {
   currentPath?: string;

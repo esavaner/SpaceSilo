@@ -1,6 +1,5 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { fileIcons } from '../utils/fileIcons';
-import { Checkbox, cn, FileIcon, FolderIcon, Text } from '@repo/shared';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
@@ -11,6 +10,10 @@ import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
+import { Checkbox } from './checkbox';
+import { cn } from './cn';
+import { FolderIcon, FileIcon } from './icons';
+import { Text } from './text';
 
 type FileListProps = {
   className?: string;

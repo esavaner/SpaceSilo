@@ -1,20 +1,12 @@
 import { FileEntity } from '@/api/generated';
-import {
-  Button,
-  CopyIcon,
-  DropdownItem,
-  EditIcon,
-  EllipsisIcon,
-  InfoIcon,
-  ShareIcon,
-  TrashIcon,
-  useDropdown,
-  useUi,
-} from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
 import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
+import { useUi } from '@/providers/UiProvider';
+import { Button } from '../button';
+import { useDropdown, DropdownItem } from '../dropdown';
+import { InfoIcon, ShareIcon, EditIcon, CopyIcon, TrashIcon, EllipsisIcon } from '../icons';
 
 type FileOptionsDropdownProps = {
   file: FileEntity;

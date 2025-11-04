@@ -1,6 +1,8 @@
-import { cn, FolderIcon, Text } from '@repo/shared';
 import { ScrollView, Pressable } from 'react-native';
 import { FileEntity } from '@/api/generated';
+import { cn } from './cn';
+import { FolderIcon } from './icons';
+import { Text } from './text';
 
 type Props = {
   items: FileEntity[];

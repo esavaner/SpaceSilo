@@ -1,10 +1,14 @@
 import { useFileList } from '@/hooks/useFileList';
-import { Breadcrumb, Button, ModalLayout, ModalTitle, Text, useUi } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { FileListCompact } from '../FileListCompact';
 import { View } from 'react-native';
 import { FileEntity } from '@/api/generated';
 import { useFileActions } from '@/hooks/useFileActions';
+import { useUi } from '@/providers/UiProvider';
+import { Breadcrumb } from '../breadcrumb';
+import { ModalLayout, ModalTitle } from '../modal-components';
+import { Text } from '../text';
+import { Button } from '../button';
 
 type Props = {
   path?: string;

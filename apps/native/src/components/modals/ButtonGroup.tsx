@@ -1,6 +1,7 @@
 import { View } from 'react-native';
-import { Button, cn } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../button';
+import { cn } from '../cn';
 
 type Props = {
   okText: string;

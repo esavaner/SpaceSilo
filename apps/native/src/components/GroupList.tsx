@@ -1,7 +1,8 @@
 import { Pressable, ScrollView } from 'react-native';
-import { Avatar, Text } from '@repo/shared';
 import { Link } from 'expo-router';
 import { GetGroupDto } from '@/api/generated';
+import { Avatar } from './avatar';
+import { Text } from './text';
 
 type Props = {
   groups?: GetGroupDto[];

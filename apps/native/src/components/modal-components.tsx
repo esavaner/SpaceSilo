@@ -2,9 +2,9 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { CloseIcon } from './icons';
 import { Button } from './button';
-import { cn } from './cn';
 import { Text } from './text';
-import { useUi } from './UiProvider';
+import { useUi } from '@/providers/UiProvider';
+import { cn } from './cn';
 
 type ModalLayoutProps = {
   children?: React.ReactNode;

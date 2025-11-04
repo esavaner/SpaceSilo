@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { View, Dimensions, Pressable } from 'react-native';
 import { cn } from './cn';
-import { useUi } from './UiProvider';
 import { Text } from './text';
+import { useUi } from '@/providers/UiProvider';
 
 export type DropdownProps = {
   className?: string;

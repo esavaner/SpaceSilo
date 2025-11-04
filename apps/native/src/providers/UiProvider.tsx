@@ -1,7 +1,7 @@
+import { Modal, ModalProps } from '@/components/modal';
+import { Toast, ToastProps } from '@/components/toast';
 import React, { createContext, useContext, useState } from 'react';
-import { Toast, ToastProps } from './toast';
 import { View } from 'react-native';
-import { Modal, ModalProps } from './modal';
 
 type ContextType = {
   openModal: (modal?: React.ReactNode, options?: ModalProps) => void;

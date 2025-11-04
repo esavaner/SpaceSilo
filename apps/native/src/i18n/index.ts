@@ -17,7 +17,7 @@ const initI18n = async () => {
   }
 
   i18n.use(initReactI18next).init({
-    compatibilityJSON: 'v3',
+    compatibilityJSON: 'v4',
     resources,
     lng: savedLanguage || 'en',
     fallbackLng: 'en',

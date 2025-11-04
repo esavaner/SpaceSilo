@@ -1,11 +1,13 @@
 import { FileEntity } from '@/api/generated';
-import { Input, useUi, ModalTitle, ModalLayout } from '@repo/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import { useFileActions } from '@/hooks/useFileActions';
+import { useUi } from '@/providers/UiProvider';
+import { Input } from '../input';
+import { ModalLayout, ModalTitle } from '../modal-components';
 
 type FileRenameModalProps = {
   file: FileEntity;

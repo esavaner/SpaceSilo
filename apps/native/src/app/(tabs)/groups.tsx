@@ -1,10 +1,13 @@
 import { View } from 'react-native';
-import { AddIcon, Button, Text, useUi } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
 import { PersonalGroupList } from '@/components/PersonalGroupList';
 import { useGroupList } from '@/hooks/useGroupList';
+import { AddIcon } from '@/components/icons';
+import { useUi } from '@/providers/UiProvider';
+import { Text } from '@/components/text';
+import { Button } from '@/components/button';
 
 export default function GroupsPage() {
   const { t } = useTranslation();

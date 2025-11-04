@@ -1,12 +1,9 @@
 import type { Config } from 'tailwindcss';
 
-// @ts-expect-error - no types
-import nativewind from 'nativewind/preset';
-
 import baseConfig from '@repo/shared/tailwind';
 
 export default {
-  content: ['./src/**/*.{js,jsx,ts,tsx}', '../shared/src/**/*.{js,jsx,ts,tsx}'], // @TODO find a better way to include the ui package
-  presets: [baseConfig, nativewind],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  presets: [baseConfig],
   darkMode: 'class',
 } satisfies Config;

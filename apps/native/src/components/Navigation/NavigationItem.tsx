@@ -1,6 +1,9 @@
-import { Button, ChevronDownIcon, cn, Text } from '@repo/shared';
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
+import { Text } from '../text';
+import { Button } from '../button';
+import { cn } from '../cn';
+import { ChevronDownIcon } from '../icons';
 
 type Item = {
   label: string;

@@ -18,9 +18,5 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "name": "with-react-native-web",
-  "packageManager": "pnpm@9.15.0"
+  "name": "with-react-native-web"
 }

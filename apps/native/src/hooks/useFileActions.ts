@@ -1,7 +1,7 @@
 import { Api } from '@/api/api';
 import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
-import { useUi } from '@repo/shared';
+import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // @TODO add translations

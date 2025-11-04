@@ -1,7 +1,7 @@
 import FIcon from '@expo/vector-icons/Feather';
 import Fa6Icon from '@expo/vector-icons/FontAwesome6';
 import MIcon from '@expo/vector-icons/MaterialIcons';
-import { cssInterop } from 'nativewind';
+// import { cssInterop } from 'nativewind';
 import React from 'react';
 
 type IconProps = Omit<React.ComponentProps<typeof FIcon> & React.ComponentProps<typeof MIcon>, 'name'>;
@@ -11,23 +11,23 @@ const d = {
   className: 'text-content',
 };
 
-cssInterop(FIcon, {
-  className: {
-    target: 'style',
-  },
-});
+// cssInterop(FIcon, {
+//   className: {
+//     target: 'style',
+//   },
+// });
 
-cssInterop(MIcon, {
-  className: {
-    target: 'style',
-  },
-});
+// cssInterop(MIcon, {
+//   className: {
+//     target: 'style',
+//   },
+// });
 
-cssInterop(Fa6Icon, {
-  className: {
-    target: 'style',
-  },
-});
+// cssInterop(Fa6Icon, {
+//   className: {
+//     target: 'style',
+//   },
+// });
 
 export const AlertOctagonIcon = (p: IconProps) => <FIcon name="alert-octagon" {...d} {...p} />;
 export const AlertTriangleIcon = (p: IconProps) => <FIcon name="alert-triangle" {...d} {...p} />;

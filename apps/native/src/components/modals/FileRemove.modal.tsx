@@ -1,9 +1,11 @@
 import { FileEntity } from '@/api/generated';
-import { useUi, Text, ModalTitle, ModalLayout } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { ButtonGroup } from './ButtonGroup';
 import { useFileActions } from '@/hooks/useFileActions';
+import { useUi } from '@/providers/UiProvider';
+import { Text } from '../text';
+import { ModalLayout, ModalTitle } from '../modal-components';
 
 type FileRemoveModalProps = {
   files: FileEntity[];

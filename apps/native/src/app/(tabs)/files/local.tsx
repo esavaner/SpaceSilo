@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, View, Text } from 'react-native';
 import { readDirectoryAsync, documentDirectory, getInfoAsync, FileInfo } from 'expo-file-system';
-import { Breadcrumb } from '@repo/shared';
+import { Breadcrumb } from '@/components/breadcrumb';
 import { useTranslation } from 'react-i18next';
 
 type FileItem = Extract<FileInfo, { exists: true }> & { name: string };

@@ -1,6 +1,6 @@
 import { Api } from '@/api/api';
 import { AddMemberDto, CreateGroupDto } from '@/api/generated';
-import { useUi } from '@repo/shared';
+import { useUi } from '@/providers/UiProvider';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 // @TODO add translations

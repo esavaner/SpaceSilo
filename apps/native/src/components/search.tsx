@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
-import { cn } from './cn';
 import { Input } from './input';
+import { cn } from './cn';
 
 type Props = React.ComponentProps<typeof TextInput> & {
   options: React.ReactNode[];

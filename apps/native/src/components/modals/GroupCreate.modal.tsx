@@ -1,12 +1,14 @@
-import { useUi, ModalTitle, Input, ModalLayout } from '@repo/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup } from './ButtonGroup';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useGroupActions } from '@/hooks/useGroupActions';
-import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
+import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import { View } from 'react-native';
+import { useUi } from '@/providers/UiProvider';
+import { Input } from '../input';
+import { ModalLayout, ModalTitle } from '../modal-components';
 
 const schema = yup.object().shape({
   name: yup.string().required('Group name is required'),
@@ -26,6 +28,7 @@ export const GroupCreateModal = () => {
     control,
     formState: { errors },
   } = useForm<CreateGroupForm>({
+    // @ts-expect-error schema
     resolver: yupResolver(schema),
   });
 
@@ -77,6 +80,7 @@ export const GroupCreateModal = () => {
           </View>
         )}
       />
+      {/* @ts-expect-error sada sdsa */}
       <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} className="pt-4" />
     </ModalLayout>
   );
