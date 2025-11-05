@@ -4,6 +4,39 @@
 
 @import 'nativewind/theme';
 
+@theme {
+  --color-blue: #4a90e2;
+  --color-blue-dark: #3f83d1;
+  --color-blue-light: #5aa0f7;
+
+  --color-yellow: #ffc75f;
+  --color-yellow-dark: #d9c344;
+  --color-yellow-light: #f3dd65;
+
+  --color-red: #ff5f5f;
+  --color-red-dark: #e04c4c;
+  --color-red-light: #ff7b7b;
+
+  --color-light: #fdfdfd;
+  --color-dark: #131313;
+
+  --color-primary: var(--color-yellow);
+  --color-primary-dark: var(--color-yellow-dark);
+  --color-primary-light: var(--color-yellow-light);
+
+  --color-secondary: var(--color-blue);
+  --color-secondary-dark: var(--color-blue-dark);
+  --color-secondary-light: var(--color-blue-light);
+
+  /* light */
+  --color-text: var(--color-dark);
+  --color-text-secondary: #222222;
+  --color-text-tertiary: #464646;
+  --color-background: var(--color-light);
+  --color-background-secondary: #dcdcdc;
+  --color-background-tertiary: #b1b1b1;
+}
+
 :root {
   --color-blue: #4a90e2;
   --color-blue-dark: #3f83d1;
@@ -38,7 +71,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  @theme {
     /* dark */
     --color-text: var(--color-light);
     --color-text-secondary: #d2d1d1;
