@@ -24,8 +24,8 @@ const buttonStyles = cva(['rounded-md min-w-10 min-h-10 px-2 flex flex-row gap-2
       primaryOutline: 'border border-primary hover:bg-primary-light active:bg-primary-dark ',
       secondary: 'border border-secondary bg-secondary hover:bg-secondary-light active:bg-secondary-dark',
       secondaryOutline: 'border border-secondary hover:bg-secondary-light active:bg-secondary-dark',
-      danger: 'border border-red bg-red hover:bg-red-light active:bg-red-dark',
-      dangerOutline: 'border border-red hover:bg-red-light active:bg-red-dark',
+      danger: 'border border-danger bg-danger hover:bg-danger-light active:bg-danger-dark',
+      dangerOutline: 'border border-danger hover:bg-danger-light active:bg-danger-dark',
       text: 'hover:bg-layer-tertiary active:bg-layer-secondary',
       link: 'hover:bg-layer-tertiary active:bg-layer-secondary hover:underline',
       icon: 'rounded-full h-10 w-10 hover:bg-layer-tertiary active:bg-layer-secondary',
@@ -33,18 +33,18 @@ const buttonStyles = cva(['rounded-md min-w-10 min-h-10 px-2 flex flex-row gap-2
   },
 });
 
-const textStyles = cva([], {
+const textStyles = cva(['text-dark'], {
   variants: {
     variant: {
-      primary: 'text-basedark',
-      primaryOutline: 'text-content hover:text-basedark active:text-basedark',
-      secondary: 'text-basedark',
-      secondaryOutline: 'text-content hover:text-basedark active:text-basedark',
-      danger: 'text-basedark',
-      dangerOutline: 'text-content hover:text-basedark active:text-basedark',
+      primary: '',
+      primaryOutline: 'text-content hover:text-dark active:text-dark',
+      secondary: '',
+      secondaryOutline: 'text-content hover:text-dark active:text-dark',
+      danger: '',
+      dangerOutline: 'text-content hover:text-dark active:text-dark',
       text: 'text-content',
-      link: 'text-blue',
-      icon: 'text-content',
+      link: 'text-secondary',
+      icon: '',
     },
   },
 });

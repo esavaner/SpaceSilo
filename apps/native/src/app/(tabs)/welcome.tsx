@@ -1,5 +1,4 @@
-import { Platform, ScrollView, View } from 'react-native';
-import { useColorScheme } from 'nativewind';
+import { Platform, ScrollView, View, Appearance } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/button';
@@ -7,13 +6,12 @@ import { PersonIcon } from '@/components/icons';
 import { Text } from '@/components/text';
 
 export default function HomeScreen() {
-  const { setColorScheme } = useColorScheme();
   const { t } = useTranslation();
   return (
     <ScrollView className="flex-1 bg-layer">
       <View>
-        <Button onPress={() => setColorScheme('light')}>light</Button>
-        <Button onPress={() => setColorScheme('dark')}>dark</Button>
+        <Button onPress={() => Appearance.setColorScheme('light')}>light</Button>
+        <Button onPress={() => Appearance.setColorScheme('dark')}>dark</Button>
         {/* <Text className="Text-primary-900">test</Text>
         <Text>Welcome!</Text>
         <Text>{t('test')}</Text>

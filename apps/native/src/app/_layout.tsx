@@ -12,6 +12,7 @@ import { UiProvider } from '@/providers/UiProvider';
 import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
+import { Platform, Appearance, ColorSchemeName } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,6 +34,49 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+    }
+    if (Platform.OS === 'web') {
+      console.log('Setting up Appearance listeners for web');
+      Appearance.setColorScheme = (scheme) => {
+        document.documentElement.setAttribute('data-theme', scheme);
+        document.documentElement.className = scheme || '';
+      };
+
+      Appearance.getColorScheme = () => {
+        const systemValue = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const userValue = document.documentElement.getAttribute('data-theme');
+        return (userValue && userValue !== 'null' ? userValue : systemValue) as ColorSchemeName;
+      };
+
+      Appearance.addChangeListener = (listener) => {
+        // Listen for changes of system value
+        const systemValueListener = (e: MediaQueryListEvent) => {
+          const newSystemValue = e.matches ? 'dark' : 'light';
+          const userValue = document.documentElement.getAttribute('data-theme');
+          listener({
+            colorScheme: (userValue && userValue !== 'null' ? userValue : newSystemValue) as ColorSchemeName,
+          });
+        };
+        const systemValue = window.matchMedia('(prefers-color-scheme: dark)');
+        systemValue.addEventListener('change', systemValueListener);
+
+        // Listen for changes of user set value
+        const observer = new MutationObserver((mutationsList) => {
+          for (const mutation of mutationsList) {
+            if (mutation.attributeName === 'data-theme') {
+              listener({ colorScheme: Appearance.getColorScheme() || 'dark' });
+            }
+          }
+        });
+        observer.observe(document.documentElement, { attributes: true });
+
+        function remove() {
+          systemValue.removeEventListener('change', systemValueListener);
+          observer.disconnect();
+        }
+
+        return { remove };
+      };
     }
   }, [loaded]);
 
