@@ -1,7 +1,8 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../button';
+import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
+import { Text } from '../general/text';
 
 type Props = {
   okText: string;
@@ -14,12 +15,12 @@ type Props = {
 export const ButtonGroup = ({ okText, cancelText, onOk, onCancel, className }: Props) => {
   const { t } = useTranslation();
   return (
-    <View className={cn('flex flex-row gap-2 w-full mt-auto', className)}>
-      <Button onPress={onCancel} variant="primaryOutline" className="flex-1">
-        {cancelText || t('cancel')}
+    <View className={cn('flex flex-row gap-3 w-full mt-auto justify-center', className)}>
+      <Button onPress={onCancel} variant="secondary">
+        <Text>{cancelText || t('cancel')}</Text>
       </Button>
-      <Button variant="primary" onPress={onOk} className="flex-1">
-        {okText || t('ok')}
+      <Button onPress={onOk}>
+        <Text>{okText || t('ok')}</Text>
       </Button>
     </View>
   );

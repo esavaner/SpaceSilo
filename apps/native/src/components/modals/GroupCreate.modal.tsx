@@ -7,8 +7,8 @@ import { useGroupActions } from '@/hooks/useGroupActions';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import { View } from 'react-native';
 import { useUi } from '@/providers/UiProvider';
-import { Input } from '../input';
-import { ModalLayout, ModalTitle } from '../modal-components';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { InputController } from '../controllers/input.controller';
 
 const schema = yup.object().shape({
   name: yup.string().required('Group name is required'),
@@ -37,34 +37,12 @@ export const GroupCreateModal = () => {
   };
 
   return (
-    <ModalLayout>
-      <ModalTitle>{t('Create Group')}</ModalTitle>
-      <Controller
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <Input
-            label={t('Name')}
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            error={errors.name?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="id"
-        render={({ field }) => (
-          <Input
-            label={t('Group ID')}
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            error={errors.id?.message}
-          />
-        )}
-      />
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{t('Create Group')}</DialogTitle>
+      </DialogHeader>
+      <InputController control={control} name="name" label={t('Name')} error={errors.name?.message} />
+      <InputController control={control} name="id" label={t('Group ID')} error={errors.id?.message} />
       <Controller
         control={control}
         name="color"
@@ -82,6 +60,6 @@ export const GroupCreateModal = () => {
       />
       {/* @ts-expect-error sada sdsa */}
       <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} className="pt-4" />
-    </ModalLayout>
+    </DialogContent>
   );
 };

@@ -5,8 +5,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useFileActions } from '@/hooks/useFileActions';
 import { useUi } from '@/providers/UiProvider';
-import { ModalLayout, ModalTitle } from '../modal-components';
 import { Input } from '../input';
+import { InputController } from '../controllers/input.controller';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 
 type FileCreateFolderModalProps = {
   currentPath?: string;
@@ -40,8 +41,10 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   };
 
   return (
-    <ModalLayout>
-      <ModalTitle>{t('createFolder')}</ModalTitle>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{t('createFolder')}</DialogTitle>
+      </DialogHeader>
       <Controller
         control={control}
         name="folder"
@@ -55,7 +58,8 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
           />
         )}
       />
+      <InputController control={control} name="folder" label={t('Folder Name')} error={errors.folder?.message} />
       <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
-    </ModalLayout>
+    </DialogContent>
   );
 };
