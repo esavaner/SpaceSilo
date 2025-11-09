@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { Pressable, PressableProps, View } from 'react-native';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 import { cva } from 'class-variance-authority';
 import { Text } from './text';
 

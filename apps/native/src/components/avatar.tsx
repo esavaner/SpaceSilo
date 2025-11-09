@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { Text } from './text';
 import React from 'react';
 import { cva } from 'class-variance-authority';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 import { Pressable, PressableProps } from 'react-native';
 
 type Props = PressableProps & {

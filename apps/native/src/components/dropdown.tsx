@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Dimensions, Pressable } from 'react-native';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 import { Text } from './text';
 import { useUi } from '@/providers/UiProvider';
 

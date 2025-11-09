@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../button';
-import { cn } from '../cn';
+import { cn } from '../../utils/cn';
 
 type Props = {
   okText: string;

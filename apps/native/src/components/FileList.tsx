@@ -11,7 +11,7 @@ import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
 import { Checkbox } from './checkbox';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 import { FolderIcon, FileIcon } from './icons';
 import { Text } from './text';
 

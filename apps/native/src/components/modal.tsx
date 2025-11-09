@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal as RModal, View, Pressable } from 'react-native';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 
 export type ModalProps = {
   noLayout?: boolean;

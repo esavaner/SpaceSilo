@@ -4,7 +4,7 @@ import { CloseIcon } from './icons';
 import { Button } from './button';
 import { Text } from './text';
 import { useUi } from '@/providers/UiProvider';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 
 type ModalLayoutProps = {
   children?: React.ReactNode;

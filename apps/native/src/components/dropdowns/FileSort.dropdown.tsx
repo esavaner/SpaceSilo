@@ -5,7 +5,7 @@ import { Pressable } from 'react-native';
 import { useUi } from '@/providers/UiProvider';
 import { Text } from '../text';
 import { Button } from '../button';
-import { cn } from '../cn';
+import { cn } from '../../utils/cn';
 import { useDropdown } from '../dropdown';
 import { ChevronDownIcon } from '../icons';
 

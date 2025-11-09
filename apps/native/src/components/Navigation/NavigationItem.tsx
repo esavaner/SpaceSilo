@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { useState } from 'react';
 import { Text } from '../text';
 import { Button } from '../button';
-import { cn } from '../cn';
+import { cn } from '../../utils/cn';
 import { ChevronDownIcon } from '../icons';
 
 type Item = {

@@ -1,5 +1,5 @@
 import { TextInput, View } from 'react-native';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 import { Text } from './text';
 
 import React, { forwardRef } from 'react';

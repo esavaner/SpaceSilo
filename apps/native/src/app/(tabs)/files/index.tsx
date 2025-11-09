@@ -1,5 +1,5 @@
 import { Breadcrumb } from '@/components/breadcrumb';
-import { cn } from '@/components/cn';
+import { cn } from '@/utils/cn';
 import { FileList } from '@/components/FileList';
 import { ItemSelection } from '@/components/ItemSelection';
 import { useFilesContext } from '@/providers/FilesProvider';

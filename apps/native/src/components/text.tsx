@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text as RText } from 'react-native';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 
 type STextProps = React.ComponentProps<typeof RText>;
 

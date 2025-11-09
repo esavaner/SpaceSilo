@@ -4,7 +4,7 @@ import { Pressable } from 'react-native';
 import { ChevronDownIcon } from './icons';
 import { Text } from './text';
 import { useUi } from '@/providers/UiProvider';
-import { cn } from './cn';
+import { cn } from '../utils/cn';
 
 type SelectProps = {
   options: { label: string; value: string }[];
