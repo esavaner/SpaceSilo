@@ -41,6 +41,11 @@ const items: NavigationItemProps[] = [
     path: 'groups',
     icon: <UserGroupIcon size={18} />,
   },
+  {
+    label: 'RNP Test',
+    path: 'rnp',
+    icon: <FileIcon size={20} />,
+  },
 ];
 
 export default function TabLayout() {

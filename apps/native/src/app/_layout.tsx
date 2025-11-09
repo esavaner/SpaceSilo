@@ -13,6 +13,7 @@ import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
 import { Platform, Appearance, ColorSchemeName } from 'react-native';
+import { PortalHost } from '@rn-primitives/portal';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -85,13 +86,14 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'var(--color-background)' }}>
-        <QueryProvider>
+    <QueryProvider>
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'var(--color-background)' }}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <UserProvider>
               <FilesProvider>
                 <UiProvider>
+                  <PortalHost />
                   <Stack
                     screenOptions={{
                       contentStyle: {
@@ -109,8 +111,8 @@ export default function RootLayout() {
               </FilesProvider>
             </UserProvider>
           </GestureHandlerRootView>
-        </QueryProvider>
-      </SafeAreaView>
-    </SafeAreaProvider>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </QueryProvider>
   );
 }

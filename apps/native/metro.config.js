@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { getDefaultConfig } = require('expo/metro-config');
 const { withNativewind } = require('nativewind/metro');
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+const config = withNativewind(getDefaultConfig(__dirname), { inlineRem: 16 });
 
-module.exports = withNativewind(config);
+module.exports = config;
 
 // // Learn more: https://docs.expo.dev/guides/monorepos/
 // const { getDefaultConfig } = require('expo/metro-config');
