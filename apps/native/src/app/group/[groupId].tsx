@@ -28,16 +28,16 @@ export default function SingleGroupPage() {
 
   if (!group) {
     return (
-      <View className="flex-1 bg-layer relative">
+      <View className="flex-1 bg-background relative">
         <Text>Group not found</Text>
       </View>
     );
   }
   return (
-    <View className="flex-1 bg-layer relative items-center gap-2 p-4">
+    <View className="flex-1 bg-background relative items-center gap-2 p-4">
       <Avatar alt={group.name} size="lg" color={group.color} />
       <Text className="text-xl">{group.name}</Text>
-      <Text className="text-content-tertiary">{group.id}</Text>
+      <Text className="text-muted-foreground">{group.id}</Text>
       <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
         <Text className="text-black">Add members</Text>
         <AddIcon className="text-black" />

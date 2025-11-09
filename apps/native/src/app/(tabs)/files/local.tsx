@@ -73,7 +73,7 @@ export default function FilesLocalPage() {
   );
 
   return (
-    <View className="flex-1 bg-layer p-4">
+    <View className="flex-1 bg-background p-4">
       <Breadcrumb
         pathItems={currentPath.split('/')}
         handlePathClick={handlePathClick}

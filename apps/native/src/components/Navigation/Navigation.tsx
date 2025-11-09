@@ -8,8 +8,12 @@ type NavigationProps = DrawerContentComponentProps & {
 
 export const Navigation = (props: NavigationProps) => {
   return (
-    <View className="flex-1 bg-layer h-full">
-      <DrawerContentScrollView {...props} className="bg-layer" style={{ backgroundColor: 'var(--color-background)' }}>
+    <View className="flex-1 bg-background h-full">
+      <DrawerContentScrollView
+        {...props}
+        className="bg-background"
+        style={{ backgroundColor: 'var(--color-background)' }}
+      >
         {props.items.map((item) => (
           <NavigationItem key={item.path} onPress={(path) => props.navigation.navigate(path)} {...item} />
         ))}

@@ -54,7 +54,7 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: Breadcru
 //   return (
 //     <Pressable className="flex flex-row items-center gap-2 mr-2" onPress={onPress}>
 //       {!homeDir && <NavigateNextIcon />}
-//       <Text className="text-content-tertiary hover:text-content hover:underline">{item}</Text>
+//       <Text className="text-muted-foreground hover:text-foreground hover:underline">{item}</Text>
 //     </Pressable>
 //   );
 // };

@@ -9,11 +9,6 @@ import { Header } from '@/components/Header';
 
 const items: NavigationItemProps[] = [
   {
-    label: 'Welcome',
-    path: 'welcome',
-    icon: <FileIcon size={20} />,
-  },
-  {
     label: 'Files',
     path: 'files/index',
     icon: <FileIcon size={20} />,
@@ -63,7 +58,6 @@ export default function TabLayout() {
     >
       <Drawer.Screen name="files/index" />
       <Drawer.Screen name="files/local" />
-      <Drawer.Screen name="welcome" />
     </Drawer>
   );
 }

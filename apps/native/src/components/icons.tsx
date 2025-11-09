@@ -8,7 +8,7 @@ type IconProps = Omit<React.ComponentProps<typeof FIcon> & React.ComponentProps<
 
 const d = {
   size: 22,
-  className: 'text-content',
+  className: 'text-foreground',
 };
 
 // cssInterop(FIcon, {

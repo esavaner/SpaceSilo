@@ -5,46 +5,14 @@
 @import 'nativewind/theme';
 
 @theme {
-  --color-light: #fdfdfd;
-  --color-dark: #131313;
-
-  --color-primary: #ffc75f;
-  --color-primary-dark: #d9c344;
-  --color-primary-light: #f3dd65;
-
-  --color-secondary: #4a90e2;
-  --color-secondary-dark: #3f83d1;
-  --color-secondary-light: #5aa0f7;
-
-  --color-success: #7ed321;
-  --color-success-dark: #6cc017;
-  --color-success-light: #95e33a;
-
-  --color-warning: #f5a623;
-  --color-warning-dark: #d48e1f;
-  --color-warning-light: #f8c94c;
-
-  --color-danger: #ff5f5f;
-  --color-danger-dark: #e04c4c;
-  --color-danger-light: #ff7b7b;
-
-  /* light */
-  --color-content: var(--color-dark);
-  --color-content-secondary: #222222;
-  --color-content-tertiary: #464646;
-
-  --color-layer: var(--color-light);
-  --color-layer-secondary: #dcdcdc;
-  --color-layer-tertiary: #b1b1b1;
-
   --color-background: #ffffff;
   --color-foreground: #0a0a0a;
   --color-card: #ffffff;
   --color-card-foreground: #0a0a0a;
   --color-popover: #ffffff;
   --color-popover-foreground: #0a0a0a;
-  --color-primary: #171717;
-  --color-primary-foreground: #fafafa;
+  --color-primary: #ffc75f;
+  --color-primary-foreground: #171717;
   --color-secondary: #f5f5f5;
   --color-secondary-foreground: #171717;
   --color-muted: #f5f5f5;
@@ -55,7 +23,7 @@
   --color-border: #e5e5e5;
   --color-input: #e5e5e5;
   --color-ring: #a1a1a1;
-  --color-radius: 0.625rem;
+  --radius: 0.625rem;
   --color-chart-1: #e76e50;
   --color-chart-2: #2a9d90;
   --color-chart-3: #274754;
@@ -68,22 +36,13 @@
 }
 
 :root.dark {
-  /* dark */
-  --color-content: var(--color-light);
-  --color-content-secondary: #d2d1d1;
-  --color-content-tertiary: #a0a0a0;
-
-  --color-layer: var(--color-dark);
-  --color-layer-secondary: #272727;
-  --color-layer-tertiary: #424242;
-
   --color-background: #0a0a0a;
   --color-foreground: #fafafa;
   --color-card: #0a0a0a;
   --color-card-foreground: #fafafa;
   --color-popover: #0a0a0a;
   --color-popover-foreground: #fafafa;
-  --color-primary: #fafafa;
+  --color-primary: #ffc14f;
   --color-primary-foreground: #171717;
   --color-secondary: #262626;
   --color-secondary-foreground: #fafafa;

@@ -14,7 +14,7 @@ export const FileListCompact = ({ items, handleItemClick, className }: Props) =>
   const filteredItems = items.filter((i) => i.isDirectory);
   return (
     <>
-      {/* <View className="flex-row px-6 h-10 items-center bg-layer"></View> */}
+      {/* <View className="flex-row px-6 h-10 items-center bg-background"></View> */}
       <ScrollView className={cn('flex-1 w-full p-2', className)}>
         {filteredItems.length === 0 && <Text>No folders</Text>}
         {filteredItems.map((item) => {

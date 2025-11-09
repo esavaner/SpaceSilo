@@ -64,13 +64,13 @@ export const DropdownItem = ({ label, subLabel, icon, onPress }: DropdownItemPro
   return (
     <Pressable
       key={label}
-      className="flex-row gap-5 py-3 px-4 items-center hover:bg-layer active:bg-layer"
+      className="flex-row gap-5 py-3 px-4 items-center hover:bg-background active:bg-background"
       onPress={onPress}
     >
       {icon}
       <View className="flex flex-col">
         <Text>{label}</Text>
-        <Text className="text-content-tertiary text-sm">{subLabel}</Text>
+        <Text className="text-muted-foreground text-sm">{subLabel}</Text>
       </View>
     </Pressable>
   );

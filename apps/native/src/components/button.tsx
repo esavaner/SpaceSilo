@@ -37,12 +37,12 @@ const textStyles = cva(['text-dark'], {
   variants: {
     variant: {
       primary: '',
-      primaryOutline: 'text-content hover:text-dark active:text-dark',
+      primaryOutline: 'text-foreground hover:text-dark active:text-dark',
       secondary: '',
-      secondaryOutline: 'text-content hover:text-dark active:text-dark',
+      secondaryOutline: 'text-foreground hover:text-dark active:text-dark',
       danger: '',
-      dangerOutline: 'text-content hover:text-dark active:text-dark',
-      text: 'text-content',
+      dangerOutline: 'text-foreground hover:text-dark active:text-dark',
+      text: 'text-foreground',
       link: 'text-secondary',
       icon: '',
     },

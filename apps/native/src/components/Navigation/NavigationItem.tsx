@@ -39,7 +39,7 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
         )}
       </Pressable>
       {isOpen && hasSubitems && (
-        <View className="ml-5 pl-2 mb-1 border-l border-content">
+        <View className="ml-5 pl-2 mb-1 border-l border-foreground">
           {subitems?.map((subitem) => (
             <Pressable key={subitem.path} onPress={() => onPress?.(subitem.path)} className={cn(itemStyles)}>
               <Text>{subitem.label}</Text>

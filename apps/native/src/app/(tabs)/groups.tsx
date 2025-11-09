@@ -15,7 +15,7 @@ export default function GroupsPage() {
   const { groupsPersonal, groupsShared } = useGroupList();
 
   return (
-    <View className="flex-1 bg-layer relative">
+    <View className="flex-1 bg-background relative">
       <Text className="px-4 py-2">{t('Personal')}</Text>
       <PersonalGroupList groups={groupsPersonal} />
       <View className="flex-row px-4 py-2 items-center gap-4">

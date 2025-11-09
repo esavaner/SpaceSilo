@@ -50,7 +50,7 @@ export const FileList = ({ className }: FileListProps) => {
 
   return (
     <>
-      <View className="flex-row gap-4 px-6 py-2 items-center bg-layer border-b border-b-content">
+      <View className="flex-row gap-4 px-6 py-2 items-center bg-background border-b border-b-foreground">
         <Checkbox
           checked={hasSelectedAll}
           onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
@@ -84,8 +84,8 @@ export const FileList = ({ className }: FileListProps) => {
               <View className="gap-1">
                 <Text className="text-lg leading-5">{item.name}</Text>
                 <View className="flex-row gap-1">
-                  {!item.isDirectory && <Text className="text-content-tertiary text-sm">{fileSize(item.size)},</Text>}
-                  <Text className="text-content-tertiary text-sm">{getItemTime(item.modificationTime)}</Text>
+                  {!item.isDirectory && <Text className="text-muted-foreground text-sm">{fileSize(item.size)},</Text>}
+                  <Text className="text-muted-foreground text-sm">{getItemTime(item.modificationTime)}</Text>
                 </View>
               </View>
 

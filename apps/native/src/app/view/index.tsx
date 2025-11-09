@@ -39,7 +39,7 @@ export default function ViewPage() {
   });
 
   return (
-    <View className="flex-1 bg-layer relative">
+    <View className="flex-1 bg-background relative">
       <View className="flex-1 bg-layer-secondary items-center justify-center">
         {fileType === FileType.IMAGE ? (
           <Image
@@ -49,7 +49,7 @@ export default function ViewPage() {
           />
         ) : (
           <ScrollView className="p-4 h-full w-full items-center">
-            <View className="p-4 bg-layer w-full max-w-lg min-h-[80vh] rounded-lg">
+            <View className="p-4 bg-background w-full max-w-lg min-h-[80vh] rounded-lg">
               <Text>{fileData}</Text>
             </View>
           </ScrollView>

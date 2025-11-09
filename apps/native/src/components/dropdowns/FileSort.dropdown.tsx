@@ -37,12 +37,12 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
     <Pressable
       key={sort.value}
       onPress={() => onSort(sort.value)}
-      className="flex-row gap-5 py-3 px-4 items-center hover:bg-layer active:bg-layer"
+      className="flex-row gap-5 py-3 px-4 items-center hover:bg-background active:bg-background"
     >
       <Text>{sort.label}</Text>
       <ChevronDownIcon
         className={cn(
-          'text-content hidden transition-all transform',
+          'text-foreground hidden transition-all transform',
           comparator.sort === sort.value && 'block',
           comparator.order === 1 && 'rotate-180'
         )}
@@ -54,7 +54,7 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
     <Button ref={ref} onPress={() => openDropdown(<>{dropdownItems}</>)} variant="text" className="">
       <Text>{t(`sort.${comparator.sort}`)}</Text>
       <ChevronDownIcon
-        className={cn('text-content transition-all transform', comparator.order === 1 && 'rotate-180')}
+        className={cn('text-foreground transition-all transform', comparator.order === 1 && 'rotate-180')}
       />
     </Button>
   );

@@ -1,20 +1,20 @@
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, Appearance } from 'react-native';
 import { FileIcon } from '@/components/icons';
 import { Button } from '@/components/general/button';
 import { Text } from '@/components/general/text';
 
 export default function RnpScreen() {
   return (
-    <ScrollView className="flex-1 bg-layer">
-      <View className="gap-2">
-        <Button>
+    <ScrollView className="flex-1 bg-background p-8">
+      <View className="gap-4">
+        <Button onPress={() => Appearance.setColorScheme('light')}>
           <Text>Button</Text>
         </Button>
-        <Button variant="secondary">
+        <Button variant="secondary" onPress={() => Appearance.setColorScheme('dark')}>
           <Text>Secondary</Text>
         </Button>
-        <Button variant="danger">
-          <Text>Danger</Text>
+        <Button variant="destructive">
+          <Text>Destructive</Text>
         </Button>
         <Button variant="outline">
           <Text>Outline</Text>

@@ -34,12 +34,12 @@ export const Select = ({ options, onChange, value, className }: SelectProps) => 
 
   return (
     <Pressable
-      className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-content-secondary rounded-md"
+      className="flex flex-row gap-2 items-center justify-center px-2 py-1 border border-muted-foreground rounded-md"
       ref={ref}
       onPress={() => openDropdown(dropdownItems, { className })}
     >
       <Text>{label}</Text>
-      <ChevronDownIcon className={cn('text-content', selected && 'rotate-180')} />
+      <ChevronDownIcon className={cn('text-foreground', selected && 'rotate-180')} />
     </Pressable>
   );
 };
