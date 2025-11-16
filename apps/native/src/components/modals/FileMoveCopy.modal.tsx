@@ -6,9 +6,9 @@ import { FileEntity } from '@/api/generated';
 import { useFileActions } from '@/hooks/useFileActions';
 import { useUi } from '@/providers/UiProvider';
 import { Breadcrumb } from '../breadcrumb';
-import { ModalLayout, ModalTitle } from '../modal-components';
-import { Text } from '../text';
-import { Button } from '../button';
+import { Text } from '../general/text';
+import { Button } from '../general/button';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 
 type Props = {
   path?: string;
@@ -35,8 +35,10 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
   };
 
   return (
-    <ModalLayout>
-      <ModalTitle>Move or copy</ModalTitle>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Move or copy</DialogTitle>
+      </DialogHeader>
       <Text>{selectedItems.length} item(s) selected</Text>
       <Breadcrumb
         pathItems={currentPath.split('/|\\')}
@@ -45,16 +47,16 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
       />
       <FileListCompact items={items} handleItemClick={handleItemClick} className="" />
       <View className="flex-row gap-2 mt-2">
-        <Button variant="primaryOutline" onPress={closeModal}>
-          Cancel
+        <Button onPress={closeModal} variant="secondary">
+          <Text>Cancel</Text>
         </Button>
-        <Button variant="primary" onPress={handleCopy}>
-          Copy here
+        <Button onPress={handleCopy}>
+          <Text>Copy here</Text>
         </Button>
-        <Button variant="primary" onPress={handleMove}>
-          Move here
+        <Button onPress={handleMove}>
+          <Text>Move here</Text>
         </Button>
       </View>
-    </ModalLayout>
+    </DialogContent>
   );
 };

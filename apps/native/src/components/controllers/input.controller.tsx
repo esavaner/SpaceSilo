@@ -4,14 +4,15 @@ import { View } from 'react-native';
 import { Label } from '../form/label';
 import { Text } from '../general/text';
 
-type Props = {
+type Props = React.ComponentProps<typeof Input> & {
   control: Control<any, any, FieldValues>;
   name: string;
   label?: string;
   error?: string;
+  onEnter?: () => void;
 };
 
-export const InputController = ({ control, name, label, error }: Props) => {
+export const InputController = ({ control, name, label, error, onEnter, ...rest }: Props) => {
   return (
     <Controller
       control={control}
@@ -23,7 +24,13 @@ export const InputController = ({ control, name, label, error }: Props) => {
               {label}
             </Label>
           )}
-          <Input onBlur={field.onBlur} value={field.value} onChangeText={field.onChange} />
+          <Input
+            onBlur={field.onBlur}
+            value={field.value}
+            onChangeText={field.onChange}
+            onKeyPress={(e) => e.nativeEvent.key === 'Enter' && onEnter?.()}
+            {...rest}
+          />
           {error && (
             <Text className="text-destructive" variant="small">
               {error}

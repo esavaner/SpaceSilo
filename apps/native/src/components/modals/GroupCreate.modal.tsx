@@ -1,14 +1,13 @@
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ButtonGroup } from './ButtonGroup';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import { View } from 'react-native';
-import { useUi } from '@/providers/UiProvider';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { InputController } from '../controllers/input.controller';
+import { DialogFooter } from './dialog-footer';
 
 const schema = yup.object().shape({
   name: yup.string().required('Group name is required'),
@@ -20,7 +19,6 @@ type CreateGroupForm = yup.InferType<typeof schema>;
 
 export const GroupCreateModal = () => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
   const { createGroup } = useGroupActions();
 
   const {
@@ -59,7 +57,7 @@ export const GroupCreateModal = () => {
         )}
       />
       {/* @ts-expect-error sada sdsa */}
-      <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} className="pt-4" />
+      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} />
     </DialogContent>
   );
 };

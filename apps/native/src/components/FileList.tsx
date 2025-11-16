@@ -68,8 +68,8 @@ export const FileList = ({ className }: FileListProps) => {
             <Pressable
               key={item.name + item.groupId}
               className={cn(
-                'relative flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-layer-secondary active:bg-layer-secondary, transition-all',
-                isSelected && 'bg-layer-secondary'
+                'relative flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-accent active:bg-accent transition-all',
+                isSelected && 'bg-muted'
               )}
               onPress={() => handleItemClick(item)}
               onLongPress={() => handleSelectItem(item)}

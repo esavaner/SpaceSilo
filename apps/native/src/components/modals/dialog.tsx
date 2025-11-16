@@ -1,11 +1,12 @@
+import { Icon } from '@/components/general/icon';
+import { NativeOnlyAnimatedView } from '@/components/general/native-only-animated-view';
 import { cn } from '@/utils/cn';
 import * as DialogPrimitive from '@rn-primitives/dialog';
+import { X } from 'lucide-react-native';
 import * as React from 'react';
 import { Platform, Text, View, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
-import { CloseIcon } from '../icons';
-import { NativeOnlyAnimatedView } from '../general/native-only-animated-view';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -79,8 +80,7 @@ function DialogContent({
             )}
             hitSlop={12}
           >
-            {/* <Icon as={X} className={cn('text-accent-foreground web:pointer-events-none size-4 shrink-0')} /> */}
-            <CloseIcon />
+            <Icon as={X} className={cn('text-accent-foreground web:pointer-events-none size-4 shrink-0')} />
             <Text className="sr-only">Close</Text>
           </DialogPrimitive.Close>
         </DialogPrimitive.Content>

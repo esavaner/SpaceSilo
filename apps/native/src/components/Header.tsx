@@ -14,7 +14,7 @@ export const Header = ({ title, navigation, ...rest }: HeaderProps) => {
   const { width } = useWindowDimensions();
 
   return (
-    <View className="p-2 flex flex-row gap-2 items-center bg-layer-secondary">
+    <View className="p-2 flex flex-row gap-2 items-center bg-muted">
       {width <= 992 && (
         <Button variant="icon" onPress={navigation.toggleDrawer}>
           <MenuIcon />

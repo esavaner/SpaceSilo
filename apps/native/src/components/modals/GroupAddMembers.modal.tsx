@@ -2,18 +2,17 @@ import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/gen
 import { useGroupActions } from '@/hooks/useGroupActions';
 
 import { useTranslation } from 'react-i18next';
-import { ButtonGroup } from './ButtonGroup';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { useUi } from '@/providers/UiProvider';
 import { Text } from '../text';
 import { Button } from '../button';
 import { DropdownItem } from '../dropdown';
 import { UserGroupIcon, CloseIcon } from '../icons';
-import { ModalLayout, ModalTitle } from '../modal-components';
 import { Search } from '../search';
 import { Select } from '../select';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { DialogFooter } from './dialog-footer';
 
 const selectOptions = [
   { label: 'Admin', value: 'admin' },
@@ -29,7 +28,6 @@ type Props = {
 
 export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
   const { addMembers } = useGroupActions();
   const { query, resetSearch, results, searchUsers } = useUserSearch();
 
@@ -66,8 +64,10 @@ export const GroupAddMembersModal = ({ group }: Props) => {
     ));
 
   return (
-    <ModalLayout className="w-full">
-      <ModalTitle>{t('addMembers')}</ModalTitle>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{t('addMembers')}</DialogTitle>
+      </DialogHeader>
       {selectedMembers.length > 0 && (
         <View className="flex-row gap-2 p-2">
           <Text>{selectedMembers.length}</Text>
@@ -88,7 +88,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
       </ScrollView>
       <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
       {/* @TODO */}
-      <ButtonGroup okText={t('Add')} onCancel={closeModal} onOk={handleSubmit} className="z-[-2]" />
-    </ModalLayout>
+      <DialogFooter okText={t('Add')} onOk={handleSubmit} className="z-[-2]" />
+    </DialogContent>
   );
 };

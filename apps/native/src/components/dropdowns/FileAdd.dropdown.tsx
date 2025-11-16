@@ -1,9 +1,11 @@
-import { useDropdown, DropdownItem } from '../dropdown';
-import { FolderIcon, FileIcon, AddIcon } from '../icons';
+import { AddIcon } from '../icons';
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
+import { Button } from '../general/button';
+import { Text } from '../general/text';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
+import { Folder, File } from 'lucide-react-native';
+import { Icon } from '../general/icon';
 import { useUi } from '@/providers/UiProvider';
-import { Button } from '../button';
-import { Text } from '../text';
 
 type FileAddDropdownProps = {
   currentPath: string;
@@ -12,24 +14,29 @@ type FileAddDropdownProps = {
 
 export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps) => {
   const { openModal } = useUi();
-  const { ref, openDropdown } = useDropdown();
 
-  const items = [
-    {
-      label: 'Folder',
-      icon: <FolderIcon />,
-      onPress: () => openModal(<FileCreateFolderModal currentPath={currentPath} />),
-    },
-    { label: 'File', icon: <FileIcon />, onPress: () => {} },
-  ];
-
-  const dropdownItems = items.map((item) => (
-    <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
-  ));
   return (
-    <Button ref={ref} onPress={() => openDropdown(dropdownItems)} className="ml-auto">
-      <Text className="text-black">Add</Text>
-      <AddIcon className="text-black" />
-    </Button>
+    <DropdownMenu className="ml-auto">
+      <DropdownMenuTrigger>
+        <Button>
+          <AddIcon className="text-primary-foreground" />
+          <Text>Add</Text>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onPress={() => openModal(<FileCreateFolderModal currentPath={currentPath} />)}>
+          <Icon as={Folder} />
+          <Text>Folder</Text>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onPress={() => {
+            // handle file creation here
+          }}
+        >
+          <Icon as={File} />
+          <Text>File</Text>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

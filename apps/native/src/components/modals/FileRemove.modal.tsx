@@ -1,11 +1,10 @@
 import { FileEntity } from '@/api/generated';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
-import { ButtonGroup } from './ButtonGroup';
 import { useFileActions } from '@/hooks/useFileActions';
-import { useUi } from '@/providers/UiProvider';
 import { Text } from '../text';
-import { ModalLayout, ModalTitle } from '../modal-components';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { DialogFooter } from './dialog-footer';
 
 type FileRemoveModalProps = {
   files: FileEntity[];
@@ -13,7 +12,6 @@ type FileRemoveModalProps = {
 
 export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
   const { remove } = useFileActions();
 
   const handleRemove = () => {
@@ -21,14 +19,16 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   };
 
   return (
-    <ModalLayout>
-      <ModalTitle>{t('removeItem')}</ModalTitle>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{t('removeItem')}</DialogTitle>
+      </DialogHeader>
       <ScrollView className="mb-4">
         {files.map((file) => (
           <Text key={file.uri}>{file.name}</Text>
         ))}
       </ScrollView>
-      <ButtonGroup okText={t('remove')} onOk={handleRemove} onCancel={closeModal} />
-    </ModalLayout>
+      <DialogFooter okText={t('remove')} onOk={handleRemove} />
+    </DialogContent>
   );
 };

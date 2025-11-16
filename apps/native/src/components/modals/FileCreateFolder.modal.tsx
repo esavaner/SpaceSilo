@@ -1,13 +1,11 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ButtonGroup } from './ButtonGroup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useFileActions } from '@/hooks/useFileActions';
-import { useUi } from '@/providers/UiProvider';
-import { Input } from '../input';
 import { InputController } from '../controllers/input.controller';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { DialogFooter } from './dialog-footer';
 
 type FileCreateFolderModalProps = {
   currentPath?: string;
@@ -21,7 +19,6 @@ type CreateFolderForm = yup.InferType<typeof schema>;
 
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
   const { create } = useFileActions();
 
   const {
@@ -45,21 +42,14 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
       <DialogHeader>
         <DialogTitle>{t('createFolder')}</DialogTitle>
       </DialogHeader>
-      <Controller
+      <InputController
         control={control}
         name="folder"
-        render={({ field }) => (
-          <Input
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            onKeyPress={(e) => e.nativeEvent.key === 'Enter' && handleSubmit(onSubmit)()}
-            error={errors.folder?.message}
-          />
-        )}
+        label={t('Folder Name')}
+        error={errors.folder?.message}
+        onEnter={handleSubmit(onSubmit)}
       />
-      <InputController control={control} name="folder" label={t('Folder Name')} error={errors.folder?.message} />
-      <ButtonGroup okText={t('create')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
+      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} />
     </DialogContent>
   );
 };

@@ -1,7 +1,9 @@
-import { Modal, ModalProps } from '@/components/modal';
+import { Dialog } from '@/components/modals/dialog';
 import { Toast, ToastProps } from '@/components/toast';
 import React, { createContext, useContext, useState } from 'react';
 import { View } from 'react-native';
+
+type ModalProps = React.ComponentProps<typeof Dialog>;
 
 type ContextType = {
   openModal: (modal?: React.ReactNode, options?: ModalProps) => void;
@@ -57,9 +59,9 @@ export const UiProvider = ({ children }: UiProviderProps) => {
     <UiContext.Provider value={{ openModal, closeModal, toast, removeToast }}>
       {children}
       {currentModal && (
-        <Modal {...modalOptions} onClose={closeModal}>
+        <Dialog {...modalOptions} open onOpenChange={closeModal}>
           {currentModal}
-        </Modal>
+        </Dialog>
       )}
       <View className="fixed bottom-4 right-4 gap-2 bg-transparent">
         {toasts.map((toast) => (

@@ -23,7 +23,7 @@ export default function FilesPage() {
 
   return (
     <View className="flex-1 bg-background relative">
-      <View className={cn('flex-row px-4 h-12 items-center', hasSelectedItems ? 'bg-layer-secondary' : 'bg-layer')}>
+      <View className={cn('flex-row px-4 h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (
           <ItemSelection path={currentPath} selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
         ) : (

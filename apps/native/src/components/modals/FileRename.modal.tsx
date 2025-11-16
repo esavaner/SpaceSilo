@@ -1,13 +1,12 @@
 import { FileEntity } from '@/api/generated';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { ButtonGroup } from './ButtonGroup';
 import { useFileActions } from '@/hooks/useFileActions';
-import { useUi } from '@/providers/UiProvider';
-import { Input } from '../input';
-import { ModalLayout, ModalTitle } from '../modal-components';
+import { DialogFooter } from './dialog-footer';
+import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { InputController } from '../controllers/input.controller';
 
 type FileRenameModalProps = {
   file: FileEntity;
@@ -21,7 +20,6 @@ type RenameForm = yup.InferType<typeof schema>;
 
 export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
   const { rename } = useFileActions();
 
   const {
@@ -42,22 +40,18 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   };
 
   return (
-    <ModalLayout>
-      <ModalTitle>{t('renameItem')}</ModalTitle>
-      <Controller
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{t('renameItem')}</DialogTitle>
+      </DialogHeader>
+      <InputController
         control={control}
         name="newName"
-        render={({ field }) => (
-          <Input
-            onBlur={field.onBlur}
-            value={field.value}
-            onChangeText={field.onChange}
-            onKeyPress={(e) => e.nativeEvent.key === 'Enter' && handleSubmit(onSubmit)()}
-            error={errors.newName?.message}
-          />
-        )}
+        label={t('newName')}
+        error={errors.newName?.message}
+        onEnter={handleSubmit(onSubmit)}
       />
-      <ButtonGroup okText={t('rename')} onCancel={closeModal} onOk={handleSubmit(onSubmit)} />
-    </ModalLayout>
+      <DialogFooter okText={t('rename')} onOk={handleSubmit(onSubmit)} />
+    </DialogContent>
   );
 };
