@@ -1,7 +1,9 @@
 import { cn } from '@/utils/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable } from 'react-native';
-import { TextClassContext } from './text';
+import { Platform, Pressable, View } from 'react-native';
+import { Text, TextClassContext } from './text';
+import { Icon } from './icon';
+import { LoaderCircle } from 'lucide-react-native';
 
 const buttonVariants = cva(
   cn(
@@ -81,16 +83,29 @@ const buttonTextVariants = cva(
 
 type ButtonProps = React.ComponentProps<typeof Pressable> &
   React.RefAttributes<typeof Pressable> &
-  VariantProps<typeof buttonVariants>;
+  VariantProps<typeof buttonVariants> & {
+    loading?: boolean;
+  };
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+function Button({ className, variant, size, disabled, loading, children, ...props }: ButtonProps) {
+  const textVariant = buttonTextVariants({ variant, size });
   return (
-    <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
+    <TextClassContext.Provider value={textVariant}>
       <Pressable
-        className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
+        className={cn((disabled || loading) && 'opacity-50', buttonVariants({ variant, size }), className)}
         role="button"
+        disabled={disabled || loading}
         {...props}
-      />
+      >
+        <>
+          {loading && (
+            <View className="animate-spin">
+              <Icon as={LoaderCircle} className={textVariant} />
+            </View>
+          )}
+        </>
+        <>{typeof children === 'string' ? <Text>{children}</Text> : children}</>
+      </Pressable>
     </TextClassContext.Provider>
   );
 }

@@ -41,7 +41,7 @@ export const EditIcon = (p: IconProps) => <FIcon name="edit-3" {...d} {...p} />;
 export const EllipsisIcon = (p: IconProps) => <Fa6Icon name="ellipsis-vertical" {...d} {...p} />;
 export const FileIcon = (p: IconProps) => <MIcon name="insert-drive-file" {...d} {...p} />;
 export const FilterIcon = (p: IconProps) => <FIcon name="filter" {...d} {...p} />;
-export const FolderIcon = (p: IconProps) => <MIcon name="folder" {...d} {...p} className="text-yellow" />;
+export const FolderIcon = (p: IconProps) => <MIcon name="folder" {...d} {...p} className="text-primary" />;
 export const HomeIcon = (p: IconProps) => <MIcon name="home" {...d} {...p} />;
 export const InfoIcon = (p: IconProps) => <FIcon name="info" {...d} {...p} />;
 export const MenuIcon = (p: IconProps) => <FIcon name="menu" {...d} {...p} />;

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '../general/button';
-import { Text } from '../general/text';
 import { DialogClose, DialogFooter as Footer } from './dialog';
 
 type Props = {
@@ -17,12 +16,10 @@ export const DialogFooter = ({ okText, cancelText, onOk, onCancel, className }: 
     <Footer className={className}>
       <DialogClose asChild>
         <Button onPress={onCancel} variant="secondary">
-          <Text>{cancelText || t('cancel')}</Text>
+          {cancelText || t('cancel')}
         </Button>
       </DialogClose>
-      <Button onPress={onOk}>
-        <Text>{okText || t('ok')}</Text>
-      </Button>
+      <Button onPress={onOk}>{okText || t('ok')}</Button>
     </Footer>
   );
 };

@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
-import { Text } from '../general/text';
 
 type Props = {
   okText: string;
@@ -17,11 +16,9 @@ export const ButtonGroup = ({ okText, cancelText, onOk, onCancel, className }: P
   return (
     <View className={cn('flex flex-row gap-3 w-full mt-auto justify-center', className)}>
       <Button onPress={onCancel} variant="secondary">
-        <Text>{cancelText || t('cancel')}</Text>
+        {cancelText || t('cancel')}
       </Button>
-      <Button onPress={onOk}>
-        <Text>{okText || t('ok')}</Text>
-      </Button>
+      <Button onPress={onOk}>{okText || t('ok')}</Button>
     </View>
   );
 };

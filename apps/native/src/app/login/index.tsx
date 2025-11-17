@@ -59,9 +59,7 @@ export default function LoginPage() {
           error={errors.password?.message}
           secureTextEntry
         />
-        <Button onPress={handleSubmit(onSubmit)}>
-          <Text>Login</Text>
-        </Button>
+        <Button onPress={handleSubmit(onSubmit)}>Login</Button>
       </View>
     </View>
   );
