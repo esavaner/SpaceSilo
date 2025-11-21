@@ -97,13 +97,14 @@ function Button({ className, variant, size, disabled, loading, children, ...prop
         disabled={disabled || loading}
         {...props}
       >
-        <>
-          {loading && (
-            <View className="animate-spin">
-              <Icon as={LoaderCircle} className={textVariant} />
-            </View>
+        <View
+          className={cn(
+            'pointer-events-none overflow-hidden transition-all animate-spin mt-0.5',
+            loading ? 'w-4 ml-0' : 'w-0 ml-[-8]'
           )}
-        </>
+        >
+          <Icon as={LoaderCircle} className={textVariant} />
+        </View>
         <>{typeof children === 'string' ? <Text>{children}</Text> : children}</>
       </Pressable>
     </TextClassContext.Provider>

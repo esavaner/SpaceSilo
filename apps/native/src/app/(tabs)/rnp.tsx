@@ -2,8 +2,18 @@ import { ScrollView, View, Appearance } from 'react-native';
 import { FileIcon } from '@/components/icons';
 import { Button } from '@/components/general/button';
 import { Text } from '@/components/general/text';
+import { useEffect, useState } from 'react';
 
 export default function RnpScreen() {
+  const [testLoading, setTestLoading] = useState(false);
+
+  useEffect(() => {
+    if (!testLoading) return;
+    setTimeout(() => {
+      setTestLoading(false);
+    }, 2000);
+  }, [testLoading]);
+
   return (
     <ScrollView className="flex-1 bg-background p-8">
       <View className="grid grid-cols-3 gap-4 justify-items-center">
@@ -62,6 +72,9 @@ export default function RnpScreen() {
         <Button>
           <FileIcon size={20} />
           <Text>Login with Email</Text>
+        </Button>
+        <Button onPress={() => setTestLoading(true)} loading={testLoading} className="col-span-3">
+          Test loading button
         </Button>
       </View>
     </ScrollView>

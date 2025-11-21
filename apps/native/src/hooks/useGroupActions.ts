@@ -14,7 +14,7 @@ export const useGroupActions = () => {
     queryClient.invalidateQueries({ queryKey: ['groups'] });
   };
 
-  const { mutate: addMember } = useMutation({
+  const { mutate: addMember, isPending: isAddingMember } = useMutation({
     mutationKey: ['addMember'],
     mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerAddMember(id, data),
     onSuccess: () => success('Member added'),
@@ -23,7 +23,7 @@ export const useGroupActions = () => {
     },
   });
 
-  const { mutate: addMembers } = useMutation({
+  const { mutate: addMembers, isPending: isAddingMembers } = useMutation({
     mutationKey: ['addMembers'],
     mutationFn: ({ id, members }: { id: string; members: AddMemberDto[] }) =>
       Api.groups.groupsControllerAddMembers(id, { members }),
@@ -33,7 +33,7 @@ export const useGroupActions = () => {
     },
   });
 
-  const { mutate: createGroup } = useMutation({
+  const { mutate: createGroup, isPending: isCreatingGroup } = useMutation({
     mutationKey: ['createGroup'],
     mutationFn: (data: CreateGroupDto) => Api.groups.groupsControllerCreate(data),
     onSuccess: (_, { name }) => success(`Group ${name} created`),
@@ -42,7 +42,7 @@ export const useGroupActions = () => {
     },
   });
 
-  const { mutate: removeGroup } = useMutation({
+  const { mutate: removeGroup, isPending: isRemovingGroup } = useMutation({
     mutationKey: ['removeGroup'],
     mutationFn: (id: string) => Api.groups.groupsControllerRemove(id),
     onSuccess: () => success('Group removed'),
@@ -51,7 +51,7 @@ export const useGroupActions = () => {
     },
   });
 
-  const { mutate: removeMember } = useMutation({
+  const { mutate: removeMember, isPending: isRemovingMember } = useMutation({
     mutationKey: ['removeMember'],
     mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerRemoveMember(id, data),
     onSuccess: () => success('Member removed'),
@@ -60,7 +60,7 @@ export const useGroupActions = () => {
     },
   });
 
-  const { mutate: updateMember } = useMutation({
+  const { mutate: updateMember, isPending: isUpdatingMember } = useMutation({
     mutationKey: ['updateMember'],
     mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerUpdateMember(id, data),
     onSuccess: () => success('Member updated'),
@@ -76,5 +76,7 @@ export const useGroupActions = () => {
     removeGroup,
     removeMember,
     updateMember,
+    isPending:
+      isAddingMember || isAddingMembers || isCreatingGroup || isRemovingGroup || isRemovingMember || isUpdatingMember,
   };
 };

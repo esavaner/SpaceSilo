@@ -19,7 +19,7 @@ type CreateGroupForm = yup.InferType<typeof schema>;
 
 export const GroupCreateModal = () => {
   const { t } = useTranslation();
-  const { createGroup } = useGroupActions();
+  const { createGroup, isPending } = useGroupActions();
 
   const {
     handleSubmit,
@@ -57,7 +57,7 @@ export const GroupCreateModal = () => {
         )}
       />
       {/* @ts-expect-error sada sdsa */}
-      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} />
+      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
 };

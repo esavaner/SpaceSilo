@@ -47,7 +47,7 @@ export const useDropdown = () => {
           {children}
         </View>
       );
-      openModal(modal, { noLayout: true });
+      openModal(modal);
     });
   };
 

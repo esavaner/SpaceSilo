@@ -12,7 +12,7 @@ type FileRemoveModalProps = {
 
 export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { t } = useTranslation();
-  const { remove } = useFileActions();
+  const { remove, isPending } = useFileActions();
 
   const handleRemove = () => {
     files.forEach((file) => remove({ fileUri: file.uri, groupId: file.groupId }));
@@ -28,7 +28,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
           <Text key={file.uri}>{file.name}</Text>
         ))}
       </ScrollView>
-      <DialogFooter okText={t('remove')} onOk={handleRemove} />
+      <DialogFooter okText={t('remove')} onOk={handleRemove} loading={isPending} />
     </DialogContent>
   );
 };

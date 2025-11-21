@@ -8,18 +8,21 @@ type Props = {
   onOk?: () => void;
   onCancel?: () => void;
   className?: string;
+  loading?: boolean;
 };
 
-export const DialogFooter = ({ okText, cancelText, onOk, onCancel, className }: Props) => {
+export const DialogFooter = ({ okText, cancelText, onOk, onCancel, className, loading }: Props) => {
   const { t } = useTranslation();
   return (
     <Footer className={className}>
       <DialogClose asChild>
-        <Button onPress={onCancel} variant="secondary">
+        <Button onPress={onCancel} variant="secondary" disabled={loading}>
           {cancelText || t('cancel')}
         </Button>
       </DialogClose>
-      <Button onPress={onOk}>{okText || t('ok')}</Button>
+      <Button onPress={onOk} loading={loading}>
+        {okText || t('ok')}
+      </Button>
     </Footer>
   );
 };

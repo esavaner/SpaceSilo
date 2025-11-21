@@ -17,7 +17,7 @@ export const useFileActions = () => {
     queryClient.invalidateQueries({ queryKey: ['files'] });
   };
 
-  const { mutate: copy } = useMutation({
+  const { mutate: copy, isPending: isCopyPending } = useMutation({
     mutationKey: ['copyFiles'],
     mutationFn: (data: CopyFileDto) => Api.files.filesControllerCopy(data),
     onSuccess: () => success('File copied'),
@@ -26,7 +26,7 @@ export const useFileActions = () => {
     },
   });
 
-  const { mutate: create } = useMutation({
+  const { mutate: create, isPending: isCreatePending } = useMutation({
     mutationKey: ['createFolder'],
     mutationFn: (data: CreateFolderDto) => Api.files.filesControllerCreateFolder(data),
     onSuccess: (_, { name }) => success(`Folder ${name} created`),
@@ -35,7 +35,7 @@ export const useFileActions = () => {
     },
   });
 
-  const { mutate: move } = useMutation({
+  const { mutate: move, isPending: isMovePending } = useMutation({
     mutationKey: ['moveFiles'],
     mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
     onSuccess: () => success('File moved'),
@@ -44,7 +44,7 @@ export const useFileActions = () => {
     },
   });
 
-  const { mutate: remove } = useMutation({
+  const { mutate: remove, isPending: isRemovePending } = useMutation({
     mutationKey: ['removeFiles'],
     mutationFn: (data: RemoveFileDto) => Api.files.filesControllerRemove(data),
     onSuccess: () => success('File removed'),
@@ -53,7 +53,7 @@ export const useFileActions = () => {
     },
   });
 
-  const { mutate: rename } = useMutation({
+  const { mutate: rename, isPending: isRenamePending } = useMutation({
     mutationKey: ['renameFiles'],
     mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
     onSuccess: () => success('File renamed'),
@@ -68,5 +68,6 @@ export const useFileActions = () => {
     move,
     remove,
     rename,
+    isPending: isCopyPending || isCreatePending || isMovePending || isRemovePending || isRenamePending,
   };
 };

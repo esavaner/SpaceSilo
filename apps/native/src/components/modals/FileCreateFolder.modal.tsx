@@ -19,7 +19,7 @@ type CreateFolderForm = yup.InferType<typeof schema>;
 
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
   const { t } = useTranslation();
-  const { create } = useFileActions();
+  const { create, isPending } = useFileActions();
 
   const {
     handleSubmit,
@@ -49,7 +49,7 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
         error={errors.folder?.message}
         onEnter={handleSubmit(onSubmit)}
       />
-      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} />
+      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
 };

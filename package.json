@@ -18,5 +18,10 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2"
   },
-  "name": "with-react-native-web"
+  "name": "root",
+  "pnpm": {
+    "overrides": {
+      "lightningcss": "1.30.2"
+    }
+  }
 }

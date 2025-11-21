@@ -20,7 +20,7 @@ type RenameForm = yup.InferType<typeof schema>;
 
 export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const { t } = useTranslation();
-  const { rename } = useFileActions();
+  const { rename, isPending } = useFileActions();
 
   const {
     handleSubmit,
@@ -51,7 +51,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
         error={errors.newName?.message}
         onEnter={handleSubmit(onSubmit)}
       />
-      <DialogFooter okText={t('rename')} onOk={handleSubmit(onSubmit)} />
+      <DialogFooter okText={t('rename')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
 };

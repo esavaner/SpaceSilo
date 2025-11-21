@@ -8,7 +8,6 @@ import { router } from 'expo-router';
 import { useUserContext } from '@/providers/UserProvider';
 import { LoginDto } from '@/api/generated';
 import { Button } from '@/components/general/button';
-import { Text } from '@/components/general/text';
 import { InputController } from '@/components/controllers/input.controller';
 
 const schema = yup.object().shape({
@@ -22,7 +21,7 @@ type LoginForm = yup.InferType<typeof schema>;
 export default function LoginPage() {
   const { setUser } = useUserContext();
 
-  const { mutate: login } = useMutation({
+  const { mutate: login, isPending } = useMutation({
     mutationKey: ['login'],
     mutationFn: (data: LoginDto) => Api.auth.authControllerLogin(data),
     onSuccess: (data) => {
@@ -59,7 +58,9 @@ export default function LoginPage() {
           error={errors.password?.message}
           secureTextEntry
         />
-        <Button onPress={handleSubmit(onSubmit)}>Login</Button>
+        <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
+          Login
+        </Button>
       </View>
     </View>
   );

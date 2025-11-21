@@ -28,7 +28,7 @@ type Props = {
 
 export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
-  const { addMembers } = useGroupActions();
+  const { addMembers, isPending } = useGroupActions();
   const { query, resetSearch, results, searchUsers } = useUserSearch();
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
@@ -88,7 +88,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
       </ScrollView>
       <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
       {/* @TODO */}
-      <DialogFooter okText={t('Add')} onOk={handleSubmit} className="z-[-2]" />
+      <DialogFooter okText={t('Add')} onOk={handleSubmit} loading={isPending} className="z-[-2]" />
     </DialogContent>
   );
 };
