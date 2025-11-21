@@ -1,8 +1,9 @@
 import { ScrollView } from 'react-native';
 import React from 'react';
-import { NavigateNextIcon } from './icons';
-import { Text } from './text';
-import { Button } from './button';
+import { Text } from './general/text';
+import { Button } from './general/button';
+import { Icon } from './general/icon';
+import { ChevronRight } from 'lucide-react-native';
 
 type BreadcrumbProps = {
   pathItems: string[];
@@ -17,12 +18,14 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: Breadcru
   };
 
   return (
-    <ScrollView horizontal>
+    <ScrollView horizontal className="items-center">
       {pathItems.map((item, index) => (
-        <Button key={index} variant="text" className="mr-2" onPress={() => handleItemClick(index)}>
-          {index !== 0 && <NavigateNextIcon />}
-          <Text>{index === 0 ? homeDirName : item}</Text>
-        </Button>
+        <React.Fragment key={index}>
+          {index !== 0 && <Icon as={ChevronRight} className="mt-3 mr-1" />}
+          <Button variant="ghost" className="mr-1" onPress={() => handleItemClick(index)}>
+            <Text>{index === 0 ? homeDirName : item}</Text>
+          </Button>
+        </React.Fragment>
       ))}
     </ScrollView>
   );

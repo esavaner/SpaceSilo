@@ -7,8 +7,8 @@ import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal'
 import { Avatar } from '@/components/avatar';
 import { AddIcon } from '@/components/icons';
 import { useUi } from '@/providers/UiProvider';
-import { Text } from '@/components/text';
-import { Button } from '@/components/button';
+import { Text } from '@/components/general/text';
+import { Button } from '@/components/general/button';
 
 export default function SingleGroupPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
@@ -39,8 +39,8 @@ export default function SingleGroupPage() {
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-muted-foreground">{group.id}</Text>
       <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
-        <Text className="text-black">Add members</Text>
-        <AddIcon className="text-black" />
+        <AddIcon className="text-primary-foreground" />
+        <Text>Add members</Text>
       </Button>
       <View className="p-2 gap-2">
         {group.members.map((member) => (

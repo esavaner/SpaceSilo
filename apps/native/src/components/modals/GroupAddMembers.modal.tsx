@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Text } from '../text';
-import { Button } from '../button';
+import { Text } from '../general/text';
+import { Button } from '../general/button';
 import { DropdownItem } from '../dropdown';
 import { UserGroupIcon, CloseIcon } from '../icons';
 import { Search } from '../search';
@@ -80,7 +80,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
           <View key={member.id} className="flex-row items-center gap-2 p-2">
             <Text className="flex-1">{member.name}</Text>
             <Select options={selectOptions} onChange={(value) => {}} value={member.access} />
-            <Button onPress={() => handleDeselect(member)} variant="icon">
+            <Button onPress={() => handleDeselect(member)} variant="ghost" className="p-2">
               <CloseIcon />
             </Button>
           </View>

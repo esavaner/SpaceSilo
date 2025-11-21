@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { useState } from 'react';
-import { Text } from '../text';
-import { Button } from '../button';
+import { Text } from '../general/text';
+import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
 import { ChevronDownIcon } from '../icons';
 
@@ -30,9 +30,9 @@ export const NavigationItem = ({ label, path, onPress, icon, subitems }: Navigat
         <Text className="ml-2">{label}</Text>
         {hasSubitems && (
           <Button
-            variant="icon"
+            variant="ghost"
             onPress={() => setIsOpen(!isOpen)}
-            className={cn('transition-all transform ml-auto', !isOpen && '-rotate-90')}
+            className={cn('transition-all transform ml-auto p-2 rounded-full w-10 h-10!', !isOpen && '-rotate-90')}
           >
             <ChevronDownIcon />
           </Button>

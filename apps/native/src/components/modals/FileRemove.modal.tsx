@@ -2,7 +2,7 @@ import { FileEntity } from '@/api/generated';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useFileActions } from '@/hooks/useFileActions';
-import { Text } from '../text';
+import { Text } from '../general/text';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
 

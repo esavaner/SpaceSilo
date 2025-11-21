@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { Link } from 'expo-router';
 import { GetGroupDto } from '@/api/generated';
 import { Avatar } from './avatar';
-import { Text } from './text';
+import { Text } from './general/text';
 
 type Props = {
   groups?: GetGroupDto[];

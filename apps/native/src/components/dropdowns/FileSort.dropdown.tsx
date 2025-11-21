@@ -3,8 +3,8 @@ import { t } from 'i18next';
 import { useMemo } from 'react';
 import { Pressable } from 'react-native';
 import { useUi } from '@/providers/UiProvider';
-import { Text } from '../text';
-import { Button } from '../button';
+import { Text } from '../general/text';
+import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
 import { useDropdown } from '../dropdown';
 import { ChevronDownIcon } from '../icons';
@@ -51,7 +51,7 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
   ));
 
   return (
-    <Button ref={ref} onPress={() => openDropdown(<>{dropdownItems}</>)} variant="text" className="">
+    <Button onPress={() => openDropdown(<>{dropdownItems}</>)} variant="ghost">
       <Text>{t(`sort.${comparator.sort}`)}</Text>
       <ChevronDownIcon
         className={cn('text-foreground transition-all transform', comparator.order === 1 && 'rotate-180')}

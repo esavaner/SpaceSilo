@@ -2,7 +2,7 @@ import { ScrollView, Pressable } from 'react-native';
 import { FileEntity } from '@/api/generated';
 import { cn } from '../utils/cn';
 import { FolderIcon } from './icons';
-import { Text } from './text';
+import { Text } from './general/text';
 
 type Props = {
   items: FileEntity[];

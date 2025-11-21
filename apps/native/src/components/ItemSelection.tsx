@@ -4,8 +4,8 @@ import { FileRemoveModal } from './modals/FileRemove.modal';
 import { FileMoveCopyModal } from './modals/FileMoveCopy.modal';
 import { CloseIcon, CopyIcon, ShareIcon, TrashIcon } from './icons';
 import { useUi } from '@/providers/UiProvider';
-import { Text } from './text';
-import { Button } from './button';
+import { Text } from './general/text';
+import { Button } from './general/button';
 
 type ItemSelectionProps = {
   path: string;
@@ -27,12 +27,12 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
 
   return (
     <View className="flex-row w-full items-center gap-2">
-      <Button variant="icon" onPress={handleClearSelection}>
+      <Button variant="ghost" onPress={handleClearSelection} className="p-2">
         <CloseIcon />
       </Button>
       <Text className="mr-auto">{selectedItems.length} item(s) selected</Text>
       {items.map((item, index) => (
-        <Button key={index} onPress={item.onPress} variant="icon">
+        <Button key={index} onPress={item.onPress} variant="ghost" className="p-2">
           {item.icon}
         </Button>
       ))}

@@ -13,7 +13,7 @@ import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
 import { Checkbox } from './checkbox';
 import { cn } from '../utils/cn';
 import { FolderIcon, FileIcon } from './icons';
-import { Text } from './text';
+import { Text } from './general/text';
 
 type FileListProps = {
   className?: string;
