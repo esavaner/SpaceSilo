@@ -1,27 +1,31 @@
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { GetGroupDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { Checkbox } from '../checkbox';
 import { FilterIcon } from '../icons';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
+import { useDropdown } from './useDropdown';
 
 type Props = {
   className?: string;
 };
 
 export const FileFilterDropdown = ({ className }: Props) => {
+  const { ref, closeDropdown } = useDropdown();
+
   const { groupsPersonal, groupsShared, handleApplyGroupSelect, handleSelectGroup, selectedGroupIds } =
     useFilesContext();
 
   const handleApply = () => {
     handleApplyGroupSelect();
+    closeDropdown();
   };
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger ref={ref}>
         <Button variant="ghost" className={className}>
           <Text>Filter</Text>
           <FilterIcon />
@@ -46,9 +50,12 @@ export const FileFilterDropdown = ({ className }: Props) => {
             checked={selectedGroupIds.includes(group.id)}
           />
         ))}
-        {/* <Dropdown */}
-        {/* <ButtonGroup okText={'Apply'} onOk={handleApply} /> */}
-        <Button onPress={handleApply}>Apply</Button>
+        <View className="flex-row justify-end gap-2 mt-3">
+          <Button variant="secondary" onPress={closeDropdown}>
+            Cancel
+          </Button>
+          <Button onPress={handleApply}>Apply</Button>
+        </View>
       </DropdownMenuContent>
     </DropdownMenu>
   );
