@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 generator prismaClassGenerator {
@@ -16,7 +17,6 @@ generator prismaClassGenerator {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -33,6 +33,7 @@ model User {
   role      Role     @default(user)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
   settings  Json?
 
   photos    Photo[]
@@ -51,6 +52,7 @@ model Photo {
   metadata  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
@@ -63,6 +65,7 @@ model Album {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
@@ -75,10 +78,12 @@ model Album {
 
 
 model Group {
-  id        String   @id
+  id        String   @id @default(cuid())
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
   personal  Boolean?  @default(false)
@@ -88,7 +93,7 @@ model Group {
   photos    Photo[]
 }
 
-enum AccessLevel {
+enum GroupAccessLevel {
   admin
   edit
   read
@@ -99,7 +104,7 @@ model GroupMember {
   group     Group    @relation(fields: [groupId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  access    AccessLevel @default(read)
+  access    GroupAccessLevel @default(read)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@id([groupId, userId])
