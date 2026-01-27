@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
-import { prisma } from 'src/prisma/prisma';
+import { prisma } from '@repo/shared/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';

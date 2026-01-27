@@ -1,17 +1,30 @@
 {
   "name": "@repo/shared",
   "version": "0.0.1",
+  "type": "module",
   "exports": {
     ".": "./src/index.tsx",
+    "./prisma": "./src/prisma/prisma.ts",
     "./eslint": "./eslint.shared.mjs",
     "./tailwind": "./tailwind.config.ts"
   },
   "scripts": {
     "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
-    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix"
+    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev",
+    "postinstall": "prisma generate"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@prisma/adapter-pg": "7.3.0",
+    "@prisma/client": "7.3.0",
+    "dotenv": "17.2.3",
+    "pg": "8.17.2"
+  },
   "devDependencies": {
+    "prisma": "7.3.0",
     "tailwindcss": "^4.1.18"
   }
 }
