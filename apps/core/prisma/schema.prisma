@@ -9,11 +9,11 @@ generator client {
   output   = "../generated/prisma"
 }
 
-generator prismaClassGenerator {
-  provider = "prisma-class-generator"
-  separateRelationFields = true
-  dryRun = false
-}
+// generator prismaClassGenerator {
+//   provider = "prisma-class-generator"
+//   separateRelationFields = true
+//   dryRun = false
+// }
 
 datasource db {
   provider = "postgresql"
