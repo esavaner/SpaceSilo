@@ -1,7 +1,13 @@
-import { Role } from '@prisma/client';
+// import { Role } from '@prisma/client';
+
+// export type TokenPayload = {
+//   sub: string;
+//   email: string;
+//   role: Role;
+// };
 
 export type TokenPayload = {
   sub: string;
   email: string;
-  role: Role;
+  role: any;
 };

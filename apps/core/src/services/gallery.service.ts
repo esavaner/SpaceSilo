@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { CreatePhotoDto } from 'src/_dto/photo.dto';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
-import { PrismaService } from 'src/common/prisma.service';
+import { prisma } from 'src/prisma/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -13,12 +13,12 @@ const THUMBNAIL_HEIGHT = 200;
 
 @Injectable()
 export class GalleryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   async create(createPhotoDto: CreatePhotoDto, file: Express.Multer.File, user: TokenPayload) {
     console.log(file);
     const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
-    const existingPhoto = await this.prisma.photo.findFirst({
+    const existingPhoto = await prisma.photo.findFirst({
       where: { hash },
       select: { id: true },
     });
@@ -34,7 +34,7 @@ export class GalleryService {
     const aspectRatio = metadata.width / metadata.height;
     await sharpFile.resize(Math.floor(aspectRatio * THUMBNAIL_HEIGHT), THUMBNAIL_HEIGHT).toFile(thumbnailPath);
 
-    const photo = await this.prisma.photo.create({
+    const photo = await prisma.photo.create({
       data: {
         url: '',
         thumbnailPath,
@@ -49,11 +49,11 @@ export class GalleryService {
   }
 
   async findAll() {
-    return await this.prisma.photo.findMany();
+    return await prisma.photo.findMany();
   }
 
   async findOne(id: string) {
-    return await this.prisma.photo.findUnique({
+    return await prisma.photo.findUnique({
       where: { id },
     });
   }
@@ -63,13 +63,13 @@ export class GalleryService {
   // }
 
   async remove(id: string) {
-    return await this.prisma.photo.delete({
+    return await prisma.photo.delete({
       where: { id },
     });
   }
 
   async findThumbnail(id: string) {
-    const photo = await this.prisma.photo.findUnique({
+    const photo = await prisma.photo.findUnique({
       where: { id },
     });
     if (!photo || !photo.thumbnailPath || !fs.existsSync(photo.thumbnailPath)) {

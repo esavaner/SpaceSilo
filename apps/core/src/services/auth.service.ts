@@ -13,8 +13,9 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByEmail(loginDto.email);
+  // async login(loginDto: LoginDto) {
+  async login(loginDto: any) {
+    const user: any = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('User does not exists');
     }
@@ -35,14 +36,15 @@ export class AuthService {
     };
   }
 
-  async register(registerDto: RegisterDto) {
+  // async register(registerDto: RegisterDto) {
+  async register(registerDto: any) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User already exists');
     }
     const salt = await genSalt();
     const hashedPassword = await hash(registerDto.password, salt);
-    const user = await this.usersService.create({
+    const user: any = await this.usersService.create({
       ...registerDto,
       password: hashedPassword,
       role: 'user',
