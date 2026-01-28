@@ -9,12 +9,12 @@ import {
   CopyFileDto,
   FileEntity,
   FindFileDto,
-} from 'src/_dto/files.dto';
+} from '@/_dto/files.dto.js';
 import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FilesService } from 'src/services/files.service';
-import { type TokenPayload } from 'src/common/types';
-import { User } from 'src/decorators/user.decorator';
+import { FilesService } from '@/services/files.service.js';
+import { type TokenPayload } from '@/common/types.js';
+import { User } from '@/decorators/user.decorator.js';
 
 @ApiTags('files')
 @Controller('files')

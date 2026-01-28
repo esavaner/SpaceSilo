@@ -4,8 +4,8 @@ import { prisma } from '@repo/shared/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { CreatePhotoDto } from 'src/_dto/photo.dto';
-import { TokenPayload } from 'src/common/types';
+import { CreatePhotoDto } from '@/_dto/photo.dto.js';
+import { TokenPayload } from '@/common/types.js';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const sharp = require('sharp');
 

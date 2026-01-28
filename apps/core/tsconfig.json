@@ -5,12 +5,12 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "declaration": true,
+    // "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

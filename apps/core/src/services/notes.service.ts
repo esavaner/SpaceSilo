@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateNoteDto, UpdateNoteDto } from 'src/_dto/notes.dto';
+import { CreateNoteDto, UpdateNoteDto } from '@/_dto/notes.dto.js';
 
 @Injectable()
 export class NotesService {

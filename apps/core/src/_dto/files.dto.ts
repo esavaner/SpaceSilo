@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationQueryDto } from 'src/common/pagination.dto';
+import { PaginationQueryDto } from '@/common/pagination.dto.js';
 
 /* ------------------------- Requests -------------------------- */
 

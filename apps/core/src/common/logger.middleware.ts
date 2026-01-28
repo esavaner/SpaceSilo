@@ -1,5 +1,6 @@
-import { Logger, NestMiddleware } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
+import type { NestMiddleware } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
+import type { NextFunction, Request, Response } from 'express';
 
 export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');

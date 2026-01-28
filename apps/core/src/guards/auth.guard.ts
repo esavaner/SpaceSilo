@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthType } from 'src/decorators/auth.decorator';
-import { AccessGuard } from './access.guard';
+import { AuthType } from '../decorators/auth.decorator.js';
+import { AccessGuard } from './access.guard.js';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

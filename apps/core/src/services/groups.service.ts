@@ -6,11 +6,11 @@ import {
   GetGroupDto,
   RemoveMemberDto,
   UpdateMemberDto,
-} from 'src/_dto/group.dto';
-import { prisma } from '@repo/shared/prisma';
+} from '@/_dto/group.dto.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TokenPayload } from 'src/common/types';
+import { TokenPayload } from '@/common/types.js';
+import { PrismaService } from '@/common/prisma.service.js';
 
 @Injectable()
 export class GroupsService {
@@ -26,10 +26,10 @@ export class GroupsService {
     },
   };
 
-  constructor() {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findGroupMember(groupId: string, user: TokenPayload) {
-    const member = await prisma.groupMember.findFirst({
+    const member = await this.prisma.groupMember.findFirst({
       // find a group by id where the user is a member or the owner
       where: {
         groupId,
@@ -44,13 +44,13 @@ export class GroupsService {
 
   // async create(dto: CreateGroupDto, userId: string): Promise<GetGroupDto> {
   async create(dto: any, userId: string): Promise<GetGroupDto> {
-    const existingGroup = await prisma.group.findUnique({ where: { id: dto.id } });
+    const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
 
     if (existingGroup) {
       throw new ForbiddenException('Group with this ID already exists');
     }
 
-    const res = await prisma.group.create({
+    const res = await this.prisma.group.create({
       data: {
         ownerId: userId,
         name: dto.name,
@@ -74,13 +74,13 @@ export class GroupsService {
     if (user.role !== 'admin') {
       throw new UnauthorizedException('You are not allowed to access this resource');
     }
-    return await prisma.group.findMany({
+    return await this.prisma.group.findMany({
       ...this.options,
     });
   }
 
   async findUserGroups(user: TokenPayload) {
-    return await prisma.group.findMany({
+    return await this.prisma.group.findMany({
       where: {
         OR: [{ members: { some: { userId: user.sub } } }, { ownerId: user.sub }],
       },
@@ -89,7 +89,7 @@ export class GroupsService {
   }
 
   async findOne(id: string): Promise<GetGroupDto> {
-    return await prisma.group.findUnique({
+    return await this.prisma.group.findUnique({
       where: { id },
       ...this.options,
     });
@@ -97,7 +97,7 @@ export class GroupsService {
 
   // async addMember(id: string, dto: AddMemberDto): Promise<GetGroupDto> {
   async addMember(id: string, dto: any) {
-    return await prisma.group.update({
+    return await this.prisma.group.update({
       where: { id },
       data: {
         members: {
@@ -110,7 +110,7 @@ export class GroupsService {
 
   // async addMembers(id: string, dto: AddMembersDto): Promise<GetGroupDto> {
   async addMembers(id: string, dto: any) {
-    return await prisma.group.update({
+    return await this.prisma.group.update({
       where: { id },
       data: {
         members: {
@@ -123,7 +123,7 @@ export class GroupsService {
 
   // async removeMember(id: string, dto: RemoveMemberDto): Promise<GetGroupDto> {
   async removeMember(id: string, dto: any) {
-    return await prisma.group.update({
+    return await this.prisma.group.update({
       where: { id },
       data: {
         members: {
@@ -136,7 +136,7 @@ export class GroupsService {
 
   // async updateMember(id: string, dto: UpdateMemberDto): Promise<GetGroupDto> {
   async updateMember(id: string, dto: any) {
-    return await prisma.group.update({
+    return await this.prisma.group.update({
       where: { id },
       data: {
         members: {
@@ -148,7 +148,7 @@ export class GroupsService {
   }
 
   async remove(id: string): Promise<GetGroupDto> {
-    return await prisma.group.delete({
+    return await this.prisma.group.delete({
       where: { id },
       ...this.options,
     });
