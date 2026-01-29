@@ -8,7 +8,6 @@ import {
   UpdateMemberDto,
 } from 'src/_dto/group.dto';
 import { PrismaService } from '@/common/prisma.service';
-import { prisma } from '@repo/shared/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TokenPayload } from 'src/common/types';

@@ -5,7 +5,7 @@ import pluginReact from 'eslint-plugin-react';
 
 export default (ctx) => [
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    files: ['src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     plugins: { js },
     extends: ['js/recommended'],
     languageOptions: {
@@ -21,7 +21,7 @@ export default (ctx) => [
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   {
-    files: ['**/*.{js,ts,jsx,tsx}'],
+    files: ['src/**/*.{js,ts,jsx,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [

@@ -15,5 +15,6 @@
     "module": "esnext",
     "moduleResolution": "bundler"
   },
-  "exclude": ["dist", "build", "node_modules"]
+  "exclude": ["dist", "build", "node_modules"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]
 }

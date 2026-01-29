@@ -1,13 +1,15 @@
 {
   "name": "@repo/shared",
   "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": "./src/index.tsx",
-    "./prisma": "./src/prisma/prisma.ts",
     "./eslint": "./eslint.shared.mjs",
     "./tailwind": "./tailwind.config.ts"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
     "db:generate": "prisma generate",
