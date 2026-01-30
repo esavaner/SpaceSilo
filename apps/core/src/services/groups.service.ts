@@ -6,11 +6,11 @@ import {
   GetGroupDto,
   RemoveMemberDto,
   UpdateMemberDto,
-} from 'src/_dto/group.dto';
-import { PrismaService } from '@/common/prisma.service';
+} from '@/_dto/group.dto.js';
+import { PrismaService } from '@/common/prisma.service.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TokenPayload } from 'src/common/types';
+import { TokenPayload } from '@/common/types.js';
 
 @Injectable()
 export class GroupsService {

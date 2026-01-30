@@ -1,13 +1,12 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
-import { CreatePhotoDto } from 'src/_dto/photo.dto';
+import { CreatePhotoDto } from '@/_dto/photo.dto.js';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
-import { PrismaService } from '@/common/prisma.service';
+import { PrismaService } from '@/common/prisma.service.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { TokenPayload } from 'src/common/types';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const sharp = require('sharp');
+import { TokenPayload } from '@/common/types.js';
+import sharp from 'sharp';
 
 const THUMBNAIL_HEIGHT = 200;
 

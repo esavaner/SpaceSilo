@@ -1,10 +1,10 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/services/users.service';
+import { UsersService } from '@/services/users.service.js';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from 'src/_dto/login.dto';
-import { RegisterDto } from 'src/_dto/register.dto';
+import { LoginDto } from '@/_dto/login.dto.js';
+import { RegisterDto } from '@/_dto/register.dto.js';
 import { compare, genSalt, hash } from 'bcrypt';
-import { TokenPayload } from 'src/common/types';
+import { TokenPayload } from '@/common/types.js';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +38,7 @@ export class AuthService {
 
   // async register(registerDto: RegisterDto) {
   async register(registerDto: any) {
+    console.log('Register DTO:', registerDto);
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User already exists');

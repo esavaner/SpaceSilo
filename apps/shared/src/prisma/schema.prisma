@@ -7,7 +7,6 @@
 generator client {
   provider = "prisma-client"
   output   = "./generated"
-  moduleFormat    = "cjs"
 }
 
 // generator prismaClassGenerator {

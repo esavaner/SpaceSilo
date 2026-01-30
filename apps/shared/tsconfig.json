@@ -9,11 +9,14 @@
     "isolatedModules": true,
     "strict": true,
     "noImplicitOverride": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "src",
+    "outDir": "dist",
     "module": "esnext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false
   },
   "exclude": ["dist", "build", "node_modules"],
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]

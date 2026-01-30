@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"],
-      "@repo/shared": ["../shared/src/index.tsx"]
+      "@/*": ["./*"]
     },
     "module": "nodenext",
     "moduleResolution": "nodenext",
