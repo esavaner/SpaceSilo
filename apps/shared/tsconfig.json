@@ -12,12 +12,17 @@
     "jsx": "react-jsx",
     "baseUrl": "src",
     "outDir": "dist",
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "incremental": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "noUncheckedIndexedAccess": true,
+    "checkJs": true,
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": true
   },
-  "exclude": ["dist", "build", "node_modules"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]
+  "exclude": ["node_modules"],
+  "include": ["src"]
 }
