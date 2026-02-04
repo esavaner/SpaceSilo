@@ -3,6 +3,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:core": "turbo run build --filter=@repo/shared --filter=@repo/core",
+    "start:core": "pnpm build:core && pnpm --filter @repo/core start",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
     "lint": "turbo run lint"
@@ -19,6 +21,7 @@
     "typescript-eslint": "^8.53.1"
   },
   "name": "root",
+  "packageManager": "pnpm@10.0.0",
   "pnpm": {
     "overrides": {
       "lightningcss": "1.30.2"
