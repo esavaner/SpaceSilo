@@ -9,14 +9,14 @@ import {
   CopyFileDto,
   FileEntity,
   FindFileDto,
-} from '@/_dto/files.dto.js';
+} from '@/_dto/files.dto';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
 // import mime from 'mime';
-import { TokenPayload } from '@/common/types.js';
-import { GroupsService } from './groups.service.js';
+import { TokenPayload } from '@/common/types';
+import { GroupsService } from './groups.service';
 
 @Injectable()
 export class FilesService {

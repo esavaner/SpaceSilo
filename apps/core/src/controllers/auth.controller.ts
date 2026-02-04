@@ -1,11 +1,11 @@
 import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
-import { LoginDto } from '@/_dto/login.dto.js';
+import { LoginDto } from '@/_dto/login.dto';
 import { type Response } from 'express';
-import { Auth, AuthType } from '@/decorators/auth.decorator.js';
-import { RegisterDto } from '@/_dto/register.dto.js';
+import { Auth, AuthType } from '@/decorators/auth.decorator';
+import { RegisterDto } from '@/_dto/register.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthService } from '@/services/auth.service.js';
-import { SearchUserDto } from '@/_dto/user.dto.js';
+import { AuthService } from '@/services/auth.service';
+import { SearchUserDto } from '@/_dto/user.dto';
 
 @ApiTags('auth')
 @Auth(AuthType.None)

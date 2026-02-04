@@ -2,10 +2,12 @@
   "name": "@repo/shared",
   "version": "0.0.1",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./src/index.tsx"
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
     "./eslint": "./eslint.shared.mjs",
     "./tailwind": "./tailwind.config.ts"

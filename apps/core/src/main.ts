@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
-import { HttpExceptionFilter } from './common/http-exception.filter.js';
+import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 // import { PrismaModel } from './_gen/prisma-class';
 import cookieParser from 'cookie-parser';

@@ -9,13 +9,13 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { CreatePhotoDto } from '@/_dto/photo.dto.js';
+import { CreatePhotoDto } from '@/_dto/photo.dto';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { GalleryService } from '@/services/gallery.service.js';
-import { User } from '@/decorators/user.decorator.js';
-import { type TokenPayload } from '@/common/types.js';
+import { GalleryService } from '@/services/gallery.service';
+import { User } from '@/decorators/user.decorator';
+import { type TokenPayload } from '@/common/types';
 
 @ApiTags('gallery')
 @Controller('gallery')

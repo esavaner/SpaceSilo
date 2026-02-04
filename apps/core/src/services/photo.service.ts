@@ -1,11 +1,11 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
-import { PrismaService } from '@/common/prisma.service.js';
+import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { CreatePhotoDto } from '@/_dto/photo.dto.js';
-import { TokenPayload } from '@/common/types.js';
+import { CreatePhotoDto } from '@/_dto/photo.dto';
+import { TokenPayload } from '@/common/types';
 import sharp from 'sharp';
 
 const THUMBNAIL_HEIGHT = 200;

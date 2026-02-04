@@ -11,11 +11,11 @@ import {
 } from '@nestjs/common';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreatePhotoDto } from '@/_dto/photo.dto.js';
+import { CreatePhotoDto } from '@/_dto/photo.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { PhotoService } from '@/services/photo.service.js';
-import { type TokenPayload } from '@/common/types.js';
-import { User } from '@/decorators/user.decorator.js';
+import { PhotoService } from '@/services/photo.service';
+import { type TokenPayload } from '@/common/types';
+import { User } from '@/decorators/user.decorator';
 
 @ApiTags('photo')
 @Controller('gallery/photo')

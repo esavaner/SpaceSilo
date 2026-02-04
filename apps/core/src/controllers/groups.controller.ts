@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { GroupsService } from '@/services/groups.service.js';
+import { GroupsService } from '@/services/groups.service';
 import {
   AddMemberDto,
   AddMembersDto,
@@ -7,11 +7,11 @@ import {
   GetGroupDto,
   RemoveMemberDto,
   UpdateMemberDto,
-} from '@/_dto/group.dto.js';
+} from '@/_dto/group.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { type TokenPayload } from '@/common/types.js';
-import { User } from '@/decorators/user.decorator.js';
-import { Roles } from '@/decorators/roles.decorator.js';
+import { type TokenPayload } from '@/common/types';
+import { User } from '@/decorators/user.decorator';
+import { Roles } from '@/decorators/roles.decorator';
 
 @ApiTags('groups')
 @Controller('groups')

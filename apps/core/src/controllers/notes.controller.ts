@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CreateNoteDto, UpdateNoteDto } from '@/_dto/notes.dto.js';
+import { CreateNoteDto, UpdateNoteDto } from '@/_dto/notes.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { NotesService } from '@/services/notes.service.js';
+import { NotesService } from '@/services/notes.service';
 
 @ApiTags('notes')
 @Controller('notes')

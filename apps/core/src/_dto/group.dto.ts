@@ -1,6 +1,6 @@
 // import { IntersectionType, OmitType, PartialType, PickType } from '@nestjs/swagger';
 // import { PrismaModel } from '@/_gen/prisma-class';
-// import { SearchUserDto } from './user.dto.js';
+// import { SearchUserDto } from './user.dto';
 
 // /* ------------------------- Requests -------------------------- */
 
@@ -32,7 +32,7 @@
 //   members: GroupMemberWithUser[];
 // }
 import { IntersectionType, OmitType, PartialType, PickType } from '@nestjs/swagger';
-import { SearchUserDto } from './user.dto.js';
+import { SearchUserDto } from './user.dto';
 
 /* ------------------------- Requests -------------------------- */
 

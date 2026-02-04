@@ -2,12 +2,11 @@
   "name": "@repo/core",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "swc src -d build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node build/src/main.js",
-    "dev": "tsx watch src/main.ts",
+    "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
     "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
