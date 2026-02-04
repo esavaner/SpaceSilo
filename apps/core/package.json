@@ -2,11 +2,12 @@
   "name": "@repo/core",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "swc src -d build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node build/src/main.js",
-    "dev": "nest start --watch",
+    "dev": "NODE_OPTIONS=\"--loader @swc-node/register/esm --experimental-specifier-resolution=node\" nest start --watch",
     "debug": "nest start --debug --watch",
     "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
@@ -59,7 +60,8 @@
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "@swc-node/register": "^1.9.2"
   },
   "jest": {
     "moduleFileExtensions": [
