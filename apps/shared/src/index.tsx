@@ -1,1 +1,7 @@
 export * from './prisma/prisma';
+export * from './dto/group.dto';
+export * from './dto/group-member.dto';
+export * from './dto/user.dto';
+export * from './dto/album.dto';
+export * from './dto/photo.dto';
+export * from './dto/files.dto';

@@ -22,21 +22,4 @@
 
 // export class SearchUserDto extends OmitType(FixUserSettings, ['password']) {}
 
-import { ApiProperty, ApiPropertyOptional, OmitType, PartialType, PickType } from '@nestjs/swagger';
-
-class FixUserSettings {}
-
-/* ------------------------- Requests -------------------------- */
-
-export class CreateUserDto extends FixUserSettings {
-  @ApiProperty({ type: String })
-  groupId: string;
-}
-
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
-
-/* ------------------------- Responses ------------------------- */
-
-export class GetUserDto extends FixUserSettings {}
-
-export class SearchUserDto extends FixUserSettings {}
+export {};

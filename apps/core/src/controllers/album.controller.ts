@@ -1,15 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { CreateAlbumDto, UpdateAlbumDto } from '@/_dto/album.dto';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { CreateAlbumRequest, UpdateAlbumRequest } from '@repo/shared';
 import { AlbumService } from '@/services/album.service';
 
-@ApiTags('album')
 @Controller('gallery/album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto) {
+  create(@Body() createAlbumDto: CreateAlbumRequest) {
     return this.albumService.create(createAlbumDto);
   }
 
@@ -24,7 +22,7 @@ export class AlbumController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
+  update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumRequest) {
     return this.albumService.update(+id, updateAlbumDto);
   }
 

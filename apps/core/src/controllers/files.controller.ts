@@ -1,74 +1,69 @@
-import { Controller, Get, Post, Body, Delete, UseInterceptors, UploadedFile, Query, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import {
-  CreateFileDto,
-  FindAllFilesDto,
-  DownloadFileDto,
-  RemoveFileDto,
-  MoveFileDto,
-  CreateFolderDto,
-  CopyFileDto,
-  FileEntity,
-  FindFileDto,
-} from '@/_dto/files.dto';
-import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+  CopyFileRequest,
+  CreateFileRequest,
+  CreateFolderRequest,
+  DownloadFileRequest,
+  FileActionResponse,
+  FileResponse,
+  FindAllFilesRequest,
+  FindFileRequest,
+  MoveFileRequest,
+  RemoveFileRequest,
+} from '@repo/shared';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from '@/services/files.service';
 import { type TokenPayload } from '@/common/types';
 import { User } from '@/decorators/user.decorator';
 
-@ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post()
-  @ApiConsumes('multipart/form-data')
-  @ApiOkResponse({ description: 'File created successfully' })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateFileDto, @User() user: TokenPayload) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: CreateFileRequest,
+    @User() user: TokenPayload
+  ): Promise<FileActionResponse> {
     const result = await this.filesService.createFile(dto, file, user);
     return result;
   }
 
   @Post('/folder')
-  @ApiOkResponse({ description: 'Folder created successfully' })
-  async createFolder(@Body() dto: CreateFolderDto, @User() user: TokenPayload) {
+  async createFolder(@Body() dto: CreateFolderRequest, @User() user: TokenPayload): Promise<FileActionResponse> {
     const result = await this.filesService.createFolder(dto, user);
     return result;
   }
 
   @Get('/all')
-  @ApiOkResponse({ type: FileEntity, isArray: true })
-  findAll(@Query() dto: FindAllFilesDto, @User() user: TokenPayload) {
+  findAll(@Query() dto: FindAllFilesRequest, @User() user: TokenPayload): Promise<FileResponse[]> {
     return this.filesService.findAll(dto, user);
   }
 
   @Get()
-  @ApiOkResponse({ type: FileEntity })
-  find(@Query() dto: FindFileDto, @User() user: TokenPayload) {
+  find(@Query() dto: FindFileRequest, @User() user: TokenPayload): Promise<FileResponse> {
     return this.filesService.findFile(dto, user);
   }
 
   @Get('/download')
-  download(@Query() dto: DownloadFileDto, @User() user: TokenPayload) {
+  download(@Query() dto: DownloadFileRequest, @User() user: TokenPayload) {
     return this.filesService.download(dto, user);
   }
 
   @Patch()
-  @ApiOkResponse({ description: 'File moved successfully' })
-  move(@Body() dto: MoveFileDto, @User() user: TokenPayload) {
+  move(@Body() dto: MoveFileRequest, @User() user: TokenPayload): Promise<FileActionResponse> {
     return this.filesService.move(dto, user);
   }
 
   @Post('/copy')
-  @ApiOkResponse({ description: 'File copied successfully' })
-  copy(@Body() dto: CopyFileDto, @User() user: TokenPayload) {
+  copy(@Body() dto: CopyFileRequest, @User() user: TokenPayload): Promise<FileActionResponse> {
     return this.filesService.copy(dto, user);
   }
 
   @Delete()
-  @ApiOkResponse({ description: 'File removed successfully' })
-  remove(@Body() dto: RemoveFileDto, @User() user: TokenPayload) {
+  remove(@Body() dto: RemoveFileRequest, @User() user: TokenPayload): Promise<FileActionResponse> {
     return this.filesService.remove(dto, user);
   }
 }

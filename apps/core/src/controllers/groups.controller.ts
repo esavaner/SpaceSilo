@@ -1,75 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { GroupsService } from '@/services/groups.service';
 import {
-  AddMemberDto,
-  AddMembersDto,
-  CreateGroupDto,
-  GetGroupDto,
-  RemoveMemberDto,
-  UpdateMemberDto,
-} from '@/_dto/group.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+  AddGroupMemberRequest,
+  AddGroupMembersRequest,
+  CreateGroupRequest,
+  GroupResponse,
+  RemoveGroupMemberRequest,
+  UpdateGroupMemberRequest,
+} from '@repo/shared';
 import { type TokenPayload } from '@/common/types';
 import { User } from '@/decorators/user.decorator';
 import { Roles } from '@/decorators/roles.decorator';
 
-@ApiTags('groups')
 @Controller('groups')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
-  @ApiOkResponse({ type: GetGroupDto })
-  create(@Body() dto: CreateGroupDto, @User() user: TokenPayload) {
+  create(@Body() dto: CreateGroupRequest, @User() user: TokenPayload): Promise<GroupResponse> {
     return this.groupsService.create(dto, user.sub);
   }
 
   @Patch(':id/add_member')
-  @ApiOkResponse({ type: GetGroupDto })
-  addMember(@Param('id') id: string, @Body() dto: AddMemberDto) {
+  addMember(@Param('id') id: string, @Body() dto: AddGroupMemberRequest): Promise<GroupResponse> {
     return this.groupsService.addMember(id, dto);
   }
 
   @Patch(':id/add_members')
-  @ApiOkResponse({ type: GetGroupDto })
-  addMembers(@Param('id') id: string, @Body() dto: AddMembersDto) {
+  addMembers(@Param('id') id: string, @Body() dto: AddGroupMembersRequest): Promise<GroupResponse> {
     return this.groupsService.addMembers(id, dto);
   }
 
   @Patch(':id/remove_member')
-  @ApiOkResponse({ type: GetGroupDto })
-  removeMember(@Param('id') id: string, @Body() dto: RemoveMemberDto) {
+  removeMember(@Param('id') id: string, @Body() dto: RemoveGroupMemberRequest): Promise<GroupResponse> {
     return this.groupsService.removeMember(id, dto);
   }
 
   @Patch(':id/update_member')
-  @ApiOkResponse({ type: GetGroupDto })
-  updateMember(@Param('id') id: string, @Body() dto: UpdateMemberDto) {
+  updateMember(@Param('id') id: string, @Body() dto: UpdateGroupMemberRequest): Promise<GroupResponse> {
     return this.groupsService.updateMember(id, dto);
   }
 
   @Get()
-  @ApiOkResponse({ type: GetGroupDto, isArray: true })
-  findUserGroups(@User() user: TokenPayload) {
+  findUserGroups(@User() user: TokenPayload): Promise<GroupResponse[]> {
     return this.groupsService.findUserGroups(user);
   }
 
   @Get('/all')
-  @ApiOkResponse({ type: GetGroupDto, isArray: true })
   @Roles('admin', 'owner')
-  findAll(@User() user: TokenPayload) {
+  findAll(@User() user: TokenPayload): Promise<GroupResponse[]> {
     return this.groupsService.findAll(user);
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: GetGroupDto })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<GroupResponse> {
     return this.groupsService.findOne(id);
   }
 
   @Delete(':id')
-  @ApiOkResponse({ type: GetGroupDto })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<GroupResponse> {
     return this.groupsService.remove(id);
   }
 }

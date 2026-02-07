@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
-import { CreatePhotoDto } from '@/_dto/photo.dto';
+import { CreatePhotoRequest } from '@repo/shared';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
@@ -14,7 +14,7 @@ const THUMBNAIL_HEIGHT = 200;
 export class GalleryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createPhotoDto: CreatePhotoDto, file: Express.Multer.File, user: TokenPayload) {
+  async create(createPhotoDto: CreatePhotoRequest, file: Express.Multer.File, user: TokenPayload) {
     console.log(file);
     const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
     const existingPhoto = await this.prisma.photo.findFirst({

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAlbumDto, UpdateAlbumDto } from '@/_dto/album.dto';
+import { CreateAlbumRequest, UpdateAlbumRequest } from '@repo/shared';
 
 @Injectable()
 export class AlbumService {
-  create(createAlbumDto: CreateAlbumDto) {
+  create(createAlbumDto: CreateAlbumRequest) {
     return 'This action adds a new album';
   }
 
@@ -15,7 +15,7 @@ export class AlbumService {
     return `This action returns a #${id} album`;
   }
 
-  update(id: number, updateAlbumDto: UpdateAlbumDto) {
+  update(id: number, updateAlbumDto: UpdateAlbumRequest) {
     return `This action updates a #${id} album`;
   }
 

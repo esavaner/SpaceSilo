@@ -4,7 +4,7 @@ import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { CreatePhotoDto } from '@/_dto/photo.dto';
+import { CreatePhotoRequest } from '@repo/shared';
 import { TokenPayload } from '@/common/types';
 import sharp from 'sharp';
 
@@ -14,7 +14,7 @@ const THUMBNAIL_HEIGHT = 200;
 export class PhotoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createPhotoDto: CreatePhotoDto, file: Express.Multer.File, user: TokenPayload) {
+  async create(createPhotoDto: CreatePhotoRequest, file: Express.Multer.File, user: TokenPayload) {
     console.log(file);
     const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
     const existingPhoto = await this.prisma.photo.findFirst({

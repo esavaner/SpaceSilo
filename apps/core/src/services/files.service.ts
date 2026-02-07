@@ -1,15 +1,16 @@
 import { Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
 import {
-  CreateFileDto,
-  FindAllFilesDto,
-  DownloadFileDto,
-  RemoveFileDto,
-  MoveFileDto,
-  CreateFolderDto,
-  CopyFileDto,
-  FileEntity,
-  FindFileDto,
-} from '@/_dto/files.dto';
+  CopyFileRequest,
+  CreateFileRequest,
+  CreateFolderRequest,
+  DownloadFileRequest,
+  FileActionResponse,
+  FileResponse,
+  FindAllFilesRequest,
+  FindFileRequest,
+  MoveFileRequest,
+  RemoveFileRequest,
+} from '@repo/shared';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
@@ -31,7 +32,7 @@ export class FilesService {
     return groupMember;
   }
 
-  async createFile(dto: CreateFileDto, file: Express.Multer.File, user: TokenPayload) {
+  async createFile(dto: CreateFileRequest, file: Express.Multer.File, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
     const fileDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
@@ -42,7 +43,7 @@ export class FilesService {
     return { message: 'File created successfully', filePath };
   }
 
-  async createFolder(dto: CreateFolderDto, user: TokenPayload) {
+  async createFolder(dto: CreateFolderRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
     const folderDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(folderDir)) {
@@ -51,11 +52,11 @@ export class FilesService {
     return { message: 'Folder created successfully', folderDir };
   }
 
-  async findAll(dto: FindAllFilesDto, user: TokenPayload): Promise<FileEntity[]> {
-    if (!dto.groupIds) {
+  async findAll(dto: FindAllFilesRequest, user: TokenPayload): Promise<FileResponse[]> {
+    if (!dto.groupIds?.length) {
       return [];
     }
-    const files: FileEntity[] = [];
+    const files: FileResponse[] = [];
     const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
     for (const groupId of ids) {
       this.groupCheck(groupId, user);
@@ -92,7 +93,7 @@ export class FilesService {
     return files;
   }
 
-  async findFile(dto: FindFileDto, user: TokenPayload): Promise<FileEntity> {
+  async findFile(dto: FindFileRequest, user: TokenPayload): Promise<FileResponse> {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
@@ -117,7 +118,7 @@ export class FilesService {
     };
   }
 
-  async download(dto: DownloadFileDto, user: TokenPayload) {
+  async download(dto: DownloadFileRequest, user: TokenPayload) {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
@@ -135,7 +136,7 @@ export class FilesService {
     }
   }
 
-  async move(dto: MoveFileDto, user: TokenPayload) {
+  async move(dto: MoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
@@ -155,7 +156,7 @@ export class FilesService {
     }
   }
 
-  async remove(dto: RemoveFileDto, user: TokenPayload) {
+  async remove(dto: RemoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
@@ -170,7 +171,7 @@ export class FilesService {
     }
   }
 
-  async copy(dto: CopyFileDto, user: TokenPayload) {
+  async copy(dto: CopyFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);

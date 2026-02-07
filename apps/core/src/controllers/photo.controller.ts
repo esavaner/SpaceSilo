@@ -1,23 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  // Patch,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 // import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreatePhotoDto } from '@/_dto/photo.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { CreatePhotoRequest } from '@repo/shared';
 import { PhotoService } from '@/services/photo.service';
 import { type TokenPayload } from '@/common/types';
 import { User } from '@/decorators/user.decorator';
 
-@ApiTags('photo')
 @Controller('gallery/photo')
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
@@ -26,7 +14,7 @@ export class PhotoController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body() createPhotoDto: CreatePhotoDto,
+    @Body() createPhotoDto: CreatePhotoRequest,
     @User() user: TokenPayload
   ) {
     const photo = await this.photoService.create(createPhotoDto, file, user);
