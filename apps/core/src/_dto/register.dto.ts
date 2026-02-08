@@ -1,1 +1,1 @@
-export class RegisterDto {}
+export {};

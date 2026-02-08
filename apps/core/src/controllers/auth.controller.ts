@@ -1,10 +1,8 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { LoginDto } from '@/_dto/login.dto';
+import { LoginRequest, RegisterRequest } from '@repo/shared';
 import { type Response } from 'express';
 import { Auth, AuthType } from '@/decorators/auth.decorator';
-import { RegisterDto } from '@/_dto/register.dto';
 import { AuthService } from '@/services/auth.service';
-import { UserResponse } from '@repo/shared';
 
 @Auth(AuthType.None)
 @Controller('auth')
@@ -12,7 +10,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+  async login(@Body() loginDto: LoginRequest, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
     res.cookie('jwt', result.access_token, {
       httpOnly: true, //@TODO
@@ -29,7 +27,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
+  async register(@Body() registerDto: RegisterRequest, @Res() res: Response) {
     const result = await this.authService.register(registerDto);
     res.cookie('jwt', result.access_token, {
       httpOnly: true, // @TODO

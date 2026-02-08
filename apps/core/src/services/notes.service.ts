@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateNoteDto, UpdateNoteDto } from '@/_dto/notes.dto';
+import { CreateNoteRequest, UpdateNoteRequest } from '@repo/shared';
 
 @Injectable()
 export class NotesService {
-  create(createNoteDto: CreateNoteDto) {
+  create(createNoteDto: CreateNoteRequest) {
     return 'This action adds a new note';
   }
 
@@ -15,7 +15,7 @@ export class NotesService {
     return `This action returns a #${id} note`;
   }
 
-  update(id: number, updateNoteDto: UpdateNoteDto) {
+  update(id: number, updateNoteDto: UpdateNoteRequest) {
     return `This action updates a #${id} note`;
   }
 

@@ -1,8 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '@/services/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from '@/_dto/login.dto';
-import { RegisterDto } from '@/_dto/register.dto';
+import { AuthResponse, LoginRequest, RegisterRequest } from '@repo/shared';
 import { compare, genSalt, hash } from 'bcrypt';
 import { TokenPayload } from '@/common/types';
 
@@ -13,8 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  // async login(loginDto: LoginDto) {
-  async login(loginDto: any) {
+  async login(loginDto: LoginRequest): Promise<AuthResponse> {
     const user: any = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('User does not exists');
@@ -36,8 +34,7 @@ export class AuthService {
     };
   }
 
-  // async register(registerDto: RegisterDto) {
-  async register(registerDto: any) {
+  async register(registerDto: RegisterRequest): Promise<AuthResponse> {
     console.log('Register DTO:', registerDto);
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {

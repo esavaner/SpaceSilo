@@ -5,3 +5,5 @@ export * from './dto/user.dto';
 export * from './dto/album.dto';
 export * from './dto/photo.dto';
 export * from './dto/files.dto';
+export * from './dto/auth.dto';
+export * from './dto/notes.dto';

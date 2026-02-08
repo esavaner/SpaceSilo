@@ -1,15 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CreateNoteDto, UpdateNoteDto } from '@/_dto/notes.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { CreateNoteRequest, UpdateNoteRequest } from '@repo/shared';
 import { NotesService } from '@/services/notes.service';
 
-@ApiTags('notes')
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Post()
-  create(@Body() createNoteDto: CreateNoteDto) {
+  create(@Body() createNoteDto: CreateNoteRequest) {
     return this.notesService.create(createNoteDto);
   }
 
@@ -24,7 +22,7 @@ export class NotesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
+  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteRequest) {
     return this.notesService.update(+id, updateNoteDto);
   }
 
