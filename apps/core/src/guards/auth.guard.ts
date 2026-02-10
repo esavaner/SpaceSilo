@@ -34,7 +34,6 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log(this.reflector);
     const authTypes = this.reflector?.getAllAndOverride<AuthType[]>('authType', [
       context.getHandler(),
       context.getClass(),
