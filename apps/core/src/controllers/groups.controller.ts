@@ -8,7 +8,7 @@ import {
   RemoveGroupMemberRequest,
   UpdateGroupMemberRequest,
 } from '@repo/shared';
-import { type TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 import { User } from '@/decorators/user.decorator';
 import { Roles } from '@/decorators/roles.decorator';
 

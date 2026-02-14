@@ -1,10 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CreatePhotoRequest } from '@repo/shared';
-// import { UpdatePhotoDto } from "./dto/update-photo.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GalleryService } from '@/services/gallery.service';
 import { User } from '@/decorators/user.decorator';
-import { type TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 
 @Controller('gallery')
 export class GalleryController {

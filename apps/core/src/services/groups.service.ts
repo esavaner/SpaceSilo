@@ -10,7 +10,7 @@ import {
 import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 
 @Injectable()
 export class GroupsService {

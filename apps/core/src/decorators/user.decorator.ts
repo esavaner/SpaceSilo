@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 
 export const User = createParamDecorator((_: unknown, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();

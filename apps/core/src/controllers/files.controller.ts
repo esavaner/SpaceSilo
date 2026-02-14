@@ -13,7 +13,7 @@ import {
 } from '@repo/shared';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from '@/services/files.service';
-import { type TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 import { User } from '@/decorators/user.decorator';
 
 @Controller('files')

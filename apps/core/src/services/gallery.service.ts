@@ -5,7 +5,7 @@ import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 import sharp from 'sharp';
 
 const THUMBNAIL_HEIGHT = 200;

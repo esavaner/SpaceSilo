@@ -1,6 +1,5 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { LoginRequest, RegisterRequest } from '@repo/shared';
-import { type Response } from 'express';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { LoginRequest, RefreshRequest, RegisterRequest } from '@repo/shared';
 import { Auth, AuthType } from '@/decorators/auth.decorator';
 import { AuthService } from '@/services/auth.service';
 
@@ -10,30 +9,22 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginRequest, @Res() res: Response) {
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginRequest) {
     const result = await this.authService.login(loginDto);
-    res.cookie('jwt', result.access_token, {
-      httpOnly: true, //@TODO
-      // secure: true,
-      // sameSite: true,
-    });
-    return res.status(HttpStatus.OK).json(result.user);
+    return result;
   }
 
-  @Post('logout')
-  async logout(@Res() res: Response) {
-    res.clearCookie('jwt');
-    return res.status(HttpStatus.OK).json({ message: 'Logged out' });
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() dto: RefreshRequest) {
+    const result = await this.authService.refresh(dto);
+    return result;
   }
 
   @Post('register')
-  async register(@Body() registerDto: RegisterRequest, @Res() res: Response) {
+  async register(@Body() registerDto: RegisterRequest) {
     const result = await this.authService.register(registerDto);
-    res.cookie('jwt', result.access_token, {
-      httpOnly: true, // @TODO
-      // secure: true,
-      // sameSite: true,
-    });
-    return res.status(HttpStatus.CREATED).json(result.user);
+    return result;
   }
 }

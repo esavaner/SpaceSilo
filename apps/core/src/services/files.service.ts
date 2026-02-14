@@ -16,7 +16,7 @@ import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
 // import mime from 'mime';
-import { TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 import { GroupsService } from './groups.service';
 
 @Injectable()

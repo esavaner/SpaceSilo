@@ -36,6 +36,12 @@ export class RegisterRequest {
   groupId!: string;
 }
 
+export class RefreshRequest {
+  @IsString()
+  @IsNotEmpty()
+  refresh_token!: string;
+}
+
 /* ------------------------- Responses ------------------------- */
 
 export class AuthResponse {
@@ -43,7 +49,21 @@ export class AuthResponse {
   @IsNotEmpty()
   access_token!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  refresh_token!: string;
+
   @ValidateNested()
   @Type(() => UserResponse)
   user!: UserResponse;
+}
+
+export class RefreshResponse {
+  @IsString()
+  @IsNotEmpty()
+  access_token!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  refresh_token!: string;
 }

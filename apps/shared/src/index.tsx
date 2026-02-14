@@ -7,3 +7,4 @@ export * from './dto/photo.dto';
 export * from './dto/files.dto';
 export * from './dto/auth.dto';
 export * from './dto/notes.dto';
+export * from './types/auth';

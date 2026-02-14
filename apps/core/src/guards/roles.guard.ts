@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-// import { type Role } from '@/prisma/prisma';
-import { TokenPayload } from '@/common/types';
+import { type TokenPayload } from '@repo/shared';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

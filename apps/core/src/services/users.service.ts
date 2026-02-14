@@ -22,7 +22,7 @@ export class UsersService {
     private readonly prisma: PrismaService
   ) {}
 
-  async create(dto: CreateUserRequest): Promise<UserResponse> {
+  async create(dto: CreateUserRequest) {
     const { groupId, ...data } = dto;
     const user = await this.prisma.user.create({
       data,
@@ -31,23 +31,23 @@ export class UsersService {
     return user;
   }
 
-  async findAll(): Promise<UserResponse[]> {
+  async findAll() {
     return await this.prisma.user.findMany({});
   }
 
-  async findOne(id: string): Promise<UserResponse> {
+  async findOne(id: string) {
     return await this.prisma.user.findUnique({
       where: { id },
     });
   }
 
-  async findByEmail(email: string): Promise<UserResponse> {
+  async findByEmail(email: string) {
     return await this.prisma.user.findUnique({
       where: { email },
     });
   }
 
-  async search(query: string): Promise<UserResponse[]> {
+  async search(query: string) {
     return await this.prisma.user.findMany({
       where: {
         OR: [
@@ -67,7 +67,7 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserRequest): Promise<UserResponse> {
+  async update(id: string, updateUserDto: UpdateUserRequest) {
     return await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -75,7 +75,7 @@ export class UsersService {
     });
   }
 
-  async remove(id: string): Promise<UserResponse> {
+  async remove(id: string) {
     return await this.prisma.user.delete({
       where: { id },
       ...this.options,
