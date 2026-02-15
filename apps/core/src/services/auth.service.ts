@@ -60,8 +60,8 @@ export class AuthService {
     };
     const { password: _password, ...userWithoutPassword } = user;
     return {
-      access_token: this.signAccessToken(payload),
-      refresh_token: this.signRefreshToken(payload),
+      accessToken: this.signAccessToken(payload),
+      refreshToken: this.signRefreshToken(payload),
       user: userWithoutPassword,
     };
   }
@@ -87,15 +87,15 @@ export class AuthService {
 
     const { password: _password, ...userWithoutPassword } = user;
     return {
-      access_token: this.signAccessToken(payload),
-      refresh_token: this.signRefreshToken(payload),
+      accessToken: this.signAccessToken(payload),
+      refreshToken: this.signRefreshToken(payload),
       user: userWithoutPassword,
     };
   }
 
   async refresh(dto: RefreshRequest): Promise<RefreshResponse> {
     try {
-      const payload = this.jwtService.verify<TokenPayload>(dto.refresh_token);
+      const payload = this.jwtService.verify<TokenPayload>(dto.refreshToken);
 
       if (payload.typ !== 'refresh') {
         throw new UnauthorizedException('Invalid refresh token');
@@ -108,8 +108,8 @@ export class AuthService {
       };
 
       return {
-        access_token: this.signAccessToken(nextPayload),
-        refresh_token: this.signRefreshToken(nextPayload),
+        accessToken: this.signAccessToken(nextPayload),
+        refreshToken: this.signRefreshToken(nextPayload),
       };
     } catch {
       throw new UnauthorizedException('Invalid refresh token');

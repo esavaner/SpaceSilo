@@ -39,7 +39,7 @@ export class RegisterRequest {
 export class RefreshRequest {
   @IsString()
   @IsNotEmpty()
-  refresh_token!: string;
+  refreshToken!: string;
 }
 
 /* ------------------------- Responses ------------------------- */
@@ -47,11 +47,11 @@ export class RefreshRequest {
 export class AuthResponse {
   @IsString()
   @IsNotEmpty()
-  access_token!: string;
+  accessToken!: string;
 
   @IsString()
   @IsNotEmpty()
-  refresh_token!: string;
+  refreshToken!: string;
 
   @ValidateNested()
   @Type(() => UserResponse)
@@ -61,9 +61,9 @@ export class AuthResponse {
 export class RefreshResponse {
   @IsString()
   @IsNotEmpty()
-  access_token!: string;
+  accessToken!: string;
 
   @IsString()
   @IsNotEmpty()
-  refresh_token!: string;
+  refreshToken!: string;
 }
