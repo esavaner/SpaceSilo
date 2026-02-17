@@ -1,32 +1,39 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { ApiClient, endpoints } from '../api/_client';
+import { type ServerType } from '../api/_client';
+import { CoreApiClient } from '../api/core.client';
 import { storage } from '../utils/storage';
-import { type AuthResponse } from '@repo/shared';
 
-export type CoreServer = AuthResponse & {
+export type ServerConnection = {
   id: string;
+  type: ServerType;
   baseUrl: string;
   label: string;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
-export type CoreServerWithClient = CoreServer & {
-  client: ApiClient;
+export type ServerConnectionWithClient = ServerConnection & {
+  client: CoreApiClient;
 };
 
 export type LoginAndSaveServerInput = {
+  type: ServerType;
   baseUrl: string;
   email: string;
+  password: string;
   label?: string;
+};
+
+export type ReconnectServerInput = {
+  serverId: string;
+  email: string;
   password: string;
 };
 
 type ServerContextType = {
   isLoading: boolean;
-  servers: CoreServerWithClient[];
-  enabledServers: CoreServerWithClient[];
-  rebuildServers: (newServers?: CoreServer[]) => Promise<void>;
-  loginAndSaveServer: (input: LoginAndSaveServerInput) => Promise<CoreServerWithClient>;
+  servers: ServerConnectionWithClient[];
+  enabledServers: ServerConnectionWithClient[];
+  loginAndSaveServer: (input: LoginAndSaveServerInput) => Promise<ServerConnectionWithClient>;
   removeServer: (serverId: string) => Promise<boolean>;
   setServerEnabled: (serverId: string, enabled: boolean) => Promise<void>;
 };
@@ -37,112 +44,95 @@ export const ServerContext = createContext<ServerContextType | undefined>(undefi
 
 export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [servers, setServers] = useState<CoreServerWithClient[]>([]);
+  const [servers, setServers] = useState<ServerConnectionWithClient[]>([]);
 
   const createServerId = () =>
     typeof crypto !== 'undefined' && 'randomUUID' in crypto
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 
-  const readServersFromStorage = async (): Promise<CoreServer[]> => {
+  const readServersFromStorage = async () => {
     try {
       const raw = await storage.get(SERVER_LIST_KEY);
       if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      return (Array.isArray(parsed) ? parsed : []) as ServerConnection[];
     } catch {
       return [];
     }
   };
 
-  const writeServersToStorage = async (servers: CoreServer[]) => {
+  const writeServersToStorage = async (servers: ServerConnection[]) => {
     await storage.set(SERVER_LIST_KEY, JSON.stringify(servers));
   };
 
-  const updateServersInStorage = async (updater: (current: CoreServer[]) => CoreServer[]) => {
+  const updateServersInStorage = async (updater: (current: ServerConnection[]) => ServerConnection[]) => {
     const oldServers = await readServersFromStorage();
     const newServers = updater(oldServers);
     await writeServersToStorage(newServers);
     return newServers;
   };
 
-  const withClient = (server: CoreServer): CoreServerWithClient => ({
-    ...server,
-    client: new ApiClient({
-      baseUrl: server.baseUrl,
-      accessToken: server.accessToken,
-      refreshTokensInStorage: async (accessToken, refreshToken) => {
-        const newSerwers = await updateServersInStorage((currentServers) =>
-          currentServers.map((item) =>
-            item.id === server.id
-              ? {
-                  ...item,
-                  accessToken,
-                  refreshToken,
-                }
-              : item
-          )
-        );
-        rebuildServers(newSerwers);
-      },
-    }),
-  });
-
-  const rebuildServers = async (newServers?: CoreServer[]) => {
-    const savedServers = newServers ?? (await readServersFromStorage());
-    setServers(savedServers.map(withClient));
+  const updateRefreshTokenInStorage = async (serverId: string, token: string | undefined) => {
+    await updateServersInStorage((currentServers) =>
+      currentServers.map((s) => (s.id === serverId ? { ...s, refreshToken: token } : s))
+    );
   };
 
   const loginAndSaveServer = async ({
-    baseUrl: url,
-    email: loginEmail,
-    password,
+    type,
     label,
-  }: LoginAndSaveServerInput): Promise<CoreServerWithClient> => {
-    const email = loginEmail.trim();
-    const baseUrl = url.trim().replace(/\/+$/, '');
-
-    const res = await fetch(`${baseUrl}${endpoints.login}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`Login failed: ${res.status} ${res.statusText} - ${errorText}`);
-    }
-
-    const result = (await res.json()) as AuthResponse;
-
-    let saved: CoreServer | null = null;
-
+    baseUrl,
+    email,
+    password,
+  }: LoginAndSaveServerInput): Promise<ServerConnectionWithClient> => {
+    let saved: ServerConnection | undefined;
     await updateServersInStorage((currentServers) => {
-      const existingIndex = currentServers.findIndex((s) => s.baseUrl === baseUrl && s.user.email === email);
+      const existingIndex = currentServers.findIndex(
+        (s) => s.type === type && s.baseUrl === baseUrl && s.label === label
+      );
       const newServers = [...currentServers];
-
       if (existingIndex >= 0) {
-        saved = {
-          ...newServers[existingIndex],
-          accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
-        };
-        newServers[existingIndex] = saved;
+        saved = newServers[existingIndex];
       } else {
         saved = {
           id: createServerId(),
-          label: label?.trim() || baseUrl,
+          type,
+          label: label || baseUrl || email,
           baseUrl,
           disabled: false,
-          ...result,
         };
         newServers.push(saved);
       }
-
       return newServers;
     });
 
-    return withClient(saved!);
+    if (!saved) throw new Error('Unable to save server connection');
+
+    const newServer = {
+      ...saved,
+      client: new CoreApiClient({
+        baseUrl,
+        email,
+        password,
+        saveRefreshToken: (token) => updateRefreshTokenInStorage(saved!.id, token),
+      }),
+    };
+
+    setServers((prev) => [...prev, newServer]);
+    return newServer;
+  };
+
+  const rebuildServers = async () => {
+    const savedServers = await readServersFromStorage();
+    const newServers = savedServers.map((s) => ({
+      ...s,
+      client: new CoreApiClient({
+        baseUrl: s.baseUrl,
+        saveRefreshToken: (token) => updateRefreshTokenInStorage(s.id, token),
+      }),
+    }));
+    setServers(newServers);
   };
 
   useEffect(() => {
@@ -157,7 +147,7 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (!removed) return false;
-    await rebuildServers();
+    setServers((prev) => prev.filter((s) => s.id !== serverId));
     return true;
   };
 
@@ -165,7 +155,7 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
     await updateServersInStorage((currentServers) =>
       currentServers.map((item) => (item.id === serverId ? { ...item, disabled: !enabled } : item))
     );
-    await rebuildServers();
+    setServers((prev) => prev.map((item) => (item.id === serverId ? { ...item, disabled: !enabled } : item)));
   };
 
   const enabledServers = servers.filter((s) => !s.disabled);
@@ -176,7 +166,6 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
         servers,
         enabledServers,
-        rebuildServers,
         loginAndSaveServer,
         removeServer,
         setServerEnabled,
