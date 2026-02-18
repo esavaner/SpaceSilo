@@ -1,5 +1,5 @@
-import { Api } from '@/api/api';
-import { FileEntity } from '@/api/generated';
+// import { Api } from '@/api/api';
+// import { FileEntity } from '@/api/generated';
 import { useQuery } from '@tanstack/react-query';
 import { compareAsc } from 'date-fns';
 import { useState } from 'react';
@@ -19,7 +19,7 @@ export type Comparator = {
   order: number;
 };
 
-const comparators: Record<SortBy, (a: FileEntity, b: FileEntity) => number> = {
+const comparators: Record<SortBy, (a: any, b: any) => number> = {
   name: (a, b) => a.name.localeCompare(b.name),
   size: (a, b) => a.size - b.size,
   date: (a, b) => compareAsc(a.modificationTime, b.modificationTime),
@@ -35,20 +35,21 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const { user } = useUserContext();
   const { groups, groupsPersonal, groupsShared, handleSelectGroup, isGroupsLoading, selectedGroupIds } = useGroupList();
   const [currentPath, setCurrentPath] = useState(path);
-  const [selectedItems, setSelectedItems] = useState<FileEntity[]>([]);
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
 
   const { data: f, refetch } = useQuery({
     queryKey: ['files', currentPath],
-    queryFn: () => Api.files.filesControllerFindAll({ path: currentPath, groupIds: selectedGroupIds }),
+    queryFn: () => ({ data: [] }) as any, // TODO: implement API call to get files
+
     enabled: !isGroupsLoading && selectedGroupIds.length > 0 && !!user,
     select: (data) => data.data,
   });
 
   const unsorted = f || [];
   const items = unsorted
-    .sort((a, b) => comparators[comparator.sort](a, b) * comparator.order)
-    .sort((a, b) => {
+    .sort((a: any, b: any) => comparators[comparator.sort](a, b) * comparator.order)
+    .sort((a: any, b: any) => {
       if (a.isDirectory && !b.isDirectory) return -comparator.order;
       if (!a.isDirectory && b.isDirectory) return comparator.order;
       return 0;
@@ -65,7 +66,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     onPathChange?.(newPath);
   };
 
-  const handleSelectItem = (item: FileEntity) => {
+  const handleSelectItem = (item: any) => {
     const isSelected = selectedItems.some((i) => i.name === item.name);
     if (isSelected) {
       setSelectedItems(selectedItems.filter((i) => i.name !== item.name));
@@ -86,7 +87,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
   };
 
-  const onDirClick = (dir: FileEntity) => {
+  const onDirClick = (dir: any) => {
     if (selectedItems.length > 0) {
       return;
     }
@@ -94,14 +95,14 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     onPathChange?.(dir.uri);
   };
 
-  const onFileClick = (file: FileEntity) => {
+  const onFileClick = (file: any) => {
     if (selectedItems.length > 0) {
       return;
     }
     onFileSelect?.(file.uri, file.groupId);
   };
 
-  const handleItemClick = (item: FileEntity) =>
+  const handleItemClick = (item: any) =>
     hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item) : onFileClick(item);
 
   const handleApplyGroupSelect = () => {

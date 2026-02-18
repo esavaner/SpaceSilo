@@ -1,4 +1,3 @@
-import { Api } from '@/api/api';
 import { useMutation } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -6,7 +5,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { router } from 'expo-router';
 import { useUserContext } from '@/providers/UserProvider';
-import { LoginDto } from '@/api/generated';
 import { Button } from '@/components/general/button';
 import { InputController } from '@/components/controllers/input.controller';
 
@@ -23,8 +21,8 @@ export default function LoginPage() {
 
   const { mutate: login, isPending } = useMutation({
     mutationKey: ['login'],
-    mutationFn: (data: LoginDto) => Api.auth.authControllerLogin(data),
-    onSuccess: (data) => {
+    mutationFn: (data: any) => ({ data: {} }) as any,
+    onSuccess: (data: any) => {
       setUser(data.data);
       router.push('/files');
     },

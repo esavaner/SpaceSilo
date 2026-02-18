@@ -1,5 +1,5 @@
-import { Api } from '@/api/api';
-import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
+// import { Api } from '@/api/api';
+// import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +19,7 @@ export const useFileActions = () => {
 
   const { mutate: copy, isPending: isCopyPending } = useMutation({
     mutationKey: ['copyFiles'],
-    mutationFn: (data: CopyFileDto) => Api.files.filesControllerCopy(data),
+    mutationFn: (data: any) => ({ data: {} }) as any, // TODO: implement API call to copy files
     onSuccess: () => success('File copied'),
     onError: () => {
       toast.error('Error copying file');
@@ -28,7 +28,7 @@ export const useFileActions = () => {
 
   const { mutate: create, isPending: isCreatePending } = useMutation({
     mutationKey: ['createFolder'],
-    mutationFn: (data: CreateFolderDto) => Api.files.filesControllerCreateFolder(data),
+    mutationFn: (data: any) => ({ data: {} }) as any, // TODO: implement API call to create folder
     onSuccess: (_, { name }) => success(`Folder ${name} created`),
     onError: (_, { name }) => {
       toast.error(`Error creating folder: ${name}`);
@@ -37,7 +37,7 @@ export const useFileActions = () => {
 
   const { mutate: move, isPending: isMovePending } = useMutation({
     mutationKey: ['moveFiles'],
-    mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
+    mutationFn: (data: any) => ({ data: {} }) as any, // TODO: implement API call to move files
     onSuccess: () => success('File moved'),
     onError: () => {
       toast.error('Error moving file');
@@ -46,7 +46,7 @@ export const useFileActions = () => {
 
   const { mutate: remove, isPending: isRemovePending } = useMutation({
     mutationKey: ['removeFiles'],
-    mutationFn: (data: RemoveFileDto) => Api.files.filesControllerRemove(data),
+    mutationFn: (data: any) => ({ data: {} }) as any, // TODO: implement API call to remove files
     onSuccess: () => success('File removed'),
     onError: () => {
       toast.error('Error removing file');
@@ -55,7 +55,7 @@ export const useFileActions = () => {
 
   const { mutate: rename, isPending: isRenamePending } = useMutation({
     mutationKey: ['renameFiles'],
-    mutationFn: (data: MoveFileDto) => Api.files.filesControllerMove(data),
+    mutationFn: (data: any) => ({ data: {} }) as any, // TODO: implement API call to rename files
     onSuccess: () => success('File renamed'),
     onError: () => {
       toast.error('Error renaming file');

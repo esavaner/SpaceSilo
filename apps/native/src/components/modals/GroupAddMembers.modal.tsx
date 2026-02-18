@@ -1,4 +1,4 @@
-import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/generated';
+// import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/generated';
 import { useGroupActions } from '@/hooks/useGroupActions';
 
 import { useTranslation } from 'react-i18next';
@@ -20,10 +20,10 @@ const selectOptions = [
   { label: 'Read', value: 'read' },
 ];
 
-type SelectedUser = SearchUserDto & AddMemberDto;
+type SelectedUser = any;
 
 type Props = {
-  group: GetGroupDto;
+  group: any;
 };
 
 export const GroupAddMembersModal = ({ group }: Props) => {
@@ -33,12 +33,12 @@ export const GroupAddMembersModal = ({ group }: Props) => {
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 
-  const handleSelect = (user: SearchUserDto) => {
-    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: AccessLevel.Read }]);
+  const handleSelect = (user: any) => {
+    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: 'read' }]);
     resetSearch();
   };
 
-  const handleDeselect = (user: SearchUserDto) => {
+  const handleDeselect = (user: any) => {
     setSelectedMembers(selectedMembers.filter((m) => m.id !== user.id));
   };
 
@@ -50,10 +50,11 @@ export const GroupAddMembersModal = ({ group }: Props) => {
 
   const options = results
     .filter(
-      (user) =>
-        !selectedMembers.find((member) => member.id === user.id) && !group.members.find((m) => m.userId === user.id)
+      (user: any) =>
+        !selectedMembers.find((member) => member.id === user.id) &&
+        !group.members.find((m: any) => m.userId === user.id)
     )
-    .map((user) => (
+    .map((user: any) => (
       <DropdownItem
         key={user.id}
         label={user.name}

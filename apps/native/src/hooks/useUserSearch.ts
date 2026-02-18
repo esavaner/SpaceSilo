@@ -1,4 +1,4 @@
-import { Api } from '@/api/api';
+// import { Api } from '@/api/api';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -7,7 +7,7 @@ export const useUserSearch = () => {
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', query],
-    queryFn: () => Api.users.usersControllerSearch(query),
+    queryFn: () => ({ data: [] }) as any, // TODO: implement API call to search users
     enabled: query.length > 0,
   });
 

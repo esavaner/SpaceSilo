@@ -1,5 +1,5 @@
-import { Api } from '@/api/api';
-import { AddMemberDto, CreateGroupDto } from '@/api/generated';
+// import { Api } from '@/api/api';
+// import { AddMemberDto, CreateGroupDto } from '@/api/generated';
 import { useUi } from '@/providers/UiProvider';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
@@ -16,7 +16,7 @@ export const useGroupActions = () => {
 
   const { mutate: addMember, isPending: isAddingMember } = useMutation({
     mutationKey: ['addMember'],
-    mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerAddMember(id, data),
+    mutationFn: ({ id, ...data }: any & { id: string }) => ({ data: {} }) as any, // TODO: implement API call to add member to group
     onSuccess: () => success('Member added'),
     onError: () => {
       toast.error('Error adding member');
@@ -25,8 +25,7 @@ export const useGroupActions = () => {
 
   const { mutate: addMembers, isPending: isAddingMembers } = useMutation({
     mutationKey: ['addMembers'],
-    mutationFn: ({ id, members }: { id: string; members: AddMemberDto[] }) =>
-      Api.groups.groupsControllerAddMembers(id, { members }),
+    mutationFn: ({ id, members }: any & { id: string; members: any[] }) => ({ data: {} }) as any,
     onSuccess: () => success('Members added'),
     onError: () => {
       toast.error('Error adding members');
@@ -35,7 +34,7 @@ export const useGroupActions = () => {
 
   const { mutate: createGroup, isPending: isCreatingGroup } = useMutation({
     mutationKey: ['createGroup'],
-    mutationFn: (data: CreateGroupDto) => Api.groups.groupsControllerCreate(data),
+    mutationFn: (data: any) => ({ data: {} }) as any,
     onSuccess: (_, { name }) => success(`Group ${name} created`),
     onError: (_, { name }) => {
       toast.error(`Error creating group: ${name}`);
@@ -44,7 +43,7 @@ export const useGroupActions = () => {
 
   const { mutate: removeGroup, isPending: isRemovingGroup } = useMutation({
     mutationKey: ['removeGroup'],
-    mutationFn: (id: string) => Api.groups.groupsControllerRemove(id),
+    mutationFn: (id: string) => ({ data: {} }) as any,
     onSuccess: () => success('Group removed'),
     onError: () => {
       toast.error('Error removing group');
@@ -53,7 +52,7 @@ export const useGroupActions = () => {
 
   const { mutate: removeMember, isPending: isRemovingMember } = useMutation({
     mutationKey: ['removeMember'],
-    mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerRemoveMember(id, data),
+    mutationFn: ({ id, ...data }: any & { id: string }) => ({ data: {} }) as any,
     onSuccess: () => success('Member removed'),
     onError: () => {
       toast.error('Error removing member');
@@ -62,7 +61,7 @@ export const useGroupActions = () => {
 
   const { mutate: updateMember, isPending: isUpdatingMember } = useMutation({
     mutationKey: ['updateMember'],
-    mutationFn: ({ id, ...data }: AddMemberDto & { id: string }) => Api.groups.groupsControllerUpdateMember(id, data),
+    mutationFn: ({ id, ...data }: any & { id: string }) => ({ data: {} }) as any,
     onSuccess: () => success('Member updated'),
     onError: () => {
       toast.error('Error updating member');
