@@ -1,4 +1,4 @@
-import { FileIcon, UserGroupIcon } from '@/components/icons';
+import { Icon } from '@/components/general/icon';
 import { JSX } from 'react/jsx-runtime';
 
 export const routes = {
@@ -22,11 +22,11 @@ export const routeLabels: Record<keyof typeof routes, string> = {
 };
 
 export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
-  [routes.index]: <FileIcon size={20} />,
-  [routes.gallery]: <FileIcon size={20} />,
-  [routes.files]: <FileIcon size={20} />,
-  [routes.notes]: <FileIcon size={20} />,
-  [routes.groups]: <UserGroupIcon size={18} />,
-  [routes.backups]: <FileIcon size={20} />,
-  [routes.rnp]: <FileIcon size={20} />,
+  [routes.index]: <Icon.File />,
+  [routes.gallery]: <Icon.File />,
+  [routes.files]: <Icon.File />,
+  [routes.notes]: <Icon.File />,
+  [routes.groups]: <Icon.UserGroup />,
+  [routes.backups]: <Icon.File />,
+  [routes.rnp]: <Icon.File />,
 };

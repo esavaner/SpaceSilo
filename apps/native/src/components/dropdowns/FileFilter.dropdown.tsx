@@ -1,8 +1,7 @@
 import { Pressable, View } from 'react-native';
-import { GetGroupDto } from '@/api/generated';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { Checkbox } from '../checkbox';
-import { FilterIcon } from '../icons';
+import { Icon } from '../general/icon';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
@@ -28,12 +27,12 @@ export const FileFilterDropdown = ({ className }: Props) => {
       <DropdownMenuTrigger ref={ref}>
         <Button variant="ghost" className={className}>
           <Text>Filter</Text>
-          <FilterIcon />
+          <Icon.Filter />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-3">
         <Text>Personal</Text>
-        {groupsPersonal?.map((group) => (
+        {groupsPersonal?.map((group: any) => (
           <FilterGroupItem
             key={group.id}
             group={group}
@@ -42,7 +41,7 @@ export const FileFilterDropdown = ({ className }: Props) => {
           />
         ))}
         <Text>Groups</Text>
-        {groupsShared?.map((group) => (
+        {groupsShared?.map((group: any) => (
           <FilterGroupItem
             key={group.id}
             group={group}
@@ -62,9 +61,9 @@ export const FileFilterDropdown = ({ className }: Props) => {
 };
 
 type FilterGroupItemProps = {
-  group: GetGroupDto;
+  group: any;
   checked: boolean;
-  onPress: (group: GetGroupDto) => void;
+  onPress: (group: any) => void;
 };
 
 const FilterGroupItem = ({ group, checked, onPress }: FilterGroupItemProps) => {

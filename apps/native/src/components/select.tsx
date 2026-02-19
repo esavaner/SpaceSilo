@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDropdown } from './dropdown';
 import { Pressable } from 'react-native';
-import { ChevronDownIcon } from './icons';
+import { Icon } from './general/icon';
 import { Text } from './text';
 import { useUi } from '@/providers/UiProvider';
 import { cn } from '../utils/cn';
@@ -39,7 +39,7 @@ export const Select = ({ options, onChange, value, className }: SelectProps) => 
       onPress={() => openDropdown(dropdownItems, { className })}
     >
       <Text>{label}</Text>
-      <ChevronDownIcon className={cn('text-foreground', selected && 'rotate-180')} />
+      <Icon.ChevronDown className={cn(selected && 'rotate-180')} />
     </Pressable>
   );
 };

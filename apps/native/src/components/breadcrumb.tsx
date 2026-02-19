@@ -3,7 +3,6 @@ import React from 'react';
 import { Text } from './general/text';
 import { Button } from './general/button';
 import { Icon } from './general/icon';
-import { ChevronRight } from 'lucide-react-native';
 
 type BreadcrumbProps = {
   pathItems: string[];
@@ -21,7 +20,7 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: Breadcru
     <ScrollView horizontal className="items-center">
       {pathItems.map((item, index) => (
         <React.Fragment key={index}>
-          {index !== 0 && <Icon as={ChevronRight} className="mt-3 mr-1" />}
+          {index !== 0 && <Icon.NavigateNext className="mt-3 mr-1" />}
           <Button variant="ghost" className="mr-1" onPress={() => handleItemClick(index)}>
             <Text>{index === 0 ? homeDirName : item}</Text>
           </Button>

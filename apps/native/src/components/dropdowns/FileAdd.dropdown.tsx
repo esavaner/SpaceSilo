@@ -1,9 +1,7 @@
-import { AddIcon } from '../icons';
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
 import { Button } from '../general/button';
 import { Text } from '../general/text';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
-import { Folder, File } from 'lucide-react-native';
 import { Icon } from '../general/icon';
 import { useUi } from '@/providers/UiProvider';
 
@@ -19,13 +17,13 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
     <DropdownMenu className="ml-auto">
       <DropdownMenuTrigger>
         <Button>
-          <AddIcon className="text-primary-foreground" />
+          <Icon.Add className="text-black" />
           <Text>Add</Text>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onPress={() => openModal(<FileCreateFolderModal currentPath={currentPath} />)}>
-          <Icon as={Folder} />
+          <Icon.Folder />
           <Text>Folder</Text>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -33,7 +31,7 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
             // handle file creation here
           }}
         >
-          <Icon as={File} />
+          <Icon.File />
           <Text>File</Text>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -2,35 +2,31 @@ import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { DrawerHeaderProps } from '@react-navigation/drawer';
-import { MenuIcon, SearchIcon, PersonIcon } from './icons';
+import { Icon } from './general/icon';
 import { Text } from './general/text';
 import { Button } from './general/button';
 import { routeLabels } from '@/constants/routes';
 
-type HeaderProps = DrawerHeaderProps & {
-  title?: string;
-};
+type HeaderProps = DrawerHeaderProps;
 
-export const Header = ({ title, navigation, route, ...rest }: HeaderProps) => {
-  console.log(rest);
+export const Header = ({ navigation, route }: HeaderProps) => {
   const { width } = useWindowDimensions();
 
   return (
     <View className="p-2 flex flex-row gap-2 items-center bg-muted">
-      <Text>{routeLabels[route.name as keyof typeof routeLabels]}</Text>
       {width <= 992 && (
         <Button variant="ghost" onPress={navigation.toggleDrawer} className="p-2">
-          <MenuIcon />
+          <Icon.Menu />
         </Button>
       )}
-      <Text>{title}</Text>
+      <Text>{routeLabels[route.name as keyof typeof routeLabels]}</Text>
       <Button variant="ghost" className="ml-auto p-2">
-        <SearchIcon />
+        <Icon.Search />
       </Button>
 
       <Link href="/login" asChild>
         <Button variant="ghost" className="p-2">
-          <PersonIcon />
+          <Icon.Person />
         </Button>
       </Link>
     </View>

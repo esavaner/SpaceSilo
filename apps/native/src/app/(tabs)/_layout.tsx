@@ -13,7 +13,7 @@ export default function TabLayout() {
     <Drawer
       screenOptions={{
         drawerType: width > 992 ? 'permanent' : 'slide',
-        drawerStyle: { backgroundColor: 'transparent' },
+        drawerStyle: { backgroundColor: 'transparent', width: 260 },
         header: (props) => <Header {...props} />,
       }}
       drawerContent={(props) => <Navigation {...props} />}

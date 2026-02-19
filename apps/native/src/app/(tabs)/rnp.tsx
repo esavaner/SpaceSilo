@@ -1,5 +1,5 @@
 import { ScrollView, View, Appearance } from 'react-native';
-import { FileIcon } from '@/components/icons';
+import { Icon } from '@/components/general/icon';
 import { Button } from '@/components/general/button';
 import { Text } from '@/components/general/text';
 import { useEffect, useState } from 'react';
@@ -64,13 +64,13 @@ export default function RnpScreen() {
         </Button>
         {/* icon */}
         <Button variant="outline" size="icon">
-          <FileIcon size={20} />
+          <Icon.File />
         </Button>
         <Button variant="outline" size="icon" disabled>
-          <FileIcon size={20} />
+          <Icon.File />
         </Button>
         <Button>
-          <FileIcon size={20} />
+          <Icon.File />
           <Text>Login with Email</Text>
         </Button>
         <Button onPress={() => setTestLoading(true)} loading={testLoading} className="col-span-3">

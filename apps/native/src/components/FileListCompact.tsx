@@ -1,12 +1,11 @@
 import { ScrollView, Pressable } from 'react-native';
-import { FileEntity } from '@/api/generated';
 import { cn } from '../utils/cn';
-import { FolderIcon } from './icons';
+import { Icon } from './general/icon';
 import { Text } from './general/text';
 
 type Props = {
-  items: FileEntity[];
-  handleItemClick: (item: FileEntity) => void;
+  items: any[];
+  handleItemClick: (item: any) => void;
   className?: string;
 };
 
@@ -27,7 +26,7 @@ export const FileListCompact = ({ items, handleItemClick, className }: Props) =>
               onPress={() => handleItemClick(item)}
             >
               <Text>
-                <FolderIcon />
+                <Icon.Folder className="text-primary" />
               </Text>
               <Text className="text-lg leading-5">{item.name}</Text>
             </Pressable>

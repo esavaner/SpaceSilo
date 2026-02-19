@@ -3,7 +3,6 @@ import { NativeOnlyAnimatedView } from '@/components/general/native-only-animate
 import { TextClassContext } from '@/components/general/text';
 import { cn } from '@/utils/cn';
 import * as SelectPrimitive from '@rn-primitives/select';
-import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -63,7 +62,7 @@ function SelectTrigger({
       {...props}
     >
       <>{children}</>
-      <Icon as={ChevronDown} aria-hidden={true} className="text-muted-foreground size-4" />
+      <Icon.ChevronDown aria-hidden={true} className="text-muted-foreground size-4" />
     </SelectPrimitive.Trigger>
   );
 }
@@ -156,7 +155,7 @@ function SelectItem({ className, ...props }: SelectPrimitive.ItemProps & React.R
     >
       <View className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
+          <Icon.Check className="text-muted-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </View>
       <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
@@ -189,7 +188,7 @@ function SelectScrollUpButton({ className, ...props }: React.ComponentProps<type
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <Icon as={ChevronUpIcon} className="size-4" />
+      <Icon.ChevronUp className="size-4" />
     </SelectPrimitive.ScrollUpButton>
   );
 }
@@ -210,7 +209,7 @@ function SelectScrollDownButton({
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <Icon as={ChevronDownIcon} className="size-4" />
+      <Icon.ChevronDown className="size-4" />
     </SelectPrimitive.ScrollDownButton>
   );
 }

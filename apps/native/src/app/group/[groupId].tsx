@@ -4,7 +4,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { Avatar } from '@/components/avatar';
-import { AddIcon } from '@/components/icons';
+import { Icon } from '@/components/general/icon';
 import { useUi } from '@/providers/UiProvider';
 import { Text } from '@/components/general/text';
 import { Button } from '@/components/general/button';
@@ -38,7 +38,7 @@ export default function SingleGroupPage() {
       <Text className="text-xl">{group.name}</Text>
       <Text className="text-muted-foreground">{group.id}</Text>
       <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
-        <AddIcon className="text-primary-foreground" />
+        <Icon.Add />
         <Text>Add members</Text>
       </Button>
       <View className="p-2 gap-2">

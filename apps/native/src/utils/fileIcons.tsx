@@ -1,10 +1,10 @@
-import { FileIcon, CodeIcon } from '@/components/icons';
+import { Icon } from '@/components/general/icon';
 
 export const fileIcons = {
-  gif: <FileIcon />,
-  html: <CodeIcon size={18} />,
-  jpeg: <FileIcon />,
-  jpg: <FileIcon />,
-  pdf: <FileIcon />,
-  png: <FileIcon />,
+  gif: <Icon.File />,
+  html: <Icon.Code />,
+  jpeg: <Icon.File />,
+  jpg: <Icon.File />,
+  pdf: <Icon.File />,
+  png: <Icon.File />,
 };

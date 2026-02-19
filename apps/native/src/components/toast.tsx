@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Text } from './text';
-import { AlertOctagonIcon, AlertTriangleIcon, CheckCircleIcon, InfoIcon } from './icons';
+import { Icon } from './general/icon';
 
 export type ToastProps = {
   id: string;
@@ -11,10 +11,10 @@ export type ToastProps = {
 };
 
 const icons: Record<ToastProps['type'], React.ReactNode> = {
-  error: <AlertOctagonIcon className="text-red-600" />,
-  info: <InfoIcon className="text-blue-600" />,
-  success: <CheckCircleIcon className="text-green-600" />,
-  warning: <AlertTriangleIcon className="text-yellow-600" />,
+  error: <Icon.AlertOctagon className="text-red-600" />,
+  info: <Icon.Info className="text-blue-600" />,
+  success: <Icon.CheckCircle className="text-green-600" />,
+  warning: <Icon.AlertTriangle className="text-yellow-600" />,
 };
 
 export const Toast = ({ id, message, removeToast, type }: ToastProps) => {

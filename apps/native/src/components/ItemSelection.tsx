@@ -2,7 +2,7 @@ import { FileEntity } from '@/api/generated';
 import { View } from 'react-native';
 import { FileRemoveModal } from './modals/FileRemove.modal';
 import { FileMoveCopyModal } from './modals/FileMoveCopy.modal';
-import { CloseIcon, CopyIcon, ShareIcon, TrashIcon } from './icons';
+import { Icon } from './general/icon';
 import { useUi } from '@/providers/UiProvider';
 import { Text } from './general/text';
 import { Button } from './general/button';
@@ -17,10 +17,10 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
   const { openModal } = useUi();
 
   const items = [
-    { icon: <ShareIcon />, onPress: () => {} },
-    { icon: <CopyIcon />, onPress: () => openModal(<FileMoveCopyModal path={path} selectedItems={selectedItems} />) },
+    { icon: <Icon.Share />, onPress: () => {} },
+    { icon: <Icon.Copy />, onPress: () => openModal(<FileMoveCopyModal path={path} selectedItems={selectedItems} />) },
     {
-      icon: <TrashIcon className="text-red-600" />,
+      icon: <Icon.Trash className="text-red-600" />,
       onPress: () => openModal(<FileRemoveModal files={selectedItems} />),
     },
   ];
@@ -28,7 +28,7 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
   return (
     <View className="flex-row w-full items-center gap-2">
       <Button variant="ghost" onPress={handleClearSelection} className="p-2">
-        <CloseIcon />
+        <Icon.Close />
       </Button>
       <Text className="mr-auto">{selectedItems.length} item(s) selected</Text>
       {items.map((item, index) => (

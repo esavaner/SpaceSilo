@@ -8,7 +8,7 @@ import { ScrollView, View } from 'react-native';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
 import { DropdownItem } from '../dropdown';
-import { UserGroupIcon, CloseIcon } from '../icons';
+import { Icon } from '../general/icon';
 import { Search } from '../search';
 import { Select } from '../select';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
@@ -59,7 +59,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
         key={user.id}
         label={user.name}
         subLabel={user.email}
-        icon={<UserGroupIcon />}
+        icon={<Icon.UserGroup />}
         onPress={() => handleSelect(user)}
       />
     ));
@@ -82,7 +82,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
             <Text className="flex-1">{member.name}</Text>
             <Select options={selectOptions} onChange={(value) => {}} value={member.access} />
             <Button onPress={() => handleDeselect(member)} variant="ghost" className="p-2">
-              <CloseIcon />
+              <Icon.Close />
             </Button>
           </View>
         ))}

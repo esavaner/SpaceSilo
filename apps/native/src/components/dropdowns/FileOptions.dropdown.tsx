@@ -1,16 +1,15 @@
-import { FileEntity } from '@/api/generated';
 import { useTranslation } from 'react-i18next';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
 import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
 import { useUi } from '@/providers/UiProvider';
-import { Copy, EllipsisVertical, Info, PencilLine, Share, Trash2 } from 'lucide-react-native';
 import { DropdownItem } from './dropdown-item';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
 import { Button } from '../general/button';
+import { Icon } from '../general/icon';
 
 type FileOptionsDropdownProps = {
-  file: FileEntity;
+  file: any;
 };
 
 export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
@@ -18,21 +17,21 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   const { openModal } = useUi();
 
   const items = [
-    { label: t('dropdown.info'), icon: Info, onPress: () => {} },
-    { label: t('dropdown.share'), icon: Share, onPress: () => {} },
+    { label: t('dropdown.info'), icon: <Icon.Info />, onPress: () => {} },
+    { label: t('dropdown.share'), icon: <Icon.Share />, onPress: () => {} },
     {
       label: t('dropdown.rename'),
-      icon: PencilLine,
+      icon: <Icon.Rename />,
       onPress: () => openModal(<FileRenameModal file={file} />),
     },
     {
       label: `${t('dropdown.move')} / ${t('dropdown.copy')}`,
-      icon: Copy,
+      icon: <Icon.Copy />,
       onPress: () => openModal(<FileMoveCopyModal selectedItems={[file]} />),
     },
     {
       label: t('dropdown.remove'),
-      icon: Trash2,
+      icon: <Icon.Trash />,
       onPress: () => openModal(<FileRemoveModal files={[file]} />),
     },
   ];
@@ -45,7 +44,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
     <DropdownMenu className="ml-auto">
       <DropdownMenuTrigger>
         <Button variant="ghost" className="ml-auto">
-          <EllipsisVertical />
+          <Icon.Ellipsis />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

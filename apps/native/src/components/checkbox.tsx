@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { cn } from '../utils/cn';
 import { cva } from 'class-variance-authority';
 import { Text } from './text';
-import { CheckIcon } from './icons';
+import { Icon } from './general/icon';
 
 const checkboxStyles = cva(['w-5 h-5 border rounded-md flex items-center justify-center overflow-hidden'], {
   variants: {
@@ -32,7 +32,7 @@ export const Checkbox = ({ className, label, error, checked, onChange }: Checkbo
         className
       )}
     >
-      {checked && <CheckIcon className="text-black" size={16} />}
+      {checked && <Icon.Check className="text-black" size={16} />}
       {label && <Text className="text-foreground text-base">{label}</Text>}
       {error && <Text className="text-red-600 text-base">{error}</Text>}
     </View>

@@ -3,7 +3,6 @@ import { fileIcons } from '../utils/fileIcons';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
-import { FileEntity } from '@/api/generated';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
 import { useTranslation } from 'react-i18next';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
@@ -12,7 +11,7 @@ import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
 import { Checkbox } from './checkbox';
 import { cn } from '../utils/cn';
-import { FolderIcon, FileIcon } from './icons';
+import { Icon } from './general/icon';
 import { Text } from './general/text';
 
 type FileListProps = {
@@ -36,10 +35,10 @@ export const FileList = ({ className }: FileListProps) => {
     selectedItems,
   } = useFilesContext();
 
-  const getIcon = (item: FileEntity) => {
-    if (item.isDirectory) return <FolderIcon size={28} />;
+  const getIcon = (item: any) => {
+    if (item.isDirectory) return <Icon.Folder size={28} className="text-primary" />;
     const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
-    return fileIcons[ext as keyof typeof fileIcons] || <FileIcon />;
+    return fileIcons[ext as keyof typeof fileIcons] || <Icon.File />;
   };
 
   const getItemTime = (time: string) => {
@@ -61,9 +60,9 @@ export const FileList = ({ className }: FileListProps) => {
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
         {items.length === 0 && <Text className="text-center">No files</Text>}
-        {items.map((item) => {
+        {items.map((item: any) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
-          const color = groups?.find((g) => g.id === item.groupId)?.color;
+          const color = groups?.find((g: any) => g.id === item.groupId)?.color;
           return (
             <Pressable
               key={item.name + item.groupId}

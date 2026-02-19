@@ -7,7 +7,7 @@ import { Text } from '../general/text';
 import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
 import { useDropdown } from '../dropdown';
-import { ChevronDownIcon } from '../icons';
+import { Icon } from '../general/icon';
 
 type Props = {
   handleSort: (sortBy: SortBy) => void;
@@ -40,9 +40,9 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
       className="flex-row gap-5 py-3 px-4 items-center hover:bg-background active:bg-background"
     >
       <Text>{sort.label}</Text>
-      <ChevronDownIcon
+      <Icon.ChevronDown
         className={cn(
-          'text-foreground hidden transition-all transform',
+          'hidden transition-all transform',
           comparator.sort === sort.value && 'block',
           comparator.order === 1 && 'rotate-180'
         )}
@@ -53,9 +53,7 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
   return (
     <Button onPress={() => openDropdown(<>{dropdownItems}</>)} variant="ghost">
       <Text>{t(`sort.${comparator.sort}`)}</Text>
-      <ChevronDownIcon
-        className={cn('text-foreground transition-all transform', comparator.order === 1 && 'rotate-180')}
-      />
+      <Icon.ChevronDown className={cn('transition-all transform', comparator.order === 1 && 'rotate-180')} />
     </Button>
   );
 };

@@ -3,7 +3,6 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Platform, Pressable, View } from 'react-native';
 import { Text, TextClassContext } from './text';
 import { Icon } from './icon';
-import { LoaderCircle } from 'lucide-react-native';
 
 const buttonVariants = cva(
   cn(
@@ -103,7 +102,7 @@ function Button({ className, variant, size, disabled, loading, children, ...prop
             loading ? 'w-4 ml-0' : 'w-0 ml-[-8]'
           )}
         >
-          <Icon as={LoaderCircle} className={textVariant} />
+          <Icon.Loader className={textVariant} />
         </View>
         <>{typeof children === 'string' ? <Text>{children}</Text> : children}</>
       </Pressable>
