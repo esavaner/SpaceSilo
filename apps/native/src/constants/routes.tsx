@@ -22,11 +22,11 @@ export const routeLabels: Record<keyof typeof routes, string> = {
 };
 
 export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
-  [routes.index]: <Icon.File />,
-  [routes.gallery]: <Icon.File />,
-  [routes.files]: <Icon.File />,
+  [routes.index]: <Icon.Layout />,
+  [routes.gallery]: <Icon.Image />,
+  [routes.files]: <Icon.Folder />,
   [routes.notes]: <Icon.File />,
   [routes.groups]: <Icon.UserGroup />,
-  [routes.backups]: <Icon.File />,
+  [routes.backups]: <Icon.Backup />,
   [routes.rnp]: <Icon.File />,
 };
