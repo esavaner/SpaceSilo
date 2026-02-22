@@ -7,6 +7,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+import { BaseLayout } from '@/components/base-layout';
+import { Text } from '@/components/general/text';
 
 export default function FilesPage() {
   const { t } = useTranslation();
@@ -22,7 +24,8 @@ export default function FilesPage() {
   }, []);
 
   return (
-    <View className="flex-1 bg-background relative">
+    <BaseLayout>
+      <Text variant="h1">{t('Files')}</Text>
       <View className={cn('flex-row px-4 h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (
           <ItemSelection path={currentPath} selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
@@ -35,6 +38,6 @@ export default function FilesPage() {
         )}
       </View>
       <FileList />
-    </View>
+    </BaseLayout>
   );
 }

@@ -1,14 +1,14 @@
 import { Pressable, View } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import { Text } from '../general/text';
+import { Text } from './general/text';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';
-import { Icon } from '../general/icon';
+import { Icon } from './general/icon';
 import { cn } from '@/utils/cn';
+import { Button } from './general/button';
 
 type NavigationProps = DrawerContentComponentProps;
 
 export const Navigation = (props: NavigationProps) => {
-  console.log('Navigation props:', props);
   const currentRoute = props.state.routeNames[props.state.index];
   return (
     <>
@@ -27,9 +27,11 @@ export const Navigation = (props: NavigationProps) => {
             <Text className="ml-3 mb-0.5">{routeLabels[key]}</Text>
           </Pressable>
         ))}
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between items-center">
           <Text>Connections</Text>
-          <Icon.Add />
+          <Button variant="ghost" onPress={() => props.navigation.navigate('connections')}>
+            <Icon.Add />
+          </Button>
         </View>
       </DrawerContentScrollView>
     </>

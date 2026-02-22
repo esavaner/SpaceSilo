@@ -15,7 +15,19 @@ export default function RnpScreen() {
   }, [testLoading]);
 
   return (
-    <ScrollView className="flex-1 bg-background p-8">
+    <ScrollView className="flex-1 bg-background p-4">
+      <Text variant="h1">Test heading h1</Text>
+      <Text variant="h2">Test heading h2</Text>
+      <Text variant="h3">Test heading h3</Text>
+      <Text variant="h4">Test heading h4</Text>
+      <Text variant="blockquote">Test blockquote</Text>
+      <Text variant="code">Test code</Text>
+      <Text variant="default">Test default</Text>
+      <Text variant="large">Test large</Text>
+      <Text variant="lead">Test lead</Text>
+      <Text variant="muted">Test muted</Text>
+      <Text variant="p">Test paragraph</Text>
+      <Text variant="small">Test small</Text>
       <View className="grid grid-cols-3 gap-4 justify-items-center">
         <Button onPress={() => Appearance.setColorScheme('light')}>Primary</Button>
         <Button disabled>Primary</Button>
