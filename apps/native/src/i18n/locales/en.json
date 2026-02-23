@@ -1,24 +1,24 @@
 {
   "connections": {
     "title": "Connections",
-    "subtitle": "Here you can manage your connections to external services.",
+    "subtitle": "Here you can manage your connections to external services",
     "add": "Add New Connection",
     "existing": "Existing Connections",
-    "select": "Select a provider to expand your storage capabilities.",
-    "setup": "Set up {{provider}} to expand your storage capabilities.",
-    "oauth": "OAuth connection flow for {{provider}} will be connected in a later step.",
+    "select": "Select a provider to expand your storage capabilities",
+    "setup": "Set up {{provider}} to expand your storage capabilities",
+    "oauth": "OAuth connection flow for {{provider}} will be connected in a later step",
     "providers": {
       "coreNas": {
         "title": "Core NAS",
-        "desc": "Connect to your self-hosted Core NAS server."
+        "desc": "Connect to your self-hosted Core NAS server"
       },
       "googleDrive": {
         "title": "Google Drive",
-        "desc": "Connect your Google Drive account via OAuth."
+        "desc": "Connect your Google Drive account via OAuth"
       },
       "dropbox": {
         "title": "Dropbox",
-        "desc": "Connect your Dropbox account via OAuth."
+        "desc": "Connect your Dropbox account via OAuth"
       }
     },
     "actions": {
@@ -34,10 +34,10 @@
       "disabled": "Disabled"
     },
     "messages": {
-      "connected": "{{provider}} connection \"{{name}}\" added.",
-      "failed": "Could not connect right now.",
-      "removed": "Connection removed.",
-      "none": "No Core NAS connections yet."
+      "connected": "{{provider}} connection \"{{name}}\" added",
+      "failed": "Could not connect right now",
+      "removed": "Connection removed",
+      "none": "No connections added yet"
     }
   },
   "inputs": {

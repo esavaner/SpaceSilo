@@ -16,10 +16,7 @@ const textVariants = cva(
       variant: {
         default: '',
         h1: cn('text-4xl font-bold tracking-tight', Platform.select({ web: 'scroll-m-20 text-balance' })),
-        h2: cn(
-          'border-border border-b pb-2 text-3xl font-semibold tracking-tight',
-          Platform.select({ web: 'scroll-m-20 first:mt-0' })
-        ),
+        h2: cn('text-3xl font-semibold tracking-tight', Platform.select({ web: 'scroll-m-20 first:mt-0' })),
         h3: cn('text-2xl font-semibold tracking-tight', Platform.select({ web: 'scroll-m-20' })),
         h4: cn('text-xl font-semibold tracking-tight', Platform.select({ web: 'scroll-m-20' })),
         p: 'mt-2 leading-7',

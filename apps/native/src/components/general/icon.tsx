@@ -1,4 +1,9 @@
 import { cn } from '@/utils/cn';
+import DropboxLogo from '@/assets/images/dropbox.svg';
+import GoogleDriveLogo from '@/assets/images/google_drive.svg';
+import CoreLogo from '@/assets/images/database.svg';
+import { Image as ExpoImage } from 'expo-image';
+import type { ComponentType } from 'react';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 import {
   AlertOctagon,
@@ -34,17 +39,39 @@ import {
   X,
 } from 'lucide-react-native';
 
-type IconProps = LucideProps & {
+type IconBaseProps = LucideProps & {
+  className?: string;
+  'data-testid'?: string;
+};
+
+type IconProps = IconBaseProps & {
   as: LucideIcon;
 };
 
-function renderIcon({ as: IconComponent, className, size = 18, ...props }: IconProps) {
-  return <IconComponent {...props} className={cn('text-foreground', className)} size={size} />;
-}
+const renderIcon = ({ as: IconComponent, className, size = 18, ...props }: IconProps) => {
+  const Component = IconComponent as ComponentType<IconBaseProps>;
+  return <Component {...props} className={cn('text-foreground', className)} size={size} />;
+};
 
-function create(as: LucideIcon) {
-  return (props: LucideProps) => renderIcon({ as, ...props });
-}
+const create = (as: LucideIcon) => {
+  return (props: IconBaseProps) => renderIcon({ as, ...props });
+};
+
+const createCustom = (source: number) => {
+  const CustomIcon = ({ className, size = 18, 'data-testid': dataTestId }: IconBaseProps) => {
+    const iconSize = typeof size === 'number' ? size : Number(size) || 18;
+    return (
+      <ExpoImage
+        source={source}
+        className={className}
+        style={{ width: iconSize, height: iconSize }}
+        contentFit="contain"
+        testID={dataTestId}
+      />
+    );
+  };
+  return CustomIcon;
+};
 
 export const Icon = Object.assign((props: IconProps) => renderIcon(props), {
   AlertOctagon: create(AlertOctagon),
@@ -78,4 +105,9 @@ export const Icon = Object.assign((props: IconProps) => renderIcon(props), {
   Trash: create(Trash2),
   UserGroup: create(Users),
   Code: create(Code),
+
+  // Custom icons
+  Dropbox: createCustom(DropboxLogo),
+  GoogleDrive: createCustom(GoogleDriveLogo),
+  Core: createCustom(CoreLogo),
 });

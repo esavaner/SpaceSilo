@@ -1,4 +1,4 @@
-export const ServerType = { CORE: 'core', DROPBOX: 'dropbox' } as const;
+export const ServerType = { CORE: 'core', DROPBOX: 'dropbox', GOOGLE_DRIVE: 'googleDrive' } as const;
 
 export const ClientStatus = {
   LOGGED_OUT: 'logged_out',
