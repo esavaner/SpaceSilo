@@ -1,5 +1,6 @@
 // import { Api } from '@/api/api';
 // import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
+import { toast } from '@/lib/toast';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,7 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 // @TODO add translations
 export const useFileActions = () => {
   const queryClient = useQueryClient();
-  const { closeModal, toast } = useUi();
+  const { closeModal } = useUi();
   const { handleClearSelection } = useFilesContext();
 
   const success = (message: string) => {

@@ -15,6 +15,7 @@ import { UserProvider } from '@/providers/UserProvider';
 import { Platform, Appearance, ColorSchemeName } from 'react-native';
 import { PortalHost } from '@rn-primitives/portal';
 import { ServerProvider } from '@/providers/ServerProvider';
+import { Toaster } from '@/lib/toast';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -114,6 +115,7 @@ export default function RootLayout() {
                       <Stack.Screen name="group/[groupId]" options={commonOptions} />
                       <Stack.Screen name="+not-found" />
                     </Stack>
+                    <Toaster />
                   </UiProvider>
                 </FilesProvider>
               </ServerProvider>

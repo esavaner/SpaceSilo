@@ -5,8 +5,8 @@ import { Text } from '@/components/general/text';
 import { ServerType } from '@/api/_client';
 import { endpoints } from '@/api/core.client';
 import { useValidators } from '@/hooks/useValidators';
+import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +40,6 @@ type CoreNasForm = {
 export default function ConnectionsPage() {
   const { t } = useTranslation();
   const validators = useValidators();
-  const { toast } = useUi();
   const { servers, loginAndSaveServer, removeServer, setServerEnabled } = useServerContext();
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [isSavingCoreNas, setIsSavingCoreNas] = useState(false);

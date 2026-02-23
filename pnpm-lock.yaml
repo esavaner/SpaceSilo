@@ -297,7 +297,7 @@ importers:
         version: 25.8.4(typescript@5.9.3)
       lucide-react-native:
         specifier: ^0.562.0
-        version: 0.562.0(react-native-svg@15.15.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+        version: 0.562.0(react-native-svg@15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
       nativewind:
         specifier: ^5.0.0-preview.2
         version: 5.0.0-preview.2(react-native-css@3.0.1(@expo/metro-config@54.0.14(expo@54.0.33))(lightningcss@1.30.2)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(tailwindcss@4.1.18)
@@ -331,6 +331,9 @@ importers:
       react-native-screens:
         specifier: ~4.20.0
         version: 4.20.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-svg:
+        specifier: ^15.15.3
+        version: 15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
       react-native-web:
         specifier: ~0.21.2
         version: 0.21.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -340,6 +343,12 @@ importers:
       reanimated-color-picker:
         specifier: ^4.2.0
         version: 4.2.0(expo@54.0.33)(react-native-gesture-handler@2.30.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.2.1(react-native-worklets@0.7.2(@babel/core@7.29.0)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      sonner-native:
+        specifier: ^0.23.1
+        version: 0.23.1(react-native-gesture-handler@2.30.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.2.1(react-native-worklets@0.7.2(@babel/core@7.29.0)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-safe-area-context@5.6.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-screens@4.20.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-svg@15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
       swagger-typescript-api:
         specifier: ^13.2.16
         version: 13.2.16
@@ -6629,8 +6638,8 @@ packages:
       react: '*'
       react-native: '*'
 
-  react-native-svg@15.15.2:
-    resolution: {integrity: sha512-lpaSwA2i+eLvcEdDZyGgMEInQW99K06zjJqfMFblE0yxI0SCN5E4x6in46f0IYi6i3w2t2aaq3oOnyYBe+bo4w==}
+  react-native-svg@15.15.3:
+    resolution: {integrity: sha512-/k4KYwPBLGcx2f5d4FjE+vCScK7QOX14cl2lIASJ28u4slHHtIhL0SZKU7u9qmRBHxTCKPoPBtN6haT1NENJNA==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -7044,6 +7053,23 @@ packages:
   slugify@1.6.6:
     resolution: {integrity: sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==}
     engines: {node: '>=8.0.0'}
+
+  sonner-native@0.23.1:
+    resolution: {integrity: sha512-p4WRxVoTjLTeuLcvuyMNzgd81tEUS0ayoqXEFhi5GNU1okbvBpqU5GiUjv14DgiLUYXPUQ0qq+OdrFJM2j4j+w==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+      react-native-gesture-handler: '>=2.16.1'
+      react-native-reanimated: '>=3.10.1'
+      react-native-safe-area-context: '>=4.10.5'
+      react-native-screens: '>=3.31.1'
+      react-native-svg: '>=15.6.0'
+
+  sonner@2.0.7:
+    resolution: {integrity: sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
   sort-keys-length@1.0.1:
     resolution: {integrity: sha512-GRbEOUqCxemTAk/b32F2xa8wDTs+Z1QHOkbhJDQTvv/6G3ZkbJ+frYWsTcc7cBB3Fu4wy4XlLCuNtJuMn7Gsvw==}
@@ -14232,11 +14258,11 @@ snapshots:
 
   lru.min@1.1.4: {}
 
-  lucide-react-native@0.562.0(react-native-svg@15.15.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3):
+  lucide-react-native@0.562.0(react-native-svg@15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-native: 0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3)
-      react-native-svg: 15.15.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-svg: 15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
 
   magic-string@0.30.17:
     dependencies:
@@ -15217,7 +15243,7 @@ snapshots:
       react-native: 0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3)
       warn-once: 0.1.1
 
-  react-native-svg@15.15.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3):
+  react-native-svg@15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3):
     dependencies:
       css-select: 5.2.2
       css-tree: 1.1.3
@@ -15760,6 +15786,21 @@ snapshots:
   slash@3.0.0: {}
 
   slugify@1.6.6: {}
+
+  sonner-native@0.23.1(react-native-gesture-handler@2.30.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.2.1(react-native-worklets@0.7.2(@babel/core@7.29.0)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-safe-area-context@5.6.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-screens@4.20.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native-svg@15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      react-native: 0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3)
+      react-native-gesture-handler: 2.30.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-reanimated: 4.2.1(react-native-worklets@0.7.2(@babel/core@7.29.0)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3))(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-safe-area-context: 5.6.2(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-screens: 4.20.0(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+      react-native-svg: 15.15.3(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.3))(react@19.2.3)
+
+  sonner@2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   sort-keys-length@1.0.1:
     dependencies:

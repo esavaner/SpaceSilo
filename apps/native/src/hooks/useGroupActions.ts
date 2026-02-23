@@ -1,12 +1,13 @@
 // import { Api } from '@/api/api';
 // import { AddMemberDto, CreateGroupDto } from '@/api/generated';
+import { toast } from '@/lib/toast';
 import { useUi } from '@/providers/UiProvider';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 // @TODO add translations
 export const useGroupActions = () => {
   const queryClient = useQueryClient();
-  const { closeModal, toast } = useUi();
+  const { closeModal } = useUi();
 
   const success = (message: string) => {
     closeModal();
