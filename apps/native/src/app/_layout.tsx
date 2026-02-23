@@ -45,18 +45,16 @@ export default function RootLayout() {
       };
 
       Appearance.getColorScheme = () => {
-        const systemValue = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         const userValue = document.documentElement.getAttribute('data-theme');
-        return (userValue && userValue !== 'null' ? userValue : systemValue) as ColorSchemeName;
+        return (userValue && userValue !== 'null' ? userValue : 'dark') as ColorSchemeName;
       };
 
       Appearance.addChangeListener = (listener) => {
         // Listen for changes of system value
-        const systemValueListener = (e: MediaQueryListEvent) => {
-          const newSystemValue = e.matches ? 'dark' : 'light';
+        const systemValueListener = (_e: MediaQueryListEvent) => {
           const userValue = document.documentElement.getAttribute('data-theme');
           listener({
-            colorScheme: (userValue && userValue !== 'null' ? userValue : newSystemValue) as ColorSchemeName,
+            colorScheme: (userValue && userValue !== 'null' ? userValue : 'dark') as ColorSchemeName,
           });
         };
         const systemValue = window.matchMedia('(prefers-color-scheme: dark)');
@@ -79,6 +77,13 @@ export default function RootLayout() {
 
         return { remove };
       };
+
+      const userValue = document.documentElement.getAttribute('data-theme');
+      if (!userValue || userValue === 'null') {
+        Appearance.setColorScheme('dark');
+      }
+    } else {
+      Appearance.setColorScheme('dark');
     }
   }, [loaded]);
 
