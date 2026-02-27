@@ -37,8 +37,8 @@ export class FilesController {
     return result;
   }
 
-  @Get('/all')
-  findAll(@Query() dto: FindAllFilesRequest, @User() user: TokenPayload): Promise<FileResponse[]> {
+  @Post('/all')
+  findAll(@Body() dto: FindAllFilesRequest, @User() user: TokenPayload): Promise<FileResponse[]> {
     return this.filesService.findAll(dto, user);
   }
 

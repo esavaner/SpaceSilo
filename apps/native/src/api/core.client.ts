@@ -1,5 +1,26 @@
 import { ApiClient, ApiClientOptions } from './_client';
-import { type AuthResponse, type RefreshResponse, type UserResponse } from '@repo/shared';
+import { buildQuery } from '../utils/requests';
+import {
+  type AddGroupMemberRequest,
+  type AddGroupMembersRequest,
+  type AuthResponse,
+  type CopyFileRequest,
+  type CreateFileRequest,
+  type CreateGroupRequest,
+  type CreateFolderRequest,
+  type DownloadFileRequest,
+  type FileActionResponse,
+  type FileResponse,
+  type FindAllFilesRequest,
+  type FindFileRequest,
+  type GroupResponse,
+  type MoveFileRequest,
+  type RefreshResponse,
+  type RemoveGroupMemberRequest,
+  type RemoveFileRequest,
+  type UpdateGroupMemberRequest,
+  type UserResponse,
+} from '@repo/shared';
 
 export const endpoints = {
   auth: '/auth',
@@ -24,7 +45,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   constructor(options: Options) {
     super({ ...options });
     if (options.email && options.password) {
-      this.startLogin(() => this.login(options.email!, options.password!));
+      void this.startLogin(() => this.login(options.email!, options.password!));
     }
   }
 
@@ -45,7 +66,11 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     this.saveRefreshToken(result.refreshToken);
   }
 
-  protected override async refreshTokens() {
+  public override async reconnect() {
+    return this.startLogin(() => this.refreshTokens());
+  }
+
+  private async refreshTokens() {
     const refreshToken = this.refreshToken;
     if (!refreshToken) {
       return false;
@@ -64,4 +89,40 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     this.saveRefreshToken(refreshed.refreshToken);
     return true;
   }
+
+  public readonly files = {
+    find: (dto: FindFileRequest) => this.get<FileResponse>(buildQuery(endpoints.files, { ...dto })),
+    findAll: (dto: FindAllFilesRequest) =>
+      this.post<FindAllFilesRequest, FileResponse[]>(`${endpoints.files}/all`, dto),
+    createFile: async (dto: CreateFileRequest, file: Blob, fileName: string) => {
+      const formData = new FormData();
+      formData.append('newPath', dto.newPath);
+      formData.append('name', dto.name);
+      formData.append('groupId', dto.groupId);
+      formData.append('file', file, fileName);
+      return this.postFormData<FileActionResponse>(endpoints.files, formData);
+    },
+    createFolder: (dto: CreateFolderRequest) =>
+      this.post<CreateFolderRequest, FileActionResponse>(`${endpoints.files}/folder`, dto),
+    move: (dto: MoveFileRequest) => this.patch<MoveFileRequest, FileActionResponse>(endpoints.files, dto),
+    copy: (dto: CopyFileRequest) => this.post<CopyFileRequest, FileActionResponse>(`${endpoints.files}/copy`, dto),
+    remove: (dto: RemoveFileRequest) => this.delete<RemoveFileRequest, FileActionResponse>(endpoints.files, dto),
+    download: (dto: DownloadFileRequest) => this.getBlob(buildQuery(`${endpoints.files}/download`, { ...dto })),
+  };
+
+  public readonly groups = {
+    create: (dto: CreateGroupRequest) => this.post<CreateGroupRequest, GroupResponse>(endpoints.groups, dto),
+    addMember: (id: string, dto: AddGroupMemberRequest) =>
+      this.patch<AddGroupMemberRequest, GroupResponse>(`${endpoints.groups}/${id}/add_member`, dto),
+    addMembers: (id: string, dto: AddGroupMembersRequest) =>
+      this.patch<AddGroupMembersRequest, GroupResponse>(`${endpoints.groups}/${id}/add_members`, dto),
+    removeMember: (id: string, dto: RemoveGroupMemberRequest) =>
+      this.patch<RemoveGroupMemberRequest, GroupResponse>(`${endpoints.groups}/${id}/remove_member`, dto),
+    updateMember: (id: string, dto: UpdateGroupMemberRequest) =>
+      this.patch<UpdateGroupMemberRequest, GroupResponse>(`${endpoints.groups}/${id}/update_member`, dto),
+    findUserGroups: () => this.get<GroupResponse[]>(endpoints.groups),
+    findAll: () => this.get<GroupResponse[]>(`${endpoints.groups}/all`),
+    findOne: (id: string) => this.get<GroupResponse>(`${endpoints.groups}/${id}`),
+    remove: (id: string) => this.delete<undefined, GroupResponse>(`${endpoints.groups}/${id}`),
+  };
 }

@@ -53,21 +53,29 @@ export class FilesService {
   }
 
   async findAll(dto: FindAllFilesRequest, user: TokenPayload): Promise<FileResponse[]> {
-    if (!dto.groupIds?.length) {
+    if (!dto.items?.length) {
       return [];
     }
+
     const files: FileResponse[] = [];
-    const ids = Array.isArray(dto.groupIds) ? dto.groupIds : [dto.groupIds];
-    for (const groupId of ids) {
+    for (const item of dto.items) {
+      const groupId = item.groupId;
+      const relativePath = item.path || '';
+      const skip = item.skip ?? 0;
+      const take = item.take;
+
       this.groupCheck(groupId, user);
-      const fileDir = path.join(process.env.FILES_PATH, groupId, dto.path || '');
+      const fileDir = path.join(process.env.FILES_PATH, groupId, relativePath);
       if (!fs.existsSync(fileDir)) {
         continue;
       }
 
       try {
         const fileList = fs.readdirSync(fileDir);
-        for (const fileName of fileList) {
+        const slicedFileList =
+          typeof take === 'number' ? fileList.slice(skip, skip + take) : skip > 0 ? fileList.slice(skip) : fileList;
+
+        for (const fileName of slicedFileList) {
           const filePath = path.join(fileDir, fileName);
           const stats = fs.statSync(filePath);
           let md5Hash = '';
@@ -77,7 +85,7 @@ export class FilesService {
           }
           files.push({
             name: fileName,
-            uri: path.join('/', dto.path || '', fileName),
+            uri: path.join('/', relativePath, fileName),
             size: stats.size,
             modificationTime: stats.mtime,
             isDirectory: stats.isDirectory(),

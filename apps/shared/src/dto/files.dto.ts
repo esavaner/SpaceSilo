@@ -1,4 +1,5 @@
-import { IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -40,19 +41,31 @@ export class RemoveFileRequest extends DownloadFileRequest {}
 
 export class FindFileRequest extends DownloadFileRequest {}
 
-export class FindAllFilesRequest {
+export class FindAllFilesItemRequest {
+  @IsString()
+  @IsNotEmpty()
+  groupId!: string;
+
   @IsOptional()
   @IsString()
   path?: string;
 
-  @IsString({ each: true })
-  groupIds!: string | string[];
-
   @IsOptional()
+  @Type(() => Number)
+  @Min(0)
   take?: number;
 
   @IsOptional()
+  @Type(() => Number)
+  @Min(0)
   skip?: number;
+}
+
+export class FindAllFilesRequest {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FindAllFilesItemRequest)
+  items!: FindAllFilesItemRequest[];
 }
 
 /* ------------------------- Responses ------------------------- */

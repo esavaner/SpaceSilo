@@ -23,6 +23,7 @@ class ApiError extends Error {
 
 export type ApiClientOptions = {
   baseUrl: string;
+  refreshToken?: string;
   saveRefreshToken: (token: string | undefined) => void;
 };
 
@@ -38,25 +39,35 @@ export class ApiClient<TAccount = unknown> {
   protected saveRefreshToken: (token: string | undefined) => void;
 
   private readonly defaultConfig: RequestInit = {};
-  private initializationPromise?: Promise<void>;
+  private initializationPromise?: Promise<boolean>;
 
-  constructor({ baseUrl, saveRefreshToken }: ApiClientOptions) {
+  constructor({ baseUrl, saveRefreshToken, refreshToken }: ApiClientOptions) {
     this.status = ClientStatus.INITIALIZING;
     this.baseUrl = baseUrl.trim().replace(/\/+$/, '');
     this.saveRefreshToken = saveRefreshToken;
+    this.refreshToken = refreshToken;
   }
 
-  protected startLogin(login: () => Promise<void>) {
+  protected startLogin(login: () => Promise<void | boolean>) {
+    this.status = ClientStatus.INITIALIZING;
     this.loginError = undefined;
     this.initializationPromise = (async () => {
       try {
-        await login();
+        const loginResult = await login();
+        if (loginResult === false) {
+          this.status = ClientStatus.ERROR;
+          this.loginError = new Error('Login failed');
+          return false;
+        }
         this.status = ClientStatus.LOGGED_IN;
+        return true;
       } catch (error) {
         this.status = ClientStatus.ERROR;
         this.loginError = error instanceof Error ? error : new Error('Login failed');
+        return false;
       }
     })();
+    return this.initializationPromise;
   }
 
   public logout() {
@@ -66,11 +77,7 @@ export class ApiClient<TAccount = unknown> {
     this.saveRefreshToken(undefined);
   }
 
-  protected async refreshTokens() {
-    return false;
-  }
-
-  private headersToRecord(headers?: HeadersInit): Record<string, string> {
+  private headersToRecord(headers?: HeadersInit) {
     if (!headers) return {};
     if (headers instanceof Headers) {
       const out: Record<string, string> = {};
@@ -79,46 +86,58 @@ export class ApiClient<TAccount = unknown> {
       });
       return out;
     }
-    return Array.isArray(headers) ? Object.fromEntries(headers) : (headers as Record<string, string>);
+    return Array.isArray(headers) ? Object.fromEntries(headers) : headers;
   }
 
-  protected async rawRequest<Res>(path: string, config: RequestInit = {}) {
+  private buildHeaders(config: RequestInit) {
+    const headers: Record<string, string> = {
+      ...this.headersToRecord(this.defaultConfig.headers),
+      ...this.headersToRecord(config.headers),
+      ...(this.accessToken ? { Authorization: `Bearer ${this.accessToken}` } : {}),
+    };
+
+    if (
+      !Object.keys(headers).some((key) => key.toLowerCase() === 'content-type') &&
+      config.body !== undefined &&
+      !(config.body instanceof FormData)
+    ) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    return headers;
+  }
+
+  protected async rawRequest<Res>(path: string, config: RequestInit = {}, unparsed = false) {
     const doFetch = () =>
       fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
         ...this.defaultConfig,
         ...config,
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.headersToRecord(this.defaultConfig.headers),
-          ...this.headersToRecord(config.headers),
-          ...(this.accessToken ? { Authorization: `Bearer ${this.accessToken}` } : {}),
-        },
+        headers: this.buildHeaders(config),
       });
-
     const response = await doFetch();
     if (!response.ok) {
       const errorText = await response.text();
       throw new ApiError(response.status, response.statusText, errorText);
     }
-    return response.json() as Promise<Res>;
+    return unparsed ? (response as Res) : (response.json() as Promise<Res>);
   }
 
-  private async request<Res>(path: string, config: RequestInit = {}) {
+  private async request<Res>(path: string, config: RequestInit = {}, unparsed = false) {
     if (this.initializationPromise) await this.initializationPromise;
     try {
-      return await this.rawRequest<Res>(path, config);
+      return await this.rawRequest<Res>(path, config, unparsed);
     } catch (error) {
       if (!(error instanceof ApiError) || error.status !== 401) {
         throw error;
       }
       try {
-        const refreshed = await this.refreshTokens();
+        const refreshed = await this.reconnect();
         if (!refreshed) {
           this.logout();
           throw error;
         }
         this.status = ClientStatus.LOGGED_IN;
-        return this.rawRequest<Res>(path, config);
+        return this.rawRequest<Res>(path, config, unparsed);
       } catch {
         this.logout();
         throw error;
@@ -130,11 +149,24 @@ export class ApiClient<TAccount = unknown> {
     return this.request<Res>(path, { ...config, method: 'GET' });
   }
 
+  public async getBlob(path: string, config?: RequestInit) {
+    const response = await this.request<Response>(path, { ...config, method: 'GET' }, true);
+    return response.blob();
+  }
+
   public post<Req, Res>(path: string, body?: Req, config?: RequestInit) {
     return this.request<Res>(path, {
       ...config,
       method: 'POST',
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+  }
+
+  public postFormData<Res>(path: string, body: FormData, config?: RequestInit) {
+    return this.request<Res>(path, {
+      ...config,
+      method: 'POST',
+      body,
     });
   }
 
@@ -154,7 +186,15 @@ export class ApiClient<TAccount = unknown> {
     });
   }
 
-  public delete<Res>(path: string, config?: RequestInit) {
-    return this.request<Res>(path, { ...config, method: 'DELETE' });
+  public delete<Req, Res>(path: string, body?: Req, config?: RequestInit) {
+    return this.request<Res>(path, {
+      ...config,
+      method: 'DELETE',
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+  }
+
+  public async reconnect() {
+    return false;
   }
 }

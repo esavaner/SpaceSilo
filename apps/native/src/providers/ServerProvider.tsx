@@ -9,6 +9,7 @@ export type ServerConnection = {
   baseUrl: string;
   label: string;
   disabled: boolean;
+  refreshToken?: string;
 };
 
 export type ServerConnectionWithClient = ServerConnection & {
@@ -32,7 +33,7 @@ export type ReconnectServerInput = {
 type ServerContextType = {
   isLoading: boolean;
   servers: ServerConnectionWithClient[];
-  enabledServers: ServerConnectionWithClient[];
+  allServers: ServerConnectionWithClient[];
   loginAndSaveServer: (input: LoginAndSaveServerInput) => Promise<ServerConnectionWithClient>;
   removeServer: (serverId: string) => Promise<boolean>;
   setServerEnabled: (serverId: string, enabled: boolean) => Promise<void>;
@@ -44,7 +45,7 @@ export const ServerContext = createContext<ServerContextType | undefined>(undefi
 
 export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [servers, setServers] = useState<ServerConnectionWithClient[]>([]);
+  const [allServers, setServers] = useState<ServerConnectionWithClient[]>([]);
 
   const createServerId = () =>
     typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -128,10 +129,11 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
     const newServers = savedServers.map((s) => ({
       ...s,
       client: new CoreApiClient({
-        baseUrl: s.baseUrl,
+        ...s,
         saveRefreshToken: (token) => updateRefreshTokenInStorage(s.id, token),
       }),
     }));
+    await Promise.all(newServers.map(async (server) => await server.client.reconnect()));
     setServers(newServers);
   };
 
@@ -158,14 +160,14 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
     setServers((prev) => prev.map((item) => (item.id === serverId ? { ...item, disabled: !enabled } : item)));
   };
 
-  const enabledServers = servers.filter((s) => !s.disabled);
+  const servers = allServers.filter((s) => !s.disabled && s.client.status === 'logged_in');
 
   return (
     <ServerContext.Provider
       value={{
         isLoading,
         servers,
-        enabledServers,
+        allServers,
         loginAndSaveServer,
         removeServer,
         setServerEnabled,

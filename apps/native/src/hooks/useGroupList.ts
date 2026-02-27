@@ -1,35 +1,50 @@
-// import { Api } from '@/api/api';
-// import { GetGroupDto } from '@/api/generated';
-import { useUserContext } from '@/providers/UserProvider';
+import { useServerContext } from '@/providers/ServerProvider';
+import { GroupResponse } from '@repo/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export const useGroupList = () => {
-  const { user } = useUserContext();
+  const { servers } = useServerContext();
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 
   const { data: groups, isLoading: isGroupsLoading } = useQuery({
     queryKey: ['groups'],
-    queryFn: () => ({ data: [] }) as any, // TODO: implement API call to get user groups
-    enabled: !!user,
+    queryFn: async () => {
+      if (!servers.length) {
+        return { data: [] };
+      }
+
+      const responses = await Promise.all(
+        servers.map(async (server) => {
+          try {
+            return await server.client.groups.findUserGroups();
+          } catch {
+            return [];
+          }
+        })
+      );
+
+      return { data: responses.flat() };
+    },
+    enabled: servers.length > 0,
     select: (data) => data.data,
   });
 
-  const groupsPersonal = groups?.filter((group: any) => group.personal);
-  const groupsShared = groups?.filter((group: any) => !group.personal);
+  const groupsPersonal = groups?.filter((group) => group.personal);
+  const groupsShared = groups?.filter((group) => !group.personal);
 
   useEffect(() => {
     if (groups) {
-      setSelectedGroupIds(groups.map((group: any) => group.id));
+      setSelectedGroupIds(groups.map((group) => group.id));
     }
   }, [groups]);
 
   const handleSelectAllGroups = () => {
     const g = groups || [];
-    setSelectedGroupIds(g.map((group: any) => group.id));
+    setSelectedGroupIds(g.map((group) => group.id));
   };
 
-  const handleSelectGroup = (group: any) => {
+  const handleSelectGroup = (group: GroupResponse) => {
     const isSelected = selectedGroupIds.includes(group.id);
     if (isSelected) {
       setSelectedGroupIds(selectedGroupIds.filter((id) => id !== group.id));
@@ -39,7 +54,7 @@ export const useGroupList = () => {
   };
 
   return {
-    groups,
+    groups: groups || [],
     groupsPersonal,
     groupsShared,
     isGroupsLoading,
