@@ -2,12 +2,19 @@ import { BaseLayout } from '@/components/base-layout';
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
-import { type GalleryImageResponse } from '@/api/core.client';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/dropdowns/dropdown';
 import { useServerContext } from '@/providers/ServerProvider';
 import { toast } from '@/lib/toast';
+import { type GalleryImageResponse } from '@repo/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { Image } from 'expo-image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
 
@@ -18,12 +25,83 @@ type GalleryItem = GalleryImageResponse & {
   headers?: Record<string, string>;
 };
 
+type GroupBy = 'day' | 'week' | 'month' | 'year' | 'none';
+
+type GalleryGroup = {
+  key: string;
+  label: string;
+  items: GalleryItem[];
+};
+
+const groupByOptions: { label: string; value: GroupBy }[] = [
+  { label: 'Day', value: 'day' },
+  { label: 'Week', value: 'week' },
+  { label: 'Month', value: 'month' },
+  { label: 'Year', value: 'year' },
+  { label: 'None', value: 'none' },
+];
+
+const getGroupMetadata = (date: Date, groupBy: Exclude<GroupBy, 'none'>) => {
+  switch (groupBy) {
+    case 'day':
+      return {
+        key: format(date, 'yyyy-MM-dd'),
+        label: format(date, 'EEEE, d MMMM yyyy'),
+      };
+    case 'week': {
+      const start = startOfWeek(date, { weekStartsOn: 1 });
+      const end = endOfWeek(date, { weekStartsOn: 1 });
+      return {
+        key: format(start, "yyyy-'W'II"),
+        label: `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`,
+      };
+    }
+    case 'month':
+      return {
+        key: format(date, 'yyyy-MM'),
+        label: format(date, 'MMMM yyyy'),
+      };
+    case 'year':
+      return {
+        key: format(date, 'yyyy'),
+        label: format(date, 'yyyy'),
+      };
+  }
+};
+
+const groupPhotos = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup[] => {
+  if (groupBy === 'none') {
+    return [{ key: 'all', label: '', items }];
+  }
+
+  const groups = new Map<string, GalleryGroup>();
+
+  for (const item of items) {
+    const metadata = getGroupMetadata(new Date(item.capturedAt ?? item.createdAt), groupBy);
+    const group = groups.get(metadata.key);
+
+    if (group) {
+      group.items.push(item);
+      continue;
+    }
+
+    groups.set(metadata.key, {
+      key: metadata.key,
+      label: metadata.label,
+      items: [item],
+    });
+  }
+
+  return Array.from(groups.values());
+};
+
 export default function GalleryPage() {
   const { t } = useTranslation();
   const { servers } = useServerContext();
   const queryClient = useQueryClient();
   const { width } = useWindowDimensions();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const [groupBy, setGroupBy] = useState<GroupBy>('day');
 
   const columnCount = width > 1280 ? 5 : width > 1024 ? 4 : width > 768 ? 3 : 2;
 
@@ -50,10 +128,14 @@ export default function GalleryPage() {
         })
       );
 
-      return responses.flat().sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+      return responses
+        .flat()
+        .sort((a, b) => +new Date(b.capturedAt ?? b.createdAt) - +new Date(a.capturedAt ?? a.createdAt));
     },
     enabled: servers.length > 0,
   });
+
+  const photoGroups = groupPhotos(photos, groupBy);
 
   const { mutate: uploadFiles, isPending: isUploading } = useMutation({
     mutationKey: ['gallery-upload'],
@@ -105,10 +187,28 @@ export default function GalleryPage() {
     <BaseLayout>
       <View className="mb-4 flex-row justify-between items-center gap-3">
         <Text variant="h1">{t('Gallery')}</Text>
-        <Button onPress={handleUploadButtonPress} loading={isUploading}>
-          <Icon.Add className="text-primary-foreground" />
-          <Text>Upload</Text>
-        </Button>
+        <View className="flex-row items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="outline">
+                <Text>{groupByOptions.find((option) => option.value === groupBy)?.label ?? 'Day'}</Text>
+                <Icon.ChevronDown className="text-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {groupByOptions.map((option) => (
+                <DropdownMenuItem key={option.value} onPress={() => setGroupBy(option.value)}>
+                  <Text className="flex-1">{option.label}</Text>
+                  {groupBy === option.value && <Icon.Check className="text-foreground" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onPress={handleUploadButtonPress} loading={isUploading}>
+            <Icon.Add className="text-primary-foreground" />
+            <Text>Upload</Text>
+          </Button>
+        </View>
       </View>
 
       {Platform.OS === 'web' && (
@@ -118,25 +218,38 @@ export default function GalleryPage() {
       {isPending && <Text className="text-muted-foreground">Loading photos...</Text>}
       {!isPending && photos.length === 0 && <Text className="text-muted-foreground">No photos yet</Text>}
 
-      <View className="flex-row flex-wrap -mx-1">
-        {photos.map((item) => {
-          const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
-          const tileWidth = `${100 / columnCount}%` as `${number}%`;
+      <View className="gap-6">
+        {photoGroups.map((group) => (
+          <View key={group.key}>
+            {groupBy !== 'none' && (
+              <View className="mb-3 flex-row items-center gap-3">
+                <Text variant="large">{group.label}</Text>
+                <View className="h-px flex-1 bg-border" />
+              </View>
+            )}
 
-          return (
-            <View key={`${item.serverId}:${item.id}`} className="p-1" style={{ width: tileWidth }}>
-              <Pressable className="overflow-hidden rounded-lg bg-layer-secondary aspect-square">
-                <Image
-                  source={{ uri: imageUri, headers: item.headers }}
-                  cachePolicy="memory-disk"
-                  contentFit="cover"
-                  transition={120}
-                  className="w-full h-full"
-                />
-              </Pressable>
+            <View className="flex-row flex-wrap -mx-1">
+              {group.items.map((item) => {
+                const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
+                const tileWidth = `${100 / columnCount}%` as `${number}%`;
+
+                return (
+                  <View key={`${item.serverId}:${item.id}`} className="p-1" style={{ width: tileWidth }}>
+                    <Pressable className="overflow-hidden rounded-lg bg-layer-secondary aspect-square">
+                      <Image
+                        source={{ uri: imageUri, headers: item.headers }}
+                        cachePolicy="memory-disk"
+                        contentFit="cover"
+                        transition={120}
+                        className="w-full h-full"
+                      />
+                    </Pressable>
+                  </View>
+                );
+              })}
             </View>
-          );
-        })}
+          </View>
+        ))}
       </View>
     </BaseLayout>
   );

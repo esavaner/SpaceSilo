@@ -8,16 +8,117 @@ import {
   type GalleryImageResponse,
   type GalleryScanResponse,
   type GalleryStatsResponse,
+  type Prisma,
   type TokenPayload,
 } from '@repo/shared';
+import exifr from 'exifr';
 import sharp from 'sharp';
 
 const THUMBNAIL_HEIGHT = 200;
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff', '.avif']);
 
+type StoredPhotoMetadata = Prisma.InputJsonObject & {
+  capturedAt?: string | null;
+};
+
+type UploadedImageFile = {
+  buffer?: Buffer;
+  originalname: string;
+};
+
 @Injectable()
 export class GalleryService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private asStoredPhotoMetadata(metadata: unknown): StoredPhotoMetadata | null {
+    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+      return null;
+    }
+
+    return { ...(metadata as Prisma.InputJsonObject) };
+  }
+
+  private normalizeCapturedAt(value: unknown): string | null {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+      return value.toISOString();
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed.toISOString();
+      }
+    }
+
+    return null;
+  }
+
+  private getCapturedAtFromMetadata(metadata: unknown): Date | null {
+    const storedMetadata = this.asStoredPhotoMetadata(metadata);
+    const capturedAt = this.normalizeCapturedAt(storedMetadata?.capturedAt);
+    return capturedAt ? new Date(capturedAt) : null;
+  }
+
+  private mergePhotoMetadata(metadata: unknown, capturedAt: string | null): StoredPhotoMetadata | undefined {
+    const storedMetadata = this.asStoredPhotoMetadata(metadata) ?? {};
+
+    if (!capturedAt) {
+      return Object.keys(storedMetadata).length > 0 ? storedMetadata : undefined;
+    }
+
+    return {
+      ...storedMetadata,
+      capturedAt,
+    };
+  }
+
+  private async extractCapturedAt(fileBuffer: Buffer): Promise<string | null> {
+    try {
+      const metadata = await exifr.parse(fileBuffer, ['DateTimeOriginal', 'CreateDate', 'ModifyDate']);
+      return this.normalizeCapturedAt(metadata?.DateTimeOriginal ?? metadata?.CreateDate ?? metadata?.ModifyDate);
+    } catch {
+      return null;
+    }
+  }
+
+  private async ensureCapturedAt(photo: { id: string; path: string; metadata?: unknown }, fileBuffer?: Buffer) {
+    const existingCapturedAt = this.getCapturedAtFromMetadata(photo.metadata);
+    if (existingCapturedAt) {
+      return existingCapturedAt;
+    }
+
+    const sourceBuffer = fileBuffer ?? (fs.existsSync(photo.path) ? fs.readFileSync(photo.path) : null);
+    if (!sourceBuffer) {
+      return null;
+    }
+
+    const capturedAt = await this.extractCapturedAt(sourceBuffer);
+    if (!capturedAt) {
+      return null;
+    }
+
+    await this.prisma.photo.update({
+      where: { id: photo.id },
+      data: {
+        metadata: this.mergePhotoMetadata(photo.metadata, capturedAt),
+      },
+    });
+
+    return new Date(capturedAt);
+  }
+
+  private toGalleryImageResponse(
+    photo: { id: string; createdAt: Date },
+    capturedAt: Date | null
+  ): GalleryImageResponse {
+    return {
+      id: photo.id,
+      imagePath: `/gallery/${photo.id}/file`,
+      thumbnailPath: `/gallery/${photo.id}/thumbnail`,
+      capturedAt,
+      createdAt: photo.createdAt,
+    };
+  }
 
   private ensureDirectoryExists(dirPath: string) {
     if (!fs.existsSync(dirPath)) {
@@ -104,7 +205,7 @@ export class GalleryService {
     });
   }
 
-  async create(file: Express.Multer.File, user: TokenPayload) {
+  async create(file: UploadedImageFile, user: TokenPayload) {
     if (!file?.buffer) {
       throw new BadRequestException('File is required');
     }
@@ -124,13 +225,14 @@ export class GalleryService {
 
     const thumbnailPath = this.getThumbnailOutputPath(photoPath);
     await this.createThumbnail(file.buffer, thumbnailPath);
+    const capturedAt = await this.extractCapturedAt(file.buffer);
 
     const photo = await this.prisma.photo.create({
       data: {
         url: '',
         thumbnailPath,
         path: photoPath,
-        // metadata: {}, // Add any metadata if needed
+        metadata: this.mergePhotoMetadata(null, capturedAt),
         ownerId: user.sub,
         hash,
       },
@@ -166,12 +268,21 @@ export class GalleryService {
       try {
         const fileBuffer = fs.readFileSync(filePath);
         const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+        const capturedAt = await this.extractCapturedAt(fileBuffer);
         const existingPhoto = await this.prisma.photo.findFirst({
           where: { hash },
-          select: { id: true },
+          select: { id: true, metadata: true },
         });
 
         if (existingPhoto) {
+          if (!this.getCapturedAtFromMetadata(existingPhoto.metadata) && capturedAt) {
+            await this.prisma.photo.update({
+              where: { id: existingPhoto.id },
+              data: {
+                metadata: this.mergePhotoMetadata(existingPhoto.metadata, capturedAt),
+              },
+            });
+          }
           continue;
         }
 
@@ -183,6 +294,7 @@ export class GalleryService {
             url: '',
             thumbnailPath,
             path: filePath,
+            metadata: this.mergePhotoMetadata(null, capturedAt),
             ownerId: user.sub,
             hash,
           },
@@ -203,16 +315,23 @@ export class GalleryService {
   async findAll(user: TokenPayload): Promise<GalleryImageResponse[]> {
     const photos = await this.prisma.photo.findMany({
       where: { ownerId: user.sub },
-      select: { id: true, createdAt: true },
-      orderBy: { createdAt: 'desc' },
+      select: { id: true, path: true, metadata: true, createdAt: true },
     });
 
-    return photos.map((photo) => ({
-      id: photo.id,
-      imagePath: `/gallery/${photo.id}/file`,
-      thumbnailPath: `/gallery/${photo.id}/thumbnail`,
-      createdAt: photo.createdAt,
-    }));
+    const resolvedPhotos = await Promise.all(
+      photos.map(async (photo) => ({
+        photo,
+        capturedAt: await this.ensureCapturedAt(photo),
+      }))
+    );
+
+    resolvedPhotos.sort((a, b) => {
+      const left = +(a.capturedAt ?? a.photo.createdAt);
+      const right = +(b.capturedAt ?? b.photo.createdAt);
+      return right - left;
+    });
+
+    return resolvedPhotos.map(({ photo, capturedAt }) => this.toGalleryImageResponse(photo, capturedAt));
   }
 
   async findOne(id: string, user: TokenPayload): Promise<GalleryImageResponse> {
@@ -221,12 +340,9 @@ export class GalleryService {
       throw new NotFoundException('Photo not found');
     }
 
-    return {
-      id: photo.id,
-      imagePath: `/gallery/${photo.id}/file`,
-      thumbnailPath: `/gallery/${photo.id}/thumbnail`,
-      createdAt: photo.createdAt,
-    };
+    const capturedAt = await this.ensureCapturedAt(photo);
+
+    return this.toGalleryImageResponse(photo, capturedAt);
   }
 
   // update(id: number, updatePhotoDto: UpdatePhotoDto) {

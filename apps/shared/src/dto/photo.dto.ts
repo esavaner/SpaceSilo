@@ -130,6 +130,10 @@ export class GalleryImageResponse {
   @IsString()
   thumbnailPath!: string;
 
+  @IsOptional()
+  @IsDate()
+  capturedAt?: Date | null;
+
   @IsDate()
   createdAt!: Date;
 }
