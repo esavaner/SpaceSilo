@@ -128,6 +128,7 @@ export default function GalleryPage() {
               <Pressable className="overflow-hidden rounded-lg bg-layer-secondary aspect-square">
                 <Image
                   source={{ uri: imageUri, headers: item.headers }}
+                  cachePolicy="memory-disk"
                   contentFit="cover"
                   transition={120}
                   className="w-full h-full"

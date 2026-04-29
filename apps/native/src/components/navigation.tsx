@@ -34,7 +34,7 @@ export const Navigation = (props: NavigationProps) => {
         ))}
         <View className="flex-row justify-between items-center mt-6 mx-3 mb-2">
           <Text variant="small">Connections</Text>
-          <Button variant="ghost" onPress={() => props.navigation.navigate('connections')}>
+          <Button variant="ghost" onPress={() => router.push('/connections')}>
             <Icon.Add />
           </Button>
         </View>

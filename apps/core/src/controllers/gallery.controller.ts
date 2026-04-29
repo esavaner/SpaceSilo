@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GalleryService } from '@/services/gallery.service';
 import { User } from '@/decorators/user.decorator';
 import { type TokenPayload } from '@repo/shared';
+
+const GALLERY_CACHE_CONTROL_HEADER = 'private, max-age=31536000, immutable';
 
 @Controller('gallery')
 export class GalleryController {
@@ -40,11 +42,15 @@ export class GalleryController {
   }
 
   @Get(':id/file')
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
   async findImage(@Param('id') id: string, @User() user: TokenPayload) {
     return await this.galleryService.findImage(id, user);
   }
 
   @Get(':id/thumbnail')
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
   async findThumbnail(@Param('id') id: string, @User() user: TokenPayload) {
     return await this.galleryService.findThumbnail(id, user);
   }
