@@ -1,4 +1,5 @@
 import { BaseLayout } from '@/components/base-layout';
+import { GalleryLightbox } from '@/components/gallery/GalleryLightbox';
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
@@ -14,7 +15,7 @@ import { type GalleryImageResponse } from '@repo/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { Image } from 'expo-image';
-import { useRef, useState } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
 
@@ -31,6 +32,12 @@ type GalleryGroup = {
   key: string;
   label: string;
   items: GalleryItem[];
+};
+
+type GalleryLightboxItem = {
+  key: string;
+  uri: string;
+  headers?: Record<string, string>;
 };
 
 const groupByOptions: { label: string; value: GroupBy }[] = [
@@ -95,6 +102,58 @@ const groupPhotos = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup[] => 
   return Array.from(groups.values());
 };
 
+const GalleryGrid = memo(function GalleryGrid({
+  photoGroups,
+  columnCount,
+  photoIndexByKey,
+  onSelectPhoto,
+}: {
+  photoGroups: GalleryGroup[];
+  columnCount: number;
+  photoIndexByKey: Map<string, number>;
+  onSelectPhoto: React.Dispatch<React.SetStateAction<number | null>>;
+}) {
+  return (
+    <View className="gap-6">
+      {photoGroups.map((group) => (
+        <View key={group.key}>
+          {group.label ? (
+            <View className="mb-3 flex-row items-center gap-3">
+              <Text variant="large">{group.label}</Text>
+              <View className="h-px flex-1 bg-border" />
+            </View>
+          ) : null}
+
+          <View className="flex-row flex-wrap -mx-1">
+            {group.items.map((item) => {
+              const itemKey = `${item.serverId}:${item.id}`;
+              const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
+              const tileWidth = `${100 / columnCount}%` as `${number}%`;
+
+              return (
+                <View key={itemKey} className="p-1" style={{ width: tileWidth }}>
+                  <Pressable
+                    className="overflow-hidden rounded-lg bg-layer-secondary aspect-square"
+                    onPress={() => onSelectPhoto(photoIndexByKey.get(itemKey) ?? null)}
+                  >
+                    <Image
+                      source={{ uri: imageUri, headers: item.headers }}
+                      cachePolicy="memory-disk"
+                      contentFit="cover"
+                      transition={120}
+                      className="w-full h-full"
+                    />
+                  </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+});
+
 export default function GalleryPage() {
   const { t } = useTranslation();
   const { servers } = useServerContext();
@@ -102,6 +161,7 @@ export default function GalleryPage() {
   const { width } = useWindowDimensions();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const [groupBy, setGroupBy] = useState<GroupBy>('day');
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   const columnCount = width > 1280 ? 5 : width > 1024 ? 4 : width > 768 ? 3 : 2;
 
@@ -135,7 +195,20 @@ export default function GalleryPage() {
     enabled: servers.length > 0,
   });
 
-  const photoGroups = groupPhotos(photos, groupBy);
+  const photoGroups = useMemo(() => groupPhotos(photos, groupBy), [photos, groupBy]);
+  const lightboxImages = useMemo<GalleryLightboxItem[]>(
+    () =>
+      photos.map((item) => ({
+        key: `${item.serverId}:${item.id}`,
+        uri: `${item.baseUrl}${item.previewPath}`,
+        headers: item.headers,
+      })),
+    [photos]
+  );
+  const photoIndexByKey = useMemo(
+    () => new Map(lightboxImages.map((item, index) => [item.key, index])),
+    [lightboxImages]
+  );
 
   const { mutate: uploadFiles, isPending: isUploading } = useMutation({
     mutationKey: ['gallery-upload'],
@@ -218,39 +291,19 @@ export default function GalleryPage() {
       {isPending && <Text className="text-muted-foreground">Loading photos...</Text>}
       {!isPending && photos.length === 0 && <Text className="text-muted-foreground">No photos yet</Text>}
 
-      <View className="gap-6">
-        {photoGroups.map((group) => (
-          <View key={group.key}>
-            {groupBy !== 'none' && (
-              <View className="mb-3 flex-row items-center gap-3">
-                <Text variant="large">{group.label}</Text>
-                <View className="h-px flex-1 bg-border" />
-              </View>
-            )}
+      <GalleryGrid
+        photoGroups={photoGroups}
+        columnCount={columnCount}
+        photoIndexByKey={photoIndexByKey}
+        onSelectPhoto={setSelectedPhotoIndex}
+      />
 
-            <View className="flex-row flex-wrap -mx-1">
-              {group.items.map((item) => {
-                const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
-                const tileWidth = `${100 / columnCount}%` as `${number}%`;
-
-                return (
-                  <View key={`${item.serverId}:${item.id}`} className="p-1" style={{ width: tileWidth }}>
-                    <Pressable className="overflow-hidden rounded-lg bg-layer-secondary aspect-square">
-                      <Image
-                        source={{ uri: imageUri, headers: item.headers }}
-                        cachePolicy="memory-disk"
-                        contentFit="cover"
-                        transition={120}
-                        className="w-full h-full"
-                      />
-                    </Pressable>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ))}
-      </View>
+      <GalleryLightbox
+        images={lightboxImages}
+        index={selectedPhotoIndex}
+        onClose={() => setSelectedPhotoIndex(null)}
+        onIndexChange={setSelectedPhotoIndex}
+      />
     </BaseLayout>
   );
 }

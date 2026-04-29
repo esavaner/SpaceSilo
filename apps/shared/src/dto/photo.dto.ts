@@ -128,6 +128,9 @@ export class GalleryImageResponse {
   imagePath!: string;
 
   @IsString()
+  previewPath!: string;
+
+  @IsString()
   thumbnailPath!: string;
 
   @IsOptional()

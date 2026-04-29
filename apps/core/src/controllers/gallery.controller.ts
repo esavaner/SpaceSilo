@@ -48,6 +48,13 @@ export class GalleryController {
     return await this.galleryService.findImage(id, user);
   }
 
+  @Get(':id/preview')
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
+  async findPreview(@Param('id') id: string, @User() user: TokenPayload) {
+    return await this.galleryService.findPreview(id, user);
+  }
+
   @Get(':id/thumbnail')
   @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
   @Header('Vary', 'Authorization')

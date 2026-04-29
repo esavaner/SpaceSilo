@@ -15,6 +15,10 @@ import exifr from 'exifr';
 import sharp from 'sharp';
 
 const THUMBNAIL_HEIGHT = 200;
+const THUMBNAIL_JPEG_QUALITY = 82;
+const PREVIEW_MAX_WIDTH = 1920;
+const PREVIEW_MAX_HEIGHT = 1080;
+const PREVIEW_JPEG_QUALITY = 90;
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff', '.avif']);
 
 type StoredPhotoMetadata = Prisma.InputJsonObject & {
@@ -114,6 +118,7 @@ export class GalleryService {
     return {
       id: photo.id,
       imagePath: `/gallery/${photo.id}/file`,
+      previewPath: `/gallery/${photo.id}/preview`,
       thumbnailPath: `/gallery/${photo.id}/thumbnail`,
       capturedAt,
       createdAt: photo.createdAt,
@@ -130,6 +135,7 @@ export class GalleryService {
     return {
       storagePath: process.env.STORAGE_PATH!,
       thumbnailsPath: path.join(process.env.APPDATA_PATH!, 'thumbnails'),
+      previewsPath: path.join(process.env.APPDATA_PATH!, 'previews'),
     };
   }
 
@@ -137,6 +143,7 @@ export class GalleryService {
     const paths = this.getStoragePaths();
     this.ensureDirectoryExists(paths.storagePath);
     this.ensureDirectoryExists(paths.thumbnailsPath);
+    this.ensureDirectoryExists(paths.previewsPath);
     return paths;
   }
 
@@ -162,19 +169,81 @@ export class GalleryService {
     return path.join(thumbnailsPath, parsed.dir, `${parsed.name}.jpg`);
   }
 
+  private getPreviewOutputPath(imagePath: string) {
+    const { storagePath, previewsPath } = this.ensureStoragePaths();
+    const relativePath = path.relative(storagePath, imagePath);
+    const parsed = path.parse(relativePath);
+    return path.join(previewsPath, parsed.dir, `${parsed.name}.jpg`);
+  }
+
+  private getNormalizedDimensions(metadata: sharp.Metadata) {
+    const isRotated = metadata.orientation !== undefined && [5, 6, 7, 8].includes(metadata.orientation);
+    const width = isRotated ? metadata.height : metadata.width;
+    const height = isRotated ? metadata.width : metadata.height;
+
+    return {
+      width: width ?? 0,
+      height: height ?? 0,
+    };
+  }
+
+  private shouldCreatePreview(metadata: sharp.Metadata) {
+    const { width, height } = this.getNormalizedDimensions(metadata);
+    if (!width || !height) {
+      return true;
+    }
+
+    return width > PREVIEW_MAX_WIDTH || height > PREVIEW_MAX_HEIGHT;
+  }
+
   private async createThumbnail(fileBuffer: Buffer, targetPath: string) {
     this.ensureDirectoryExists(path.dirname(targetPath));
 
-    const sharpFile = sharp(fileBuffer);
-    const metadata = await sharpFile.metadata();
-    const width = metadata.width ?? THUMBNAIL_HEIGHT;
-    const height = metadata.height ?? THUMBNAIL_HEIGHT;
-    const aspectRatio = height === 0 ? 1 : width / height;
-
-    await sharpFile
-      .resize(Math.max(1, Math.floor(aspectRatio * THUMBNAIL_HEIGHT)), THUMBNAIL_HEIGHT)
-      .jpeg({ quality: 82 })
+    await sharp(fileBuffer)
+      .rotate()
+      .resize({ height: THUMBNAIL_HEIGHT })
+      .jpeg({ quality: THUMBNAIL_JPEG_QUALITY })
       .toFile(targetPath);
+  }
+
+  private async createPreview(fileBuffer: Buffer, targetPath: string) {
+    const sharpFile = sharp(fileBuffer).rotate();
+    const metadata = await sharpFile.metadata();
+
+    if (!this.shouldCreatePreview(metadata)) {
+      if (fs.existsSync(targetPath)) {
+        fs.rmSync(targetPath, { force: true });
+      }
+      return false;
+    }
+
+    this.ensureDirectoryExists(path.dirname(targetPath));
+    await sharpFile
+      .resize({
+        width: PREVIEW_MAX_WIDTH,
+        height: PREVIEW_MAX_HEIGHT,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: PREVIEW_JPEG_QUALITY, progressive: true })
+      .toFile(targetPath);
+
+    return true;
+  }
+
+  private async ensurePreviewAsset(imagePath: string, fileBuffer?: Buffer) {
+    const previewPath = this.getPreviewOutputPath(imagePath);
+    if (fs.existsSync(previewPath)) {
+      return previewPath;
+    }
+
+    const sourceBuffer = fileBuffer ?? (fs.existsSync(imagePath) ? fs.readFileSync(imagePath) : null);
+    if (!sourceBuffer) {
+      return null;
+    }
+
+    const generated = await this.createPreview(sourceBuffer, previewPath);
+    return generated ? previewPath : null;
   }
 
   private getMimeType(filePath: string) {
@@ -205,6 +274,11 @@ export class GalleryService {
     });
   }
 
+  private createStreamableFile(filePath: string) {
+    const file = fs.createReadStream(filePath);
+    return new StreamableFile(file, { type: this.getMimeType(filePath) });
+  }
+
   async create(file: UploadedImageFile, user: TokenPayload) {
     if (!file?.buffer) {
       throw new BadRequestException('File is required');
@@ -225,6 +299,7 @@ export class GalleryService {
 
     const thumbnailPath = this.getThumbnailOutputPath(photoPath);
     await this.createThumbnail(file.buffer, thumbnailPath);
+    await this.ensurePreviewAsset(photoPath, file.buffer);
     const capturedAt = await this.extractCapturedAt(file.buffer);
 
     const photo = await this.prisma.photo.create({
@@ -271,22 +346,37 @@ export class GalleryService {
         const capturedAt = await this.extractCapturedAt(fileBuffer);
         const existingPhoto = await this.prisma.photo.findFirst({
           where: { hash },
-          select: { id: true, metadata: true },
+          select: { id: true, metadata: true, thumbnailPath: true },
         });
 
+        const thumbnailPath = this.getThumbnailOutputPath(filePath);
+        await this.ensurePreviewAsset(filePath, fileBuffer);
+
         if (existingPhoto) {
+          const updateData: Prisma.PhotoUpdateInput = {};
+
           if (!this.getCapturedAtFromMetadata(existingPhoto.metadata) && capturedAt) {
+            updateData.metadata = this.mergePhotoMetadata(existingPhoto.metadata, capturedAt);
+          }
+
+          if (
+            !existingPhoto.thumbnailPath ||
+            existingPhoto.thumbnailPath !== thumbnailPath ||
+            !fs.existsSync(existingPhoto.thumbnailPath)
+          ) {
+            await this.createThumbnail(fileBuffer, thumbnailPath);
+            updateData.thumbnailPath = thumbnailPath;
+          }
+
+          if (Object.keys(updateData).length > 0) {
             await this.prisma.photo.update({
               where: { id: existingPhoto.id },
-              data: {
-                metadata: this.mergePhotoMetadata(existingPhoto.metadata, capturedAt),
-              },
+              data: updateData,
             });
           }
           continue;
         }
 
-        const thumbnailPath = this.getThumbnailOutputPath(filePath);
         await this.createThumbnail(fileBuffer, thumbnailPath);
 
         await this.prisma.photo.create({
@@ -365,8 +455,18 @@ export class GalleryService {
     if (!photo || !photo.path || !fs.existsSync(photo.path)) {
       throw new NotFoundException('Photo not found');
     }
-    const file = fs.createReadStream(photo.path);
-    return new StreamableFile(file, { type: this.getMimeType(photo.path) });
+
+    return this.createStreamableFile(photo.path);
+  }
+
+  async findPreview(id: string, user: TokenPayload) {
+    const photo = await this.findOwnedPhoto(id, user);
+    if (!photo || !photo.path || !fs.existsSync(photo.path)) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    const previewPath = await this.ensurePreviewAsset(photo.path);
+    return this.createStreamableFile(previewPath ?? photo.path);
   }
 
   async findThumbnail(id: string, user: TokenPayload) {
@@ -374,7 +474,7 @@ export class GalleryService {
     if (!photo || !photo.thumbnailPath || !fs.existsSync(photo.thumbnailPath)) {
       throw new NotFoundException('Thumbnail not found');
     }
-    const file = fs.createReadStream(photo.thumbnailPath);
-    return new StreamableFile(file, { type: this.getMimeType(photo.thumbnailPath) });
+
+    return this.createStreamableFile(photo.thumbnailPath);
   }
 }
