@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -118,4 +118,40 @@ export class PhotoResponse {
   @IsArray()
   @IsString({ each: true })
   groupIds?: string[];
+}
+
+export class GalleryImageResponse {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  imagePath!: string;
+
+  @IsString()
+  thumbnailPath!: string;
+
+  @IsDate()
+  createdAt!: Date;
+}
+
+export class GalleryStatsResponse {
+  @IsNumber()
+  totalFiles!: number;
+
+  @IsNumber()
+  totalImages!: number;
+
+  @IsNumber()
+  indexedImages!: number;
+
+  @IsNumber()
+  storageSize!: number;
+}
+
+export class GalleryScanResponse {
+  @IsNumber()
+  scannedImages!: number;
+
+  @IsNumber()
+  addedImages!: number;
 }

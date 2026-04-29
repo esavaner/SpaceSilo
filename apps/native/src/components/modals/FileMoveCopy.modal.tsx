@@ -2,17 +2,17 @@ import { useFileList } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { FileListCompact } from '../FileListCompact';
 import { View } from 'react-native';
-import { FileEntity } from '@/api/generated';
 import { useFileActions } from '@/hooks/useFileActions';
 import { useUi } from '@/providers/UiProvider';
 import { Breadcrumb } from '../breadcrumb';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { FileListItem } from '@/hooks/useFileList';
 
 type Props = {
   path?: string;
-  selectedItems: FileEntity[];
+  selectedItems: FileListItem[];
 };
 
 export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
@@ -23,14 +23,26 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
 
   const handleMove = () => {
     selectedItems.forEach((item) => {
-      move({ fileUri: item.uri, newPath: currentPath, name: item.name, groupId: item.groupId });
+      move({
+        fileUri: item.uri,
+        newPath: currentPath,
+        name: item.name,
+        groupId: item.groupId,
+        serverId: item.serverId,
+      });
     });
   };
 
   const handleCopy = () => {
     // @TODO copy files between groups
     selectedItems.forEach((item) => {
-      copy({ fileUri: item.uri, newPath: currentPath, name: item.name, groupId: item.groupId });
+      copy({
+        fileUri: item.uri,
+        newPath: currentPath,
+        name: item.name,
+        groupId: item.groupId,
+        serverId: item.serverId,
+      });
     });
   };
 

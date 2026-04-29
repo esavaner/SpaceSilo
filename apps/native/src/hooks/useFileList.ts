@@ -20,7 +20,11 @@ export type Comparator = {
   order: number;
 };
 
-const comparators: Record<SortBy, (a: FileResponse, b: FileResponse) => number> = {
+export type FileListItem = FileResponse & {
+  serverId: string;
+};
+
+const comparators: Record<SortBy, (a: FileListItem, b: FileListItem) => number> = {
   name: (a, b) => a.name.localeCompare(b.name),
   size: (a, b) => (a?.size || 0) - (b?.size || 0),
   date: (a, b) => compareAsc(a.modificationTime, b.modificationTime),
@@ -36,8 +40,11 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const { servers } = useServerContext();
   const { groups, groupsPersonal, groupsShared, handleSelectGroup, isGroupsLoading, selectedGroupIds } = useGroupList();
   const [currentPath, setCurrentPath] = useState(path);
-  const [selectedItems, setSelectedItems] = useState<FileResponse[]>([]);
+  const [selectedItems, setSelectedItems] = useState<FileListItem[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
+
+  const getItemKey = (item: Pick<FileListItem, 'uri' | 'groupId' | 'serverId'>) =>
+    `${item.serverId}:${item.groupId}:${item.uri}`;
 
   const { data: f, refetch } = useQuery({
     queryKey: ['files', currentPath, groups, servers.map((server) => server.id)],
@@ -53,7 +60,8 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
       const responses = await Promise.all(
         servers.map(async (server) => {
           try {
-            return await server.client.files.findAll(request);
+            const files = await server.client.files.findAll(request);
+            return files.map((file) => ({ ...file, serverId: server.id }));
           } catch {
             return [];
           }
@@ -87,10 +95,11 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     onPathChange?.(newPath);
   };
 
-  const handleSelectItem = (item: FileResponse) => {
-    const isSelected = selectedItems.some((i) => i.name === item.name);
+  const handleSelectItem = (item: FileListItem) => {
+    const itemKey = getItemKey(item);
+    const isSelected = selectedItems.some((i) => getItemKey(i) === itemKey);
     if (isSelected) {
-      setSelectedItems(selectedItems.filter((i) => i.name !== item.name));
+      setSelectedItems(selectedItems.filter((i) => getItemKey(i) !== itemKey));
     } else {
       setSelectedItems([...selectedItems, item]);
     }
@@ -108,7 +117,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     setComparator((prev) => ({ sort, order: prev.sort === sort ? -1 * prev.order : 1 }));
   };
 
-  const onDirClick = (dir: FileResponse) => {
+  const onDirClick = (dir: FileListItem) => {
     if (selectedItems.length > 0) {
       return;
     }
@@ -116,14 +125,14 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     onPathChange?.(dir.uri);
   };
 
-  const onFileClick = (file: FileResponse) => {
+  const onFileClick = (file: FileListItem) => {
     if (selectedItems.length > 0) {
       return;
     }
     onFileSelect?.(file.uri, file.groupId);
   };
 
-  const handleItemClick = (item: FileResponse) =>
+  const handleItemClick = (item: FileListItem) =>
     hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item) : onFileClick(item);
 
   const handleApplyGroupSelect = () => {

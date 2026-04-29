@@ -1,4 +1,3 @@
-import { FileEntity } from '@/api/generated';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -7,9 +6,10 @@ import { useFileActions } from '@/hooks/useFileActions';
 import { DialogFooter } from './dialog-footer';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { InputController } from '../controllers/input.controller';
+import { FileListItem } from '@/hooks/useFileList';
 
 type FileRenameModalProps = {
-  file: FileEntity;
+  file: FileListItem;
 };
 
 const schema = yup.object().shape({
@@ -36,7 +36,7 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const onSubmit = (values: RenameForm) => {
     const lastIndexOf = file.uri.lastIndexOf(file.name);
     const newPath = file.uri.slice(0, lastIndexOf);
-    rename({ fileUri: file.uri, newPath, name: values.newName, groupId: file.groupId });
+    rename({ fileUri: file.uri, newPath, name: values.newName, groupId: file.groupId, serverId: file.serverId });
   };
 
   return (

@@ -26,7 +26,7 @@ export default function FilesPage() {
   return (
     <BaseLayout>
       <Text variant="h1">{t('Files')}</Text>
-      <View className={cn('flex-row px-4 h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
+      <View className={cn('flex-row h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (
           <ItemSelection path={currentPath} selectedItems={selectedItems} handleClearSelection={handleClearSelection} />
         ) : (

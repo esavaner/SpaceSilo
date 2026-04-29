@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
+import { router } from 'expo-router';
 import { Text } from './general/text';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';
 import { Icon } from './general/icon';
@@ -40,6 +41,7 @@ export const Navigation = (props: NavigationProps) => {
         {servers.map((server) => (
           <Pressable
             key={server.id}
+            onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
             className="px-2 py-2 mb-2 mx-2 gap-3 rounded-md flex-1 flex-row items-center hover:bg-secondary"
           >
             {serverIcons[server.type]}

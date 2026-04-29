@@ -13,6 +13,9 @@ import {
   type FileResponse,
   type FindAllFilesRequest,
   type FindFileRequest,
+  type GalleryImageResponse,
+  type GalleryScanResponse,
+  type GalleryStatsResponse,
   type GroupResponse,
   type MoveFileRequest,
   type RefreshResponse,
@@ -124,5 +127,17 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     findAll: () => this.get<GroupResponse[]>(`${endpoints.groups}/all`),
     findOne: (id: string) => this.get<GroupResponse>(`${endpoints.groups}/${id}`),
     remove: (id: string) => this.delete<undefined, GroupResponse>(`${endpoints.groups}/${id}`),
+  };
+
+  public readonly gallery = {
+    findAll: () => this.get<GalleryImageResponse[]>(endpoints.gallery),
+    getStats: () => this.get<GalleryStatsResponse>(`${endpoints.gallery}/stats`),
+    scan: () => this.post<undefined, GalleryScanResponse>(`${endpoints.gallery}/scan`),
+    findOne: (id: string) => this.get<GalleryImageResponse>(`${endpoints.gallery}/${id}`),
+    uploadFile: (file: Blob, fileName: string) => {
+      const formData = new FormData();
+      formData.append('file', file, fileName);
+      return this.postFormData(endpoints.gallery, formData);
+    },
   };
 }

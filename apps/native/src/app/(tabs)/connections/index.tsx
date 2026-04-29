@@ -9,6 +9,7 @@ import { useValidators } from '@/hooks/useValidators';
 import { toast } from '@/lib/toast';
 import { ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -236,7 +237,13 @@ export default function ConnectionsPage() {
               <Text variant="small">
                 {server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}
               </Text>
-              <View className="flex-row gap-2">
+              <View className="flex-row gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
+                >
+                  Details
+                </Button>
                 <Button
                   variant="secondary"
                   onPress={() => onToggleCoreServer(server.id, server.disabled)}

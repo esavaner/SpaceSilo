@@ -1,13 +1,13 @@
-import { FileEntity } from '@/api/generated';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useFileActions } from '@/hooks/useFileActions';
 import { Text } from '../general/text';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
+import { FileListItem } from '@/hooks/useFileList';
 
 type FileRemoveModalProps = {
-  files: FileEntity[];
+  files: FileListItem[];
 };
 
 export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
@@ -15,7 +15,7 @@ export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { remove, isPending } = useFileActions();
 
   const handleRemove = () => {
-    files.forEach((file) => remove({ fileUri: file.uri, groupId: file.groupId }));
+    files.forEach((file) => remove({ fileUri: file.uri, groupId: file.groupId, serverId: file.serverId }));
   };
 
   return (

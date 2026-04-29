@@ -22,10 +22,14 @@ import { NotesService } from './services/notes.service';
 import { PhotoService } from './services/photo.service';
 import { UsersService } from './services/users.service';
 import { CommonModule } from './common/common.module';
+import { validateEnvironment } from './common/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: validateEnvironment,
+    }),
     JwtModule.register({
       secret: '123',
       signOptions: { expiresIn: '30m' },

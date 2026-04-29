@@ -77,6 +77,14 @@ export class ApiClient<TAccount = unknown> {
     this.saveRefreshToken(undefined);
   }
 
+  public getAuthHeaders(): Record<string, string> {
+    if (!this.accessToken) {
+      return {};
+    }
+
+    return { Authorization: `Bearer ${this.accessToken}` };
+  }
+
   private headersToRecord(headers?: HeadersInit) {
     if (!headers) return {};
     if (headers instanceof Headers) {

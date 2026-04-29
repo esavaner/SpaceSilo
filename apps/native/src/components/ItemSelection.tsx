@@ -1,4 +1,3 @@
-import { FileEntity } from '@/api/generated';
 import { View } from 'react-native';
 import { FileRemoveModal } from './modals/FileRemove.modal';
 import { FileMoveCopyModal } from './modals/FileMoveCopy.modal';
@@ -6,10 +5,11 @@ import { Icon } from './general/icon';
 import { useUi } from '@/providers/UiProvider';
 import { Text } from './general/text';
 import { Button } from './general/button';
+import { FileListItem } from '@/hooks/useFileList';
 
 type ItemSelectionProps = {
   path: string;
-  selectedItems: FileEntity[];
+  selectedItems: FileListItem[];
   handleClearSelection: () => void;
 };
 
