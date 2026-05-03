@@ -393,6 +393,9 @@ importers:
         specifier: 8.17.2
         version: 8.17.2
     devDependencies:
+      '@swc-node/register':
+        specifier: ^1.9.2
+        version: 1.11.1(@swc/core@1.15.11)(@swc/types@0.1.25)(typescript@5.9.3)
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1

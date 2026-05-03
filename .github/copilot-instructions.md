@@ -59,12 +59,15 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 4. Backend database setup
    - If you need a local database, run `docker compose up -d`
    - Validated: starts PostgreSQL on `localhost:5432` and Adminer on `localhost:8080`
-   - Use `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/postgres`
-   - Run `pnpm.cmd --filter @repo/shared db:push`
-   - Validated: succeeds and syncs the schema to the local database
-   - Run `pnpm.cmd --filter @repo/shared db:generate`
-   - Validated: succeeds without needing a database connection
-   - After DB work, run `docker compose down`
+  - Use `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/db?schema=public`
+  - Preferred early-dev reset/bootstrap path: run `pnpm.cmd reset`
+  - Validated behavior: resets the database from the single initial migration, rebuilds `@repo/shared`, and runs the shared Prisma dev seed for one default user:
+    - `email: t@t.com`
+    - `password: 123456`
+    - `groupId: testcom`
+  - This root command runs `turbo run reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
+  - If you only need schema sync without a reset, `pnpm.cmd --filter @repo/shared db:push` still works
+  - After DB work, run `docker compose down` if you want to stop local services
 
 5. Run docs app
    - Run `pnpm.cmd --filter @repo/docs dev`
@@ -104,6 +107,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 - If you change shared DTO exports, rebuild `@repo/shared` before validating consumers
 - For backend-only changes, always run at least `pnpm.cmd lint`, `pnpm.cmd build`, and if runtime behavior changed, `pnpm.cmd --filter @repo/core dev` with the required env vars
 - For docs-only changes, run `pnpm.cmd --filter @repo/docs build` and `pnpm.cmd --filter @repo/docs lint`
-- For Prisma schema changes, run `docker compose up -d`, set `DATABASE_URL`, run `pnpm.cmd --filter @repo/shared db:push`, then rebuild shared
+- For Prisma schema changes during early development, prefer folding them into `apps/shared/src/prisma/migrations/20260127001311_init` instead of adding new migrations unless the user explicitly wants migration history preserved
+- For Prisma schema changes, run `pnpm.cmd reset` when you need a clean local reset with seed data, or `docker compose up -d`, set `DATABASE_URL`, run `pnpm.cmd --filter @repo/shared db:push`, then rebuild shared for incremental sync
 
 Prefer these instructions over fresh exploration. Search only when the task needs code-level details that are not already mapped here.

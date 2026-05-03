@@ -18,6 +18,9 @@
     "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
+    "db:reset:dev": "prisma migrate reset --force",
+    "db:seed:dev": "node --loader @swc-node/register/esm --experimental-specifier-resolution=node ./src/prisma/seed.ts",
+    "reset": "pnpm db:reset:dev && pnpm build && pnpm db:seed:dev",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "postinstall": "prisma generate"
@@ -33,6 +36,7 @@
     "class-validator": "^0.14.3"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.9.2",
     "prisma": "7.3.0",
     "tailwindcss": "^4.1.18",
     "class-transformer": "^0.5.1",

@@ -27,6 +27,7 @@ CREATE TABLE "Photo" (
     "thumbnailPath" TEXT NOT NULL,
     "hash" TEXT NOT NULL,
     "metadata" JSONB,
+    "capturedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -99,6 +100,9 @@ CREATE TABLE "_GroupToPhoto" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE INDEX "Photo_ownerId_capturedAt_createdAt_idx" ON "Photo"("ownerId", "capturedAt", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "_AlbumToPhoto_B_index" ON "_AlbumToPhoto"("B");

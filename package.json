@@ -4,6 +4,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "build:core": "turbo run build --filter=@repo/shared --filter=@repo/core",
+    "reset": "turbo run reset",
     "start:core": "pnpm build:core && pnpm --filter @repo/core start",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
