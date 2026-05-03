@@ -7,7 +7,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const THUMBNAIL_HEIGHT = 200;
+const THUMBNAIL_HEIGHT = 300;
 const THUMBNAIL_JPEG_QUALITY = 82;
 const PREVIEW_MAX_WIDTH = 1920;
 const PREVIEW_MAX_HEIGHT = 1080;

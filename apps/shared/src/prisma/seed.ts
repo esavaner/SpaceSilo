@@ -1,6 +1,7 @@
 import { prisma } from './prisma';
 
 const DEV_USER = {
+  id: 'cmac7w7z90000filipseeduser0',
   email: 't@t.com',
   password: '123456',
   passwordHash: '$2b$10$aRzulguMjlMOTKqGbBbHZuqW/ryrFbUfcnn0tC0OauV.7.Noja7I6',
@@ -16,6 +17,7 @@ async function main() {
       role: 'user',
     },
     create: {
+      id: DEV_USER.id,
       email: DEV_USER.email,
       password: DEV_USER.passwordHash,
       role: 'user',

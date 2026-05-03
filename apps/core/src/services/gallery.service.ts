@@ -112,7 +112,8 @@ export class GalleryService {
         });
 
         addedImages += 1;
-      } catch {
+      } catch (error) {
+        console.log(error);
         continue;
       }
     }
