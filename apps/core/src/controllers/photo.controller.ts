@@ -1,9 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreatePhotoRequest } from '@repo/shared';
 import { PhotoService } from '@/services/photo.service';
 import { type TokenPayload } from '@repo/shared';
 import { User } from '@/decorators/user.decorator';
+
+const GALLERY_CACHE_CONTROL_HEADER = 'private, max-age=31536000, immutable';
+
+type UploadedImageFile = {
+  buffer?: Buffer;
+  originalname: string;
+};
 
 @Controller('gallery/photo')
 export class PhotoController {
@@ -12,27 +18,38 @@ export class PhotoController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() createPhotoDto: CreatePhotoRequest,
+    @UploadedFile() file: UploadedImageFile,
+    @Body() _body: Record<string, unknown>,
     @User() user: TokenPayload
   ) {
-    const photo = await this.photoService.create(createPhotoDto, file, user);
+    const photo = await this.photoService.create(file, user);
     return photo;
   }
 
-  @Get()
-  findAll() {
-    return this.photoService.findAll();
+  @Get(':id')
+  findOne(@Param('id') id: string, @User() user: TokenPayload) {
+    return this.photoService.findOne(id, user);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.photoService.findOne(id);
+  @Get(':id/file')
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
+  async findImage(@Param('id') id: string, @User() user: TokenPayload) {
+    return await this.photoService.findImage(id, user);
+  }
+
+  @Get(':id/preview')
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
+  async findPreview(@Param('id') id: string, @User() user: TokenPayload) {
+    return await this.photoService.findPreview(id, user);
   }
 
   @Get(':id/thumbnail')
-  async findThumbnail(@Param('id') id: string) {
-    return await this.photoService.findThumbnail(id);
+  @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
+  @Header('Vary', 'Authorization')
+  async findThumbnail(@Param('id') id: string, @User() user: TokenPayload) {
+    return await this.photoService.findThumbnail(id, user);
   }
 
   // @Patch(":id")
@@ -41,7 +58,7 @@ export class PhotoController {
   // }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.photoService.remove(id);
+  remove(@Param('id') id: string, @User() user: TokenPayload) {
+    return this.photoService.remove(id, user);
   }
 }

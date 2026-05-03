@@ -30,6 +30,7 @@ export type PhotoMinAggregateOutputType = {
   path: string | null
   thumbnailPath: string | null
   hash: string | null
+  capturedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -42,6 +43,7 @@ export type PhotoMaxAggregateOutputType = {
   path: string | null
   thumbnailPath: string | null
   hash: string | null
+  capturedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -55,6 +57,7 @@ export type PhotoCountAggregateOutputType = {
   thumbnailPath: number
   hash: number
   metadata: number
+  capturedAt: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -69,6 +72,7 @@ export type PhotoMinAggregateInputType = {
   path?: true
   thumbnailPath?: true
   hash?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -81,6 +85,7 @@ export type PhotoMaxAggregateInputType = {
   path?: true
   thumbnailPath?: true
   hash?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -94,6 +99,7 @@ export type PhotoCountAggregateInputType = {
   thumbnailPath?: true
   hash?: true
   metadata?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -180,6 +186,7 @@ export type PhotoGroupByOutputType = {
   thumbnailPath: string
   hash: string
   metadata: runtime.JsonValue | null
+  capturedAt: Date
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -214,6 +221,7 @@ export type PhotoWhereInput = {
   thumbnailPath?: Prisma.StringFilter<"Photo"> | string
   hash?: Prisma.StringFilter<"Photo"> | string
   metadata?: Prisma.JsonNullableFilter<"Photo">
+  capturedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Photo"> | Date | string | null
@@ -230,6 +238,7 @@ export type PhotoOrderByWithRelationInput = {
   thumbnailPath?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -249,6 +258,7 @@ export type PhotoWhereUniqueInput = Prisma.AtLeast<{
   thumbnailPath?: Prisma.StringFilter<"Photo"> | string
   hash?: Prisma.StringFilter<"Photo"> | string
   metadata?: Prisma.JsonNullableFilter<"Photo">
+  capturedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Photo"> | Date | string | null
@@ -265,6 +275,7 @@ export type PhotoOrderByWithAggregationInput = {
   thumbnailPath?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -284,6 +295,7 @@ export type PhotoScalarWhereWithAggregatesInput = {
   thumbnailPath?: Prisma.StringWithAggregatesFilter<"Photo"> | string
   hash?: Prisma.StringWithAggregatesFilter<"Photo"> | string
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"Photo">
+  capturedAt?: Prisma.DateTimeWithAggregatesFilter<"Photo"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Photo"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Photo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Photo"> | Date | string | null
@@ -297,6 +309,7 @@ export type PhotoCreateInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -312,6 +325,7 @@ export type PhotoUncheckedCreateInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -327,6 +341,7 @@ export type PhotoUpdateInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -342,6 +357,7 @@ export type PhotoUncheckedUpdateInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -357,6 +373,7 @@ export type PhotoCreateManyInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -370,6 +387,7 @@ export type PhotoUpdateManyMutationInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -382,6 +400,7 @@ export type PhotoUncheckedUpdateManyInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -405,6 +424,7 @@ export type PhotoCountOrderByAggregateInput = {
   thumbnailPath?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -417,6 +437,7 @@ export type PhotoMaxOrderByAggregateInput = {
   path?: Prisma.SortOrder
   thumbnailPath?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -429,6 +450,7 @@ export type PhotoMinOrderByAggregateInput = {
   path?: Prisma.SortOrder
   thumbnailPath?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -560,6 +582,7 @@ export type PhotoCreateWithoutOwnerInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -574,6 +597,7 @@ export type PhotoUncheckedCreateWithoutOwnerInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -617,6 +641,7 @@ export type PhotoScalarWhereInput = {
   thumbnailPath?: Prisma.StringFilter<"Photo"> | string
   hash?: Prisma.StringFilter<"Photo"> | string
   metadata?: Prisma.JsonNullableFilter<"Photo">
+  capturedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Photo"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Photo"> | Date | string | null
@@ -630,6 +655,7 @@ export type PhotoCreateWithoutAlbumsInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -644,6 +670,7 @@ export type PhotoUncheckedCreateWithoutAlbumsInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -679,6 +706,7 @@ export type PhotoCreateWithoutGroupInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -693,6 +721,7 @@ export type PhotoUncheckedCreateWithoutGroupInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -728,6 +757,7 @@ export type PhotoCreateManyOwnerInput = {
   thumbnailPath: string
   hash: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -740,6 +770,7 @@ export type PhotoUpdateWithoutOwnerInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -754,6 +785,7 @@ export type PhotoUncheckedUpdateWithoutOwnerInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -768,6 +800,7 @@ export type PhotoUncheckedUpdateManyWithoutOwnerInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -780,6 +813,7 @@ export type PhotoUpdateWithoutAlbumsInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -794,6 +828,7 @@ export type PhotoUncheckedUpdateWithoutAlbumsInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -808,6 +843,7 @@ export type PhotoUncheckedUpdateManyWithoutAlbumsInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -821,6 +857,7 @@ export type PhotoUpdateWithoutGroupInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -835,6 +872,7 @@ export type PhotoUncheckedUpdateWithoutGroupInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -849,6 +887,7 @@ export type PhotoUncheckedUpdateManyWithoutGroupInput = {
   thumbnailPath?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -902,6 +941,7 @@ export type PhotoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   thumbnailPath?: boolean
   hash?: boolean
   metadata?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -919,6 +959,7 @@ export type PhotoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   thumbnailPath?: boolean
   hash?: boolean
   metadata?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -933,6 +974,7 @@ export type PhotoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   thumbnailPath?: boolean
   hash?: boolean
   metadata?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -947,13 +989,14 @@ export type PhotoSelectScalar = {
   thumbnailPath?: boolean
   hash?: boolean
   metadata?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
   ownerId?: boolean
 }
 
-export type PhotoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "url" | "path" | "thumbnailPath" | "hash" | "metadata" | "createdAt" | "updatedAt" | "deletedAt" | "ownerId", ExtArgs["result"]["photo"]>
+export type PhotoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "url" | "path" | "thumbnailPath" | "hash" | "metadata" | "capturedAt" | "createdAt" | "updatedAt" | "deletedAt" | "ownerId", ExtArgs["result"]["photo"]>
 export type PhotoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   albums?: boolean | Prisma.Photo$albumsArgs<ExtArgs>
@@ -981,6 +1024,7 @@ export type $PhotoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     thumbnailPath: string
     hash: string
     metadata: runtime.JsonValue | null
+    capturedAt: Date
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1417,6 +1461,7 @@ export interface PhotoFieldRefs {
   readonly thumbnailPath: Prisma.FieldRef<"Photo", 'String'>
   readonly hash: Prisma.FieldRef<"Photo", 'String'>
   readonly metadata: Prisma.FieldRef<"Photo", 'Json'>
+  readonly capturedAt: Prisma.FieldRef<"Photo", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Photo", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Photo", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"Photo", 'DateTime'>

@@ -13,7 +13,9 @@ import {
   type FileResponse,
   type FindAllFilesRequest,
   type FindFileRequest,
+  type FindGalleryImagesRequest,
   type GalleryImageResponse,
+  type GalleryImagePageResponse,
   type GalleryScanResponse,
   type GalleryStatsResponse,
   type GroupResponse,
@@ -130,14 +132,18 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   };
 
   public readonly gallery = {
-    findAll: () => this.get<GalleryImageResponse[]>(endpoints.gallery),
+    findAll: (dto?: FindGalleryImagesRequest) =>
+      this.get<GalleryImagePageResponse>(buildQuery(endpoints.gallery, { ...(dto ?? {}) })),
     getStats: () => this.get<GalleryStatsResponse>(`${endpoints.gallery}/stats`),
     scan: () => this.post<undefined, GalleryScanResponse>(`${endpoints.gallery}/scan`),
-    findOne: (id: string) => this.get<GalleryImageResponse>(`${endpoints.gallery}/${id}`),
+  };
+
+  public readonly photo = {
+    findOne: (id: string) => this.get<GalleryImageResponse>(`${endpoints.photo}/${id}`),
     uploadFile: (file: Blob, fileName: string) => {
       const formData = new FormData();
       formData.append('file', file, fileName);
-      return this.postFormData(endpoints.gallery, formData);
+      return this.postFormData(endpoints.photo, formData);
     },
   };
 }

@@ -1,4 +1,16 @@
-import { IsArray, IsDate, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -74,6 +86,19 @@ export class UpdatePhotoRequest {
   groupIds?: string[];
 }
 
+export class FindGalleryImagesRequest {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  skip?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(200)
+  take?: number;
+}
+
 /* ------------------------- Responses ------------------------- */
 
 export class PhotoResponse {
@@ -95,6 +120,10 @@ export class PhotoResponse {
   @IsOptional()
   @IsObject()
   metadata?: Record<string, unknown> | null;
+
+  @IsOptional()
+  @IsDate()
+  capturedAt?: Date;
 
   @IsDate()
   createdAt!: Date;
@@ -139,6 +168,19 @@ export class GalleryImageResponse {
 
   @IsDate()
   createdAt!: Date;
+}
+
+export class GalleryImagePageResponse {
+  @IsArray()
+  items!: GalleryImageResponse[];
+
+  @IsBoolean()
+  hasMore!: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  nextSkip?: number;
 }
 
 export class GalleryStatsResponse {

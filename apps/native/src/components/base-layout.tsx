@@ -7,10 +7,8 @@ type Props = ScrollView['props'] & {
 
 export const BaseLayout = ({ children, className, ...props }: Props) => {
   return (
-    <ScrollView className="flex-1 bg-background p-4 relative">
-      <View {...props} className={cn('mx-auto max-w-7xl w-full', className)}>
-        {children}
-      </View>
+    <ScrollView {...props} className="flex-1 bg-background relative">
+      <View className={cn('mx-auto max-w-7xl w-full p-4', className)}>{children}</View>
     </ScrollView>
   );
 };

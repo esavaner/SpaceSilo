@@ -9,15 +9,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/dropdowns/dropdown';
-import { useServerContext } from '@/providers/ServerProvider';
+import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { toast } from '@/lib/toast';
-import { type GalleryImageResponse } from '@repo/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type FindGalleryImagesRequest, type GalleryImageResponse } from '@repo/shared';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { Image } from 'expo-image';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
+import { NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, View, useWindowDimensions } from 'react-native';
 
 type GalleryItem = GalleryImageResponse & {
   serverId: string;
@@ -40,6 +40,22 @@ type GalleryLightboxItem = {
   headers?: Record<string, string>;
 };
 
+type ServerGalleryState = {
+  serverId: string;
+  skip: number;
+  hasMore: boolean;
+  buffer: GalleryItem[];
+};
+
+type GalleryPageParam = {
+  serverStates: ServerGalleryState[];
+};
+
+type GalleryBatchResponse = {
+  items: GalleryItem[];
+  nextPageParam?: GalleryPageParam;
+};
+
 const groupByOptions: { label: string; value: GroupBy }[] = [
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
@@ -47,6 +63,107 @@ const groupByOptions: { label: string; value: GroupBy }[] = [
   { label: 'Year', value: 'year' },
   { label: 'None', value: 'none' },
 ];
+
+const GALLERY_BATCH_ROWS = 10;
+const LOAD_MORE_THRESHOLD_PX = 720;
+
+const sortGalleryItems = (left: GalleryItem, right: GalleryItem) =>
+  +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt);
+
+const createInitialPageParam = (servers: ServerConnectionWithClient[]): GalleryPageParam => ({
+  serverStates: servers.map((server) => ({
+    serverId: server.id,
+    skip: 0,
+    hasMore: true,
+    buffer: [],
+  })),
+});
+
+const loadGalleryBatch = async ({
+  batchSize,
+  pageParam,
+  serversById,
+}: {
+  batchSize: number;
+  pageParam: GalleryPageParam;
+  serversById: Map<string, ServerConnectionWithClient>;
+}): Promise<GalleryBatchResponse> => {
+  const hydratedStates = await Promise.all(
+    pageParam.serverStates.map(async (state) => {
+      const server = serversById.get(state.serverId);
+
+      if (!server) {
+        return {
+          ...state,
+          hasMore: false,
+          buffer: [],
+        };
+      }
+
+      let buffer = state.buffer;
+      let skip = state.skip;
+      let hasMore = state.hasMore;
+
+      while (hasMore && buffer.length < batchSize) {
+        const request: FindGalleryImagesRequest = {
+          skip,
+          take: batchSize - buffer.length,
+        };
+        const page = await server.client.gallery.findAll(request);
+
+        if (!page.items.length) {
+          hasMore = false;
+          break;
+        }
+
+        const headers = server.client.getAuthHeaders();
+        buffer = buffer.concat(
+          page.items.map((item) => ({
+            ...item,
+            serverId: server.id,
+            baseUrl: server.baseUrl,
+            label: server.label,
+            headers,
+          }))
+        );
+        skip = page.nextSkip ?? skip + page.items.length;
+        hasMore = page.hasMore;
+      }
+
+      return {
+        ...state,
+        skip,
+        hasMore,
+        buffer,
+      };
+    })
+  );
+
+  const items = hydratedStates
+    .flatMap((state) => state.buffer)
+    .sort(sortGalleryItems)
+    .slice(0, batchSize);
+
+  if (!items.length) {
+    return { items };
+  }
+
+  const consumedByServer = new Map<string, number>();
+  for (const item of items) {
+    consumedByServer.set(item.serverId, (consumedByServer.get(item.serverId) ?? 0) + 1);
+  }
+
+  const nextServerStates = hydratedStates.map((state) => ({
+    ...state,
+    buffer: state.buffer.slice(consumedByServer.get(state.serverId) ?? 0),
+  }));
+  const hasMore = nextServerStates.some((state) => state.hasMore || state.buffer.length > 0);
+
+  return {
+    items,
+    nextPageParam: hasMore ? { serverStates: nextServerStates } : undefined,
+  };
+};
 
 const getGroupMetadata = (date: Date, groupBy: Exclude<GroupBy, 'none'>) => {
   switch (groupBy) {
@@ -102,6 +219,39 @@ const groupPhotos = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup[] => 
   return Array.from(groups.values());
 };
 
+const GalleryTile = memo(function GalleryTile({
+  item,
+  columnCount,
+  photoIndex,
+  onSelectPhoto,
+}: {
+  item: GalleryItem;
+  columnCount: number;
+  photoIndex: number | null;
+  onSelectPhoto: (index: number | null) => void;
+}) {
+  const itemKey = `${item.serverId}:${item.id}`;
+  const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
+  const tileWidth = `${100 / columnCount}%` as `${number}%`;
+
+  return (
+    <View key={itemKey} className="p-1" style={{ width: tileWidth }}>
+      <Pressable
+        className="overflow-hidden rounded-lg bg-layer-secondary aspect-square"
+        onPress={() => onSelectPhoto(photoIndex)}
+      >
+        <Image
+          source={{ uri: imageUri, headers: item.headers }}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          transition={0}
+          className="w-full h-full"
+        />
+      </Pressable>
+    </View>
+  );
+});
+
 const GalleryGrid = memo(function GalleryGrid({
   photoGroups,
   columnCount,
@@ -111,7 +261,7 @@ const GalleryGrid = memo(function GalleryGrid({
   photoGroups: GalleryGroup[];
   columnCount: number;
   photoIndexByKey: Map<string, number>;
-  onSelectPhoto: React.Dispatch<React.SetStateAction<number | null>>;
+  onSelectPhoto: (index: number | null) => void;
 }) {
   return (
     <View className="gap-6">
@@ -127,24 +277,15 @@ const GalleryGrid = memo(function GalleryGrid({
           <View className="flex-row flex-wrap -mx-1">
             {group.items.map((item) => {
               const itemKey = `${item.serverId}:${item.id}`;
-              const imageUri = `${item.baseUrl}${item.thumbnailPath}`;
-              const tileWidth = `${100 / columnCount}%` as `${number}%`;
 
               return (
-                <View key={itemKey} className="p-1" style={{ width: tileWidth }}>
-                  <Pressable
-                    className="overflow-hidden rounded-lg bg-layer-secondary aspect-square"
-                    onPress={() => onSelectPhoto(photoIndexByKey.get(itemKey) ?? null)}
-                  >
-                    <Image
-                      source={{ uri: imageUri, headers: item.headers }}
-                      cachePolicy="memory-disk"
-                      contentFit="cover"
-                      transition={120}
-                      className="w-full h-full"
-                    />
-                  </Pressable>
-                </View>
+                <GalleryTile
+                  key={itemKey}
+                  item={item}
+                  columnCount={columnCount}
+                  photoIndex={photoIndexByKey.get(itemKey) ?? null}
+                  onSelectPhoto={onSelectPhoto}
+                />
               );
             })}
           </View>
@@ -157,44 +298,32 @@ const GalleryGrid = memo(function GalleryGrid({
 export default function GalleryPage() {
   const { t } = useTranslation();
   const { servers } = useServerContext();
-  const queryClient = useQueryClient();
   const { width } = useWindowDimensions();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const [groupBy, setGroupBy] = useState<GroupBy>('day');
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+  const [galleryRevision, setGalleryRevision] = useState(0);
 
   const columnCount = width > 1280 ? 5 : width > 1024 ? 4 : width > 768 ? 3 : 2;
+  const batchSize = columnCount * GALLERY_BATCH_ROWS;
+  const initialPageParam = useMemo(() => createInitialPageParam(servers), [servers]);
+  const serversById = useMemo(() => new Map(servers.map((server) => [server.id, server])), [servers]);
 
-  const { data: photos = [], isPending } = useQuery({
-    queryKey: ['gallery', servers.map((server) => server.id)],
-    queryFn: async () => {
-      if (!servers.length) return [] as GalleryItem[];
-
-      const responses = await Promise.all(
-        servers.map(async (server) => {
-          try {
-            const data = await server.client.gallery.findAll();
-            const headers = server.client.getAuthHeaders();
-            return data.map((item) => ({
-              ...item,
-              serverId: server.id,
-              baseUrl: server.baseUrl,
-              label: server.label,
-              headers,
-            }));
-          } catch {
-            return [] as GalleryItem[];
-          }
-        })
-      );
-
-      return responses
-        .flat()
-        .sort((a, b) => +new Date(b.capturedAt ?? b.createdAt) - +new Date(a.capturedAt ?? a.createdAt));
-    },
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
+    queryKey: ['gallery', galleryRevision, servers.map((server) => server.id)],
+    initialPageParam,
+    queryFn: ({ pageParam }) =>
+      loadGalleryBatch({
+        batchSize,
+        pageParam: pageParam as GalleryPageParam,
+        serversById,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageParam,
     enabled: servers.length > 0,
   });
 
+  const photos = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
+  const hasMorePhotos = Boolean(hasNextPage);
   const photoGroups = useMemo(() => groupPhotos(photos, groupBy), [photos, groupBy]);
   const lightboxImages = useMemo<GalleryLightboxItem[]>(
     () =>
@@ -210,6 +339,26 @@ export default function GalleryPage() {
     [lightboxImages]
   );
 
+  const handleSelectPhoto = useCallback((index: number | null) => {
+    setSelectedPhotoIndex(index);
+  }, []);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!hasMorePhotos) {
+        return;
+      }
+
+      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+      const distanceFromBottom = contentSize.height - (contentOffset.y + layoutMeasurement.height);
+
+      if (distanceFromBottom <= LOAD_MORE_THRESHOLD_PX && !isFetchingNextPage) {
+        void fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasMorePhotos, isFetchingNextPage]
+  );
+
   const { mutate: uploadFiles, isPending: isUploading } = useMutation({
     mutationKey: ['gallery-upload'],
     mutationFn: async (files: File[]) => {
@@ -219,7 +368,7 @@ export default function GalleryPage() {
       }
 
       const settled = await Promise.allSettled(
-        files.map((file) => targetServer.client.gallery.uploadFile(file, file.name))
+        files.map((file) => targetServer.client.photo.uploadFile(file, file.name))
       );
 
       const successCount = settled.filter((item) => item.status === 'fulfilled').length;
@@ -233,7 +382,7 @@ export default function GalleryPage() {
       if (failedCount > 0) {
         toast.error(`Failed uploads: ${failedCount}`);
       }
-      queryClient.invalidateQueries({ queryKey: ['gallery'] });
+      setGalleryRevision((current) => current + 1);
     },
     onError: () => {
       toast.error('Upload failed');
@@ -257,7 +406,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <BaseLayout>
+    <BaseLayout onScroll={handleScroll} scrollEventThrottle={16}>
       <View className="mb-4 flex-row justify-between items-center gap-3">
         <Text variant="h1">{t('Gallery')}</Text>
         <View className="flex-row items-center gap-2">
@@ -295,8 +444,13 @@ export default function GalleryPage() {
         photoGroups={photoGroups}
         columnCount={columnCount}
         photoIndexByKey={photoIndexByKey}
-        onSelectPhoto={setSelectedPhotoIndex}
+        onSelectPhoto={handleSelectPhoto}
       />
+
+      {!isPending && hasMorePhotos && !isFetchingNextPage && (
+        <Text className="pt-4 text-center text-muted-foreground">Scroll to load more photos</Text>
+      )}
+      {isFetchingNextPage && <Text className="pt-4 text-center text-muted-foreground">Loading more photos...</Text>}
 
       <GalleryLightbox
         images={lightboxImages}

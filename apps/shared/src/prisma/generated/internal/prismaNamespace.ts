@@ -839,6 +839,7 @@ export const PhotoScalarFieldEnum = {
   thumbnailPath: 'thumbnailPath',
   hash: 'hash',
   metadata: 'metadata',
+  capturedAt: 'capturedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',

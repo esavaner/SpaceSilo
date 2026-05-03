@@ -50,6 +50,7 @@ model Photo {
   thumbnailPath String
   hash      String
   metadata  Json?
+  capturedAt DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -58,6 +59,8 @@ model Photo {
   owner     User     @relation(fields: [ownerId], references: [id])
   albums    Album[]
   group     Group[]
+
+  @@index([ownerId, capturedAt, createdAt])
 }
 
 model Album {

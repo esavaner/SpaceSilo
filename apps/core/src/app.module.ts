@@ -52,7 +52,6 @@ import { validateEnvironment } from './common/env.validation';
     GalleryService,
     GroupsService,
     NotesService,
-    PhotoService,
     UsersService,
   ],
   controllers: [
