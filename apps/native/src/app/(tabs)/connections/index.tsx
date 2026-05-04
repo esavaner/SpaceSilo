@@ -45,7 +45,7 @@ type CoreNasForm = {
 export default function ConnectionsPage() {
   const { t } = useTranslation();
   const validators = useValidators();
-  const { servers, loginAndSaveServer, removeServer, setServerEnabled } = useServerContext();
+  const { allServers, loginAndSaveServer, removeServer, setServerEnabled } = useServerContext();
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [isSavingCoreNas, setIsSavingCoreNas] = useState(false);
   const [busyServerId, setBusyServerId] = useState<string | null>(null);
@@ -224,13 +224,13 @@ export default function ConnectionsPage() {
       <Text variant="h2" className="mb-3">
         {t('connections.existing')}
       </Text>
-      {servers.length === 0 ? (
+      {allServers.length === 0 ? (
         <Text variant="muted" className="mx-auto mt-9">
           {t('connections.messages.none')}
         </Text>
       ) : (
         <View className="gap-3 grid md:grid-cols-2 xl:grid-cols-3">
-          {servers.map((server) => (
+          {allServers.map((server) => (
             <View key={server.id} className="border-border border rounded p-4 gap-2">
               <Text variant="h4">{server.label}</Text>
               <Text variant="muted">{server.baseUrl}</Text>

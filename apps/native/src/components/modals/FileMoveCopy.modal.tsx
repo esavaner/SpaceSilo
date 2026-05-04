@@ -53,7 +53,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
       </DialogHeader>
       <Text>{selectedItems.length} item(s) selected</Text>
       <Breadcrumb
-        pathItems={currentPath.split('/|\\')}
+        pathItems={currentPath.split(/\/|\\/)}
         handlePathClick={handlePathClick}
         homeDirName={t('files.homeDir')}
       />

@@ -12,7 +12,7 @@ import { serverIcons } from '@/constants/server-icons';
 type NavigationProps = DrawerContentComponentProps;
 
 export const Navigation = (props: NavigationProps) => {
-  const { servers } = useServerContext();
+  const { allServers } = useServerContext();
 
   const currentRoute = props.state.routeNames[props.state.index];
   return (
@@ -38,7 +38,7 @@ export const Navigation = (props: NavigationProps) => {
             <Icon.Add />
           </Button>
         </View>
-        {servers.map((server) => (
+        {allServers.map((server) => (
           <Pressable
             key={server.id}
             onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}

@@ -24,7 +24,7 @@ export default function FilesPage() {
   }, []);
 
   const header = (
-    <View className="gap-4">
+    <View className="gap-4 flex-row">
       <Text variant="h1">{t('Files')}</Text>
       <View className={cn('flex-row h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (

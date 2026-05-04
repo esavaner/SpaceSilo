@@ -1,4 +1,5 @@
 import { BaseLayout } from '@/components/base-layout';
+import { Breadcrumb } from '@/components/breadcrumb';
 import { GalleryLightbox } from '@/components/gallery/GalleryLightbox';
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
@@ -614,6 +615,21 @@ export default function GalleryPage() {
     setSelectedPhotoIndex(null);
   }, []);
 
+  const albumBreadcrumbItems = currentAlbum
+    ? [
+        {
+          key: 'gallery-root',
+          label: t('Gallery'),
+          onPress: handleNavigateToRoot,
+        },
+        ...albumPath.map((album, index) => ({
+          key: `${album.serverId}:${album.id}`,
+          label: album.name,
+          onPress: index === albumPath.length - 1 ? undefined : () => handleNavigateToAlbum(index),
+        })),
+      ]
+    : [];
+
   const handleOpenCreateAlbumModal = useCallback(() => {
     if (selectedPhotos.length > 0 && !selectedServer) {
       toast.error('Select photos from a single server to create an album from them');
@@ -734,30 +750,7 @@ export default function GalleryPage() {
       <View className="flex-row flex-wrap items-start justify-between gap-3">
         <View className="gap-2">
           <Text variant="h1">{currentAlbum ? currentAlbum.name : t('Gallery')}</Text>
-
-          {currentAlbum ? (
-            <View className="flex-row flex-wrap items-center gap-1">
-              <Button variant="ghost" size="sm" onPress={handleNavigateToRoot}>
-                <Text>Gallery</Text>
-              </Button>
-              {albumPath.map((album, index) => {
-                const isLast = index === albumPath.length - 1;
-
-                return (
-                  <View key={`${album.serverId}:${album.id}`} className="flex-row items-center gap-1">
-                    <Icon.NavigateNext className="text-muted-foreground" size={14} />
-                    {isLast ? (
-                      <Text className="text-muted-foreground">{album.name}</Text>
-                    ) : (
-                      <Button variant="ghost" size="sm" onPress={() => handleNavigateToAlbum(index)}>
-                        <Text>{album.name}</Text>
-                      </Button>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          ) : null}
+          {currentAlbum && <Breadcrumb items={albumBreadcrumbItems} />}
         </View>
 
         <View className="flex-row flex-wrap items-center gap-2">

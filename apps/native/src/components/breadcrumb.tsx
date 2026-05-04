@@ -1,62 +1,74 @@
-import { ScrollView } from 'react-native';
 import React from 'react';
+import { ScrollView, View } from 'react-native';
 import { Text } from './general/text';
 import { Button } from './general/button';
 import { Icon } from './general/icon';
 
-type BreadcrumbProps = {
+export type BreadcrumbItem = {
+  key: string;
+  label: string;
+  onPress?: () => void;
+};
+
+type PathBreadcrumbProps = {
   pathItems: string[];
   handlePathClick: (newPath: string) => void;
   homeDirName?: string;
+  items?: never;
 };
 
-export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: BreadcrumbProps) => {
-  const handleItemClick = (index: number) => {
-    const newPath = pathItems.slice(0, index + 1).join('/');
-    handlePathClick(newPath);
-  };
+type Props =
+  | PathBreadcrumbProps
+  | {
+      items: BreadcrumbItem[];
+      pathItems?: never;
+      handlePathClick?: never;
+      homeDirName?: never;
+    };
+
+const ROOT_KEY = '__breadcrumb_root__';
+const HOME_LABEL = 'Home';
+
+const createPathBreadcrumbItems = ({
+  pathItems,
+  handlePathClick,
+  homeDirName,
+}: PathBreadcrumbProps): BreadcrumbItem[] => {
+  const normalizedPathItems = pathItems.length > 0 ? pathItems : [''];
+
+  return normalizedPathItems.map((item, index) => ({
+    key: index === 0 ? ROOT_KEY : `${normalizedPathItems.slice(0, index + 1).join('/')}:${index}`,
+    label: index === 0 ? homeDirName || item || HOME_LABEL : item,
+    onPress: () => handlePathClick(normalizedPathItems.slice(0, index + 1).join('/')),
+  }));
+};
+
+export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: Props) => {
+  const breadcrumbItems =
+    pathItems !== undefined
+      ? createPathBreadcrumbItems({
+          pathItems,
+          handlePathClick,
+          homeDirName,
+        })
+      : items;
 
   return (
-    <ScrollView horizontal className="items-center">
-      {pathItems.map((item, index) => (
-        <React.Fragment key={index}>
-          {index !== 0 && <Icon.NavigateNext className="mt-3 mr-1" />}
-          <Button variant="ghost" className="mr-1" onPress={() => handleItemClick(index)}>
-            <Text>{index === 0 ? homeDirName : item}</Text>
-          </Button>
+    <ScrollView horizontal className="items-center" showsHorizontalScrollIndicator={false}>
+      {breadcrumbItems.map((item, index) => (
+        <React.Fragment key={item.key}>
+          <View className="mr-1 flex-row items-center">
+            {index !== 0 && <Icon.NavigateNext className="mr-1 text-muted-foreground" size={14} />}
+            {item.onPress ? (
+              <Button variant="ghost" size="sm" onPress={item.onPress}>
+                <Text>{item.label}</Text>
+              </Button>
+            ) : (
+              <Text className="text-muted-foreground">{item.label}</Text>
+            )}
+          </View>
         </React.Fragment>
       ))}
     </ScrollView>
   );
 };
-
-// export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName }: BreadcrumbProps) => {
-//   const handleItemClick = (index: number) => {
-//     const newPath = pathItems.slice(0, index + 1).join('/');
-//     handlePathClick(newPath);
-//   };
-
-//   return (
-//     <ScrollView horizontal className="h-8">
-//       <BreadcrumbItem key={''} item={homeDirName || 'Home'} homeDir onPress={() => handlePathClick('')} />
-//       {pathItems.map((item, index) => (
-//         <BreadcrumbItem key={item + index} item={item} onPress={() => handleItemClick(index)} />
-//       ))}
-//     </ScrollView>
-//   );
-// };
-
-// type BreadcrumbItemProps = {
-//   item: string;
-//   onPress: () => void;
-//   homeDir?: boolean;
-// };
-
-// const BreadcrumbItem = ({ item, homeDir, onPress }: BreadcrumbItemProps) => {
-//   return (
-//     <Pressable className="flex flex-row items-center gap-2 mr-2" onPress={onPress}>
-//       {!homeDir && <NavigateNextIcon />}
-//       <Text className="text-muted-foreground hover:text-foreground hover:underline">{item}</Text>
-//     </Pressable>
-//   );
-// };

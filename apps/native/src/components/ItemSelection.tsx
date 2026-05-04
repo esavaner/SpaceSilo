@@ -30,7 +30,7 @@ export const ItemSelection = ({ path, selectedItems, handleClearSelection }: Ite
       <Button variant="ghost" onPress={handleClearSelection} className="p-2">
         <Icon.Close />
       </Button>
-      <Text className="mr-auto">{selectedItems.length} item(s) selected</Text>
+      <Text className="mr-auto">{selectedItems.length} item(s)</Text>
       {items.map((item, index) => (
         <Button key={index} onPress={item.onPress} variant="ghost" className="p-2">
           {item.icon}
