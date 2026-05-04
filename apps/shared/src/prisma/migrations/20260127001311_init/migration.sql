@@ -40,6 +40,7 @@ CREATE TABLE "Photo" (
 CREATE TABLE "Album" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "capturedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -103,6 +104,12 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE INDEX "Photo_ownerId_capturedAt_createdAt_idx" ON "Photo"("ownerId", "capturedAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "Album_ownerId_capturedAt_createdAt_idx" ON "Album"("ownerId", "capturedAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "Album_parentId_capturedAt_createdAt_idx" ON "Album"("parentId", "capturedAt", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "_AlbumToPhoto_B_index" ON "_AlbumToPhoto"("B");

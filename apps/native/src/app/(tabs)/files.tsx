@@ -23,8 +23,8 @@ export default function FilesPage() {
     }
   }, []);
 
-  return (
-    <BaseLayout>
+  const header = (
+    <View className="gap-4">
       <Text variant="h1">{t('Files')}</Text>
       <View className={cn('flex-row h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (
@@ -37,6 +37,11 @@ export default function FilesPage() {
           />
         )}
       </View>
+    </View>
+  );
+
+  return (
+    <BaseLayout header={header} scrollable={false}>
       <FileList />
     </BaseLayout>
   );

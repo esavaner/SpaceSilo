@@ -27,6 +27,7 @@ export type AggregateAlbum = {
 export type AlbumMinAggregateOutputType = {
   id: string | null
   name: string | null
+  capturedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -37,6 +38,7 @@ export type AlbumMinAggregateOutputType = {
 export type AlbumMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  capturedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -47,6 +49,7 @@ export type AlbumMaxAggregateOutputType = {
 export type AlbumCountAggregateOutputType = {
   id: number
   name: number
+  capturedAt: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -59,6 +62,7 @@ export type AlbumCountAggregateOutputType = {
 export type AlbumMinAggregateInputType = {
   id?: true
   name?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -69,6 +73,7 @@ export type AlbumMinAggregateInputType = {
 export type AlbumMaxAggregateInputType = {
   id?: true
   name?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -79,6 +84,7 @@ export type AlbumMaxAggregateInputType = {
 export type AlbumCountAggregateInputType = {
   id?: true
   name?: true
+  capturedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -162,6 +168,7 @@ export type AlbumGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type AlbumGroupByOutputType = {
   id: string
   name: string
+  capturedAt: Date | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -193,6 +200,7 @@ export type AlbumWhereInput = {
   NOT?: Prisma.AlbumWhereInput | Prisma.AlbumWhereInput[]
   id?: Prisma.StringFilter<"Album"> | string
   name?: Prisma.StringFilter<"Album"> | string
+  capturedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
@@ -208,6 +216,7 @@ export type AlbumWhereInput = {
 export type AlbumOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -226,6 +235,7 @@ export type AlbumWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AlbumWhereInput[]
   NOT?: Prisma.AlbumWhereInput | Prisma.AlbumWhereInput[]
   name?: Prisma.StringFilter<"Album"> | string
+  capturedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
@@ -241,6 +251,7 @@ export type AlbumWhereUniqueInput = Prisma.AtLeast<{
 export type AlbumOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -257,6 +268,7 @@ export type AlbumScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AlbumScalarWhereWithAggregatesInput | Prisma.AlbumScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Album"> | string
   name?: Prisma.StringWithAggregatesFilter<"Album"> | string
+  capturedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Album"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Album"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Album"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Album"> | Date | string | null
@@ -267,6 +279,7 @@ export type AlbumScalarWhereWithAggregatesInput = {
 export type AlbumCreateInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -280,6 +293,7 @@ export type AlbumCreateInput = {
 export type AlbumUncheckedCreateInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -293,6 +307,7 @@ export type AlbumUncheckedCreateInput = {
 export type AlbumUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -306,6 +321,7 @@ export type AlbumUpdateInput = {
 export type AlbumUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -319,6 +335,7 @@ export type AlbumUncheckedUpdateInput = {
 export type AlbumCreateManyInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -329,6 +346,7 @@ export type AlbumCreateManyInput = {
 export type AlbumUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -337,6 +355,7 @@ export type AlbumUpdateManyMutationInput = {
 export type AlbumUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -362,6 +381,7 @@ export type AlbumNullableScalarRelationFilter = {
 export type AlbumCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -372,6 +392,7 @@ export type AlbumCountOrderByAggregateInput = {
 export type AlbumMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -382,6 +403,7 @@ export type AlbumMaxOrderByAggregateInput = {
 export type AlbumMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  capturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -568,6 +590,7 @@ export type AlbumUncheckedUpdateManyWithoutGroupNestedInput = {
 export type AlbumCreateWithoutOwnerInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -580,6 +603,7 @@ export type AlbumCreateWithoutOwnerInput = {
 export type AlbumUncheckedCreateWithoutOwnerInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -621,6 +645,7 @@ export type AlbumScalarWhereInput = {
   NOT?: Prisma.AlbumScalarWhereInput | Prisma.AlbumScalarWhereInput[]
   id?: Prisma.StringFilter<"Album"> | string
   name?: Prisma.StringFilter<"Album"> | string
+  capturedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Album"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Album"> | Date | string | null
@@ -631,6 +656,7 @@ export type AlbumScalarWhereInput = {
 export type AlbumCreateWithoutPhotosInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -643,6 +669,7 @@ export type AlbumCreateWithoutPhotosInput = {
 export type AlbumUncheckedCreateWithoutPhotosInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -676,6 +703,7 @@ export type AlbumUpdateManyWithWhereWithoutPhotosInput = {
 export type AlbumCreateWithoutSubalbumsInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -688,6 +716,7 @@ export type AlbumCreateWithoutSubalbumsInput = {
 export type AlbumUncheckedCreateWithoutSubalbumsInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -705,6 +734,7 @@ export type AlbumCreateOrConnectWithoutSubalbumsInput = {
 export type AlbumCreateWithoutParentInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -717,6 +747,7 @@ export type AlbumCreateWithoutParentInput = {
 export type AlbumUncheckedCreateWithoutParentInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -750,6 +781,7 @@ export type AlbumUpdateToOneWithWhereWithoutSubalbumsInput = {
 export type AlbumUpdateWithoutSubalbumsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -762,6 +794,7 @@ export type AlbumUpdateWithoutSubalbumsInput = {
 export type AlbumUncheckedUpdateWithoutSubalbumsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -790,6 +823,7 @@ export type AlbumUpdateManyWithWhereWithoutParentInput = {
 export type AlbumCreateWithoutGroupInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -802,6 +836,7 @@ export type AlbumCreateWithoutGroupInput = {
 export type AlbumUncheckedCreateWithoutGroupInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -835,6 +870,7 @@ export type AlbumUpdateManyWithWhereWithoutGroupInput = {
 export type AlbumCreateManyOwnerInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -844,6 +880,7 @@ export type AlbumCreateManyOwnerInput = {
 export type AlbumUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -856,6 +893,7 @@ export type AlbumUpdateWithoutOwnerInput = {
 export type AlbumUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -868,6 +906,7 @@ export type AlbumUncheckedUpdateWithoutOwnerInput = {
 export type AlbumUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -877,6 +916,7 @@ export type AlbumUncheckedUpdateManyWithoutOwnerInput = {
 export type AlbumUpdateWithoutPhotosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -889,6 +929,7 @@ export type AlbumUpdateWithoutPhotosInput = {
 export type AlbumUncheckedUpdateWithoutPhotosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -901,6 +942,7 @@ export type AlbumUncheckedUpdateWithoutPhotosInput = {
 export type AlbumUncheckedUpdateManyWithoutPhotosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -911,6 +953,7 @@ export type AlbumUncheckedUpdateManyWithoutPhotosInput = {
 export type AlbumCreateManyParentInput = {
   id?: string
   name: string
+  capturedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -920,6 +963,7 @@ export type AlbumCreateManyParentInput = {
 export type AlbumUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -932,6 +976,7 @@ export type AlbumUpdateWithoutParentInput = {
 export type AlbumUncheckedUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -944,6 +989,7 @@ export type AlbumUncheckedUpdateWithoutParentInput = {
 export type AlbumUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -953,6 +999,7 @@ export type AlbumUncheckedUpdateManyWithoutParentInput = {
 export type AlbumUpdateWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -965,6 +1012,7 @@ export type AlbumUpdateWithoutGroupInput = {
 export type AlbumUncheckedUpdateWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -977,6 +1025,7 @@ export type AlbumUncheckedUpdateWithoutGroupInput = {
 export type AlbumUncheckedUpdateManyWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1036,6 +1085,7 @@ export type AlbumCountOutputTypeCountGroupArgs<ExtArgs extends runtime.Types.Ext
 export type AlbumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -1052,6 +1102,7 @@ export type AlbumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type AlbumSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -1064,6 +1115,7 @@ export type AlbumSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type AlbumSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -1076,6 +1128,7 @@ export type AlbumSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type AlbumSelectScalar = {
   id?: boolean
   name?: boolean
+  capturedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -1083,7 +1136,7 @@ export type AlbumSelectScalar = {
   parentId?: boolean
 }
 
-export type AlbumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt" | "deletedAt" | "ownerId" | "parentId", ExtArgs["result"]["album"]>
+export type AlbumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "capturedAt" | "createdAt" | "updatedAt" | "deletedAt" | "ownerId" | "parentId", ExtArgs["result"]["album"]>
 export type AlbumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Album$parentArgs<ExtArgs>
@@ -1113,6 +1166,7 @@ export type $AlbumPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    capturedAt: Date | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1548,6 +1602,7 @@ export interface Prisma__AlbumClient<T, Null = never, ExtArgs extends runtime.Ty
 export interface AlbumFieldRefs {
   readonly id: Prisma.FieldRef<"Album", 'String'>
   readonly name: Prisma.FieldRef<"Album", 'String'>
+  readonly capturedAt: Prisma.FieldRef<"Album", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Album", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Album", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"Album", 'DateTime'>

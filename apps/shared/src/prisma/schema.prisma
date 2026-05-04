@@ -66,6 +66,7 @@ model Photo {
 model Album {
   id        String   @id @default(cuid())
   name      String
+  capturedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -77,6 +78,9 @@ model Album {
   subalbums Album[]  @relation("Subalbums")
   photos    Photo[]
   group     Group[]
+
+  @@index([ownerId, capturedAt, createdAt])
+  @@index([parentId, capturedAt, createdAt])
 }
 
 

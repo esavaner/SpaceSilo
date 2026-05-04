@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -6,10 +6,6 @@ export class CreateAlbumRequest {
   @IsString()
   @IsNotEmpty()
   name!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  ownerId!: string;
 
   @IsOptional()
   @IsString()
@@ -24,6 +20,18 @@ export class CreateAlbumRequest {
   @IsArray()
   @IsString({ each: true })
   groupIds?: string[];
+}
+
+export class AddPhotosToAlbumRequest {
+  @IsArray()
+  @IsString({ each: true })
+  photoIds!: string[];
+}
+
+export class FindAlbumsRequest {
+  @IsOptional()
+  @IsString()
+  parentId?: string | null;
 }
 
 export class UpdateAlbumRequest {
@@ -56,6 +64,10 @@ export class AlbumResponse {
   @IsString()
   name!: string;
 
+  @IsOptional()
+  @IsDate()
+  capturedAt?: Date | null;
+
   @IsDate()
   createdAt!: Date;
 
@@ -87,4 +99,14 @@ export class AlbumResponse {
   @IsArray()
   @IsString({ each: true })
   groupIds?: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  photoCount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  subalbumCount?: number;
 }

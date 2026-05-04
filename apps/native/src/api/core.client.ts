@@ -3,14 +3,18 @@ import { buildQuery } from '../utils/requests';
 import {
   type AddGroupMemberRequest,
   type AddGroupMembersRequest,
+  type AddPhotosToAlbumRequest,
+  type AlbumResponse,
   type AuthResponse,
   type CopyFileRequest,
+  type CreateAlbumRequest,
   type CreateFileRequest,
   type CreateGroupRequest,
   type CreateFolderRequest,
   type DownloadFileRequest,
   type FileActionResponse,
   type FileResponse,
+  type FindAlbumsRequest,
   type FindAllFilesRequest,
   type FindFileRequest,
   type FindGalleryImagesRequest,
@@ -23,6 +27,7 @@ import {
   type RefreshResponse,
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
+  type UpdateAlbumRequest,
   type UpdateGroupMemberRequest,
   type UserResponse,
 } from '@repo/shared';
@@ -136,6 +141,17 @@ export class CoreApiClient extends ApiClient<UserResponse> {
       this.get<GalleryImagePageResponse>(buildQuery(endpoints.gallery, { ...(dto ?? {}) })),
     getStats: () => this.get<GalleryStatsResponse>(`${endpoints.gallery}/stats`),
     scan: () => this.post<undefined, GalleryScanResponse>(`${endpoints.gallery}/scan`),
+  };
+
+  public readonly album = {
+    create: (dto: CreateAlbumRequest) => this.post<CreateAlbumRequest, AlbumResponse>(endpoints.album, dto),
+    findAll: (dto?: FindAlbumsRequest) => this.get<AlbumResponse[]>(buildQuery(endpoints.album, { ...(dto ?? {}) })),
+    findOne: (id: string) => this.get<AlbumResponse>(`${endpoints.album}/${id}`),
+    addPhotos: (id: string, dto: AddPhotosToAlbumRequest) =>
+      this.post<AddPhotosToAlbumRequest, AlbumResponse>(`${endpoints.album}/${id}/photos`, dto),
+    update: (id: string, dto: UpdateAlbumRequest) =>
+      this.patch<UpdateAlbumRequest, AlbumResponse>(`${endpoints.album}/${id}`, dto),
+    remove: (id: string) => this.delete<undefined, AlbumResponse>(`${endpoints.album}/${id}`),
   };
 
   public readonly photo = {

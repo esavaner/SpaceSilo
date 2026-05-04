@@ -4,8 +4,6 @@ import { Navigation } from '@/components/navigation';
 import { useWindowDimensions } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 
-import { Header } from '@/components/Header';
-
 export default function TabLayout() {
   const { width } = useWindowDimensions();
 
@@ -14,7 +12,7 @@ export default function TabLayout() {
       screenOptions={{
         drawerType: width > 992 ? 'permanent' : 'slide',
         drawerStyle: { backgroundColor: 'transparent', width: 260 },
-        header: (props) => <Header {...props} />,
+        header: () => <></>,
       }}
       drawerContent={(props) => <Navigation {...props} />}
     />

@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
+import { AlbumService } from '@/services/album.service';
 import { type GalleryImageResponse, type Prisma, type TokenPayload } from '@repo/shared';
 import exifr from 'exifr';
 import sharp from 'sharp';
@@ -25,7 +26,10 @@ type UploadedImageFile = {
 
 @Injectable()
 export class PhotoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly albumService: AlbumService
+  ) {}
 
   private asStoredPhotoMetadata(metadata: unknown): StoredPhotoMetadata | null {
     if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
@@ -92,6 +96,8 @@ export class PhotoService {
             metadata: this.mergePhotoMetadata(photo.metadata, metadataCapturedAt.toISOString()),
           },
         });
+
+        await this.albumService.refreshCapturedAtForPhotos([photo.id]);
       }
 
       return metadataCapturedAt;
@@ -117,6 +123,8 @@ export class PhotoService {
       },
     });
 
+    await this.albumService.refreshCapturedAtForPhotos([photo.id]);
+
     return resolvedCapturedAt;
   }
 
@@ -125,13 +133,16 @@ export class PhotoService {
   }
 
   async repairCapturedAtFromMetadata(ownerId: string) {
-    await this.prisma.$executeRaw`
+    const updatedPhotos = await this.prisma.$queryRaw<Array<{ id: string }>>`
       UPDATE "Photo"
       SET "capturedAt" = NULLIF("metadata"->>'capturedAt', '')::timestamptz
       WHERE "ownerId" = ${ownerId}
         AND NULLIF("metadata"->>'capturedAt', '') IS NOT NULL
         AND "capturedAt" IS DISTINCT FROM NULLIF("metadata"->>'capturedAt', '')::timestamptz
+      RETURNING "id"
     `;
+
+    await this.albumService.refreshCapturedAtForPhotos(updatedPhotos.map((photo) => photo.id));
   }
 
   async repairCapturedAtForPhotos(
@@ -157,11 +168,14 @@ export class PhotoService {
         })
       )
     );
+
+    await this.albumService.refreshCapturedAtForPhotos(stalePhotos.map((photo) => photo.id));
   }
 
   toGalleryImageResponse(photo: { id: string; createdAt: Date; capturedAt: Date }): GalleryImageResponse {
     return {
       id: photo.id,
+      type: 'photo',
       imagePath: `/gallery/photo/${photo.id}/file`,
       previewPath: `/gallery/photo/${photo.id}/preview`,
       thumbnailPath: `/gallery/photo/${photo.id}/thumbnail`,
@@ -394,9 +408,22 @@ export class PhotoService {
       throw new NotFoundException('Photo not found');
     }
 
-    return await this.prisma.photo.delete({
+    const albums = await this.prisma.album.findMany({
+      where: {
+        photos: {
+          some: { id: photo.id },
+        },
+      },
+      select: { id: true },
+    });
+
+    const deletedPhoto = await this.prisma.photo.delete({
       where: { id: photo.id },
     });
+
+    await Promise.all(albums.map((album) => this.albumService.refreshAlbumCapturedAtCascade(album.id)));
+
+    return deletedPhoto;
   }
 
   async findImage(id: string, user: TokenPayload) {

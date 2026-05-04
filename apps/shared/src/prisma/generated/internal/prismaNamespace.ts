@@ -852,6 +852,7 @@ export type PhotoScalarFieldEnum = (typeof PhotoScalarFieldEnum)[keyof typeof Ph
 export const AlbumScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  capturedAt: 'capturedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',

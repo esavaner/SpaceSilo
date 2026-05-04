@@ -1,16 +1,4 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsArray, IsDate, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -86,19 +74,6 @@ export class UpdatePhotoRequest {
   groupIds?: string[];
 }
 
-export class FindGalleryImagesRequest {
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  skip?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(200)
-  take?: number;
-}
-
 /* ------------------------- Responses ------------------------- */
 
 export class PhotoResponse {
@@ -147,60 +122,4 @@ export class PhotoResponse {
   @IsArray()
   @IsString({ each: true })
   groupIds?: string[];
-}
-
-export class GalleryImageResponse {
-  @IsString()
-  id!: string;
-
-  @IsString()
-  imagePath!: string;
-
-  @IsString()
-  previewPath!: string;
-
-  @IsString()
-  thumbnailPath!: string;
-
-  @IsOptional()
-  @IsDate()
-  capturedAt?: Date | null;
-
-  @IsDate()
-  createdAt!: Date;
-}
-
-export class GalleryImagePageResponse {
-  @IsArray()
-  items!: GalleryImageResponse[];
-
-  @IsBoolean()
-  hasMore!: boolean;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  nextSkip?: number;
-}
-
-export class GalleryStatsResponse {
-  @IsNumber()
-  totalFiles!: number;
-
-  @IsNumber()
-  totalImages!: number;
-
-  @IsNumber()
-  indexedImages!: number;
-
-  @IsNumber()
-  storageSize!: number;
-}
-
-export class GalleryScanResponse {
-  @IsNumber()
-  scannedImages!: number;
-
-  @IsNumber()
-  addedImages!: number;
 }
