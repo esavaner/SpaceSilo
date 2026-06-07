@@ -10,6 +10,8 @@
     "dev": "cross-env NODE_OPTIONS=\"--loader @swc-node/register/esm --experimental-specifier-resolution=node\" nest start --watch",
     "debug": "nest start --debug --watch",
     "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
+    "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
+    "check": "pnpm lint && pnpm typecheck",
     "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

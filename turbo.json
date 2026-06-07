@@ -22,6 +22,23 @@
       ],
       "dependsOn": ["^lint"]
     },
+    "typecheck": {
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "{projectDir}/tsconfig.json",
+        "{projectDir}/tsconfig.*.json",
+        "{projectDir}/next-env.d.ts",
+        "{projectDir}/expo-env.d.ts",
+        "{projectDir}/nativewind-env.d.ts",
+        "{workspaceRoot}/apps/shared/dist/**"
+      ],
+      "dependsOn": ["^build"]
+    },
+    "check": {
+      "outputs": [],
+      "dependsOn": ["^check"]
+    },
     "reset": {
       "cache": false
     },

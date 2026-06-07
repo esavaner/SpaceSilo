@@ -8,7 +8,9 @@
     "start:core": "pnpm build:core && pnpm --filter @repo/core start",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "check": "turbo run check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

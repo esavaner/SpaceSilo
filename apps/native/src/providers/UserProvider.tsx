@@ -1,9 +1,9 @@
-import { SearchUserDto } from '@/api/generated';
+import { type UserResponse } from '@repo/shared';
 import { createContext, useContext, useState } from 'react';
 
 type UserContextType = {
-  user?: SearchUserDto;
-  setUser: (user: SearchUserDto) => void;
+  user?: UserResponse;
+  setUser: (user: UserResponse) => void;
 };
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -13,7 +13,7 @@ type UserProviderProps = {
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [user, setUser] = useState<SearchUserDto>();
+  const [user, setUser] = useState<UserResponse>();
 
   return <UserContext.Provider value={{ user, setUser }}>{children}</UserContext.Provider>;
 };

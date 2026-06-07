@@ -1,11 +1,11 @@
 import { Pressable, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
-import { GetGroupDto } from '@/api/generated';
+import { type GroupResponse } from '@repo/shared';
 import { Avatar } from './avatar';
 import { Text } from './text';
 
 type Props = {
-  groups?: GetGroupDto[];
+  groups?: GroupResponse[];
 };
 
 export const GroupList = ({ groups }: Props) => {
@@ -14,7 +14,7 @@ export const GroupList = ({ groups }: Props) => {
       {groups?.map((group) => (
         <Link key={group.id} href={`/group/${group.id}`} asChild>
           <Pressable className="w-full flex flex-row items-center p-2 gap-2 rounded-md hover:bg-layer-secondary active:bg-layer-secondary">
-            <Avatar alt={group.name} color={group.color} />
+            <Avatar alt={group.name} color={group.color ?? undefined} />
             <Text>{group.name}</Text>
           </Pressable>
         </Link>
