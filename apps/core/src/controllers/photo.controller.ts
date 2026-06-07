@@ -1,7 +1,18 @@
-import { Body, Controller, Delete, Get, Header, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Header,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PhotoService } from '@/services/photo.service';
-import { type TokenPayload } from '@repo/shared';
+import { PhotoBulkActionRequest, type TokenPayload } from '@repo/shared';
 import { User } from '@/decorators/user.decorator';
 
 const GALLERY_CACHE_CONTROL_HEADER = 'private, max-age=31536000, immutable';
@@ -24,6 +35,31 @@ export class PhotoController {
   ) {
     const photo = await this.photoService.create(file, user);
     return photo;
+  }
+
+  @Patch('trash')
+  trashMany(@Body() dto: PhotoBulkActionRequest, @User() user: TokenPayload) {
+    return this.photoService.trashMany(dto.photoIds, user);
+  }
+
+  @Patch('restore')
+  restoreMany(@Body() dto: PhotoBulkActionRequest, @User() user: TokenPayload) {
+    return this.photoService.restoreMany(dto.photoIds, user);
+  }
+
+  @Patch('restore-all')
+  restoreAll(@User() user: TokenPayload) {
+    return this.photoService.restoreAll(user);
+  }
+
+  @Delete('permanent')
+  removeManyPermanently(@Body() dto: PhotoBulkActionRequest, @User() user: TokenPayload) {
+    return this.photoService.removeManyPermanently(dto.photoIds, user);
+  }
+
+  @Delete('trash')
+  removeAllTrashed(@User() user: TokenPayload) {
+    return this.photoService.removeAllTrashed(user);
   }
 
   @Get(':id')

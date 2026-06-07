@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -74,7 +74,32 @@ export class UpdatePhotoRequest {
   groupIds?: string[];
 }
 
+export class PhotoBulkActionRequest {
+  @IsArray()
+  @IsString({ each: true })
+  photoIds!: string[];
+}
+
 /* ------------------------- Responses ------------------------- */
+
+export class PhotoBulkActionResponse {
+  @IsString()
+  action!: 'trash' | 'restore' | 'delete-permanently';
+
+  @IsArray()
+  @IsString({ each: true })
+  photoIds!: string[];
+
+  @IsString()
+  scope!: 'selected' | 'all';
+
+  @IsString()
+  status!: 'success';
+
+  @IsInt()
+  @Min(0)
+  count!: number;
+}
 
 export class PhotoResponse {
   @IsString()

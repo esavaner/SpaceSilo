@@ -165,23 +165,26 @@ export class GalleryService {
     const skip = Math.max(query.skip ?? 0, 0);
     const take = this.resolvePageSize(query.take);
     const fetchLimit = skip + take + 1;
-    const viewMode = this.resolveGalleryViewMode(query);
+    const isTrashView = query.trash === true;
+    const viewMode = isTrashView ? 'photos-only' : this.resolveGalleryViewMode(query);
 
     if (skip === 0) {
       await this.photoService.repairCapturedAtFromMetadata(user.sub);
     }
 
-    if (query.parentAlbumId) {
+    if (query.parentAlbumId && !isTrashView) {
       await this.albumService.findOne(query.parentAlbumId, user);
     }
 
-    const descendantAlbumIds = query.parentAlbumId
-      ? await this.albumService.findDescendantIds(query.parentAlbumId, user.sub)
-      : [];
-    const currentAlbumTreeIds = query.parentAlbumId ? [query.parentAlbumId, ...descendantAlbumIds] : [];
+    const descendantAlbumIds =
+      query.parentAlbumId && !isTrashView
+        ? await this.albumService.findDescendantIds(query.parentAlbumId, user.sub)
+        : [];
+    const currentAlbumTreeIds = query.parentAlbumId && !isTrashView ? [query.parentAlbumId, ...descendantAlbumIds] : [];
 
-    const shouldFetchAlbums = viewMode === 'photos-and-albums' || viewMode === 'albums-only';
-    const shouldFetchPhotos = viewMode !== 'albums-only';
+    const deletedFilter: Prisma.PhotoWhereInput = isTrashView ? { deletedAt: { not: null } } : { deletedAt: null };
+    const shouldFetchAlbums = !isTrashView && (viewMode === 'photos-and-albums' || viewMode === 'albums-only');
+    const shouldFetchPhotos = isTrashView || viewMode !== 'albums-only';
 
     let photoWhere: Prisma.PhotoWhereInput | undefined;
 
@@ -190,18 +193,20 @@ export class GalleryService {
         photoWhere = query.parentAlbumId
           ? {
               ownerId: user.sub,
+              ...deletedFilter,
               albums: {
                 some: {
                   id: { in: currentAlbumTreeIds },
                 },
               },
             }
-          : { ownerId: user.sub };
+          : { ownerId: user.sub, ...deletedFilter };
         break;
       case 'photos-and-albums':
         photoWhere = query.parentAlbumId
           ? {
               ownerId: user.sub,
+              ...deletedFilter,
               AND: [
                 { albums: { some: { id: query.parentAlbumId } } },
                 ...(descendantAlbumIds.length > 0 ? [{ albums: { none: { id: { in: descendantAlbumIds } } } }] : []),
@@ -209,6 +214,7 @@ export class GalleryService {
             }
           : {
               ownerId: user.sub,
+              ...deletedFilter,
               albums: { none: {} },
             };
         break;
@@ -219,10 +225,12 @@ export class GalleryService {
         photoWhere = query.parentAlbumId
           ? {
               ownerId: user.sub,
+              ...deletedFilter,
               id: { in: [] },
             }
           : {
               ownerId: user.sub,
+              ...deletedFilter,
               albums: { none: {} },
             };
         break;

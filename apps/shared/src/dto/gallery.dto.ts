@@ -38,6 +38,10 @@ export class FindGalleryImagesRequest {
   @IsOptional()
   @IsBoolean()
   condensed?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  trash?: boolean;
 }
 
 /* ------------------------- Responses ------------------------- */

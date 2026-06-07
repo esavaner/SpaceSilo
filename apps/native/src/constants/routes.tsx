@@ -4,6 +4,7 @@ import { JSX } from 'react/jsx-runtime';
 export const routes = {
   index: 'index',
   gallery: 'gallery',
+  trash: 'trash',
   files: 'files',
   notes: 'notes',
   groups: 'groups',
@@ -14,6 +15,7 @@ export const routes = {
 export const routeLabels: Record<keyof typeof routes, string> = {
   [routes.index]: 'Dashboard',
   [routes.gallery]: 'Gallery',
+  [routes.trash]: 'Trash',
   [routes.files]: 'Files',
   [routes.notes]: 'Notes',
   [routes.groups]: 'Groups',
@@ -24,6 +26,7 @@ export const routeLabels: Record<keyof typeof routes, string> = {
 export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
   [routes.index]: <Icon.Layout />,
   [routes.gallery]: <Icon.Image />,
+  [routes.trash]: <Icon.Trash />,
   [routes.files]: <Icon.Folder />,
   [routes.notes]: <Icon.File />,
   [routes.groups]: <Icon.UserGroup />,

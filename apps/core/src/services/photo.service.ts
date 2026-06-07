@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
-import { type GalleryImageResponse, type Prisma, type TokenPayload } from '@repo/shared';
+import { type GalleryImageResponse, type PhotoBulkActionResponse, type Prisma, type TokenPayload } from '@repo/shared';
 import exifr from 'exifr';
 import sharp from 'sharp';
 import * as crypto from 'crypto';
@@ -37,6 +37,10 @@ export class PhotoService {
     }
 
     return { ...(metadata as Prisma.InputJsonObject) };
+  }
+
+  private normalizeIds(ids?: string[]) {
+    return Array.from(new Set((ids ?? []).filter(Boolean)));
   }
 
   private normalizeCapturedAt(value: unknown): string | null {
@@ -333,6 +337,72 @@ export class PhotoService {
     });
   }
 
+  private async ensureOwnedPhotoIds(
+    photoIds: string[],
+    ownerId: string,
+    options?: { requireDeleted?: boolean; requireActive?: boolean }
+  ) {
+    const normalizedIds = this.normalizeIds(photoIds);
+
+    if (!normalizedIds.length) {
+      return normalizedIds;
+    }
+
+    const photos = await this.prisma.photo.findMany({
+      where: {
+        id: { in: normalizedIds },
+        ownerId,
+        ...(options?.requireDeleted ? { deletedAt: { not: null } } : {}),
+        ...(options?.requireActive ? { deletedAt: null } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (photos.length !== normalizedIds.length) {
+      throw new BadRequestException('One or more photos do not exist');
+    }
+
+    return normalizedIds;
+  }
+
+  private async getAlbumIdsForPhotos(photoIds: string[]) {
+    if (!photoIds.length) {
+      return [];
+    }
+
+    const albums = await this.prisma.album.findMany({
+      where: {
+        photos: {
+          some: { id: { in: photoIds } },
+        },
+      },
+      select: { id: true },
+    });
+
+    return albums.map((album) => album.id);
+  }
+
+  private async refreshAlbums(albumIds: string[]) {
+    const normalizedAlbumIds = this.normalizeIds(albumIds);
+
+    await Promise.all(normalizedAlbumIds.map((albumId) => this.albumService.refreshAlbumCapturedAtCascade(albumId)));
+  }
+
+  private createBulkActionResponse(
+    action: PhotoBulkActionResponse['action'],
+    photoIds: string[],
+    scope: PhotoBulkActionResponse['scope'],
+    count: number
+  ): PhotoBulkActionResponse {
+    return {
+      action,
+      photoIds,
+      scope,
+      status: 'success',
+      count,
+    };
+  }
+
   private createStreamableFile(filePath: string) {
     const file = fs.createReadStream(filePath);
     return new StreamableFile(file, { type: this.getMimeType(filePath) });
@@ -408,22 +478,120 @@ export class PhotoService {
       throw new NotFoundException('Photo not found');
     }
 
-    const albums = await this.prisma.album.findMany({
+    if (!photo.deletedAt) {
+      await this.trashMany([photo.id], user);
+      return this.findOne(photo.id, user);
+    }
+
+    return this.removeManyPermanently([photo.id], user);
+  }
+
+  async trashMany(photoIds: string[], user: TokenPayload) {
+    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireActive: true });
+
+    if (!normalizedIds.length) {
+      return this.createBulkActionResponse('trash', [], 'selected', 0);
+    }
+
+    const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
+    const result = await this.prisma.photo.updateMany({
       where: {
-        photos: {
-          some: { id: photo.id },
-        },
+        id: { in: normalizedIds },
+        ownerId: user.sub,
+        deletedAt: null,
       },
-      select: { id: true },
+      data: { deletedAt: new Date() },
     });
 
-    const deletedPhoto = await this.prisma.photo.delete({
-      where: { id: photo.id },
+    await this.refreshAlbums(albumIds);
+
+    return this.createBulkActionResponse('trash', normalizedIds, 'selected', result.count);
+  }
+
+  async restoreMany(photoIds: string[], user: TokenPayload) {
+    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireDeleted: true });
+
+    if (!normalizedIds.length) {
+      return this.createBulkActionResponse('restore', [], 'selected', 0);
+    }
+
+    const result = await this.prisma.photo.updateMany({
+      where: {
+        id: { in: normalizedIds },
+        ownerId: user.sub,
+        deletedAt: { not: null },
+      },
+      data: { deletedAt: null },
     });
 
-    await Promise.all(albums.map((album) => this.albumService.refreshAlbumCapturedAtCascade(album.id)));
+    await this.albumService.refreshCapturedAtForPhotos(normalizedIds);
 
-    return deletedPhoto;
+    return this.createBulkActionResponse('restore', normalizedIds, 'selected', result.count);
+  }
+
+  async restoreAll(user: TokenPayload) {
+    const photoIds = (
+      await this.prisma.photo.findMany({
+        where: { ownerId: user.sub, deletedAt: { not: null } },
+        select: { id: true },
+      })
+    ).map((photo) => photo.id);
+
+    if (!photoIds.length) {
+      return this.createBulkActionResponse('restore', [], 'all', 0);
+    }
+
+    const result = await this.prisma.photo.updateMany({
+      where: { ownerId: user.sub, deletedAt: { not: null } },
+      data: { deletedAt: null },
+    });
+
+    await this.albumService.refreshCapturedAtForPhotos(photoIds);
+
+    return this.createBulkActionResponse('restore', photoIds, 'all', result.count);
+  }
+
+  async removeManyPermanently(photoIds: string[], user: TokenPayload) {
+    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireDeleted: true });
+
+    if (!normalizedIds.length) {
+      return this.createBulkActionResponse('delete-permanently', [], 'selected', 0);
+    }
+
+    const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
+    const result = await this.prisma.photo.deleteMany({
+      where: {
+        id: { in: normalizedIds },
+        ownerId: user.sub,
+        deletedAt: { not: null },
+      },
+    });
+
+    await this.refreshAlbums(albumIds);
+
+    return this.createBulkActionResponse('delete-permanently', normalizedIds, 'selected', result.count);
+  }
+
+  async removeAllTrashed(user: TokenPayload) {
+    const photoIds = (
+      await this.prisma.photo.findMany({
+        where: { ownerId: user.sub, deletedAt: { not: null } },
+        select: { id: true },
+      })
+    ).map((photo) => photo.id);
+
+    if (!photoIds.length) {
+      return this.createBulkActionResponse('delete-permanently', [], 'all', 0);
+    }
+
+    const albumIds = await this.getAlbumIdsForPhotos(photoIds);
+    const result = await this.prisma.photo.deleteMany({
+      where: { ownerId: user.sub, deletedAt: { not: null } },
+    });
+
+    await this.refreshAlbums(albumIds);
+
+    return this.createBulkActionResponse('delete-permanently', photoIds, 'all', result.count);
   }
 
   async findImage(id: string, user: TokenPayload) {

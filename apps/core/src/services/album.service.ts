@@ -26,10 +26,18 @@ const ALBUM_RESPONSE_SELECT = {
   deletedAt: true,
   ownerId: true,
   parentId: true,
-  photos: { select: { id: true } },
+  photos: {
+    where: { deletedAt: null },
+    select: { id: true },
+  },
   subalbums: { select: { id: true } },
   group: { select: { id: true } },
-  _count: { select: { photos: true, subalbums: true } },
+  _count: {
+    select: {
+      photos: { where: { deletedAt: null } },
+      subalbums: true,
+    },
+  },
 } satisfies Prisma.AlbumSelect;
 
 const GALLERY_ALBUM_SELECT = {
@@ -39,11 +47,17 @@ const GALLERY_ALBUM_SELECT = {
   capturedAt: true,
   createdAt: true,
   photos: {
+    where: { deletedAt: null },
     orderBy: PHOTO_ORDER_BY,
     take: 1,
     select: { id: true },
   },
-  _count: { select: { photos: true, subalbums: true } },
+  _count: {
+    select: {
+      photos: { where: { deletedAt: null } },
+      subalbums: true,
+    },
+  },
 } satisfies Prisma.AlbumSelect;
 
 type AlbumResponseRecord = Prisma.AlbumGetPayload<{
@@ -171,6 +185,7 @@ export class AlbumService {
       where: {
         id: { in: photoIds },
         ownerId,
+        deletedAt: null,
       },
     });
 
@@ -226,6 +241,7 @@ export class AlbumService {
       const [latestPhoto, latestSubalbum] = await Promise.all([
         this.prisma.photo.findFirst({
           where: {
+            deletedAt: null,
             albums: {
               some: { id: currentAlbum.id },
             },
@@ -306,6 +322,7 @@ export class AlbumService {
     const albums = await this.prisma.album.findMany({
       where: {
         ownerId,
+        deletedAt: null,
         parentId: parentId ?? null,
       },
       select: GALLERY_ALBUM_SELECT,
@@ -369,6 +386,7 @@ export class AlbumService {
     const albums = await this.prisma.album.findMany({
       where: {
         ownerId: user.sub,
+        deletedAt: null,
         ...(query.parentId !== undefined ? { parentId: query.parentId ?? null } : {}),
       },
       orderBy: [{ capturedAt: 'desc' }, { createdAt: 'desc' }, { name: 'asc' }],
@@ -380,7 +398,7 @@ export class AlbumService {
 
   async findOne(id: string, user: TokenPayload) {
     const album = await this.prisma.album.findFirst({
-      where: { id, ownerId: user.sub },
+      where: { id, ownerId: user.sub, deletedAt: null },
       select: ALBUM_RESPONSE_SELECT,
     });
 
