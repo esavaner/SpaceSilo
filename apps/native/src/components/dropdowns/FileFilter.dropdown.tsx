@@ -1,11 +1,11 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useFilesContext } from '@/providers/FilesProvider';
-import { Checkbox } from '../checkbox';
 import { Icon } from '../general/icon';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
 import { useDropdown } from './useDropdown';
+import { type GroupResponse } from '@repo/shared';
 
 type Props = {
   className?: string;
@@ -32,7 +32,7 @@ export const FileFilterDropdown = ({ className }: Props) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-3">
         <Text>Personal</Text>
-        {groupsPersonal?.map((group: any) => (
+        {groupsPersonal?.map((group) => (
           <FilterGroupItem
             key={group.id}
             group={group}
@@ -41,7 +41,7 @@ export const FileFilterDropdown = ({ className }: Props) => {
           />
         ))}
         <Text>Groups</Text>
-        {groupsShared?.map((group: any) => (
+        {groupsShared?.map((group) => (
           <FilterGroupItem
             key={group.id}
             group={group}
@@ -61,16 +61,15 @@ export const FileFilterDropdown = ({ className }: Props) => {
 };
 
 type FilterGroupItemProps = {
-  group: any;
+  group: GroupResponse;
   checked: boolean;
-  onPress: (group: any) => void;
+  onPress: (group: GroupResponse) => void;
 };
 
 const FilterGroupItem = ({ group, checked, onPress }: FilterGroupItemProps) => {
   return (
-    <Pressable onPress={() => onPress(group)} className="flex-row gap-3 px-4 justify-between items-center">
+    <DropdownMenuCheckboxItem checked={checked} onCheckedChange={() => onPress(group)}>
       <Text>{group.name}</Text>
-      <Checkbox checked={checked} onChange={() => onPress(group)} />
-    </Pressable>
+    </DropdownMenuCheckboxItem>
   );
 };

@@ -62,6 +62,8 @@ type GalleryGroup = {
   items: GalleryItem[];
 };
 
+type GalleryGroupMeta = Omit<GalleryGroup, 'items'>;
+
 type AlbumPathEntry = {
   id: string;
   name: string;
@@ -103,9 +105,18 @@ type SelectedPhotoGroup = {
   photoIds: string[];
 };
 
-type PendingAction = 'trash' | 'restore' | 'delete-permanently' | 'restore-all' | 'delete-all' | null;
+type SelectedPhotoAction = 'trash' | 'restore' | 'delete-permanently';
 
-const groupByOptions: { label: string; value: GroupBy }[] = [
+type AllTrashAction = 'restore-all' | 'delete-all';
+
+type PendingAction = SelectedPhotoAction | AllTrashAction | null;
+
+type LabelledOption<T extends string> = {
+  label: string;
+  value: T;
+};
+
+const groupByOptions: LabelledOption<GroupBy>[] = [
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -116,12 +127,112 @@ const groupByOptions: { label: string; value: GroupBy }[] = [
 const GALLERY_BATCH_ROWS = 10;
 const LOAD_MORE_THRESHOLD_PX = 720;
 
-const galleryViewModeOptions: { label: string; value: GalleryViewMode }[] = [
+const galleryViewModeOptions: LabelledOption<GalleryViewMode>[] = [
   { label: 'Photos only', value: 'photos-only' },
   { label: 'Photos + albums', value: 'photos-and-albums' },
   { label: 'Albums only', value: 'albums-only' },
   { label: 'Photos not in albums only', value: 'photos-not-in-albums-only' },
 ];
+
+const selectedPhotoActionMessages: Record<
+  SelectedPhotoAction,
+  {
+    success: (count: number) => string;
+    failure: (failedCount: number) => string;
+  }
+> = {
+  trash: {
+    success: (count) => `Moved ${formatPhotoCount(count)} to trash`,
+    failure: (failedCount) => `Failed to move photos to trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
+  },
+  restore: {
+    success: (count) => `Restored ${formatPhotoCount(count)}`,
+    failure: (failedCount) => `Failed to restore photos on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
+  },
+  'delete-permanently': {
+    success: (count) => `Deleted ${formatPhotoCount(count)} permanently`,
+    failure: (failedCount) =>
+      `Failed to delete photos permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
+  },
+};
+
+const allTrashActionMessages: Record<
+  AllTrashAction,
+  {
+    success: (count: number) => string;
+    empty: string;
+    failure: (failedCount: number) => string;
+  }
+> = {
+  'restore-all': {
+    success: (count) => `Restored ${formatPhotoCount(count)}`,
+    empty: 'Trash is already empty',
+    failure: (failedCount) => `Failed to restore trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
+  },
+  'delete-all': {
+    success: (count) => `Deleted ${formatPhotoCount(count)} permanently`,
+    empty: 'There is nothing left to delete',
+    failure: (failedCount) =>
+      `Failed to delete trash permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
+  },
+};
+
+const groupMetadataBy: Record<Exclude<GroupBy, 'none'>, (date: Date) => GalleryGroupMeta> = {
+  day: (date) => ({
+    key: format(date, 'yyyy-MM-dd'),
+    label: format(date, 'EEEE, d MMMM yyyy'),
+  }),
+  week: (date) => {
+    const start = startOfWeek(date, { weekStartsOn: 1 });
+    const end = endOfWeek(date, { weekStartsOn: 1 });
+
+    return {
+      key: format(start, "yyyy-'W'II"),
+      label: `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`,
+    };
+  },
+  month: (date) => ({
+    key: format(date, 'yyyy-MM'),
+    label: format(date, 'MMMM yyyy'),
+  }),
+  year: (date) => ({
+    key: format(date, 'yyyy'),
+    label: format(date, 'yyyy'),
+  }),
+};
+
+const selectedPhotoActionRequests: Record<
+  SelectedPhotoAction,
+  (server: ServerConnectionWithClient, photoIds: string[]) => Promise<{ count: number }>
+> = {
+  trash: (server, photoIds) => server.client.photo.trashMany({ photoIds }),
+  restore: (server, photoIds) => server.client.photo.restoreMany({ photoIds }),
+  'delete-permanently': (server, photoIds) => server.client.photo.removeManyPermanently({ photoIds }),
+};
+
+const allTrashActionRequests: Record<
+  AllTrashAction,
+  (server: ServerConnectionWithClient) => Promise<{ count: number }>
+> = {
+  'restore-all': (server) => server.client.photo.restoreAll(),
+  'delete-all': (server) => server.client.photo.removeAllTrashed(),
+};
+
+const selectedPhotoActionConfirmations: Partial<
+  Record<SelectedPhotoAction, { title: string; message: (count: number) => string }>
+> = {
+  'delete-permanently': {
+    title: 'Delete permanently',
+    message: (count) => `Permanently delete ${formatPhotoCount(count)}? This cannot be undone.`,
+  },
+};
+
+const allTrashActionConfirmations: Partial<Record<AllTrashAction, { title: string; message: string }>> = {
+  'delete-all': {
+    title: 'Delete everything permanently',
+    message: 'Permanently delete every trashed photo across connected servers? This cannot be undone.',
+  },
+};
 
 const sortGalleryItems = (left: GalleryItem, right: GalleryItem) =>
   +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt) ||
@@ -281,33 +392,7 @@ const loadGalleryBatch = async ({
   };
 };
 
-const getGroupMetadata = (date: Date, groupBy: Exclude<GroupBy, 'none'>) => {
-  switch (groupBy) {
-    case 'day':
-      return {
-        key: format(date, 'yyyy-MM-dd'),
-        label: format(date, 'EEEE, d MMMM yyyy'),
-      };
-    case 'week': {
-      const start = startOfWeek(date, { weekStartsOn: 1 });
-      const end = endOfWeek(date, { weekStartsOn: 1 });
-      return {
-        key: format(start, "yyyy-'W'II"),
-        label: `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`,
-      };
-    }
-    case 'month':
-      return {
-        key: format(date, 'yyyy-MM'),
-        label: format(date, 'MMMM yyyy'),
-      };
-    case 'year':
-      return {
-        key: format(date, 'yyyy'),
-        label: format(date, 'yyyy'),
-      };
-  }
-};
+const getGroupMetadata = (date: Date, groupBy: Exclude<GroupBy, 'none'>) => groupMetadataBy[groupBy](date);
 
 const groupGalleryItems = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup[] => {
   if (groupBy === 'none') {
@@ -335,54 +420,36 @@ const groupGalleryItems = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup
   return Array.from(groups.values());
 };
 
-const getSelectedActionSuccessMessage = (action: 'trash' | 'restore' | 'delete-permanently', count: number) => {
-  switch (action) {
-    case 'trash':
-      return `Moved ${formatPhotoCount(count)} to trash`;
-    case 'restore':
-      return `Restored ${formatPhotoCount(count)}`;
-    case 'delete-permanently':
-      return `Deleted ${formatPhotoCount(count)} permanently`;
-  }
-};
-
-const getSelectedActionFailureMessage = (action: 'trash' | 'restore' | 'delete-permanently', failedCount: number) => {
-  switch (action) {
-    case 'trash':
-      return `Failed to move photos to trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`;
-    case 'restore':
-      return `Failed to restore photos on ${failedCount} server${failedCount === 1 ? '' : 's'}`;
-    case 'delete-permanently':
-      return `Failed to delete photos permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`;
-  }
-};
-
-const getAllActionSuccessMessage = (action: 'restore-all' | 'delete-all', count: number) => {
-  switch (action) {
-    case 'restore-all':
-      return `Restored ${formatPhotoCount(count)}`;
-    case 'delete-all':
-      return `Deleted ${formatPhotoCount(count)} permanently`;
-  }
-};
-
-const getAllActionEmptyMessage = (action: 'restore-all' | 'delete-all') => {
-  switch (action) {
-    case 'restore-all':
-      return 'Trash is already empty';
-    case 'delete-all':
-      return 'There is nothing left to delete';
-  }
-};
-
-const getAllActionFailureMessage = (action: 'restore-all' | 'delete-all', failedCount: number) => {
-  switch (action) {
-    case 'restore-all':
-      return `Failed to restore trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`;
-    case 'delete-all':
-      return `Failed to delete trash permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`;
-  }
-};
+function OptionMenu<T extends string>({
+  options,
+  value,
+  fallbackLabel,
+  onChange,
+}: {
+  options: LabelledOption<T>[];
+  value: T;
+  fallbackLabel: string;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="outline">
+          <Text>{options.find((option) => option.value === value)?.label ?? fallbackLabel}</Text>
+          <Icon.ChevronDown className="text-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map((option) => (
+          <DropdownMenuItem key={option.value} onPress={() => onChange(option.value)}>
+            <Text className="flex-1">{option.label}</Text>
+            {value === option.value ? <Icon.Check className="text-foreground" /> : null}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 const GalleryTile = memo(function GalleryTile({
   item,
@@ -768,37 +835,24 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   }, []);
 
   const handleSelectedPhotoAction = useCallback(
-    async (action: 'trash' | 'restore' | 'delete-permanently') => {
+    async (action: SelectedPhotoAction) => {
       if (!selectedPhotoGroups.length) {
         return;
       }
 
-      if (action === 'delete-permanently') {
-        const confirmed = await confirmAction(
-          'Delete permanently',
-          `Permanently delete ${formatPhotoCount(selectedPhotos.length)}? This cannot be undone.`
-        );
-
-        if (!confirmed) {
-          return;
-        }
+      const confirmation = selectedPhotoActionConfirmations[action];
+      if (confirmation && !(await confirmAction(confirmation.title, confirmation.message(selectedPhotos.length)))) {
+        return;
       }
 
       setPendingAction(action);
 
       const settled = await Promise.allSettled(
         selectedPhotoGroups.map(async ({ server, photoIds }) => {
-          const response =
-            action === 'trash'
-              ? await server.client.photo.trashMany({ photoIds })
-              : action === 'restore'
-                ? await server.client.photo.restoreMany({ photoIds })
-                : await server.client.photo.removeManyPermanently({ photoIds });
-
           return {
             serverId: server.id,
             photoIds,
-            response,
+            response: await selectedPhotoActionRequests[action](server, photoIds),
           };
         })
       );
@@ -823,11 +877,11 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         });
         setSelectedPhotoIndex(null);
         refreshGalleryQueries();
-        toast.success(getSelectedActionSuccessMessage(action, successCount));
+        toast.success(selectedPhotoActionMessages[action].success(successCount));
       }
 
       if (failedCount > 0) {
-        toast.error(getSelectedActionFailureMessage(action, failedCount));
+        toast.error(selectedPhotoActionMessages[action].failure(failedCount));
       }
 
       setPendingAction(null);
@@ -836,20 +890,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   );
 
   const handleAllTrashAction = useCallback(
-    async (action: 'restore-all' | 'delete-all') => {
+    async (action: AllTrashAction) => {
       if (!scopedServers.length) {
         return;
       }
 
-      if (action === 'delete-all') {
-        const confirmed = await confirmAction(
-          'Delete everything permanently',
-          'Permanently delete every trashed photo across connected servers? This cannot be undone.'
-        );
-
-        if (!confirmed) {
-          return;
-        }
+      const confirmation = allTrashActionConfirmations[action];
+      if (confirmation && !(await confirmAction(confirmation.title, confirmation.message))) {
+        return;
       }
 
       setPendingAction(action);
@@ -857,10 +905,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       const settled = await Promise.allSettled(
         scopedServers.map(async (server) => ({
           serverId: server.id,
-          response:
-            action === 'restore-all'
-              ? await server.client.photo.restoreAll()
-              : await server.client.photo.removeAllTrashed(),
+          response: await allTrashActionRequests[action](server),
         }))
       );
 
@@ -872,13 +917,13 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         handleClearSelection();
         setSelectedPhotoIndex(null);
         refreshGalleryQueries();
-        toast.success(getAllActionSuccessMessage(action, successCount));
+        toast.success(allTrashActionMessages[action].success(successCount));
       } else if (failedCount === 0) {
-        toast.info(getAllActionEmptyMessage(action));
+        toast.info(allTrashActionMessages[action].empty);
       }
 
       if (failedCount > 0) {
-        toast.error(getAllActionFailureMessage(action, failedCount));
+        toast.error(allTrashActionMessages[action].failure(failedCount));
       }
 
       setPendingAction(null);
@@ -1057,42 +1102,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
             </>
           ) : (
             <>
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button variant="outline">
-                    <Text>
-                      {galleryViewModeOptions.find((option) => option.value === effectiveViewMode)?.label ??
-                        'Photos only'}
-                    </Text>
-                    <Icon.ChevronDown className="text-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {galleryViewModeOptions.map((option) => (
-                    <DropdownMenuItem key={option.value} onPress={() => setViewMode(option.value)}>
-                      <Text className="flex-1">{option.label}</Text>
-                      {effectiveViewMode === option.value && <Icon.Check className="text-foreground" />}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <OptionMenu
+                options={galleryViewModeOptions}
+                value={effectiveViewMode}
+                fallbackLabel="Photos only"
+                onChange={setViewMode}
+              />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button variant="outline">
-                    <Text>{groupByOptions.find((option) => option.value === effectiveGroupBy)?.label ?? 'Day'}</Text>
-                    <Icon.ChevronDown className="text-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {groupByOptions.map((option) => (
-                    <DropdownMenuItem key={option.value} onPress={() => setGroupBy(option.value)}>
-                      <Text className="flex-1">{option.label}</Text>
-                      {effectiveGroupBy === option.value && <Icon.Check className="text-foreground" />}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <OptionMenu options={groupByOptions} value={effectiveGroupBy} fallbackLabel="Day" onChange={setGroupBy} />
 
               <Button variant="outline" onPress={handleOpenCreateAlbumModal} disabled={servers.length === 0}>
                 <Icon.Folder className="text-foreground" />

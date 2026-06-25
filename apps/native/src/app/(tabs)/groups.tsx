@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
-import { PersonalGroupList } from '@/components/PersonalGroupList';
 import { useGroupList } from '@/hooks/useGroupList';
 import { Icon } from '@/components/general/icon';
 import { Button } from '@/components/general/button';
@@ -19,7 +18,7 @@ export default function GroupsPage() {
     <BaseLayout>
       <Text variant="h1">{t('Groups')}</Text>
       <Text className="px-4 py-2">{t('Personal')}</Text>
-      <PersonalGroupList groups={groupsPersonal} />
+      <GroupList groups={groupsPersonal} scrollable={false} />
       <View className="flex-row px-4 py-2 items-center gap-4">
         <Text>{t('Shared Groups')}</Text>
         <Button onPress={() => openModal(<GroupCreateModal />)}>

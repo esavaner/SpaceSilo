@@ -16,7 +16,7 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
   return (
     <DropdownMenu className="ml-auto">
       <DropdownMenuTrigger>
-        <Button>
+        <Button className={className}>
           <Icon.Add className="text-black" />
           <Text>Add</Text>
         </Button>

@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Text } from './text';
+import { Text } from './general/text';
 import React from 'react';
 import { cva } from 'class-variance-authority';
 import { cn } from '../utils/cn';

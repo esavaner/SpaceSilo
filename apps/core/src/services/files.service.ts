@@ -23,8 +23,8 @@ import { GroupsService } from './groups.service';
 export class FilesService {
   constructor(private readonly groupService: GroupsService) {}
 
-  private groupCheck(groupId: string, user: TokenPayload) {
-    const groupMember = this.groupService.findGroupMember(groupId, user);
+  private async groupCheck(groupId: string, user: TokenPayload) {
+    const groupMember = await this.groupService.findGroupMember(groupId, user);
     if (!groupMember) {
       throw new NotFoundException('Group not found');
     }
@@ -32,8 +32,24 @@ export class FilesService {
     return groupMember;
   }
 
+  private toFileResponse(filePath: string, groupId: string, uri: string): FileResponse {
+    const stats = fs.statSync(filePath);
+    const md5 = stats.isFile() ? crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex') : '';
+
+    return {
+      name: path.basename(filePath),
+      uri,
+      size: stats.size,
+      modificationTime: stats.mtime,
+      isDirectory: stats.isDirectory(),
+      type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
+      md5,
+      groupId,
+    };
+  }
+
   async createFile(dto: CreateFileRequest, file: Express.Multer.File, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const fileDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
     if (!fs.existsSync(fileDir)) {
@@ -44,7 +60,7 @@ export class FilesService {
   }
 
   async createFolder(dto: CreateFolderRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const folderDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(folderDir)) {
       fs.mkdirSync(folderDir, { recursive: true });
@@ -64,7 +80,7 @@ export class FilesService {
       const skip = item.skip ?? 0;
       const take = item.take;
 
-      this.groupCheck(groupId, user);
+      await this.groupCheck(groupId, user);
       const fileDir = path.join(process.env.FILES_PATH, groupId, relativePath);
       if (!fs.existsSync(fileDir)) {
         continue;
@@ -77,22 +93,7 @@ export class FilesService {
 
         for (const fileName of slicedFileList) {
           const filePath = path.join(fileDir, fileName);
-          const stats = fs.statSync(filePath);
-          let md5Hash = '';
-          if (stats.isFile()) {
-            const fileBuffer = fs.readFileSync(filePath);
-            md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
-          }
-          files.push({
-            name: fileName,
-            uri: path.join('/', relativePath, fileName),
-            size: stats.size,
-            modificationTime: stats.mtime,
-            isDirectory: stats.isDirectory(),
-            type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
-            md5: md5Hash,
-            groupId,
-          });
+          files.push(this.toFileResponse(filePath, groupId, path.join('/', relativePath, fileName)));
         }
       } catch (error) {
         throw new InternalServerErrorException(error);
@@ -102,32 +103,17 @@ export class FilesService {
   }
 
   async findFile(dto: FindFileRequest, user: TokenPayload): Promise<FileResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
-    const stats = fs.statSync(filePath);
-    let md5Hash = '';
-    if (stats.isFile()) {
-      const fileBuffer = fs.readFileSync(filePath);
-      md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
-    }
 
-    return {
-      name: path.basename(filePath),
-      uri: dto.fileUri,
-      size: stats.size,
-      modificationTime: stats.mtime,
-      isDirectory: stats.isDirectory(),
-      type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
-      md5: md5Hash,
-      groupId: dto.groupId,
-    };
+    return this.toFileResponse(filePath, dto.groupId, dto.fileUri);
   }
 
   async download(dto: DownloadFileRequest, user: TokenPayload) {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
@@ -137,7 +123,6 @@ export class FilesService {
       const fileContents = fs.createReadStream(filePath);
       // const mimeType = mime.getType(filePath) || 'application/octet-stream';
       const mimeType = 'application/octet-stream';
-      console.log(mimeType);
       return new StreamableFile(fileContents, { type: mimeType });
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -145,7 +130,7 @@ export class FilesService {
   }
 
   async move(dto: MoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(filePath)) {
@@ -165,7 +150,7 @@ export class FilesService {
   }
 
   async remove(dto: RemoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found');
@@ -180,7 +165,7 @@ export class FilesService {
   }
 
   async copy(dto: CopyFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
 

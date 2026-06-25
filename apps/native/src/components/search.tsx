@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
-import { Input } from './input';
+import { Input } from './form/input';
 import { cn } from '../utils/cn';
 
 type Props = React.ComponentProps<typeof TextInput> & {
   options: React.ReactNode[];
-  label?: string;
   className?: string;
 };
 
-export const Search = ({ options, label, className, ...rest }: Props) => {
+export const Search = ({ options, className, ...rest }: Props) => {
   const ref = useRef<View>(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 

@@ -1,14 +1,11 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { Text } from '@/components/text';
-import { useQuery } from '@tanstack/react-query';
+import { Text } from '@/components/general/text';
 
 import { Image } from 'expo-image';
 import { FileType, getFileType } from '@/utils/files';
 
 export default function ViewPage() {
-  const { t } = useTranslation();
   const { groupId, fileUri } = useLocalSearchParams<{ groupId: string; fileUri: string }>();
 
   // const { data: file } = useQuery({

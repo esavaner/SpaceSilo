@@ -3,13 +3,14 @@ import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
 import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
 import { useUi } from '@/providers/UiProvider';
-import { DropdownItem } from './dropdown-item';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './dropdown';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
 import { Button } from '../general/button';
 import { Icon } from '../general/icon';
+import { Text } from '../general/text';
+import { type FileListItem } from '@/hooks/useFileList';
 
 type FileOptionsDropdownProps = {
-  file: any;
+  file: FileListItem;
 };
 
 export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
@@ -36,10 +37,6 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
     },
   ];
 
-  const dropdownItems = items.map((item) => (
-    <DropdownItem key={item.label} label={item.label} icon={item.icon} onPress={item.onPress} />
-  ));
-
   return (
     <DropdownMenu className="ml-auto">
       <DropdownMenuTrigger>
@@ -52,7 +49,12 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
           right: 30,
         }}
       >
-        {dropdownItems}
+        {items.map((item) => (
+          <DropdownMenuItem key={item.label} onPress={item.onPress}>
+            {item.icon}
+            <Text>{item.label}</Text>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useUserContext } from '@/providers/UserProvider';
 import { Button } from '@/components/general/button';
 import { InputController } from '@/components/controllers/input.controller';
+import { type AuthResponse } from '@repo/shared';
 
 const schema = yup.object().shape({
   // serverUrl: yup.string().required('Server URL is required'),
@@ -19,11 +20,11 @@ type LoginForm = yup.InferType<typeof schema>;
 export default function LoginPage() {
   const { setUser } = useUserContext();
 
-  const { mutate: login, isPending } = useMutation({
+  const { mutate: login, isPending } = useMutation<AuthResponse, Error, LoginForm>({
     mutationKey: ['login'],
-    mutationFn: (data: any) => ({ data: {} }) as any,
-    onSuccess: (data: any) => {
-      setUser(data.data);
+    mutationFn: async (_data) => ({ user: {} }) as AuthResponse,
+    onSuccess: (data) => {
+      setUser(data.user);
       router.push('/files');
     },
   });

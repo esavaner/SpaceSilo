@@ -1,18 +1,25 @@
-import { Control, Controller, FieldValues } from 'react-hook-form';
+import { type Control, Controller, type FieldPath, type FieldValues } from 'react-hook-form';
 import { Input } from '../form/input';
 import { View } from 'react-native';
 import { Label } from '../form/label';
 import { Text } from '../general/text';
 
-type Props = React.ComponentProps<typeof Input> & {
-  control: Control<any, any, FieldValues>;
-  name: string;
+type Props<TFieldValues extends FieldValues> = Omit<React.ComponentProps<typeof Input>, 'value' | 'onChangeText'> & {
+  control: Control<TFieldValues, unknown, FieldValues>;
+  name: FieldPath<TFieldValues>;
   label?: string;
   error?: string;
   onEnter?: () => void;
 };
 
-export const InputController = ({ control, name, label, error, onEnter, ...rest }: Props) => {
+export const InputController = <TFieldValues extends FieldValues>({
+  control,
+  name,
+  label,
+  error,
+  onEnter,
+  ...rest
+}: Props<TFieldValues>) => {
   return (
     <Controller
       control={control}
@@ -26,7 +33,9 @@ export const InputController = ({ control, name, label, error, onEnter, ...rest 
           )}
           <Input
             onBlur={field.onBlur}
-            value={field.value}
+            value={
+              typeof field.value === 'string' ? field.value : field.value == null ? undefined : String(field.value)
+            }
             onChangeText={field.onChange}
             onKeyPress={(e) => e.nativeEvent.key === 'Enter' && onEnter?.()}
             {...rest}

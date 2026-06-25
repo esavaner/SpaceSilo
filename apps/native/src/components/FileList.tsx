@@ -4,22 +4,39 @@ import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getCalendars } from 'expo-localization';
 import { FileOptionsDropdown } from './dropdowns/FileOptions.dropdown';
-import { useTranslation } from 'react-i18next';
 import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
-import { Checkbox } from './checkbox';
 import { cn } from '../utils/cn';
 import { Icon } from './general/icon';
 import { Text } from './general/text';
+import { type GroupResponse } from '@repo/shared';
+import { type FileListItem } from '@/hooks/useFileList';
+
+type SelectionToggleProps = {
+  checked: boolean;
+  onPress: () => void;
+};
+
+const SelectionToggle = ({ checked, onPress }: SelectionToggleProps) => (
+  <Pressable onPress={onPress} className="p-2.5">
+    <View
+      className={cn(
+        'h-5 w-5 items-center justify-center rounded-md border',
+        checked ? 'border-foreground bg-white' : 'border-foreground'
+      )}
+    >
+      {checked ? <Icon.Check className="text-black" size={16} /> : null}
+    </View>
+  </Pressable>
+);
 
 type FileListProps = {
   className?: string;
 };
 
 export const FileList = ({ className }: FileListProps) => {
-  const { t } = useTranslation();
   const {
     comparator,
     currentPath,
@@ -35,13 +52,14 @@ export const FileList = ({ className }: FileListProps) => {
     selectedItems,
   } = useFilesContext();
 
-  const getIcon = (item: any) => {
-    if (item.isDirectory) return <Icon.Folder size={28} className="text-primary" />;
-    const ext = item?.name?.split('.').pop()?.toLowerCase() ?? '';
-    return fileIcons[ext as keyof typeof fileIcons] || <Icon.File />;
-  };
+  const getIcon = (item: FileListItem) =>
+    item.isDirectory ? (
+      <Icon.Folder size={28} className="text-primary" />
+    ) : (
+      (fileIcons[item?.name?.split('.').pop()?.toLowerCase() as keyof typeof fileIcons] ?? <Icon.File />)
+    );
 
-  const getItemTime = (time: string) => {
+  const getItemTime = (time: string | Date) => {
     const date = new Date(time);
     const timeZone = getCalendars()[0].timeZone || 'UTC';
     return formatInTimeZone(date, timeZone, 'd MMM yyyy');
@@ -50,9 +68,9 @@ export const FileList = ({ className }: FileListProps) => {
   return (
     <>
       <View className="flex-row gap-4 px-6 py-2 items-center bg-background border-b border-b-foreground">
-        <Checkbox
+        <SelectionToggle
           checked={hasSelectedAll}
-          onChange={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
+          onPress={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
         <FileSortDropdown handleSort={handleSort} comparator={comparator} />
         <FileFilterDropdown />
@@ -60,9 +78,9 @@ export const FileList = ({ className }: FileListProps) => {
       </View>
       <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
         {items.length === 0 && <Text className="text-center">No files</Text>}
-        {items.map((item: any) => {
+        {items.map((item) => {
           const isSelected = selectedItems.find((i) => i.uri === item.uri);
-          const color = groups?.find((g: any) => g.id === item.groupId)?.color;
+          const color = groups?.find((group: GroupResponse) => group.id === item.groupId)?.color;
           return (
             <Pressable
               key={item.name + item.groupId}
@@ -76,7 +94,7 @@ export const FileList = ({ className }: FileListProps) => {
               <View
                 className={cn('transition-all transform overflow-hidden', hasSelectedItems ? 'w-10 mr-2' : 'w-0 mr-0')}
               >
-                <Checkbox checked={!!isSelected} onChange={() => handleSelectItem(item)} />
+                <SelectionToggle checked={!!isSelected} onPress={() => handleSelectItem(item)} />
               </View>
 
               <View className="w-7 items-center justify-center transition-all transform mr-4">{getIcon(item)}</View>

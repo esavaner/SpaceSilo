@@ -4,27 +4,57 @@ import { useGroupActions } from '@/hooks/useGroupActions';
 import { useTranslation } from 'react-i18next';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
-import { DropdownItem } from '../dropdown';
 import { Icon } from '../general/icon';
 import { Search } from '../search';
-import { Select } from '../select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '../dropdowns/dropdown';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
+import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
+
+type AccessLevel = NonNullable<AddGroupMemberRequest['access']>;
+type SearchUserResult = Pick<UserResponse, 'id' | 'email' | 'name'>;
+type GroupMemberWithUser = NonNullable<GroupResponse['members']>[number] & { user: SearchUserResult };
+type GroupWithMembers = Omit<GroupResponse, 'members'> & { members: GroupMemberWithUser[] };
+type SelectedUser = SearchUserResult & Required<Pick<AddGroupMemberRequest, 'userId'>> & { access: AccessLevel };
 
 const selectOptions = [
   { label: 'Admin', value: 'admin' },
   { label: 'Edit', value: 'edit' },
   { label: 'Read', value: 'read' },
-];
-
-type SelectedUser = any;
+] as const satisfies { label: string; value: AccessLevel }[];
 
 type Props = {
-  group: any;
+  group: GroupWithMembers;
 };
+
+const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger>
+      <Button variant="outline">
+        <Text>{selectOptions.find((option) => option.value === value)?.label ?? 'Read'}</Text>
+        <Icon.ChevronDown />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
+        {selectOptions.map((option) => (
+          <DropdownMenuRadioItem key={option.value} value={option.value}>
+            <Text>{option.label}</Text>
+          </DropdownMenuRadioItem>
+        ))}
+      </DropdownMenuRadioGroup>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
 
 export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
@@ -33,35 +63,41 @@ export const GroupAddMembersModal = ({ group }: Props) => {
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 
-  const handleSelect = (user: any) => {
+  const handleSelect = (user: SearchUserResult) => {
     setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: 'read' }]);
     resetSearch();
   };
 
-  const handleDeselect = (user: any) => {
+  const handleDeselect = (user: SearchUserResult) => {
     setSelectedMembers(selectedMembers.filter((m) => m.id !== user.id));
+  };
+
+  const handleAccessChange = (memberId: string, access: AccessLevel) => {
+    setSelectedMembers((current) => current.map((member) => (member.id === memberId ? { ...member, access } : member)));
   };
 
   const handleSubmit = () => {
     addMembers({ id: group.id, members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })) });
   };
 
-  console.log(group.members);
-
   const options = results
     .filter(
-      (user: any) =>
+      (user) =>
         !selectedMembers.find((member) => member.id === user.id) &&
-        !group.members.find((m: any) => m.userId === user.id)
+        !group.members.find((member) => member.userId === user.id)
     )
-    .map((user: any) => (
-      <DropdownItem
+    .map((user) => (
+      <Pressable
         key={user.id}
-        label={user.name}
-        subLabel={user.email}
-        icon={<Icon.UserGroup />}
         onPress={() => handleSelect(user)}
-      />
+        className="flex-row items-center gap-5 px-4 py-3 hover:bg-background active:bg-background"
+      >
+        <Icon.UserGroup />
+        <View>
+          <Text>{user.name}</Text>
+          <Text className="text-sm text-muted-foreground">{user.email}</Text>
+        </View>
+      </Pressable>
     ));
 
   return (
@@ -80,7 +116,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
         {selectedMembers.map((member) => (
           <View key={member.id} className="flex-row items-center gap-2 p-2">
             <Text className="flex-1">{member.name}</Text>
-            <Select options={selectOptions} onChange={(value) => {}} value={member.access} />
+            <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member.id, value)} />
             <Button onPress={() => handleDeselect(member)} variant="ghost" className="p-2">
               <Icon.Close />
             </Button>

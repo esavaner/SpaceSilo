@@ -1,7 +1,7 @@
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
-import { Input } from '@/components/input';
+import { Input } from '@/components/form/input';
 import { toast } from '@/lib/toast';
 import { useUi } from '@/providers/UiProvider';
 import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
@@ -26,6 +26,8 @@ type AlbumRow = {
   album: AlbumResponse;
   depth: number;
 };
+
+const pluralize = (count: number, label: string) => `${count} ${label}${count === 1 ? '' : 's'}`;
 
 const compareAlbums = (left: AlbumResponse, right: AlbumResponse) => {
   const dateDifference = +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt);
@@ -65,19 +67,13 @@ const buildAlbumRows = (albums: AlbumResponse[]) => {
   return rows;
 };
 
-const describeAlbum = (album: AlbumResponse) => {
-  const parts: string[] = [];
-
-  if (album.subalbumCount) {
-    parts.push(`${album.subalbumCount} album${album.subalbumCount === 1 ? '' : 's'}`);
-  }
-
-  if (album.photoCount) {
-    parts.push(`${album.photoCount} photo${album.photoCount === 1 ? '' : 's'}`);
-  }
-
-  return parts.join(' / ') || 'Empty album';
-};
+const describeAlbum = (album: AlbumResponse) =>
+  [
+    album.subalbumCount && pluralize(album.subalbumCount, 'album'),
+    album.photoCount && pluralize(album.photoCount, 'photo'),
+  ]
+    .filter(Boolean)
+    .join(' / ') || 'Empty album';
 
 type GalleryCreateAlbumModalProps = {
   servers: ServerConnectionWithClient[];
@@ -97,6 +93,25 @@ export const GalleryCreateAlbumModal = ({
   const [name, setName] = useState('');
   const [selectedServerId, setSelectedServerId] = useState(parentAlbum?.serverId ?? servers[0]?.id ?? '');
   const [selectedParentId, setSelectedParentId] = useState<string | null>(parentAlbum?.id ?? null);
+  const selectedPhotoCount = selectedPhotos.length;
+  const createAlbumCopy =
+    selectedPhotoCount > 0
+      ? {
+          title: 'Create album from selection',
+          description: `Create an album with ${pluralize(selectedPhotoCount, 'selected photo')}`,
+          success: `Album created with ${pluralize(selectedPhotoCount, 'photo')}`,
+        }
+      : parentAlbum
+        ? {
+            title: 'Create subalbum',
+            description: `New album inside ${parentAlbum.name}`,
+            success: 'Subalbum created',
+          }
+        : {
+            title: 'Create album',
+            description: 'Create a new album on one of your active servers',
+            success: 'Album created',
+          };
 
   const selectedServer = useMemo(
     () => servers.find((server) => server.id === selectedServerId) ?? null,
@@ -151,13 +166,7 @@ export const GalleryCreateAlbumModal = ({
         queryClient.invalidateQueries({ queryKey: ['albums', selectedServer.id] });
       }
       onCreated?.();
-      toast.success(
-        selectedPhotos.length > 0
-          ? `Album created with ${selectedPhotos.length} photo${selectedPhotos.length === 1 ? '' : 's'}`
-          : parentAlbum
-            ? 'Subalbum created'
-            : 'Album created'
-      );
+      toast.success(createAlbumCopy.success);
       closeModal();
     },
     onError: (error) => {
@@ -168,19 +177,11 @@ export const GalleryCreateAlbumModal = ({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>
-          {selectedPhotos.length > 0 ? 'Create album from selection' : parentAlbum ? 'Create subalbum' : 'Create album'}
-        </DialogTitle>
-        <DialogDescription>
-          {selectedPhotos.length > 0
-            ? `Create an album with ${selectedPhotos.length} selected photo${selectedPhotos.length === 1 ? '' : 's'}`
-            : parentAlbum
-              ? `New album inside ${parentAlbum.name}`
-              : 'Create a new album on one of your active servers'}
-        </DialogDescription>
+        <DialogTitle>{createAlbumCopy.title}</DialogTitle>
+        <DialogDescription>{createAlbumCopy.description}</DialogDescription>
       </DialogHeader>
 
-      {!selectedPhotos.length && !parentAlbum && servers.length > 1 ? (
+      {!selectedPhotoCount && !parentAlbum && servers.length > 1 ? (
         <View className="gap-2">
           <Text>Select a server</Text>
           <View className="flex-row flex-wrap gap-2">
@@ -197,13 +198,15 @@ export const GalleryCreateAlbumModal = ({
         </View>
       ) : null}
 
-      <Input
-        label="Album name"
-        value={name}
-        onChangeText={setName}
-        placeholder={parentAlbum ? 'Subalbum name' : 'Album name'}
-        autoFocus
-      />
+      <View className="gap-2">
+        <Text>Album name</Text>
+        <Input
+          value={name}
+          onChangeText={setName}
+          placeholder={parentAlbum ? 'Subalbum name' : 'Album name'}
+          autoFocus
+        />
+      </View>
 
       <View className="gap-2">
         <Text>Parent album</Text>
@@ -215,7 +218,7 @@ export const GalleryCreateAlbumModal = ({
         >
           <Icon.Folder className={selectedParentId === null ? 'text-primary-foreground' : 'text-foreground'} />
           <View className="shrink">
-            <Text>{selectedPhotos.length > 0 ? 'Top level album' : 'No parent'}</Text>
+            <Text>{selectedPhotoCount > 0 ? 'Top level album' : 'No parent'}</Text>
             <Text className="text-left text-xs text-muted-foreground">Album will be created at the root level</Text>
           </View>
         </Button>
@@ -295,7 +298,7 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
       <DialogHeader>
         <DialogTitle>Add to album</DialogTitle>
         <DialogDescription>
-          {selectedPhotos.length} photo{selectedPhotos.length === 1 ? '' : 's'} selected on {server.label}
+          {pluralize(selectedPhotos.length, 'photo')} selected on {server.label}
         </DialogDescription>
       </DialogHeader>
 
