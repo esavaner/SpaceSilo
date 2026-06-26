@@ -18,7 +18,7 @@ import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryV
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { Image } from 'expo-image';
-import { type ChangeEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ChangeEvent, memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -242,15 +242,12 @@ const formatPhotoCount = (count: number) => `${count} photo${count === 1 ? '' : 
 
 const formatAlbumSummary = (item: GalleryAlbumItem) => {
   const parts: string[] = [];
-
   if (item.subalbumCount) {
     parts.push(`${item.subalbumCount} album${item.subalbumCount === 1 ? '' : 's'}`);
   }
-
   if (item.photoCount) {
     parts.push(`${item.photoCount} photo${item.photoCount === 1 ? '' : 's'}`);
   }
-
   return parts.join(' / ') || 'Empty album';
 };
 
@@ -260,40 +257,36 @@ const hydrateGalleryItem = (
   headers?: Record<string, string>
 ): GalleryItem[] => {
   if (item.type === 'album') {
-    if (!item.name) {
-      return [];
-    }
-
-    return [
-      {
-        ...item,
-        type: 'album',
-        name: item.name,
-        serverId: server.id,
-        baseUrl: server.baseUrl,
-        label: server.label,
-        headers,
-      },
-    ];
+    return !item.name
+      ? []
+      : [
+          {
+            ...item,
+            type: 'album',
+            name: item.name,
+            serverId: server.id,
+            baseUrl: server.baseUrl,
+            label: server.label,
+            headers,
+          },
+        ];
   }
 
-  if (!item.imagePath || !item.previewPath || !item.thumbnailPath) {
-    return [];
-  }
-
-  return [
-    {
-      ...item,
-      type: 'photo',
-      imagePath: item.imagePath,
-      previewPath: item.previewPath,
-      thumbnailPath: item.thumbnailPath,
-      serverId: server.id,
-      baseUrl: server.baseUrl,
-      label: server.label,
-      headers,
-    },
-  ];
+  return !item.imagePath || !item.previewPath || !item.thumbnailPath
+    ? []
+    : [
+        {
+          ...item,
+          type: 'photo',
+          imagePath: item.imagePath,
+          previewPath: item.previewPath,
+          thumbnailPath: item.thumbnailPath,
+          serverId: server.id,
+          baseUrl: server.baseUrl,
+          label: server.label,
+          headers,
+        },
+      ];
 };
 
 const createInitialPageParam = (servers: ServerConnectionWithClient[]): GalleryPageParam => ({
@@ -470,27 +463,22 @@ const GalleryTile = memo(function GalleryTile({
   onSelectPhoto: (index: number | null) => void;
   onTogglePhotoSelection: (item: GalleryPhotoItem) => void;
 }) {
-  const itemKey = `${item.serverId}:${item.id}`;
-  const tileWidth = `${100 / columnCount}%` as `${number}%`;
   const imageUri = item.thumbnailPath ? `${item.baseUrl}${item.thumbnailPath}` : null;
-  const showSelectionIndicator = item.type === 'photo' && (isSelected || isSelectionMode || Platform.OS === 'web');
 
   const handlePress = () => {
     if (item.type === 'album') {
       onOpenAlbum(item);
-      return;
-    }
-
-    if (isSelectionMode) {
+    } else if (isSelectionMode) {
       onTogglePhotoSelection(item);
-      return;
-    }
-
-    onSelectPhoto(photoIndex);
+    } else onSelectPhoto(photoIndex);
   };
 
   return (
-    <View key={itemKey} className="p-1" style={{ width: tileWidth }}>
+    <View
+      key={`${item.serverId}:${item.id}`}
+      className="p-1"
+      style={{ width: `${100 / columnCount}%` as `${number}%` }}
+    >
       <Pressable
         className={cn(
           'group overflow-hidden rounded-lg bg-layer-secondary aspect-square',
@@ -517,7 +505,7 @@ const GalleryTile = memo(function GalleryTile({
 
         {item.type === 'album' ? <View className="absolute inset-0 bg-black/25" /> : null}
 
-        {showSelectionIndicator ? (
+        {item.type === 'photo' && (isSelected || isSelectionMode || Platform.OS === 'web') ? (
           <Pressable
             className={cn(
               'absolute left-2 top-2 z-10 h-8 w-8 items-center justify-center rounded-full border transition-opacity',
@@ -580,17 +568,15 @@ const GalleryGrid = memo(function GalleryGrid({
     <View className="gap-6">
       {galleryGroups.map((group) => (
         <View key={group.key}>
-          {group.label ? (
+          {group.label && (
             <View className="mb-3 flex-row items-center gap-3">
               <Text variant="large">{group.label}</Text>
               <View className="h-px flex-1 bg-border" />
             </View>
-          ) : null}
-
+          )}
           <View className="flex-row flex-wrap -mx-1">
             {group.items.map((item) => {
               const itemKey = `${item.serverId}:${item.id}`;
-
               return (
                 <GalleryTile
                   key={itemKey}
@@ -631,15 +617,12 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const currentAlbum = isTrashMode || albumPath.length === 0 ? null : albumPath[albumPath.length - 1];
   const effectiveGroupBy = isTrashMode ? 'day' : groupBy;
   const effectiveViewMode = isTrashMode ? 'photos-only' : viewMode;
-  const scopedServers = useMemo(
-    () => (currentAlbum ? servers.filter((server) => server.id === currentAlbum.serverId) : servers),
-    [currentAlbum, servers]
-  );
+  const scopedServers = currentAlbum ? servers.filter((server) => server.id === currentAlbum.serverId) : servers;
   const columnCount = width > 1280 ? 5 : width > 1024 ? 4 : width > 768 ? 3 : 2;
   const batchSize = columnCount * GALLERY_BATCH_ROWS;
-  const initialPageParam = useMemo(() => createInitialPageParam(scopedServers), [scopedServers]);
-  const scopedServersById = useMemo(() => new Map(scopedServers.map((server) => [server.id, server])), [scopedServers]);
-  const allServersById = useMemo(() => new Map(servers.map((server) => [server.id, server])), [servers]);
+  const initialPageParam = createInitialPageParam(scopedServers);
+  const scopedServersById = new Map(scopedServers.map((server) => [server.id, server]));
+  const allServersById = new Map(servers.map((server) => [server.id, server]));
 
   useEffect(() => {
     if (isTrashMode) {
@@ -684,14 +667,11 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     enabled: scopedServers.length > 0,
   });
 
-  const galleryItems = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
-  const photos = useMemo(
-    () => galleryItems.filter((item): item is GalleryPhotoItem => item.type === 'photo'),
-    [galleryItems]
-  );
-  const selectedPhotos = useMemo(() => Object.values(selectedPhotoMap), [selectedPhotoMap]);
-  const selectedPhotoKeys = useMemo(() => new Set(Object.keys(selectedPhotoMap)), [selectedPhotoMap]);
-  const selectedPhotoGroups = useMemo<SelectedPhotoGroup[]>(() => {
+  const galleryItems = data?.pages.flatMap((page) => page.items) ?? [];
+  const photos = galleryItems.filter((item): item is GalleryPhotoItem => item.type === 'photo');
+  const selectedPhotos = Object.values(selectedPhotoMap);
+  const selectedPhotoKeys = new Set(Object.keys(selectedPhotoMap));
+  const selectedPhotoGroups: SelectedPhotoGroup[] = (() => {
     const groups = new Map<string, SelectedPhotoGroup>();
 
     for (const photo of selectedPhotos) {
@@ -714,45 +694,31 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     }
 
     return Array.from(groups.values());
-  }, [allServersById, selectedPhotos]);
-  const selectedServer = useMemo(() => {
+  })();
+  const selectedServer = (() => {
     const serverIds = Array.from(new Set(selectedPhotos.map((photo) => photo.serverId)));
-    if (serverIds.length !== 1) {
-      return null;
-    }
-
-    return servers.find((server) => server.id === serverIds[0]) ?? null;
-  }, [selectedPhotos, servers]);
+    return serverIds.length !== 1 ? null : (servers.find((server) => server.id === serverIds[0]) ?? null);
+  })();
   const isSelectionMode = selectedPhotos.length > 0;
   const hasMorePhotos = Boolean(hasNextPage);
-  const galleryGroups = useMemo(
-    () => groupGalleryItems(galleryItems, effectiveGroupBy),
-    [galleryItems, effectiveGroupBy]
-  );
-  const lightboxImages = useMemo<GalleryLightboxItem[]>(
-    () =>
-      photos.map((item) => ({
-        key: `${item.serverId}:${item.id}`,
-        uri: `${item.baseUrl}${item.previewPath}`,
-        headers: item.headers,
-      })),
-    [photos]
-  );
-  const photoIndexByKey = useMemo(
-    () => new Map(lightboxImages.map((item, index) => [item.key, index])),
-    [lightboxImages]
-  );
+  const galleryGroups = groupGalleryItems(galleryItems, effectiveGroupBy);
+  const lightboxImages: GalleryLightboxItem[] = photos.map((item) => ({
+    key: `${item.serverId}:${item.id}`,
+    uri: `${item.baseUrl}${item.previewPath}`,
+    headers: item.headers,
+  }));
+  const photoIndexByKey = new Map(lightboxImages.map((item, index) => [item.key, index]));
 
-  const refreshGalleryQueries = useCallback(() => {
+  const refreshGalleryQueries = () => {
     setGalleryRevision((current) => current + 1);
     void queryClient.invalidateQueries({ queryKey: ['gallery'] });
-  }, [queryClient]);
+  };
 
-  const handleSelectPhoto = useCallback((index: number | null) => {
+  const handleSelectPhoto = (index: number | null) => {
     setSelectedPhotoIndex(index);
-  }, []);
+  };
 
-  const handleTogglePhotoSelection = useCallback((item: GalleryPhotoItem) => {
+  const handleTogglePhotoSelection = (item: GalleryPhotoItem) => {
     const itemKey = `${item.serverId}:${item.id}`;
 
     setSelectedPhotoMap((current) => {
@@ -772,18 +738,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         },
       };
     });
-  }, []);
+  };
 
-  const handleClearSelection = useCallback(() => {
+  const handleClearSelection = () => {
     setSelectedPhotoMap({});
-  }, []);
+  };
 
-  const handleOpenAlbum = useCallback(
-    (item: GalleryAlbumItem) => {
-      if (isTrashMode) {
-        return;
-      }
-
+  const handleOpenAlbum = (item: GalleryAlbumItem) => {
+    if (!isTrashMode) {
       setAlbumPath((current) => [
         ...current,
         {
@@ -794,142 +756,132 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         },
       ]);
       setSelectedPhotoIndex(null);
-    },
-    [isTrashMode]
-  );
+    }
+  };
 
-  const handleNavigateToRoot = useCallback(() => {
+  const handleNavigateToRoot = () => {
     setAlbumPath([]);
     setSelectedPhotoIndex(null);
-  }, []);
+  };
 
-  const handleNavigateToAlbum = useCallback((index: number) => {
+  const handleNavigateToAlbum = (index: number) => {
     setAlbumPath((current) => current.slice(0, index + 1));
     setSelectedPhotoIndex(null);
-  }, []);
+  };
 
-  const confirmAction = useCallback((title: string, message: string) => {
-    if (Platform.OS === 'web') {
-      return Promise.resolve(typeof window === 'undefined' ? true : window.confirm(message));
+  const confirmAction = (title: string, message: string) =>
+    Platform.OS === 'web'
+      ? Promise.resolve(typeof window === 'undefined' ? true : window.confirm(message))
+      : new Promise<boolean>((resolve) => {
+          let finished = false;
+          const finish = (value: boolean) => {
+            if (!finished) {
+              finished = true;
+              resolve(value);
+            }
+          };
+
+          Alert.alert(
+            title,
+            message,
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => finish(false) },
+              { text: 'Continue', style: 'destructive', onPress: () => finish(true) },
+            ],
+            { cancelable: true, onDismiss: () => finish(false) }
+          );
+        });
+
+  const handleSelectedPhotoAction = async (action: SelectedPhotoAction) => {
+    if (!selectedPhotoGroups.length) {
+      return;
     }
 
-    return new Promise<boolean>((resolve) => {
-      let finished = false;
-      const finish = (value: boolean) => {
-        if (!finished) {
-          finished = true;
-          resolve(value);
-        }
-      };
+    const confirmation = selectedPhotoActionConfirmations[action];
+    if (confirmation && !(await confirmAction(confirmation.title, confirmation.message(selectedPhotos.length)))) {
+      return;
+    }
 
-      Alert.alert(
-        title,
-        message,
-        [
-          { text: 'Cancel', style: 'cancel', onPress: () => finish(false) },
-          { text: 'Continue', style: 'destructive', onPress: () => finish(true) },
-        ],
-        { cancelable: true, onDismiss: () => finish(false) }
-      );
-    });
-  }, []);
+    setPendingAction(action);
 
-  const handleSelectedPhotoAction = useCallback(
-    async (action: SelectedPhotoAction) => {
-      if (!selectedPhotoGroups.length) {
-        return;
-      }
-
-      const confirmation = selectedPhotoActionConfirmations[action];
-      if (confirmation && !(await confirmAction(confirmation.title, confirmation.message(selectedPhotos.length)))) {
-        return;
-      }
-
-      setPendingAction(action);
-
-      const settled = await Promise.allSettled(
-        selectedPhotoGroups.map(async ({ server, photoIds }) => {
-          return {
-            serverId: server.id,
-            photoIds,
-            response: await selectedPhotoActionRequests[action](server, photoIds),
-          };
-        })
-      );
-
-      const successfulGroups = settled.flatMap((item) => (item.status === 'fulfilled' ? [item.value] : []));
-      const successCount = successfulGroups.reduce((total, item) => total + item.response.count, 0);
-      const failedCount = settled.length - successfulGroups.length;
-
-      if (successCount > 0) {
-        const successfulKeys = new Set(
-          successfulGroups.flatMap(({ serverId, photoIds }) => photoIds.map((photoId) => `${serverId}:${photoId}`))
-        );
-
-        setSelectedPhotoMap((current) => {
-          const next = { ...current };
-
-          for (const key of successfulKeys) {
-            delete next[key];
-          }
-
-          return next;
-        });
-        setSelectedPhotoIndex(null);
-        refreshGalleryQueries();
-        toast.success(selectedPhotoActionMessages[action].success(successCount));
-      }
-
-      if (failedCount > 0) {
-        toast.error(selectedPhotoActionMessages[action].failure(failedCount));
-      }
-
-      setPendingAction(null);
-    },
-    [confirmAction, selectedPhotoGroups, selectedPhotos.length]
-  );
-
-  const handleAllTrashAction = useCallback(
-    async (action: AllTrashAction) => {
-      if (!scopedServers.length) {
-        return;
-      }
-
-      const confirmation = allTrashActionConfirmations[action];
-      if (confirmation && !(await confirmAction(confirmation.title, confirmation.message))) {
-        return;
-      }
-
-      setPendingAction(action);
-
-      const settled = await Promise.allSettled(
-        scopedServers.map(async (server) => ({
+    const settled = await Promise.allSettled(
+      selectedPhotoGroups.map(async ({ server, photoIds }) => {
+        return {
           serverId: server.id,
-          response: await allTrashActionRequests[action](server),
-        }))
+          photoIds,
+          response: await selectedPhotoActionRequests[action](server, photoIds),
+        };
+      })
+    );
+
+    const successfulGroups = settled.flatMap((item) => (item.status === 'fulfilled' ? [item.value] : []));
+    const successCount = successfulGroups.reduce((total, item) => total + item.response.count, 0);
+    const failedCount = settled.length - successfulGroups.length;
+
+    if (successCount > 0) {
+      const successfulKeys = new Set(
+        successfulGroups.flatMap(({ serverId, photoIds }) => photoIds.map((photoId) => `${serverId}:${photoId}`))
       );
 
-      const successfulResults = settled.flatMap((item) => (item.status === 'fulfilled' ? [item.value] : []));
-      const successCount = successfulResults.reduce((total, item) => total + item.response.count, 0);
-      const failedCount = settled.length - successfulResults.length;
+      setSelectedPhotoMap((current) => {
+        const next = { ...current };
 
-      if (successCount > 0) {
-        handleClearSelection();
-        setSelectedPhotoIndex(null);
-        refreshGalleryQueries();
-        toast.success(allTrashActionMessages[action].success(successCount));
-      } else if (failedCount === 0) {
-        toast.info(allTrashActionMessages[action].empty);
-      }
+        for (const key of successfulKeys) {
+          delete next[key];
+        }
 
-      if (failedCount > 0) {
-        toast.error(allTrashActionMessages[action].failure(failedCount));
-      }
+        return next;
+      });
+      setSelectedPhotoIndex(null);
+      refreshGalleryQueries();
+      toast.success(selectedPhotoActionMessages[action].success(successCount));
+    }
 
-      setPendingAction(null);
-    },
-    [confirmAction, handleClearSelection, scopedServers]
-  );
+    if (failedCount > 0) {
+      toast.error(selectedPhotoActionMessages[action].failure(failedCount));
+    }
+
+    setPendingAction(null);
+  };
+
+  const handleAllTrashAction = async (action: AllTrashAction) => {
+    if (!scopedServers.length) {
+      return;
+    }
+
+    const confirmation = allTrashActionConfirmations[action];
+    if (confirmation && !(await confirmAction(confirmation.title, confirmation.message))) {
+      return;
+    }
+
+    setPendingAction(action);
+
+    const settled = await Promise.allSettled(
+      scopedServers.map(async (server) => ({
+        serverId: server.id,
+        response: await allTrashActionRequests[action](server),
+      }))
+    );
+
+    const successfulResults = settled.flatMap((item) => (item.status === 'fulfilled' ? [item.value] : []));
+    const successCount = successfulResults.reduce((total, item) => total + item.response.count, 0);
+    const failedCount = settled.length - successfulResults.length;
+
+    if (successCount > 0) {
+      handleClearSelection();
+      setSelectedPhotoIndex(null);
+      refreshGalleryQueries();
+      toast.success(allTrashActionMessages[action].success(successCount));
+    } else if (failedCount === 0) {
+      toast.info(allTrashActionMessages[action].empty);
+    }
+
+    if (failedCount > 0) {
+      toast.error(allTrashActionMessages[action].failure(failedCount));
+    }
+
+    setPendingAction(null);
+  };
 
   const albumBreadcrumbItems = currentAlbum
     ? [
@@ -946,7 +898,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       ]
     : [];
 
-  const handleOpenCreateAlbumModal = useCallback(() => {
+  const handleOpenCreateAlbumModal = () => {
     if (selectedPhotos.length > 0 && !selectedServer) {
       toast.error('Select photos from a single server to create an album from them');
       return;
@@ -957,63 +909,46 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
 
     if (!candidateServers.length) {
       toast.error('No active server connections');
-      return;
-    }
-
-    openModal(
-      <GalleryCreateAlbumModal
-        servers={candidateServers}
-        parentAlbum={
-          currentAlbum ? { id: currentAlbum.id, name: currentAlbum.name, serverId: currentAlbum.serverId } : null
-        }
-        selectedPhotos={selectedPhotos}
-        onCreated={() => {
-          if (selectedPhotos.length > 0) {
-            setSelectedPhotoMap({});
+    } else
+      openModal(
+        <GalleryCreateAlbumModal
+          servers={candidateServers}
+          parentAlbum={
+            currentAlbum ? { id: currentAlbum.id, name: currentAlbum.name, serverId: currentAlbum.serverId } : null
           }
-          refreshGalleryQueries();
-        }}
-      />
-    );
-  }, [currentAlbum, openModal, refreshGalleryQueries, scopedServers, selectedPhotos, selectedServer, servers]);
+          selectedPhotos={selectedPhotos}
+          onCreated={() => (selectedPhotos.length > 0 ? setSelectedPhotoMap({}) : refreshGalleryQueries())}
+        />
+      );
+  };
 
-  const handleOpenAddToAlbumModal = useCallback(() => {
-    if (!selectedPhotos.length) {
-      return;
+  const handleOpenAddToAlbumModal = () => {
+    if (selectedPhotos.length) {
+      if (!selectedServer) {
+        toast.error('Select photos from a single server to add them to an album');
+      } else
+        openModal(
+          <GalleryAddToAlbumModal
+            server={selectedServer}
+            selectedPhotos={selectedPhotos}
+            onAdded={() => {
+              setSelectedPhotoMap({});
+              refreshGalleryQueries();
+            }}
+          />
+        );
     }
+  };
 
-    if (!selectedServer) {
-      toast.error('Select photos from a single server to add them to an album');
-      return;
-    }
-
-    openModal(
-      <GalleryAddToAlbumModal
-        server={selectedServer}
-        selectedPhotos={selectedPhotos}
-        onAdded={() => {
-          setSelectedPhotoMap({});
-          refreshGalleryQueries();
-        }}
-      />
-    );
-  }, [openModal, refreshGalleryQueries, selectedPhotos, selectedServer]);
-
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!hasMorePhotos) {
-        return;
-      }
-
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (hasMorePhotos) {
       const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
       const distanceFromBottom = contentSize.height - (contentOffset.y + layoutMeasurement.height);
-
       if (distanceFromBottom <= LOAD_MORE_THRESHOLD_PX && !isFetchingNextPage) {
-        void fetchNextPage();
+        fetchNextPage();
       }
-    },
-    [fetchNextPage, hasMorePhotos, isFetchingNextPage]
-  );
+    }
+  };
 
   const { mutate: uploadFiles, isPending: isUploading } = useMutation({
     mutationKey: ['gallery-upload'],
@@ -1046,35 +981,23 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   });
 
   const handleUploadButtonPress = () => {
-    if (Platform.OS !== 'web') {
-      toast.error('Gallery upload is currently available on web only');
-      return;
-    }
-    uploadInputRef.current?.click();
+    if (Platform.OS !== 'web') toast.error('Gallery upload is currently available on web only');
+    else uploadInputRef.current?.click();
   };
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files;
-    if (!selected?.length) {
-      return;
+    if (selected?.length) {
+      uploadFiles(Array.from(selected));
+      event.target.value = '';
     }
-
-    uploadFiles(Array.from(selected));
-    event.target.value = '';
   };
-
-  const screenTitle = isTrashMode ? 'Trash' : currentAlbum ? currentAlbum.name : t('Gallery');
-  const emptyStateText = isTrashMode
-    ? 'Trash is empty'
-    : currentAlbum
-      ? 'This album is empty'
-      : 'No photos or albums yet';
 
   const header = (
     <View className="gap-4">
       <View className="flex-row flex-wrap items-start justify-between gap-3">
         <View className="gap-2">
-          <Text variant="h1">{screenTitle}</Text>
+          <Text variant="h1">{isTrashMode ? 'Trash' : currentAlbum ? currentAlbum.name : t('Gallery')}</Text>
           {!isTrashMode && currentAlbum ? <Breadcrumb items={albumBreadcrumbItems} /> : null}
         </View>
 
@@ -1189,7 +1112,11 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       ) : null}
 
       {isPending ? <Text className="text-muted-foreground">Loading gallery...</Text> : null}
-      {!isPending && galleryItems.length === 0 ? <Text className="text-muted-foreground">{emptyStateText}</Text> : null}
+      {!isPending && galleryItems.length === 0 ? (
+        <Text className="text-muted-foreground">
+          {isTrashMode ? 'Trash is empty' : currentAlbum ? 'This album is empty' : 'No photos or albums yet'}
+        </Text>
+      ) : null}
 
       <GalleryGrid
         galleryGroups={galleryGroups}

@@ -1,6 +1,5 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
 import { t } from 'i18next';
-import { useMemo } from 'react';
 import { Text } from '../general/text';
 import { Button } from '../general/button';
 import { cn } from '../../utils/cn';
@@ -22,15 +21,12 @@ type Props = {
 export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
   const { ref, closeDropdown } = useDropdown();
 
-  const sortOptions = useMemo(
-    () => [
-      { label: t('sort.name'), value: 'name' as SortBy },
-      { label: t('sort.size'), value: 'size' as SortBy },
-      { label: t('sort.date'), value: 'date' as SortBy },
-      { label: t('sort.type'), value: 'type' as SortBy },
-    ],
-    [t]
-  );
+  const sortOptions = [
+    { label: t('sort.name'), value: 'name' as SortBy },
+    { label: t('sort.size'), value: 'size' as SortBy },
+    { label: t('sort.date'), value: 'date' as SortBy },
+    { label: t('sort.type'), value: 'type' as SortBy },
+  ];
 
   const onSort = (sortBy: SortBy) => {
     handleSort(sortBy);

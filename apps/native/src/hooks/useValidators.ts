@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
@@ -16,17 +15,14 @@ const isValidServerUrl = (value?: string) => {
 export const useValidators = () => {
   const { t } = useTranslation();
 
-  return useMemo(
-    () => ({
-      displayName: yup.string().required(t('errors.displayNameRequired')),
-      serverUrl: yup
-        .string()
-        .transform((value) => value?.trim())
-        .test('is-valid-server-url', t('errors.serverUrlInvalid'), isValidServerUrl)
-        .required(t('errors.serverUrlRequired')),
-      email: yup.string().email(t('errors.emailInvalid')).required(t('errors.emailRequired')),
-      password: yup.string().required(t('errors.passwordRequired')),
-    }),
-    [t]
-  );
+  return {
+    displayName: yup.string().required(t('errors.displayNameRequired')),
+    serverUrl: yup
+      .string()
+      .transform((value) => value?.trim())
+      .test('is-valid-server-url', t('errors.serverUrlInvalid'), isValidServerUrl)
+      .required(t('errors.serverUrlRequired')),
+    email: yup.string().email(t('errors.emailInvalid')).required(t('errors.emailRequired')),
+    password: yup.string().required(t('errors.passwordRequired')),
+  };
 };

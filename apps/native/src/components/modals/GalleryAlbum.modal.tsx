@@ -7,7 +7,7 @@ import { useUi } from '@/providers/UiProvider';
 import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type AlbumResponse } from '@repo/shared';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
@@ -113,10 +113,7 @@ export const GalleryCreateAlbumModal = ({
             success: 'Album created',
           };
 
-  const selectedServer = useMemo(
-    () => servers.find((server) => server.id === selectedServerId) ?? null,
-    [selectedServerId, servers]
-  );
+  const selectedServer = servers.find((server) => server.id === selectedServerId) ?? null;
 
   const { data: albums = [], isPending: isLoadingAlbums } = useQuery({
     queryKey: ['albums', selectedServerId],
@@ -124,7 +121,7 @@ export const GalleryCreateAlbumModal = ({
     enabled: Boolean(selectedServer),
   });
 
-  const albumRows = useMemo(() => buildAlbumRows(albums), [albums]);
+  const albumRows = buildAlbumRows(albums);
 
   useEffect(() => {
     const nextParentId = parentAlbum?.serverId === selectedServerId ? (parentAlbum.id ?? null) : null;
@@ -274,7 +271,7 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
     queryFn: () => server.client.album.findAll(),
   });
 
-  const albumRows = useMemo(() => buildAlbumRows(albums), [albums]);
+  const albumRows = buildAlbumRows(albums);
 
   const { mutate: addPhotos, isPending } = useMutation({
     mutationFn: (albumId: string) =>
