@@ -24,14 +24,17 @@ import {
   type GalleryStatsResponse,
   type GroupResponse,
   type MoveFileRequest,
+  type NoteResponse,
   type PhotoBulkActionRequest,
   type PhotoBulkActionResponse,
   type RefreshResponse,
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
+  type CreateNoteRequest,
   type UpdateAlbumRequest,
   type UpdateGroupRequest,
   type UpdateGroupMemberRequest,
+  type UpdateNoteRequest,
   type UserResponse,
 } from '@repo/shared';
 
@@ -139,6 +142,15 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     findAll: () => this.get<GroupResponse[]>(`${endpoints.groups}/all`),
     findOne: (id: string) => this.get<GroupResponse>(`${endpoints.groups}/${id}`),
     remove: (id: string) => this.delete<undefined, GroupResponse>(`${endpoints.groups}/${id}`),
+  };
+
+  public readonly notes = {
+    create: (dto: CreateNoteRequest) => this.post<CreateNoteRequest, NoteResponse>(endpoints.notes, dto),
+    findAll: () => this.get<NoteResponse[]>(endpoints.notes),
+    findOne: (id: string) => this.get<NoteResponse>(`${endpoints.notes}/${id}`),
+    update: (id: string, dto: UpdateNoteRequest) =>
+      this.patch<UpdateNoteRequest, NoteResponse>(`${endpoints.notes}/${id}`, dto),
+    remove: (id: string) => this.delete<undefined, NoteResponse>(`${endpoints.notes}/${id}`),
   };
 
   public readonly users = {

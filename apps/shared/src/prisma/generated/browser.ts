@@ -38,6 +38,11 @@ export type Album = Prisma.AlbumModel
  */
 export type Group = Prisma.GroupModel
 /**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
+/**
  * Model GroupMember
  * 
  */

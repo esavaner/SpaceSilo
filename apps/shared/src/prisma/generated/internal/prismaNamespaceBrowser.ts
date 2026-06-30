@@ -55,6 +55,7 @@ export const ModelName = {
   Photo: 'Photo',
   Album: 'Album',
   Group: 'Group',
+  Note: 'Note',
   GroupMember: 'GroupMember'
 } as const
 
@@ -132,6 +133,20 @@ export const GroupScalarFieldEnum = {
 } as const
 
 export type GroupScalarFieldEnum = (typeof GroupScalarFieldEnum)[keyof typeof GroupScalarFieldEnum]
+
+
+export const NoteScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt',
+  ownerId: 'ownerId',
+  groupId: 'groupId'
+} as const
+
+export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
 
 
 export const GroupMemberScalarFieldEnum = {

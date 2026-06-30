@@ -38,6 +38,7 @@ model User {
 
   photos    Photo[]
   albums    Album[]
+  notes     Note[]
   ownerOf   Group[]
   memberOf  GroupMember[]
 }
@@ -98,6 +99,24 @@ model Group {
   members   GroupMember[]
   albums    Album[]
   photos    Photo[]
+  notes     Note[]
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String?
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id])
+
+  @@index([groupId, updatedAt, createdAt])
+  @@index([ownerId, updatedAt, createdAt])
 }
 
 enum GroupAccessLevel {

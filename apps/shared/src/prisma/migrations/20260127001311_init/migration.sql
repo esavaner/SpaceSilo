@@ -76,6 +76,20 @@ CREATE TABLE "GroupMember" (
 );
 
 -- CreateTable
+CREATE TABLE "Note" (
+    "id" TEXT NOT NULL,
+    "title" TEXT,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "ownerId" TEXT NOT NULL,
+    "groupId" TEXT NOT NULL,
+
+    CONSTRAINT "Note_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_AlbumToPhoto" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
@@ -112,6 +126,12 @@ CREATE INDEX "Album_ownerId_capturedAt_createdAt_idx" ON "Album"("ownerId", "cap
 CREATE INDEX "Album_parentId_capturedAt_createdAt_idx" ON "Album"("parentId", "capturedAt", "createdAt");
 
 -- CreateIndex
+CREATE INDEX "Note_groupId_updatedAt_createdAt_idx" ON "Note"("groupId", "updatedAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "Note_ownerId_updatedAt_createdAt_idx" ON "Note"("ownerId", "updatedAt", "createdAt");
+
+-- CreateIndex
 CREATE INDEX "_AlbumToPhoto_B_index" ON "_AlbumToPhoto"("B");
 
 -- CreateIndex
@@ -137,6 +157,12 @@ ALTER TABLE "GroupMember" ADD CONSTRAINT "GroupMember_groupId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "GroupMember" ADD CONSTRAINT "GroupMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Note" ADD CONSTRAINT "Note_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Note" ADD CONSTRAINT "Note_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_AlbumToPhoto" ADD CONSTRAINT "_AlbumToPhoto_A_fkey" FOREIGN KEY ("A") REFERENCES "Album"("id") ON DELETE CASCADE ON UPDATE CASCADE;
