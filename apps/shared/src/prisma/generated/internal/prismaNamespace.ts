@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  Backup: 'Backup',
   Photo: 'Photo',
   Album: 'Album',
   Group: 'Group',
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "photo" | "album" | "group" | "note" | "groupMember"
+    modelProps: "user" | "backup" | "photo" | "album" | "group" | "note" | "groupMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -480,6 +481,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    Backup: {
+      payload: Prisma.$BackupPayload<ExtArgs>
+      fields: Prisma.BackupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        findFirst: {
+          args: Prisma.BackupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        findMany: {
+          args: Prisma.BackupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>[]
+        }
+        create: {
+          args: Prisma.BackupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        createMany: {
+          args: Prisma.BackupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>[]
+        }
+        delete: {
+          args: Prisma.BackupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        update: {
+          args: Prisma.BackupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        deleteMany: {
+          args: Prisma.BackupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>[]
+        }
+        upsert: {
+          args: Prisma.BackupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupPayload>
+        }
+        aggregate: {
+          args: Prisma.BackupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackup>
+        }
+        groupBy: {
+          args: Prisma.BackupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackupCountAggregateOutputType> | number
         }
       }
     }
@@ -907,6 +982,41 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const BackupScalarFieldEnum = {
+  id: 'id',
+  pairId: 'pairId',
+  pairSecret: 'pairSecret',
+  direction: 'direction',
+  active: 'active',
+  schedule: 'schedule',
+  copyPhotos: 'copyPhotos',
+  copyFiles: 'copyFiles',
+  copyNotes: 'copyNotes',
+  sourceServerLabel: 'sourceServerLabel',
+  sourceServerBaseUrl: 'sourceServerBaseUrl',
+  sourceServerKey: 'sourceServerKey',
+  destinationServerLabel: 'destinationServerLabel',
+  destinationServerBaseUrl: 'destinationServerBaseUrl',
+  destinationServerKey: 'destinationServerKey',
+  destinationPath: 'destinationPath',
+  remoteConfigId: 'remoteConfigId',
+  runCount: 'runCount',
+  running: 'running',
+  lastRunAt: 'lastRunAt',
+  lastStartedAt: 'lastStartedAt',
+  lastFinishedAt: 'lastFinishedAt',
+  lastSuccessAt: 'lastSuccessAt',
+  lastError: 'lastError',
+  nextRunAt: 'nextRunAt',
+  lastStats: 'lastStats',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById'
+} as const
+
+export type BackupScalarFieldEnum = (typeof BackupScalarFieldEnum)[keyof typeof BackupScalarFieldEnum]
+
+
 export const PhotoScalarFieldEnum = {
   id: 'id',
   url: 'url',
@@ -1081,9 +1191,37 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'BackupDirection'
+ */
+export type EnumBackupDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupDirection'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupDirection[]'
+ */
+export type ListEnumBackupDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupDirection[]'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -1102,16 +1240,16 @@ export type ListEnumGroupAccessLevelFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Float'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'Float[]'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1210,6 +1348,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  backup?: Prisma.BackupOmit
   photo?: Prisma.PhotoOmit
   album?: Prisma.AlbumOmit
   group?: Prisma.GroupOmit

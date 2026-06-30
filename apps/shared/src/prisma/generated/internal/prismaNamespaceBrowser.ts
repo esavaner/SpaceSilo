@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Backup: 'Backup',
   Photo: 'Photo',
   Album: 'Album',
   Group: 'Group',
@@ -88,6 +89,41 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const BackupScalarFieldEnum = {
+  id: 'id',
+  pairId: 'pairId',
+  pairSecret: 'pairSecret',
+  direction: 'direction',
+  active: 'active',
+  schedule: 'schedule',
+  copyPhotos: 'copyPhotos',
+  copyFiles: 'copyFiles',
+  copyNotes: 'copyNotes',
+  sourceServerLabel: 'sourceServerLabel',
+  sourceServerBaseUrl: 'sourceServerBaseUrl',
+  sourceServerKey: 'sourceServerKey',
+  destinationServerLabel: 'destinationServerLabel',
+  destinationServerBaseUrl: 'destinationServerBaseUrl',
+  destinationServerKey: 'destinationServerKey',
+  destinationPath: 'destinationPath',
+  remoteConfigId: 'remoteConfigId',
+  runCount: 'runCount',
+  running: 'running',
+  lastRunAt: 'lastRunAt',
+  lastStartedAt: 'lastStartedAt',
+  lastFinishedAt: 'lastFinishedAt',
+  lastSuccessAt: 'lastSuccessAt',
+  lastError: 'lastError',
+  nextRunAt: 'nextRunAt',
+  lastStats: 'lastStats',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById'
+} as const
+
+export type BackupScalarFieldEnum = (typeof BackupScalarFieldEnum)[keyof typeof BackupScalarFieldEnum]
 
 
 export const PhotoScalarFieldEnum = {

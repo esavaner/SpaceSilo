@@ -25,6 +25,11 @@ enum Role {
   user
 }
 
+enum BackupDirection {
+  outgoing
+  incoming
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -39,8 +44,47 @@ model User {
   photos    Photo[]
   albums    Album[]
   notes     Note[]
+  backups   Backup[]
   ownerOf   Group[]
   memberOf  GroupMember[]
+}
+
+
+model Backup {
+  id                       String          @id @default(cuid())
+  pairId                   String          @unique
+  pairSecret               String
+  direction                BackupDirection
+  active                   Boolean         @default(true)
+  schedule                 String
+  copyPhotos               Boolean         @default(false)
+  copyFiles                Boolean         @default(false)
+  copyNotes                Boolean         @default(false)
+  sourceServerLabel        String
+  sourceServerBaseUrl      String
+  sourceServerKey          String
+  destinationServerLabel   String
+  destinationServerBaseUrl String
+  destinationServerKey     String
+  destinationPath          String?
+  remoteConfigId           String?
+  runCount                 Int             @default(0)
+  running                  Boolean         @default(false)
+  lastRunAt                DateTime?
+  lastStartedAt            DateTime?
+  lastFinishedAt           DateTime?
+  lastSuccessAt            DateTime?
+  lastError                String?
+  nextRunAt                DateTime?
+  lastStats                Json?
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+
+  createdById              String
+  createdBy                User            @relation(fields: [createdById], references: [id])
+
+  @@index([direction, active, nextRunAt])
+  @@index([createdById, direction])
 }
 
 

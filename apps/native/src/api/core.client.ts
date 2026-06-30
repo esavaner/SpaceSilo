@@ -6,8 +6,10 @@ import {
   type AddPhotosToAlbumRequest,
   type AlbumResponse,
   type AuthResponse,
+  type BackupResponse,
   type CopyFileRequest,
   type CreateAlbumRequest,
+  type CreateBackupRequest,
   type CreateFileRequest,
   type CreateGroupRequest,
   type CreateFolderRequest,
@@ -32,6 +34,7 @@ import {
   type RemoveFileRequest,
   type CreateNoteRequest,
   type UpdateAlbumRequest,
+  type UpdateBackupRequest,
   type UpdateGroupRequest,
   type UpdateGroupMemberRequest,
   type UpdateNoteRequest,
@@ -44,6 +47,7 @@ export const endpoints = {
   refresh: '/auth/refresh',
   register: '/auth/register',
   users: '/users',
+  backups: '/backups',
   groups: '/groups',
   notes: '/notes',
   files: '/files',
@@ -157,6 +161,18 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     findAll: () => this.get<UserResponse[]>(endpoints.users),
     findOne: (id: string) => this.get<UserResponse>(`${endpoints.users}/${id}`),
     search: (query: string) => this.get<UserResponse[]>(`${endpoints.users}/search/${encodeURIComponent(query)}`),
+  };
+
+  public readonly backups = {
+    findAll: () => this.get<BackupResponse[]>(endpoints.backups),
+    createIncoming: (dto: CreateBackupRequest) =>
+      this.post<CreateBackupRequest, BackupResponse>(`${endpoints.backups}/incoming`, dto),
+    createOutgoing: (dto: CreateBackupRequest) =>
+      this.post<CreateBackupRequest, BackupResponse>(`${endpoints.backups}/outgoing`, dto),
+    update: (id: string, dto: UpdateBackupRequest) =>
+      this.patch<UpdateBackupRequest, BackupResponse>(`${endpoints.backups}/${id}`, dto),
+    trigger: (id: string) => this.post<undefined, BackupResponse>(`${endpoints.backups}/${id}/trigger`),
+    remove: (id: string) => this.delete<undefined, BackupResponse>(`${endpoints.backups}/${id}`),
   };
 
   public readonly gallery = {

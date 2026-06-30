@@ -11,10 +11,12 @@ import { GroupsController } from './controllers/groups.controller';
 import { NotesController } from './controllers/notes.controller';
 import { PhotoController } from './controllers/photo.controller';
 import { AuthController } from './controllers/auth.controller';
+import { BackupsController } from './controllers/backups.controller';
 import { FilesController } from './controllers/files.controller';
 import { UsersController } from './controllers/users.controller';
 import { AuthService } from './services/auth.service';
 import { AlbumService } from './services/album.service';
+import { BackupsService } from './services/backups.service';
 import { FilesService } from './services/files.service';
 import { GalleryService } from './services/gallery.service';
 import { GroupsService } from './services/groups.service';
@@ -48,6 +50,7 @@ import { validateEnvironment } from './common/env.validation';
     PhotoService,
     AlbumService,
     AuthService,
+    BackupsService,
     FilesService,
     GalleryService,
     GroupsService,
@@ -57,6 +60,7 @@ import { validateEnvironment } from './common/env.validation';
   controllers: [
     AlbumController,
     AuthController,
+    BackupsController,
     FilesController,
     GalleryController,
     GroupsController,

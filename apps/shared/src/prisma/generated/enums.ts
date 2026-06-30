@@ -18,6 +18,14 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const BackupDirection = {
+  outgoing: 'outgoing',
+  incoming: 'incoming'
+} as const
+
+export type BackupDirection = (typeof BackupDirection)[keyof typeof BackupDirection]
+
+
 export const GroupAccessLevel = {
   admin: 'admin',
   edit: 'edit',

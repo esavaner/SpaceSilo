@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/Backup'
 export type * from './models/Photo'
 export type * from './models/Album'
 export type * from './models/Group'
