@@ -1,66 +1,28 @@
 import { BaseLayout } from '@/components/base-layout';
-import { Breadcrumb } from '@/components/breadcrumb';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
+import { GalleryBrowserHeader } from '@/components/gallery/GalleryBrowserHeader';
+import {
+  GalleryGrid,
+  type GalleryAlbumItem,
+  type GalleryGroup,
+  type GalleryItem,
+  type GalleryPhotoItem,
+} from '@/components/gallery/GalleryBrowserGrid';
 import { Text } from '@/components/general/text';
 import { GalleryAddToAlbumModal, GalleryCreateAlbumModal } from '@/components/modals/GalleryAlbum.modal';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/dropdowns/dropdown';
 import { toast } from '@/lib/toast';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
-import { cn } from '@/utils/cn';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
-import { Image } from 'expo-image';
-import { type ChangeEvent, memo, useEffect, useRef, useState } from 'react';
+import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Platform,
-  Pressable,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Alert, NativeScrollEvent, NativeSyntheticEvent, Platform, useWindowDimensions } from 'react-native';
 import { GalleryLightbox } from './GalleryLightbox';
 
 export type GalleryBrowserMode = 'gallery' | 'trash';
 
-type HydratedGalleryBase = GalleryImageResponse & {
-  serverId: string;
-  baseUrl: string;
-  label: string;
-  headers?: Record<string, string>;
-};
-
-type GalleryPhotoItem = HydratedGalleryBase & {
-  type: 'photo';
-  imagePath: string;
-  previewPath: string;
-  thumbnailPath: string;
-};
-
-type GalleryAlbumItem = HydratedGalleryBase & {
-  type: 'album';
-  name: string;
-};
-
-type GalleryItem = GalleryPhotoItem | GalleryAlbumItem;
-
 type GroupBy = 'day' | 'week' | 'month' | 'year' | 'none';
-
-type GalleryGroup = {
-  key: string;
-  label: string;
-  items: GalleryItem[];
-};
 
 type GalleryGroupMeta = Omit<GalleryGroup, 'items'>;
 
@@ -240,17 +202,6 @@ const sortGalleryItems = (left: GalleryItem, right: GalleryItem) =>
 
 const formatPhotoCount = (count: number) => `${count} photo${count === 1 ? '' : 's'}`;
 
-const formatAlbumSummary = (item: GalleryAlbumItem) => {
-  const parts: string[] = [];
-  if (item.subalbumCount) {
-    parts.push(`${item.subalbumCount} album${item.subalbumCount === 1 ? '' : 's'}`);
-  }
-  if (item.photoCount) {
-    parts.push(`${item.photoCount} photo${item.photoCount === 1 ? '' : 's'}`);
-  }
-  return parts.join(' / ') || 'Empty album';
-};
-
 const hydrateGalleryItem = (
   item: GalleryImageResponse,
   server: ServerConnectionWithClient,
@@ -412,191 +363,6 @@ const groupGalleryItems = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup
 
   return Array.from(groups.values());
 };
-
-function OptionMenu<T extends string>({
-  options,
-  value,
-  fallbackLabel,
-  onChange,
-}: {
-  options: LabelledOption<T>[];
-  value: T;
-  fallbackLabel: string;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">
-          <Text>{options.find((option) => option.value === value)?.label ?? fallbackLabel}</Text>
-          <Icon.ChevronDown className="text-foreground" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {options.map((option) => (
-          <DropdownMenuItem key={option.value} onPress={() => onChange(option.value)}>
-            <Text className="flex-1">{option.label}</Text>
-            {value === option.value ? <Icon.Check className="text-foreground" /> : null}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-const GalleryTile = memo(function GalleryTile({
-  item,
-  columnCount,
-  isSelected,
-  isSelectionMode,
-  photoIndex,
-  onOpenAlbum,
-  onSelectPhoto,
-  onTogglePhotoSelection,
-}: {
-  item: GalleryItem;
-  columnCount: number;
-  isSelected: boolean;
-  isSelectionMode: boolean;
-  photoIndex: number | null;
-  onOpenAlbum: (item: GalleryAlbumItem) => void;
-  onSelectPhoto: (index: number | null) => void;
-  onTogglePhotoSelection: (item: GalleryPhotoItem) => void;
-}) {
-  const imageUri = item.thumbnailPath ? `${item.baseUrl}${item.thumbnailPath}` : null;
-
-  const handlePress = () => {
-    if (item.type === 'album') {
-      onOpenAlbum(item);
-    } else if (isSelectionMode) {
-      onTogglePhotoSelection(item);
-    } else onSelectPhoto(photoIndex);
-  };
-
-  return (
-    <View
-      key={`${item.serverId}:${item.id}`}
-      className="p-1"
-      style={{ width: `${100 / columnCount}%` as `${number}%` }}
-    >
-      <Pressable
-        className={cn(
-          'group overflow-hidden rounded-lg bg-layer-secondary aspect-square',
-          item.type === 'album' && 'border border-border',
-          isSelected && item.type === 'photo' && 'border-2 border-primary'
-        )}
-        onLongPress={item.type === 'photo' && Platform.OS !== 'web' ? () => onTogglePhotoSelection(item) : undefined}
-        delayLongPress={180}
-        onPress={handlePress}
-      >
-        {imageUri ? (
-          <Image
-            source={{ uri: imageUri, headers: item.headers }}
-            cachePolicy="memory-disk"
-            contentFit="cover"
-            transition={0}
-            className="w-full h-full"
-          />
-        ) : (
-          <View className="absolute inset-0 items-center justify-center bg-accent/40">
-            <Icon.Folder className="text-foreground" size={36} />
-          </View>
-        )}
-
-        {item.type === 'album' ? <View className="absolute inset-0 bg-black/25" /> : null}
-
-        {item.type === 'photo' && (isSelected || isSelectionMode || Platform.OS === 'web') ? (
-          <Pressable
-            className={cn(
-              'absolute left-2 top-2 z-10 h-8 w-8 items-center justify-center rounded-full border transition-opacity',
-              isSelected ? 'border-primary bg-primary opacity-100' : 'border-white/80 bg-black/40',
-              Platform.OS === 'web' && !isSelected && !isSelectionMode && 'opacity-0 group-hover:opacity-100'
-            )}
-            onPress={(event) => {
-              event.stopPropagation();
-              onTogglePhotoSelection(item);
-            }}
-          >
-            {isSelected ? (
-              <Icon.Check className="text-primary-foreground" size={16} />
-            ) : (
-              <View className="h-3 w-3 rounded-full border border-white" />
-            )}
-          </Pressable>
-        ) : null}
-
-        {item.type === 'album' ? (
-          <View className="absolute inset-x-0 bottom-0 gap-1 bg-black/70 p-3">
-            <View className="flex-row items-center gap-2">
-              <Icon.Folder className="text-white" size={16} />
-              <Text className="flex-1 text-white">{item.name}</Text>
-            </View>
-            <Text className="text-xs text-white/80">{formatAlbumSummary(item)}</Text>
-          </View>
-        ) : null}
-
-        {isSelected && item.type === 'photo' ? (
-          <View className="absolute bottom-2 right-2 rounded-full bg-primary px-2 py-1">
-            <Text className="text-xs text-primary-foreground">Selected</Text>
-          </View>
-        ) : null}
-      </Pressable>
-    </View>
-  );
-});
-
-const GalleryGrid = memo(function GalleryGrid({
-  galleryGroups,
-  columnCount,
-  isSelectionMode,
-  photoIndexByKey,
-  selectedPhotoKeys,
-  onOpenAlbum,
-  onSelectPhoto,
-  onTogglePhotoSelection,
-}: {
-  galleryGroups: GalleryGroup[];
-  columnCount: number;
-  isSelectionMode: boolean;
-  photoIndexByKey: Map<string, number>;
-  selectedPhotoKeys: Set<string>;
-  onOpenAlbum: (item: GalleryAlbumItem) => void;
-  onSelectPhoto: (index: number | null) => void;
-  onTogglePhotoSelection: (item: GalleryPhotoItem) => void;
-}) {
-  return (
-    <View className="gap-6">
-      {galleryGroups.map((group) => (
-        <View key={group.key}>
-          {group.label && (
-            <View className="mb-3 flex-row items-center gap-3">
-              <Text variant="large">{group.label}</Text>
-              <View className="h-px flex-1 bg-border" />
-            </View>
-          )}
-          <View className="flex-row flex-wrap -mx-1">
-            {group.items.map((item) => {
-              const itemKey = `${item.serverId}:${item.id}`;
-              return (
-                <GalleryTile
-                  key={itemKey}
-                  item={item}
-                  columnCount={columnCount}
-                  isSelected={selectedPhotoKeys.has(itemKey)}
-                  isSelectionMode={isSelectionMode}
-                  photoIndex={item.type === 'photo' ? (photoIndexByKey.get(itemKey) ?? null) : null}
-                  onOpenAlbum={onOpenAlbum}
-                  onSelectPhoto={onSelectPhoto}
-                  onTogglePhotoSelection={onTogglePhotoSelection}
-                />
-              );
-            })}
-          </View>
-        </View>
-      ))}
-    </View>
-  );
-});
 
 export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode }) {
   const isTrashMode = mode === 'trash';
@@ -994,115 +760,32 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   };
 
   const header = (
-    <View className="gap-4">
-      <View className="flex-row flex-wrap items-start justify-between gap-3">
-        <View className="gap-2">
-          <Text variant="h1">{isTrashMode ? 'Trash' : currentAlbum ? currentAlbum.name : t('Gallery')}</Text>
-          {!isTrashMode && currentAlbum ? <Breadcrumb items={albumBreadcrumbItems} /> : null}
-        </View>
-
-        <View className="flex-row flex-wrap items-center gap-2">
-          {isTrashMode ? (
-            <>
-              <Button
-                variant="outline"
-                onPress={() => void handleAllTrashAction('restore-all')}
-                disabled={scopedServers.length === 0}
-                loading={pendingAction === 'restore-all'}
-              >
-                <Icon.Check className="text-foreground" />
-                <Text>Restore all</Text>
-              </Button>
-              <Button
-                variant="destructive"
-                onPress={() => void handleAllTrashAction('delete-all')}
-                disabled={scopedServers.length === 0}
-                loading={pendingAction === 'delete-all'}
-              >
-                <Icon.Trash className="text-white" />
-                <Text>Delete everything permanently</Text>
-              </Button>
-            </>
-          ) : (
-            <>
-              <OptionMenu
-                options={galleryViewModeOptions}
-                value={effectiveViewMode}
-                fallbackLabel="Photos only"
-                onChange={setViewMode}
-              />
-
-              <OptionMenu options={groupByOptions} value={effectiveGroupBy} fallbackLabel="Day" onChange={setGroupBy} />
-
-              <Button variant="outline" onPress={handleOpenCreateAlbumModal} disabled={servers.length === 0}>
-                <Icon.Folder className="text-foreground" />
-                <Text>{currentAlbum ? 'New subalbum' : 'New album'}</Text>
-              </Button>
-
-              <Button onPress={handleUploadButtonPress} loading={isUploading}>
-                <Icon.Add className="text-primary-foreground" />
-                <Text>Upload</Text>
-              </Button>
-            </>
-          )}
-        </View>
-      </View>
-
-      {isSelectionMode ? (
-        <View className="gap-2 rounded-lg border border-border bg-background p-3">
-          <View className="flex-row flex-wrap items-center gap-2">
-            <Button variant="ghost" size="icon" onPress={handleClearSelection}>
-              <Icon.Close />
-            </Button>
-            <Text className="mr-auto">{formatPhotoCount(selectedPhotos.length)} selected</Text>
-
-            {isTrashMode ? (
-              <>
-                <Button
-                  variant="outline"
-                  onPress={() => void handleSelectedPhotoAction('restore')}
-                  loading={pendingAction === 'restore'}
-                >
-                  <Icon.Check className="text-foreground" />
-                  <Text>Restore selected</Text>
-                </Button>
-                <Button
-                  variant="destructive"
-                  onPress={() => void handleSelectedPhotoAction('delete-permanently')}
-                  loading={pendingAction === 'delete-permanently'}
-                >
-                  <Icon.Trash className="text-white" />
-                  <Text>Delete permanently</Text>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" onPress={handleOpenCreateAlbumModal} disabled={!selectedServer}>
-                  <Icon.Folder className="text-foreground" />
-                  <Text>New album</Text>
-                </Button>
-                <Button variant="outline" onPress={handleOpenAddToAlbumModal} disabled={!selectedServer}>
-                  <Icon.Folder className="text-foreground" />
-                  <Text>Add to album</Text>
-                </Button>
-                <Button
-                  variant="outline"
-                  onPress={() => void handleSelectedPhotoAction('trash')}
-                  loading={pendingAction === 'trash'}
-                >
-                  <Icon.Trash className="text-foreground" />
-                  <Text>Trash</Text>
-                </Button>
-              </>
-            )}
-          </View>
-
-          {!isTrashMode && !selectedServer ? (
-            <Text className="text-sm text-muted-foreground">Album actions require photos from a single server.</Text>
-          ) : null}
-        </View>
-      ) : null}
-    </View>
+    <GalleryBrowserHeader
+      isTrashMode={isTrashMode}
+      title={isTrashMode ? 'Trash' : currentAlbum ? currentAlbum.name : t('Gallery')}
+      breadcrumbItems={albumBreadcrumbItems}
+      viewModeOptions={galleryViewModeOptions}
+      viewMode={effectiveViewMode}
+      onViewModeChange={setViewMode}
+      groupByOptions={groupByOptions}
+      groupBy={effectiveGroupBy}
+      onGroupByChange={setGroupBy}
+      isSelectionMode={isSelectionMode}
+      selectedPhotoCountLabel={`${formatPhotoCount(selectedPhotos.length)} selected`}
+      hasSelectedServer={Boolean(selectedServer)}
+      pendingAction={pendingAction}
+      serverCount={isTrashMode ? scopedServers.length : servers.length}
+      isUploading={isUploading}
+      onCreateAlbum={handleOpenCreateAlbumModal}
+      onUpload={handleUploadButtonPress}
+      onClearSelection={handleClearSelection}
+      onAddToAlbum={handleOpenAddToAlbumModal}
+      onTrashSelected={() => void handleSelectedPhotoAction('trash')}
+      onRestoreSelected={() => void handleSelectedPhotoAction('restore')}
+      onDeleteSelectedPermanently={() => void handleSelectedPhotoAction('delete-permanently')}
+      onRestoreAll={() => void handleAllTrashAction('restore-all')}
+      onDeleteAll={() => void handleAllTrashAction('delete-all')}
+    />
   );
 
   return (
