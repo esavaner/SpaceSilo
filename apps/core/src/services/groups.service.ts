@@ -1,10 +1,11 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
   AddGroupMemberRequest,
   AddGroupMembersRequest,
   CreateGroupRequest,
   GroupResponse,
   RemoveGroupMemberRequest,
+  UpdateGroupRequest,
   UpdateGroupMemberRequest,
 } from '@repo/shared';
 import { PrismaService } from '@/common/prisma.service';
@@ -27,6 +28,46 @@ export class GroupsService {
   };
 
   constructor(private readonly prisma: PrismaService) {}
+
+  private async assertGroupAccess(groupId: string, user: TokenPayload) {
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      select: {
+        id: true,
+        ownerId: true,
+        members: {
+          where: { userId: user.sub },
+          select: { userId: true },
+        },
+      },
+    });
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    const isOwner = group.ownerId === user.sub;
+    const isMember = group.members.length > 0;
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isMember && !isAdmin) {
+      throw new UnauthorizedException('You are not allowed to access this group');
+    }
+
+    return group;
+  }
+
+  private async assertGroupOwner(groupId: string, user: TokenPayload) {
+    const group = await this.assertGroupAccess(groupId, user);
+    const isOwner = group.ownerId === user.sub;
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('Only the group owner can manage this group');
+    }
+
+    return group;
+  }
 
   async findGroupMember(groupId: string, user: TokenPayload) {
     const member = await this.prisma.groupMember.findFirst({
@@ -87,14 +128,18 @@ export class GroupsService {
     });
   }
 
-  async findOne(id: string): Promise<GroupResponse> {
+  async findOne(id: string, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupAccess(id, user);
+
     return await this.prisma.group.findUnique({
       where: { id },
       ...this.options,
     });
   }
 
-  async addMember(id: string, dto: AddGroupMemberRequest): Promise<GroupResponse> {
+  async addMember(id: string, dto: AddGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
     return await this.prisma.group.update({
       where: { id },
       data: {
@@ -106,7 +151,9 @@ export class GroupsService {
     });
   }
 
-  async addMembers(id: string, dto: AddGroupMembersRequest): Promise<GroupResponse> {
+  async addMembers(id: string, dto: AddGroupMembersRequest, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
     return await this.prisma.group.update({
       where: { id },
       data: {
@@ -118,7 +165,9 @@ export class GroupsService {
     });
   }
 
-  async removeMember(id: string, dto: RemoveGroupMemberRequest): Promise<GroupResponse> {
+  async removeMember(id: string, dto: RemoveGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
     return await this.prisma.group.update({
       where: { id },
       data: {
@@ -130,7 +179,19 @@ export class GroupsService {
     });
   }
 
-  async updateMember(id: string, dto: UpdateGroupMemberRequest): Promise<GroupResponse> {
+  async update(id: string, dto: UpdateGroupRequest, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
+    return await this.prisma.group.update({
+      where: { id },
+      data: dto,
+      ...this.options,
+    });
+  }
+
+  async updateMember(id: string, dto: UpdateGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
     return await this.prisma.group.update({
       where: { id },
       data: {
@@ -145,7 +206,9 @@ export class GroupsService {
     });
   }
 
-  async remove(id: string): Promise<GroupResponse> {
+  async remove(id: string, user: TokenPayload): Promise<GroupResponse> {
+    await this.assertGroupOwner(id, user);
+
     return await this.prisma.group.delete({
       where: { id },
       ...this.options,

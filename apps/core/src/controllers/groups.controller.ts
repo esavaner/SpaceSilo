@@ -6,6 +6,7 @@ import {
   CreateGroupRequest,
   GroupResponse,
   RemoveGroupMemberRequest,
+  UpdateGroupRequest,
   UpdateGroupMemberRequest,
 } from '@repo/shared';
 import { type TokenPayload } from '@repo/shared';
@@ -22,23 +23,44 @@ export class GroupsController {
   }
 
   @Patch(':id/add_member')
-  addMember(@Param('id') id: string, @Body() dto: AddGroupMemberRequest): Promise<GroupResponse> {
-    return this.groupsService.addMember(id, dto);
+  addMember(
+    @Param('id') id: string,
+    @Body() dto: AddGroupMemberRequest,
+    @User() user: TokenPayload
+  ): Promise<GroupResponse> {
+    return this.groupsService.addMember(id, dto, user);
   }
 
   @Patch(':id/add_members')
-  addMembers(@Param('id') id: string, @Body() dto: AddGroupMembersRequest): Promise<GroupResponse> {
-    return this.groupsService.addMembers(id, dto);
+  addMembers(
+    @Param('id') id: string,
+    @Body() dto: AddGroupMembersRequest,
+    @User() user: TokenPayload
+  ): Promise<GroupResponse> {
+    return this.groupsService.addMembers(id, dto, user);
   }
 
   @Patch(':id/remove_member')
-  removeMember(@Param('id') id: string, @Body() dto: RemoveGroupMemberRequest): Promise<GroupResponse> {
-    return this.groupsService.removeMember(id, dto);
+  removeMember(
+    @Param('id') id: string,
+    @Body() dto: RemoveGroupMemberRequest,
+    @User() user: TokenPayload
+  ): Promise<GroupResponse> {
+    return this.groupsService.removeMember(id, dto, user);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateGroupRequest, @User() user: TokenPayload): Promise<GroupResponse> {
+    return this.groupsService.update(id, dto, user);
   }
 
   @Patch(':id/update_member')
-  updateMember(@Param('id') id: string, @Body() dto: UpdateGroupMemberRequest): Promise<GroupResponse> {
-    return this.groupsService.updateMember(id, dto);
+  updateMember(
+    @Param('id') id: string,
+    @Body() dto: UpdateGroupMemberRequest,
+    @User() user: TokenPayload
+  ): Promise<GroupResponse> {
+    return this.groupsService.updateMember(id, dto, user);
   }
 
   @Get()
@@ -53,12 +75,12 @@ export class GroupsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<GroupResponse> {
-    return this.groupsService.findOne(id);
+  findOne(@Param('id') id: string, @User() user: TokenPayload): Promise<GroupResponse> {
+    return this.groupsService.findOne(id, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GroupResponse> {
-    return this.groupsService.remove(id);
+  remove(@Param('id') id: string, @User() user: TokenPayload): Promise<GroupResponse> {
+    return this.groupsService.remove(id, user);
   }
 }

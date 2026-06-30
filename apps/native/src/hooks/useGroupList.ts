@@ -3,6 +3,10 @@ import { GroupResponse } from '@repo/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
+export type GroupListItem = GroupResponse & {
+  serverId: string;
+};
+
 export const useGroupList = () => {
   const { servers } = useServerContext();
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
@@ -17,7 +21,8 @@ export const useGroupList = () => {
       const responses = await Promise.all(
         servers.map(async (server) => {
           try {
-            return await server.client.groups.findUserGroups();
+            const groups = await server.client.groups.findUserGroups();
+            return groups.map((group) => ({ ...group, serverId: server.id }));
           } catch {
             return [];
           }
@@ -44,7 +49,7 @@ export const useGroupList = () => {
     setSelectedGroupIds(g.map((group) => group.id));
   };
 
-  const handleSelectGroup = (group: GroupResponse) => {
+  const handleSelectGroup = (group: Pick<GroupListItem, 'id'>) => {
     const isSelected = selectedGroupIds.includes(group.id);
     if (isSelected) {
       setSelectedGroupIds(selectedGroupIds.filter((id) => id !== group.id));

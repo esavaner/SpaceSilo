@@ -16,14 +16,14 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<UserResponse> {
-    return this.usersService.findOne(id);
-  }
-
   @Get('search/:query')
   search(@Param('query') query: string): Promise<UserResponse[]> {
     return this.usersService.search(query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<UserResponse> {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')

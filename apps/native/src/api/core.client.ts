@@ -30,6 +30,7 @@ import {
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
   type UpdateAlbumRequest,
+  type UpdateGroupRequest,
   type UpdateGroupMemberRequest,
   type UserResponse,
 } from '@repo/shared';
@@ -130,12 +131,20 @@ export class CoreApiClient extends ApiClient<UserResponse> {
       this.patch<AddGroupMembersRequest, GroupResponse>(`${endpoints.groups}/${id}/add_members`, dto),
     removeMember: (id: string, dto: RemoveGroupMemberRequest) =>
       this.patch<RemoveGroupMemberRequest, GroupResponse>(`${endpoints.groups}/${id}/remove_member`, dto),
+    update: (id: string, dto: UpdateGroupRequest) =>
+      this.patch<UpdateGroupRequest, GroupResponse>(`${endpoints.groups}/${id}`, dto),
     updateMember: (id: string, dto: UpdateGroupMemberRequest) =>
       this.patch<UpdateGroupMemberRequest, GroupResponse>(`${endpoints.groups}/${id}/update_member`, dto),
     findUserGroups: () => this.get<GroupResponse[]>(endpoints.groups),
     findAll: () => this.get<GroupResponse[]>(`${endpoints.groups}/all`),
     findOne: (id: string) => this.get<GroupResponse>(`${endpoints.groups}/${id}`),
     remove: (id: string) => this.delete<undefined, GroupResponse>(`${endpoints.groups}/${id}`),
+  };
+
+  public readonly users = {
+    findAll: () => this.get<UserResponse[]>(endpoints.users),
+    findOne: (id: string) => this.get<UserResponse>(`${endpoints.users}/${id}`),
+    search: (query: string) => this.get<UserResponse[]>(`${endpoints.users}/search/${encodeURIComponent(query)}`),
   };
 
   public readonly gallery = {

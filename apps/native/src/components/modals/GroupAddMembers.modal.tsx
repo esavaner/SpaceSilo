@@ -19,11 +19,15 @@ import {
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
 import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
+import { type GroupListItem } from '@/hooks/useGroupList';
 
 type AccessLevel = NonNullable<AddGroupMemberRequest['access']>;
 type SearchUserResult = Pick<UserResponse, 'id' | 'email' | 'name'>;
-type GroupMemberWithUser = NonNullable<GroupResponse['members']>[number] & { user: SearchUserResult };
-type GroupWithMembers = Omit<GroupResponse, 'members'> & { members: GroupMemberWithUser[] };
+type ExistingGroupMember = NonNullable<GroupResponse['members']>[number] & { user?: SearchUserResult };
+type GroupWithMembers = Omit<GroupResponse, 'members'> & {
+  members?: ExistingGroupMember[];
+  serverId?: GroupListItem['serverId'];
+};
 type SelectedUser = SearchUserResult & Required<Pick<AddGroupMemberRequest, 'userId'>> & { access: AccessLevel };
 
 const selectOptions = [
@@ -59,7 +63,8 @@ const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (valu
 export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
   const { addMembers, isPending } = useGroupActions();
-  const { query, resetSearch, results, searchUsers } = useUserSearch();
+  const { query, resetSearch, results, searchUsers } = useUserSearch(group.serverId);
+  const existingMembers = group.members ?? [];
 
   const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
 
@@ -77,14 +82,18 @@ export const GroupAddMembersModal = ({ group }: Props) => {
   };
 
   const handleSubmit = () => {
-    addMembers({ id: group.id, members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })) });
+    addMembers({
+      id: group.id,
+      serverId: group.serverId,
+      members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })),
+    });
   };
 
   const options = results
     .filter(
       (user) =>
         !selectedMembers.find((member) => member.id === user.id) &&
-        !group.members.find((member) => member.userId === user.id)
+        !existingMembers.find((member) => member.userId === user.id)
     )
     .map((user) => (
       <Pressable
