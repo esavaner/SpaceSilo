@@ -1,4 +1,4 @@
-import { API_PREFIX_PATH } from '@repo/shared';
+import { API_PREFIX_PATH } from '@repo/shared/constants/api';
 
 export const ServerType = { CORE: 'core', DROPBOX: 'dropbox', GOOGLE_DRIVE: 'googleDrive' } as const;
 
