@@ -5,7 +5,7 @@ import { compareAsc } from 'date-fns';
 import { useState } from 'react';
 import { useGroupList } from './useGroupList';
 import { useServerContext } from '@/providers/ServerProvider';
-import { FileResponse } from '@repo/shared';
+import { type FileResponse } from '@repo/shared';
 
 type Props = {
   onPathChange?: (path: string) => void;

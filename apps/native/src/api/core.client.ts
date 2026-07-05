@@ -70,7 +70,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   }
 
   private async login(email: string, password: string) {
-    const response = await fetch(`${this.baseUrl}${endpoints.login}`, {
+    const response = await fetch(this.buildApiUrl(endpoints.login), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -95,7 +95,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     if (!refreshToken) {
       return false;
     }
-    const response = await fetch(`${this.baseUrl}${endpoints.refresh}`, {
+    const response = await fetch(this.buildApiUrl(endpoints.refresh), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),

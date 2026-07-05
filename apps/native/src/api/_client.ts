@@ -1,3 +1,5 @@
+import { API_PREFIX_PATH } from '@repo/shared';
+
 export const ServerType = { CORE: 'core', DROPBOX: 'dropbox', GOOGLE_DRIVE: 'googleDrive' } as const;
 
 export const ClientStatus = {
@@ -37,6 +39,7 @@ export class ApiClient<TAccount = unknown> {
   protected accessToken?: string;
   protected refreshToken?: string;
   protected saveRefreshToken: (token: string | undefined) => void;
+  protected readonly apiBaseUrl: string;
 
   private readonly defaultConfig: RequestInit = {};
   private initializationPromise?: Promise<boolean>;
@@ -44,8 +47,13 @@ export class ApiClient<TAccount = unknown> {
   constructor({ baseUrl, saveRefreshToken, refreshToken }: ApiClientOptions) {
     this.status = ClientStatus.INITIALIZING;
     this.baseUrl = baseUrl.trim().replace(/\/+$/, '');
+    this.apiBaseUrl = `${this.baseUrl}${API_PREFIX_PATH}`;
     this.saveRefreshToken = saveRefreshToken;
     this.refreshToken = refreshToken;
+  }
+
+  protected buildApiUrl(path: string) {
+    return `${this.apiBaseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
   }
 
   protected startLogin(login: () => Promise<void | boolean>) {
@@ -117,7 +125,7 @@ export class ApiClient<TAccount = unknown> {
 
   protected async rawRequest<Res>(path: string, config: RequestInit = {}, unparsed = false) {
     const doFetch = () =>
-      fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
+      fetch(this.buildApiUrl(path), {
         ...this.defaultConfig,
         ...config,
         headers: this.buildHeaders(config),

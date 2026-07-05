@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
+import { API_PREFIX_PATH } from '@repo/shared/constants/api';
 import { type GalleryImageResponse, type PhotoBulkActionResponse, type Prisma, type TokenPayload } from '@repo/shared';
 import exifr from 'exifr';
 import sharp from 'sharp';
@@ -180,9 +181,9 @@ export class PhotoService {
     return {
       id: photo.id,
       type: 'photo',
-      imagePath: `/gallery/photo/${photo.id}/file`,
-      previewPath: `/gallery/photo/${photo.id}/preview`,
-      thumbnailPath: `/gallery/photo/${photo.id}/thumbnail`,
+      imagePath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/file`,
+      previewPath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/preview`,
+      thumbnailPath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/thumbnail`,
       capturedAt: photo.capturedAt,
       createdAt: photo.createdAt,
     };

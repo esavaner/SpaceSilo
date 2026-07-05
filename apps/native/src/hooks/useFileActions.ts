@@ -5,7 +5,12 @@ import { useFilesContext } from '@/providers/FilesProvider';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CopyFileRequest, CreateFolderRequest, MoveFileRequest, RemoveFileRequest } from '@repo/shared';
+import {
+  type CopyFileRequest,
+  type CreateFolderRequest,
+  type MoveFileRequest,
+  type RemoveFileRequest,
+} from '@repo/shared';
 
 type RequestWithServerId<T> = T & {
   serverId: string;

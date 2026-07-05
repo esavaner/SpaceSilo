@@ -1,4 +1,4 @@
-const REQUIRED_ENV_VARS = ['FILES_PATH', 'STORAGE_PATH', 'APPDATA_PATH'] as const;
+const REQUIRED_ENV_VARS = ['DATABASE_URL', 'FILES_PATH', 'STORAGE_PATH', 'APPDATA_PATH'] as const;
 
 export function validateEnvironment(env: Record<string, unknown>) {
   const missing = REQUIRED_ENV_VARS.filter((key) => {

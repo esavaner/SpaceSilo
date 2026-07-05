@@ -9,6 +9,10 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./constants/api": {
+      "default": "./dist/constants/api.js",
+      "types": "./dist/constants/api.d.ts"
+    },
     "./eslint": "./eslint.shared.mjs",
     "./tailwind": "./tailwind.config.ts"
   },

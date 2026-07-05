@@ -9,4 +9,5 @@ export * from './dto/files.dto';
 export * from './dto/auth.dto';
 export * from './dto/notes.dto';
 export * from './dto/backup.dto';
+export * from './constants/api';
 export * from './types/auth';

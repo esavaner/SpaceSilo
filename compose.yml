@@ -1,22 +1,27 @@
 services:
-  db:
-    image: postgres:16
-    restart: always
-    ports:
-      - "5432:5432"
+  core:
+    build:
+      context: .
+      dockerfile: apps/core/Dockerfile
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: pass123
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      FILES_PATH: /data/files
+      STORAGE_PATH: /data/storage
+      APPDATA_PATH: /data/appdata
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-  adminer:
-    image: adminer:latest
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
+      - ./data/files:/data/files
+      - ./data/storage:/data/storage
+      - ./data/appdata:/data/appdata
+    expose:
+      - "3100"
 
-volumes:
-  postgres_data:
+  web:
+    build:
+      context: .
+      dockerfile: apps/native/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - core
+    ports:
+      - "${WEB_PORT:-80}:80"

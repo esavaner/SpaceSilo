@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
+import { API_PREFIX_PATH } from '@repo/shared/constants/api';
 import {
   AddPhotosToAlbumRequest,
   type AlbumResponse,
@@ -114,7 +115,7 @@ export class AlbumService {
       id: album.id,
       type: 'album',
       name: album.name,
-      thumbnailPath: coverPhotoId ? `/gallery/photo/${coverPhotoId}/thumbnail` : undefined,
+      thumbnailPath: coverPhotoId ? `${API_PREFIX_PATH}/gallery/photo/${coverPhotoId}/thumbnail` : undefined,
       capturedAt: album.capturedAt,
       createdAt: album.createdAt,
       parentAlbumId: album.parentId,

@@ -1,5 +1,5 @@
 import { useServerContext } from '@/providers/ServerProvider';
-import { GroupResponse } from '@repo/shared';
+import { type GroupResponse } from '@repo/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
