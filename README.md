@@ -112,20 +112,23 @@ Create `.env` in the repo root based on [.env.example](.env.example):
 
 ```env
 DATABASE_URL=postgresql://postgres:pass123@db.example.com:5432/spacesilo?schema=public
+FILES_PATH=/absolute/path/to/files
+STORAGE_PATH=/absolute/path/to/storage
+APPDATA_PATH=/absolute/path/to/appdata
 WEB_PORT=80
 ```
 
-`DATABASE_URL` is required.
+`DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` are required.
 
 ### 2. Prepare persistent data folders
 
-The production compose file mounts these host paths:
+The production compose file uses the three path variables from `.env` as host bind-mount sources.
 
-- `./data/files`
-- `./data/storage`
-- `./data/appdata`
+- `FILES_PATH`: host folder mounted into the container at `/data/files`
+- `STORAGE_PATH`: host folder mounted into the container at `/data/storage`
+- `APPDATA_PATH`: host folder mounted into the container at `/data/appdata`
 
-Create them before first boot if you want explicit control over permissions and placement.
+The backend reads the in-container `/data/...` paths, not the original host path strings directly. On Windows, set these to absolute Windows paths like `C:\data\spacesilo\files`; on Linux, use absolute POSIX paths like `/srv/spacesilo/files`.
 
 ### 3. Build and start the production stack
 

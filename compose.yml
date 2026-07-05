@@ -10,9 +10,15 @@ services:
       STORAGE_PATH: /data/storage
       APPDATA_PATH: /data/appdata
     volumes:
-      - ./data/files:/data/files
-      - ./data/storage:/data/storage
-      - ./data/appdata:/data/appdata
+      - type: bind
+        source: ${FILES_PATH:?FILES_PATH is required}
+        target: /data/files
+      - type: bind
+        source: ${STORAGE_PATH:?STORAGE_PATH is required}
+        target: /data/storage
+      - type: bind
+        source: ${APPDATA_PATH:?APPDATA_PATH is required}
+        target: /data/appdata
     expose:
       - "3100"
 
