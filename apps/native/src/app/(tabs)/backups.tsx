@@ -3,6 +3,7 @@ import { Pressable, View, useWindowDimensions } from 'react-native';
 import { type BackupResponse, type CreateBackupRequest, type UpdateBackupRequest } from '@repo/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ServerType } from '@/api/_client';
+import { tApiErr } from '@/i18n/translate';
 import { BaseLayout } from '@/components/base-layout';
 import {
   NativeSelectScrollView,
@@ -18,6 +19,7 @@ import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
 import { toast } from '@/lib/toast';
 import { type ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
+import { useTranslation } from 'react-i18next';
 
 type BackupListItem = BackupResponse & {
   ownerServerId: string;
@@ -66,20 +68,20 @@ const formatBytes = (value?: number) => {
   return `${size >= 10 || unitIndex === 0 ? size.toFixed(0) : size.toFixed(1)} ${units[unitIndex]}`;
 };
 
-const formatDateTime = (value?: string | Date | null) => {
+const formatDateTime = (value: string | Date | null | undefined, language: string, fallback: string) => {
   if (!value) {
-    return 'Never';
+    return fallback;
   }
 
-  return new Date(value).toLocaleString();
+  return new Date(value).toLocaleString(language);
 };
 
-const formatMaybeDateTime = (value?: string | Date | null) => {
+const formatMaybeDateTime = (value: string | Date | null | undefined, language: string, fallback: string) => {
   if (!value) {
-    return 'Not scheduled';
+    return fallback;
   }
 
-  return new Date(value).toLocaleString();
+  return new Date(value).toLocaleString(language);
 };
 
 const compareBackups = (left: BackupListItem, right: BackupListItem) => {
@@ -93,6 +95,7 @@ const compareBackups = (left: BackupListItem, right: BackupListItem) => {
 };
 
 export default function BackupsPage() {
+  const { i18n, t } = useTranslation();
   const { width } = useWindowDimensions();
   const queryClient = useQueryClient();
   const { servers } = useServerContext();
@@ -253,12 +256,12 @@ export default function BackupsPage() {
     }
 
     if (!schedule.trim()) {
-      toast.error('A cron schedule is required');
+      toast.error(t('backups.errors.scheduleRequired'));
       return;
     }
 
     if (!hasMediaSelection) {
-      toast.error('Select at least one media type');
+      toast.error(t('backups.errors.mediaRequired'));
       return;
     }
 
@@ -270,7 +273,7 @@ export default function BackupsPage() {
           resolveOutgoingTargets(currentEditingBackup);
 
         if (!sourceServer || !destinationServer || !sourceConfigId || !destinationConfigId) {
-          throw new Error('Both source and destination servers must be connected to edit this backup');
+          throw new Error(t('backups.errors.connectedForEdit'));
         }
 
         const payload = buildPayload(sourceServer, destinationServer, {
@@ -282,14 +285,14 @@ export default function BackupsPage() {
           destinationServer.client.backups.update(destinationConfigId, payload),
         ]);
 
-        toast.success('Backup updated');
+        toast.success(t('backups.toasts.updateSuccess'));
       } else {
         if (!selectedSourceServer || !selectedDestinationServer) {
-          throw new Error('Select both a source and a destination server');
+          throw new Error(t('backups.errors.serversRequired'));
         }
 
         if (selectedSourceServer.id === selectedDestinationServer.id) {
-          throw new Error('Source and destination servers must be different');
+          throw new Error(t('backups.errors.serversDifferent'));
         }
 
         const pairId = createLocalId();
@@ -313,13 +316,13 @@ export default function BackupsPage() {
           throw error;
         }
 
-        toast.success('Backup created');
+        toast.success(t('backups.toasts.createSuccess'));
       }
 
       resetForm();
       await refreshBackups();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to save backup');
+      toast.error(tApiErr(t, error, 'backups.errors.save'));
     } finally {
       setBusyAction(null);
     }
@@ -336,7 +339,7 @@ export default function BackupsPage() {
       const { sourceServer, destinationServer, sourceConfigId, destinationConfigId } = resolveOutgoingTargets(backup);
 
       if (!sourceServer || !destinationServer || !sourceConfigId || !destinationConfigId) {
-        throw new Error('Both source and destination servers must be connected to enable or disable this backup');
+        throw new Error(t('backups.errors.connectedForToggle'));
       }
 
       const nextActive = !backup.active;
@@ -355,10 +358,10 @@ export default function BackupsPage() {
         destinationServer.client.backups.update(destinationConfigId, payload),
       ]);
 
-      toast.success(nextActive ? 'Backup enabled' : 'Backup disabled');
+      toast.success(nextActive ? t('backups.toasts.enableSuccess') : t('backups.toasts.disableSuccess'));
       await refreshBackups();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to update backup state');
+      toast.error(tApiErr(t, error, 'backups.errors.toggle'));
     } finally {
       setBusyAction(null);
     }
@@ -384,7 +387,7 @@ export default function BackupsPage() {
       }
 
       if (!actions.length) {
-        throw new Error('No connected backup records were available to delete');
+        throw new Error(t('backups.errors.connectedForDelete'));
       }
 
       const results = await Promise.allSettled(actions);
@@ -392,20 +395,20 @@ export default function BackupsPage() {
 
       if (rejected.length === results.length) {
         const [first] = rejected;
-        throw first.status === 'rejected' ? first.reason : new Error('Unable to delete backup');
+        throw first.status === 'rejected' ? first.reason : new Error(t('backups.errors.delete'));
       }
 
       if (editingBackupId === backup.id) {
         resetForm();
       }
 
-      toast.success('Backup deleted');
+      toast.success(t('backups.toasts.deleteSuccess'));
       if (rejected.length > 0) {
-        toast.info('One side of the backup was removed, but the paired record could not be deleted automatically.');
+        toast.info(t('backups.toasts.deletePartial'));
       }
       await refreshBackups();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to delete backup');
+      toast.error(tApiErr(t, error, 'backups.errors.delete'));
     } finally {
       setBusyAction(null);
     }
@@ -422,14 +425,14 @@ export default function BackupsPage() {
       const { sourceServer, sourceConfigId } = resolveOutgoingTargets(backup);
 
       if (!sourceServer || !sourceConfigId) {
-        throw new Error('The source backup record is not currently connected');
+        throw new Error(t('backups.errors.sourceRecordUnavailable'));
       }
 
       await sourceServer.client.backups.trigger(sourceConfigId);
-      toast.success('Backup triggered');
+      toast.success(t('backups.toasts.triggerSuccess'));
       await refreshBackups();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to trigger backup');
+      toast.error(tApiErr(t, error, 'backups.errors.trigger'));
     } finally {
       setBusyAction(null);
     }
@@ -466,28 +469,24 @@ export default function BackupsPage() {
       label: `${server.label} (${server.baseUrl})`,
     }));
 
-  const formHeading = currentEditingBackup ? 'Edit backup' : 'Create backup';
+  const formHeading = currentEditingBackup ? t('backups.form.editTitle') : t('backups.form.createTitle');
   const formDescription = currentEditingBackup
-    ? 'Schedules and media selection are updated on both servers. Use the card toggle to enable or disable a backup.'
-    : 'Create a paired outgoing and incoming backup between two connected admin servers.';
+    ? t('backups.form.editDescription')
+    : t('backups.form.createDescription');
 
   return (
     <BaseLayout>
       <View className="gap-6 pb-8">
         <View className="gap-1">
-          <Text variant="h1">Backups</Text>
-          <Text className="text-muted-foreground">
-            Manage scheduled server-to-server backups. Outgoing records execute on the source server; incoming records
-            store their own destination metadata.
-          </Text>
+          <Text variant="h1">{t('navigation.backups')}</Text>
+          <Text className="text-muted-foreground">{t('backups.subtitle')}</Text>
         </View>
 
         {nonAdminServers.length > 0 ? (
           <View className="rounded-2xl border border-border bg-layer-secondary/30 p-4">
-            <Text className="font-medium">Admin access required</Text>
+            <Text className="font-medium">{t('backups.adminAccessRequired')}</Text>
             <Text className="mt-1 text-sm text-muted-foreground">
-              {nonAdminServers.length} connected server{nonAdminServers.length === 1 ? '' : 's'} were ignored because
-              the current account is not an admin there.
+              {t('backups.adminIgnored', { serverCount: `${nonAdminServers.length} ${t('common.nouns.servers')}` })}
             </Text>
           </View>
         ) : null}
@@ -502,22 +501,20 @@ export default function BackupsPage() {
             {currentEditingBackup ? (
               <Button variant="ghost" onPress={resetForm} disabled={busyAction !== null}>
                 <Icon.Close />
-                <Text>Cancel</Text>
+                <Text>{t('common.actions.cancel')}</Text>
               </Button>
             ) : null}
           </View>
 
           {adminServers.length < 2 && !currentEditingBackup ? (
             <View className="rounded-xl border border-dashed border-border p-4">
-              <Text className="font-medium">Two admin-connected servers are required</Text>
-              <Text className="mt-1 text-sm text-muted-foreground">
-                Connect and sign in as an admin on both the source and destination servers before creating a backup.
-              </Text>
+              <Text className="font-medium">{t('backups.form.needTwoServersTitle')}</Text>
+              <Text className="mt-1 text-sm text-muted-foreground">{t('backups.form.needTwoServersDescription')}</Text>
             </View>
           ) : null}
 
           <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">Source server</Text>
+            <Text className="text-sm text-muted-foreground">{t('backups.form.sourceServer')}</Text>
             {currentEditingBackup ? (
               <View className="rounded-xl border border-border bg-background px-3 py-3">
                 <Text>{selectedSourceServer?.label ?? currentEditingBackup.sourceServerLabel}</Text>
@@ -532,7 +529,7 @@ export default function BackupsPage() {
                 disabled={adminServers.length < 2}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select source server" />
+                  <SelectValue placeholder={t('backups.form.sourceServer')} />
                 </SelectTrigger>
                 <SelectContent>
                   <NativeSelectScrollView>
@@ -546,7 +543,7 @@ export default function BackupsPage() {
           </View>
 
           <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">Destination server</Text>
+            <Text className="text-sm text-muted-foreground">{t('backups.form.destinationServer')}</Text>
             {currentEditingBackup ? (
               <View className="rounded-xl border border-border bg-background px-3 py-3">
                 <Text>{selectedDestinationServer?.label ?? currentEditingBackup.destinationServerLabel}</Text>
@@ -561,7 +558,7 @@ export default function BackupsPage() {
                 disabled={adminServers.length < 2}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select destination server" />
+                  <SelectValue placeholder={t('backups.form.destinationServer')} />
                 </SelectTrigger>
                 <SelectContent>
                   <NativeSelectScrollView>
@@ -575,33 +572,38 @@ export default function BackupsPage() {
           </View>
 
           <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">What should be copied</Text>
+            <Text className="text-sm text-muted-foreground">{t('backups.media.title')}</Text>
             <View className="flex-row flex-wrap gap-3">
               {renderMediaToggle(
-                'Photos',
+                t('backups.media.photos.title'),
                 copyPhotos,
                 () => setCopyPhotos((value) => !value),
-                'Storage files and photo originals'
+                t('backups.media.photos.description')
               )}
-              {renderMediaToggle('Files', copyFiles, () => setCopyFiles((value) => !value), 'Shared file directories')}
               {renderMediaToggle(
-                'Notes',
+                t('backups.media.files.title'),
+                copyFiles,
+                () => setCopyFiles((value) => !value),
+                t('backups.media.files.description')
+              )}
+              {renderMediaToggle(
+                t('backups.media.notes.title'),
                 copyNotes,
                 () => setCopyNotes((value) => !value),
-                'Structured note snapshots'
+                t('backups.media.notes.description')
               )}
             </View>
           </View>
 
           <View className="gap-2">
-            <Text className="text-sm text-muted-foreground">Schedule</Text>
+            <Text className="text-sm text-muted-foreground">{t('backups.form.schedule')}</Text>
             <Input value={schedule} onChangeText={setSchedule} placeholder="0 2 * * *" autoCapitalize="none" />
           </View>
 
           <View className="flex-row flex-wrap justify-end gap-3">
             {currentEditingBackup ? (
               <Button variant="outline" onPress={resetForm} disabled={busyAction !== null}>
-                <Text>Reset</Text>
+                <Text>{t('backups.form.reset')}</Text>
               </Button>
             ) : null}
             <Button
@@ -615,34 +617,27 @@ export default function BackupsPage() {
               }
             >
               <Icon.Check className="text-black" />
-              <Text>{currentEditingBackup ? 'Save changes' : 'Create backup'}</Text>
+              <Text>{currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}</Text>
             </Button>
           </View>
         </View>
 
         <View className="gap-3">
-          <Text variant="h3">Outgoing backups</Text>
-          <Text className="text-sm text-muted-foreground">
-            Manage backups from the source-side record. Destination records stay in sync automatically and surface here
-            when available.
-          </Text>
+          <Text variant="h3">{t('backups.list.title')}</Text>
+          <Text className="text-sm text-muted-foreground">{t('backups.list.description')}</Text>
           {adminServers.length === 0 ? (
             <View className="rounded-2xl border border-dashed border-border p-6">
-              <Text variant="h3">No admin-connected servers</Text>
-              <Text className="text-muted-foreground">
-                Connect at least one core server as an admin to load backups.
-              </Text>
+              <Text variant="h3">{t('backups.list.noServersTitle')}</Text>
+              <Text className="text-muted-foreground">{t('backups.list.noServersDescription')}</Text>
             </View>
           ) : isLoading ? (
             <View className="rounded-2xl border border-border bg-layer-secondary/30 p-6">
-              <Text className="text-muted-foreground">Loading backups...</Text>
+              <Text className="text-muted-foreground">{t('backups.list.loading')}</Text>
             </View>
           ) : outgoingBackups.length === 0 ? (
             <View className="rounded-2xl border border-dashed border-border p-6">
-              <Text variant="h3">No outgoing backups yet</Text>
-              <Text className="text-muted-foreground">
-                Create one above to start scheduling backups from a source server.
-              </Text>
+              <Text variant="h3">{t('backups.list.emptyTitle')}</Text>
+              <Text className="text-muted-foreground">{t('backups.list.emptyDescription')}</Text>
             </View>
           ) : (
             <View className="flex-row flex-wrap items-start gap-3">
@@ -652,7 +647,7 @@ export default function BackupsPage() {
                 const canManage = Boolean(sourceServer && destinationServer && sourceConfigId && destinationConfigId);
                 const displayedStats = incoming?.stats ?? backup.stats;
                 const displayedDestinationPath =
-                  incoming?.destinationPath ?? backup.destinationPath ?? 'Not linked yet';
+                  incoming?.destinationPath ?? backup.destinationPath ?? t('backups.list.notLinkedYet');
 
                 return (
                   <View
@@ -666,19 +661,24 @@ export default function BackupsPage() {
                           <Text className="text-lg font-semibold">{backup.sourceServerLabel}</Text>
                           <View className={`rounded-full px-2.5 py-1 ${backup.active ? 'bg-primary/10' : 'bg-muted'}`}>
                             <Text className="text-xs text-muted-foreground">
-                              {backup.active ? 'Enabled' : 'Disabled'}
+                              {backup.active ? t('common.status.enabled') : t('common.status.disabled')}
                             </Text>
                           </View>
                           {backup.running ? (
                             <View className="rounded-full bg-amber-500/10 px-2.5 py-1">
-                              <Text className="text-xs text-amber-700">Running</Text>
+                              <Text className="text-xs text-amber-700">{t('backups.list.running')}</Text>
                             </View>
                           ) : null}
                         </View>
                         <Text className="text-sm text-muted-foreground">
-                          {backup.sourceServerLabel} to {backup.destinationServerLabel}
+                          {t('backups.list.route', {
+                            source: backup.sourceServerLabel,
+                            destination: backup.destinationServerLabel,
+                          })}
                         </Text>
-                        <Text className="text-xs text-muted-foreground">Stored on {backup.ownerServerLabel}</Text>
+                        <Text className="text-xs text-muted-foreground">
+                          {t('backups.list.storedOn', { server: backup.ownerServerLabel })}
+                        </Text>
                       </View>
 
                       <View className="gap-2">
@@ -712,50 +712,69 @@ export default function BackupsPage() {
                     <View className="mt-4 flex-row flex-wrap gap-2">
                       {backup.copyPhotos ? (
                         <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">Photos</Text>
+                          <Text className="text-xs text-muted-foreground">{t('backups.media.photos.title')}</Text>
                         </View>
                       ) : null}
                       {backup.copyFiles ? (
                         <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">Files</Text>
+                          <Text className="text-xs text-muted-foreground">{t('backups.media.files.title')}</Text>
                         </View>
                       ) : null}
                       {backup.copyNotes ? (
                         <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">Notes</Text>
+                          <Text className="text-xs text-muted-foreground">{t('backups.media.notes.title')}</Text>
                         </View>
                       ) : null}
                     </View>
 
                     <View className="mt-4 gap-2">
-                      <Text className="text-sm text-muted-foreground">Schedule {backup.schedule}</Text>
-                      <Text className="text-sm text-muted-foreground">Runs {backup.runCount} times</Text>
                       <Text className="text-sm text-muted-foreground">
-                        Last execution {formatDateTime(backup.lastRunAt)}
+                        {t('backups.list.schedule', { schedule: backup.schedule })}
                       </Text>
                       <Text className="text-sm text-muted-foreground">
-                        Next execution {formatMaybeDateTime(backup.nextRunAt)}
+                        {t('backups.list.runCount', { runTotal: backup.runCount })}
                       </Text>
-                      <Text className="text-sm text-muted-foreground">Destination path {displayedDestinationPath}</Text>
+                      <Text className="text-sm text-muted-foreground">
+                        {t('backups.list.lastExecution', {
+                          value: formatDateTime(backup.lastRunAt, i18n.language, t('common.status.never')),
+                        })}
+                      </Text>
+                      <Text className="text-sm text-muted-foreground">
+                        {t('backups.list.nextExecution', {
+                          value: formatMaybeDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
+                        })}
+                      </Text>
+                      <Text className="text-sm text-muted-foreground">
+                        {t('backups.list.destinationPath', { path: displayedDestinationPath })}
+                      </Text>
                     </View>
 
                     <View className="mt-4 rounded-xl border border-border bg-background/60 p-3">
-                      <Text className="font-medium">Stored stats</Text>
+                      <Text className="font-medium">{t('backups.stats.title')}</Text>
                       <View className="mt-2 gap-1">
                         <Text className="text-sm text-muted-foreground">
-                          Photos: {displayedStats?.photos.count ?? 0} files,{' '}
-                          {formatBytes(displayedStats?.photos.sizeBytes)}
+                          {t('backups.stats.photos', {
+                            fileCount: `${displayedStats?.photos.count ?? 0} ${t('common.nouns.files')}`,
+                            size: formatBytes(displayedStats?.photos.sizeBytes),
+                          })}
                         </Text>
                         <Text className="text-sm text-muted-foreground">
-                          Files: {displayedStats?.files.count ?? 0} files,{' '}
-                          {formatBytes(displayedStats?.files.sizeBytes)}
+                          {t('backups.stats.files', {
+                            fileCount: `${displayedStats?.files.count ?? 0} ${t('common.nouns.files')}`,
+                            size: formatBytes(displayedStats?.files.sizeBytes),
+                          })}
                         </Text>
                         <Text className="text-sm text-muted-foreground">
-                          Notes: {displayedStats?.notes.count ?? 0} items,{' '}
-                          {formatBytes(displayedStats?.notes.sizeBytes)}
+                          {t('backups.stats.notes', {
+                            itemCount: `${displayedStats?.notes.count ?? 0} ${t('common.nouns.items')}`,
+                            size: formatBytes(displayedStats?.notes.sizeBytes),
+                          })}
                         </Text>
                         <Text className="text-sm text-muted-foreground">
-                          Total: {displayedStats?.totalCount ?? 0} items, {formatBytes(displayedStats?.totalSizeBytes)}
+                          {t('backups.stats.total', {
+                            itemCount: `${displayedStats?.totalCount ?? 0} ${t('common.nouns.items')}`,
+                            size: formatBytes(displayedStats?.totalSizeBytes),
+                          })}
                         </Text>
                       </View>
                     </View>
@@ -763,16 +782,17 @@ export default function BackupsPage() {
                     {!incoming ? (
                       <View className="mt-4 rounded-xl border border-border bg-background/60 p-3">
                         <Text className="text-sm text-muted-foreground">
-                          The destination-side record is not currently loaded. Management actions stay disabled until
-                          both servers respond.
+                          {t('backups.list.destinationRecordMissing')}
                         </Text>
                       </View>
                     ) : null}
 
                     {backup.lastError ? (
                       <View className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3">
-                        <Text className="font-medium text-destructive">Last error</Text>
-                        <Text className="mt-1 text-sm text-destructive">{backup.lastError}</Text>
+                        <Text className="font-medium text-destructive">{t('backups.list.lastError')}</Text>
+                        <Text className="mt-1 text-sm text-destructive">
+                          {backup.lastError.startsWith('api.') ? t(backup.lastError) : backup.lastError}
+                        </Text>
                       </View>
                     ) : null}
 
@@ -784,7 +804,7 @@ export default function BackupsPage() {
                         disabled={!sourceConfigId || !sourceServer || busyAction !== null}
                         className="flex-1"
                       >
-                        <Text>Trigger now</Text>
+                        <Text>{t('backups.list.triggerNow')}</Text>
                       </Button>
                     </View>
                   </View>

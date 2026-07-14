@@ -59,15 +59,16 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 4. Backend database setup
    - If you need a local database, run `docker compose up -d`
    - Validated: starts PostgreSQL on `localhost:5432` and Adminer on `localhost:8080`
-  - Use `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/db?schema=public`
-  - Preferred early-dev reset/bootstrap path: run `pnpm.cmd reset`
-  - Validated behavior: resets the database from the single initial migration, rebuilds `@repo/shared`, and runs the shared Prisma dev seed for one default user:
-    - `email: t@t.com`
-    - `password: 123456`
-    - `groupId: testcom`
-  - This root command runs `turbo run reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
-  - If you only need schema sync without a reset, `pnpm.cmd --filter @repo/shared db:push` still works
-  - After DB work, run `docker compose down` if you want to stop local services
+
+- Use `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/db?schema=public`
+- Preferred early-dev reset/bootstrap path: run `pnpm.cmd reset`
+- Validated behavior: resets the database from the single initial migration, rebuilds `@repo/shared`, and runs the shared Prisma dev seed for one default user:
+  - `email: t@t.com`
+  - `password: 123456`
+  - `groupId: testcom`
+- This root command runs `turbo run reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
+- If you only need schema sync without a reset, `pnpm.cmd --filter @repo/shared db:push` still works
+- After DB work, run `docker compose down` if you want to stop local services
 
 5. Run docs app
    - Run `pnpm.cmd --filter @repo/docs dev`
@@ -109,5 +110,15 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 - For docs-only changes, run `pnpm.cmd --filter @repo/docs build` and `pnpm.cmd --filter @repo/docs lint`
 - For Prisma schema changes during early development, prefer folding them into `apps/shared/src/prisma/migrations/20260127001311_init` instead of adding new migrations unless the user explicitly wants migration history preserved
 - For Prisma schema changes, run `pnpm.cmd reset` when you need a clean local reset with seed data, or `docker compose up -d`, set `DATABASE_URL`, run `pnpm.cmd --filter @repo/shared db:push`, then rebuild shared for incremental sync
+
+## Localization Guidance
+
+- Treat every user-facing string as localizable. Do not add new hardcoded UI labels, button text, empty states, toasts, alerts, validation messages, or backend-exposed response messages directly in code.
+- Add new native-app translation keys to `apps/native/src/i18n/locales/en.json` at minimum. English-only entries are acceptable for now, but the string must still live in the locale JSON rather than inline in code.
+- When other locale files already cover the same feature area, keep the key structure aligned even if only the English text is added immediately.
+- For simple count labels, prefer direct composition like `${count} ${t('files')}` over i18next `count`-option pluralization.
+- Avoid introducing `t('some.key', { count })` for cases where the count is only leading or trailing display text. Keep the translated noun or suffix in JSON, but compose the visible count in code.
+- Full translated sentences can still use named interpolation params when needed, but prefer non-`count` placeholder names like `photoCount`, `fileCount`, or `serverCount`.
+- If a backend message needs to reach the frontend, send a stable message key plus params and let the frontend translate it.
 
 Prefer these instructions over fresh exploration. Search only when the task needs code-level details that are not already mapped here.

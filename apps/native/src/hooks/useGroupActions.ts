@@ -4,6 +4,7 @@ import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   type AddGroupMemberRequest,
   type AddGroupMembersRequest,
@@ -13,6 +14,7 @@ import {
   type UpdateGroupRequest,
   type UpdateGroupMemberRequest,
 } from '@repo/shared';
+import { tApiErr } from '@/i18n/translate';
 
 type GroupMutationBase = {
   id: string;
@@ -26,8 +28,8 @@ type RemoveMemberMutation = GroupMutationBase & RemoveGroupMemberRequest;
 type UpdateGroupMutation = GroupMutationBase & UpdateGroupRequest;
 type UpdateMemberMutation = GroupMutationBase & UpdateGroupMemberRequest;
 
-// @TODO add translations
 export const useGroupActions = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { closeModal } = useUi();
   const { allServers, servers } = useServerContext();
@@ -35,7 +37,7 @@ export const useGroupActions = () => {
   const getServerClient = (serverId: string) => {
     const server = allServers.find((item) => item.id === serverId);
     if (!server) {
-      throw new Error(`Server connection ${serverId} not found`);
+      throw new Error(t('common.messages.serverConnectionErr.NotFound', { serverId }));
     }
     return server.client;
   };
@@ -43,7 +45,7 @@ export const useGroupActions = () => {
   const getDefaultServerClient = () => {
     const server = servers[0] ?? allServers[0];
     if (!server) {
-      throw new Error('No connected server available');
+      throw new Error(t('common.messages.noActiveServers'));
     }
     return server.client;
   };
@@ -62,7 +64,7 @@ export const useGroupActions = () => {
       }
     }
 
-    throw new Error(`Group ${id} not found on any connected server`);
+    throw new Error(t('api.groups.Err.NotFound'));
   };
 
   const success = (message: string) => {
@@ -78,9 +80,9 @@ export const useGroupActions = () => {
       const client = await resolveGroupClient({ id, serverId });
       return client.groups.addMember(id, dto);
     },
-    onSuccess: () => success('Member added'),
-    onError: () => {
-      toast.error('Error adding member');
+    onSuccess: () => success(t('groups.toasts.addMemberSuccess')),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'groups.errors.addMember'));
     },
   });
 
@@ -90,9 +92,9 @@ export const useGroupActions = () => {
       const client = await resolveGroupClient({ id, serverId });
       return client.groups.addMembers(id, dto);
     },
-    onSuccess: () => success('Members added'),
-    onError: () => {
-      toast.error('Error adding members');
+    onSuccess: () => success(t('groups.toasts.addMembersSuccess')),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'groups.errors.addMembers'));
     },
   });
 
@@ -102,9 +104,10 @@ export const useGroupActions = () => {
       const client = getDefaultServerClient();
       return client.groups.create(data);
     },
-    onSuccess: (_, { name }) => success(`Group ${name} created`),
-    onError: (_, { name }) => {
-      toast.error(`Error creating group: ${name}`);
+    onSuccess: (_, { name }) => success(t('groups.toasts.createSuccess', { name })),
+    onError: (error, { name }) => {
+      const message = tApiErr(t, error);
+      toast.error(message === t('common.messages.genericError') ? t('groups.errors.create', { name }) : message);
     },
   });
 
@@ -114,9 +117,9 @@ export const useGroupActions = () => {
       const client = await resolveGroupClient({ id, serverId });
       return client.groups.remove(id);
     },
-    onSuccess: () => success('Group removed'),
-    onError: () => {
-      toast.error('Error removing group');
+    onSuccess: () => success(t('groups.toasts.removeSuccess')),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'groups.errors.remove'));
     },
   });
 
@@ -126,9 +129,9 @@ export const useGroupActions = () => {
       const client = await resolveGroupClient({ id, serverId });
       return client.groups.update(id, dto);
     },
-    onSuccess: () => success('Group updated'),
-    onError: () => {
-      toast.error('Error updating group');
+    onSuccess: () => success(t('groups.toasts.updateSuccess')),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'groups.errors.update'));
     },
   });
 
@@ -139,9 +142,9 @@ export const useGroupActions = () => {
         const client = await resolveGroupClient({ id, serverId });
         return client.groups.removeMember(id, dto);
       },
-      onSuccess: () => success('Member removed'),
-      onError: () => {
-        toast.error('Error removing member');
+      onSuccess: () => success(t('groups.toasts.removeMemberSuccess')),
+      onError: (error) => {
+        toast.error(tApiErr(t, error, 'groups.errors.removeMember'));
       },
     }
   );
@@ -153,9 +156,9 @@ export const useGroupActions = () => {
         const client = await resolveGroupClient({ id, serverId });
         return client.groups.updateMember(id, dto);
       },
-      onSuccess: () => success('Member updated'),
-      onError: () => {
-        toast.error('Error updating member');
+      onSuccess: () => success(t('groups.toasts.updateMemberSuccess')),
+      onError: (error) => {
+        toast.error(tApiErr(t, error, 'groups.errors.updateMember'));
       },
     }
   );

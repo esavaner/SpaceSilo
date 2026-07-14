@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, StreamableFile } from '@nestjs/common';
 import {
   CopyFileRequest,
   CreateFileRequest,
@@ -18,6 +18,7 @@ import * as crypto from 'crypto';
 // import mime from 'mime';
 import { type TokenPayload } from '@repo/shared';
 import { GroupsService } from './groups.service';
+import { Err } from '@/common/api-message';
 
 @Injectable()
 export class FilesService {
@@ -26,7 +27,7 @@ export class FilesService {
   private groupCheck(groupId: string, user: TokenPayload) {
     const groupMember = this.groupService.findGroupMember(groupId, user);
     if (!groupMember) {
-      throw new NotFoundException('Group not found');
+      throw Err.NotFound('api.files.groupErr.NotFound');
     }
 
     return groupMember;
@@ -56,7 +57,7 @@ export class FilesService {
       fs.mkdirSync(fileDir, { recursive: true });
     }
     fs.writeFileSync(filePath, file.buffer);
-    return { message: 'File created successfully', filePath };
+    return { message: 'api.files.createFileSuccess', filePath };
   }
 
   async createFolder(dto: CreateFolderRequest, user: TokenPayload): Promise<FileActionResponse> {
@@ -65,7 +66,7 @@ export class FilesService {
     if (!fs.existsSync(folderDir)) {
       fs.mkdirSync(folderDir, { recursive: true });
     }
-    return { message: 'Folder created successfully', folderDir };
+    return { message: 'api.files.createFolderSuccess', folderDir };
   }
 
   async findAll(dto: FindAllFilesRequest, user: TokenPayload): Promise<FileResponse[]> {
@@ -105,7 +106,7 @@ export class FilesService {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
     return this.toFileResponse(filePath, dto.groupId, dto.fileUri);
@@ -115,7 +116,7 @@ export class FilesService {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
     try {
@@ -133,7 +134,7 @@ export class FilesService {
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
     if (filePath === newFilePath || fs.existsSync(newFilePath)) {
@@ -142,7 +143,7 @@ export class FilesService {
 
     try {
       fsa.moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
-      return { message: `File ${filePath} successfully moved to ${newFilePath}` };
+      return { message: 'api.files.moveSuccess' };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -152,12 +153,12 @@ export class FilesService {
     this.groupCheck(dto.groupId, user);
     const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
     try {
       fsa.removeSync(filePath);
-      return { message: `File ${filePath} successfully removed` };
+      return { message: 'api.files.removeSuccess' };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -169,7 +170,7 @@ export class FilesService {
     let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
     if (filePath === newFilePath || fs.existsSync(newFilePath)) {
@@ -178,7 +179,7 @@ export class FilesService {
 
     try {
       fsa.copySync(filePath, newFilePath);
-      return { message: `File ${filePath} successfully copied to ${newFilePath}` };
+      return { message: 'api.files.copySuccess' };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

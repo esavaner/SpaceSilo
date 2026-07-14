@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import { Injectable, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
 import { API_PREFIX_PATH } from '@repo/shared/constants/api';
@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Err } from '@/common/api-message';
 
 const THUMBNAIL_HEIGHT = 300;
 const THUMBNAIL_JPEG_QUALITY = 82;
@@ -360,7 +361,7 @@ export class PhotoService {
     });
 
     if (photos.length !== normalizedIds.length) {
-      throw new BadRequestException('One or more photos do not exist');
+      throw Err.BadRequest('api.photos.photosMissing');
     }
 
     return normalizedIds;
@@ -411,7 +412,7 @@ export class PhotoService {
 
   async create(file: UploadedImageFile, user: TokenPayload) {
     if (!file?.buffer) {
-      throw new BadRequestException('File is required');
+      throw Err.BadRequest('api.photos.fileRequired');
     }
 
     const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
@@ -420,7 +421,7 @@ export class PhotoService {
       select: { id: true },
     });
     if (existingPhoto) {
-      throw new ConflictException('Photo already exists');
+      throw Err.Conflict('api.photos.duplicate');
     }
     const { storagePath } = this.ensureStoragePaths();
     const photoPath = path.join(storagePath, file.originalname);
@@ -457,7 +458,7 @@ export class PhotoService {
   async findOne(id: string, user: TokenPayload): Promise<GalleryImageResponse> {
     const photo = await this.findOwnedPhoto(id, user);
     if (!photo) {
-      throw new NotFoundException('Photo not found');
+      throw Err.NotFound('api.photos.Err.NotFound');
     }
 
     const capturedAt = await this.ensureCapturedAt(photo);
@@ -476,7 +477,7 @@ export class PhotoService {
   async remove(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
     if (!photo) {
-      throw new NotFoundException('Photo not found');
+      throw Err.NotFound('api.photos.Err.NotFound');
     }
 
     if (!photo.deletedAt) {
@@ -598,7 +599,7 @@ export class PhotoService {
   async findImage(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
     if (!photo || !photo.path || !fs.existsSync(photo.path)) {
-      throw new NotFoundException('Photo not found');
+      throw Err.NotFound('api.photos.Err.NotFound');
     }
 
     return this.createStreamableFile(photo.path);
@@ -607,7 +608,7 @@ export class PhotoService {
   async findPreview(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
     if (!photo || !photo.path || !fs.existsSync(photo.path)) {
-      throw new NotFoundException('Photo not found');
+      throw Err.NotFound('api.photos.Err.NotFound');
     }
 
     const previewPath = await this.ensurePreviewAsset(photo.path);
@@ -617,7 +618,7 @@ export class PhotoService {
   async findThumbnail(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
     if (!photo || !photo.thumbnailPath || !fs.existsSync(photo.thumbnailPath)) {
-      throw new NotFoundException('Thumbnail not found');
+      throw Err.NotFound('api.photos.thumbnailErr.NotFound');
     }
 
     return this.createStreamableFile(photo.thumbnailPath);

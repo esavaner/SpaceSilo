@@ -21,6 +21,7 @@ import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { cn } from '@/utils/cn';
 import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
+import { useTranslation } from 'react-i18next';
 
 type AccessLevel = NonNullable<AddGroupMemberRequest['access']>;
 type GroupMemberWithUser = NonNullable<GroupResponse['members']>[number] & {
@@ -31,12 +32,6 @@ type GroupDetail = Omit<GroupResponse, 'members'> & {
   serverId: string;
   members: GroupMemberWithUser[];
 };
-
-const accessOptions = [
-  { label: 'Admin', value: 'admin' },
-  { label: 'Edit', value: 'edit' },
-  { label: 'Read', value: 'read' },
-] as const satisfies { label: string; value: AccessLevel }[];
 
 const SummaryChip = ({ label, accent = false }: { label: string; accent?: boolean }) => (
   <View
@@ -49,27 +44,39 @@ const SummaryChip = ({ label, accent = false }: { label: string; accent?: boolea
   </View>
 );
 
-const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger>
-      <Button variant="outline" size="sm">
-        <Text>{accessOptions.find((option) => option.value === value)?.label ?? 'Read'}</Text>
-        <Icon.ChevronDown />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent>
-      <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
-        {accessOptions.map((option) => (
-          <DropdownMenuRadioItem key={option.value} value={option.value}>
-            <Text>{option.label}</Text>
-          </DropdownMenuRadioItem>
-        ))}
-      </DropdownMenuRadioGroup>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => {
+  const { t } = useTranslation();
+  const accessOptions = [
+    { label: t('groups.membersModal.levels.admin'), value: 'admin' },
+    { label: t('groups.membersModal.levels.edit'), value: 'edit' },
+    { label: t('groups.membersModal.levels.read'), value: 'read' },
+  ] as const satisfies { label: string; value: AccessLevel }[];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="outline" size="sm">
+          <Text>
+            {accessOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read')}
+          </Text>
+          <Icon.ChevronDown />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
+          {accessOptions.map((option) => (
+            <DropdownMenuRadioItem key={option.value} value={option.value}>
+              <Text>{option.label}</Text>
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export default function SingleGroupPage() {
+  const { t } = useTranslation();
   const { groupId, serverId } = useLocalSearchParams<{ groupId: string; serverId?: string }>();
   const { allServers } = useServerContext();
   const { openModal } = useUi();
@@ -131,7 +138,7 @@ export default function SingleGroupPage() {
   if (isLoading) {
     return (
       <BaseLayout>
-        <Text className="text-muted-foreground">Loading group...</Text>
+        <Text className="text-muted-foreground">{t('groups.details.loading')}</Text>
       </BaseLayout>
     );
   }
@@ -140,10 +147,10 @@ export default function SingleGroupPage() {
     return (
       <BaseLayout>
         <View className="gap-4">
-          <Text variant="h2">Group not found</Text>
+          <Text variant="h2">{t('groups.details.Err.NotFound')}</Text>
           <Button variant="outline" onPress={() => router.replace('/groups')}>
             <Icon.NavigateNext className="rotate-180" />
-            <Text>Back to groups</Text>
+            <Text>{t('groups.details.backToGroups')}</Text>
           </Button>
         </View>
       </BaseLayout>
@@ -155,7 +162,7 @@ export default function SingleGroupPage() {
       <View className="gap-6 pb-8">
         <Button variant="ghost" className="self-start px-0" onPress={() => router.replace('/groups')}>
           <Icon.NavigateNext className="rotate-180" />
-          <Text>Back to groups</Text>
+          <Text>{t('groups.details.backToGroups')}</Text>
         </Button>
 
         <View className="gap-4 rounded-2xl border border-border bg-layer-secondary/40 p-5">
@@ -165,8 +172,12 @@ export default function SingleGroupPage() {
             <View className="flex-1 gap-2">
               <View className="flex-row flex-wrap items-center gap-2">
                 <Text variant="h2">{group.name}</Text>
-                {isOwner ? <SummaryChip label="Owned by you" accent /> : null}
-                {group.personal ? <SummaryChip label="Personal" /> : <SummaryChip label="Shared" />}
+                {isOwner ? <SummaryChip label={t('groups.details.ownedByYou')} accent /> : null}
+                {group.personal ? (
+                  <SummaryChip label={t('groups.filters.personal')} />
+                ) : (
+                  <SummaryChip label={t('groups.details.shared')} />
+                )}
               </View>
 
               <Text className="text-muted-foreground">#{group.id}</Text>
@@ -174,20 +185,16 @@ export default function SingleGroupPage() {
           </View>
 
           <View className="flex-row flex-wrap gap-2">
-            <SummaryChip label={`${group.members.length} member${group.members.length === 1 ? '' : 's'}`} />
-            <SummaryChip
-              label={`${group.albumIds?.length ?? 0} album${(group.albumIds?.length ?? 0) === 1 ? '' : 's'}`}
-            />
-            <SummaryChip
-              label={`${group.photoIds?.length ?? 0} photo${(group.photoIds?.length ?? 0) === 1 ? '' : 's'}`}
-            />
+            <SummaryChip label={`${group.members.length} ${t('common.nouns.members')}`} />
+            <SummaryChip label={`${group.albumIds?.length ?? 0} ${t('common.nouns.albums')}`} />
+            <SummaryChip label={`${group.photoIds?.length ?? 0} ${t('common.nouns.photos')}`} />
             <View className="rounded-full border border-border bg-background px-3 py-1.5">
               <View className="flex-row items-center gap-2">
                 <View
                   className="h-3 w-3 rounded-full border border-border"
                   style={{ backgroundColor: group.color ?? 'transparent' }}
                 />
-                <Text className="text-sm text-muted-foreground">Color</Text>
+                <Text className="text-sm text-muted-foreground">{t('groups.details.color')}</Text>
               </View>
             </View>
           </View>
@@ -196,11 +203,11 @@ export default function SingleGroupPage() {
             <View className="flex-row flex-wrap gap-2">
               <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
                 <Icon.Add />
-                <Text>Add members</Text>
+                <Text>{t('groups.membersModal.title')}</Text>
               </Button>
               <Button variant="outline" onPress={() => openModal(<GroupEditModal group={group} />)}>
                 <Icon.Edit />
-                <Text>Edit group</Text>
+                <Text>{t('groups.details.editGroup')}</Text>
               </Button>
               <Button
                 variant="destructive"
@@ -209,7 +216,7 @@ export default function SingleGroupPage() {
                 }
               >
                 <Icon.Trash />
-                <Text>Remove group</Text>
+                <Text>{t('groups.details.removeGroup')}</Text>
               </Button>
             </View>
           ) : null}
@@ -217,13 +224,13 @@ export default function SingleGroupPage() {
 
         <View className="gap-3">
           <View className="flex-row items-center justify-between gap-3">
-            <Text variant="h3">Members</Text>
+            <Text variant="h3">{t('groups.details.members')}</Text>
             <Text className="text-muted-foreground">{group.members.length}</Text>
           </View>
 
           {group.members.length === 0 ? (
             <View className="rounded-xl border border-dashed border-border p-6">
-              <Text className="text-center text-muted-foreground">No additional members yet</Text>
+              <Text className="text-center text-muted-foreground">{t('groups.details.emptyMembers')}</Text>
             </View>
           ) : (
             <View className="gap-3">
@@ -240,7 +247,7 @@ export default function SingleGroupPage() {
                     <View className="flex-1 gap-1">
                       <View className="flex-row flex-wrap items-center gap-2">
                         <Text className="text-base font-medium">{member.user.name ?? member.user.email}</Text>
-                        {memberIsOwner ? <SummaryChip label="Owner" accent /> : null}
+                        {memberIsOwner ? <SummaryChip label={t('groups.details.owner')} accent /> : null}
                       </View>
                       <Text className="text-sm text-muted-foreground">{member.user.email}</Text>
                     </View>
@@ -258,7 +265,10 @@ export default function SingleGroupPage() {
                         </Button>
                       </View>
                     ) : (
-                      <SummaryChip label={memberIsOwner ? 'Full access' : member.access} accent={memberIsOwner} />
+                      <SummaryChip
+                        label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
+                        accent={memberIsOwner}
+                      />
                     )}
                   </Pressable>
                 );

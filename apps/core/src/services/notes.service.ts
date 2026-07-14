@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   GroupAccessLevel,
   type CreateNoteRequest,
@@ -14,6 +8,7 @@ import {
   type UpdateNoteRequest,
 } from '@repo/shared';
 import { PrismaService } from '@/common/prisma.service';
+import { Err } from '@/common/api-message';
 
 const NOTE_RESPONSE_SELECT = {
   id: true,
@@ -52,7 +47,7 @@ export class NotesService {
   private normalizeContent(content?: string | null) {
     const normalized = content?.trim();
     if (!normalized) {
-      throw new BadRequestException('Note content is required');
+      throw Err.BadRequest('api.notes.contentRequired');
     }
 
     return normalized;
@@ -72,7 +67,7 @@ export class NotesService {
     });
 
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw Err.NotFound('api.notes.groupErr.NotFound');
     }
 
     const membership = group.members[0] ?? null;
@@ -92,21 +87,11 @@ export class NotesService {
     };
   }
 
-  private async ensureReadableGroup(groupId: string, user: TokenPayload) {
-    const access = await this.getGroupAccess(groupId, user);
-
-    if (!access.canRead) {
-      throw new UnauthorizedException('You are not allowed to access this group');
-    }
-
-    return access;
-  }
-
   private async ensureWritableGroup(groupId: string, user: TokenPayload) {
     const access = await this.getGroupAccess(groupId, user);
 
     if (!access.canWrite) {
-      throw new ForbiddenException('You are not allowed to modify notes in this group');
+      throw Err.Forbidden('api.notes.groupWriteDenied');
     }
 
     return access;
@@ -130,7 +115,7 @@ export class NotesService {
     });
 
     if (!note) {
-      throw new NotFoundException('Note not found');
+      throw Err.NotFound('api.notes.Err.NotFound');
     }
 
     const isAdmin = user.role === 'admin';
@@ -139,7 +124,7 @@ export class NotesService {
     const canRead = isAdmin || isGroupOwner || Boolean(membership);
 
     if (!canRead) {
-      throw new UnauthorizedException('You are not allowed to access this note');
+      throw Err.Unauthorized('api.notes.noteAccessDenied');
     }
 
     return note;
@@ -158,7 +143,7 @@ export class NotesService {
       memberAccess === GroupAccessLevel.edit;
 
     if (!canWrite) {
-      throw new ForbiddenException('You are not allowed to modify this note');
+      throw Err.Forbidden('api.notes.noteWriteDenied');
     }
   }
 

@@ -10,11 +10,13 @@ import {
 import { Text } from '@/components/general/text';
 import { GalleryAddToAlbumModal, GalleryCreateAlbumModal } from '@/components/modals/GalleryAlbum.modal';
 import { toast } from '@/lib/toast';
+import { resolveAppLanguage } from '@/i18n';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
+import { enUS, pl } from 'date-fns/locale';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, NativeScrollEvent, NativeSyntheticEvent, Platform, useWindowDimensions } from 'react-native';
@@ -78,90 +80,8 @@ type LabelledOption<T extends string> = {
   value: T;
 };
 
-const groupByOptions: LabelledOption<GroupBy>[] = [
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' },
-  { label: 'None', value: 'none' },
-];
-
 const GALLERY_BATCH_ROWS = 10;
 const LOAD_MORE_THRESHOLD_PX = 720;
-
-const galleryViewModeOptions: LabelledOption<GalleryViewMode>[] = [
-  { label: 'Photos only', value: 'photos-only' },
-  { label: 'Photos + albums', value: 'photos-and-albums' },
-  { label: 'Albums only', value: 'albums-only' },
-  { label: 'Photos not in albums only', value: 'photos-not-in-albums-only' },
-];
-
-const selectedPhotoActionMessages: Record<
-  SelectedPhotoAction,
-  {
-    success: (count: number) => string;
-    failure: (failedCount: number) => string;
-  }
-> = {
-  trash: {
-    success: (count) => `Moved ${formatPhotoCount(count)} to trash`,
-    failure: (failedCount) => `Failed to move photos to trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
-  },
-  restore: {
-    success: (count) => `Restored ${formatPhotoCount(count)}`,
-    failure: (failedCount) => `Failed to restore photos on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
-  },
-  'delete-permanently': {
-    success: (count) => `Deleted ${formatPhotoCount(count)} permanently`,
-    failure: (failedCount) =>
-      `Failed to delete photos permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
-  },
-};
-
-const allTrashActionMessages: Record<
-  AllTrashAction,
-  {
-    success: (count: number) => string;
-    empty: string;
-    failure: (failedCount: number) => string;
-  }
-> = {
-  'restore-all': {
-    success: (count) => `Restored ${formatPhotoCount(count)}`,
-    empty: 'Trash is already empty',
-    failure: (failedCount) => `Failed to restore trash on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
-  },
-  'delete-all': {
-    success: (count) => `Deleted ${formatPhotoCount(count)} permanently`,
-    empty: 'There is nothing left to delete',
-    failure: (failedCount) =>
-      `Failed to delete trash permanently on ${failedCount} server${failedCount === 1 ? '' : 's'}`,
-  },
-};
-
-const groupMetadataBy: Record<Exclude<GroupBy, 'none'>, (date: Date) => GalleryGroupMeta> = {
-  day: (date) => ({
-    key: format(date, 'yyyy-MM-dd'),
-    label: format(date, 'EEEE, d MMMM yyyy'),
-  }),
-  week: (date) => {
-    const start = startOfWeek(date, { weekStartsOn: 1 });
-    const end = endOfWeek(date, { weekStartsOn: 1 });
-
-    return {
-      key: format(start, "yyyy-'W'II"),
-      label: `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`,
-    };
-  },
-  month: (date) => ({
-    key: format(date, 'yyyy-MM'),
-    label: format(date, 'MMMM yyyy'),
-  }),
-  year: (date) => ({
-    key: format(date, 'yyyy'),
-    label: format(date, 'yyyy'),
-  }),
-};
 
 const selectedPhotoActionRequests: Record<
   SelectedPhotoAction,
@@ -180,27 +100,9 @@ const allTrashActionRequests: Record<
   'delete-all': (server) => server.client.photo.removeAllTrashed(),
 };
 
-const selectedPhotoActionConfirmations: Partial<
-  Record<SelectedPhotoAction, { title: string; message: (count: number) => string }>
-> = {
-  'delete-permanently': {
-    title: 'Delete permanently',
-    message: (count) => `Permanently delete ${formatPhotoCount(count)}? This cannot be undone.`,
-  },
-};
-
-const allTrashActionConfirmations: Partial<Record<AllTrashAction, { title: string; message: string }>> = {
-  'delete-all': {
-    title: 'Delete everything permanently',
-    message: 'Permanently delete every trashed photo across connected servers? This cannot be undone.',
-  },
-};
-
 const sortGalleryItems = (left: GalleryItem, right: GalleryItem) =>
   +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt) ||
   right.id.localeCompare(left.id);
-
-const formatPhotoCount = (count: number) => `${count} photo${count === 1 ? '' : 's'}`;
 
 const hydrateGalleryItem = (
   item: GalleryImageResponse,
@@ -336,9 +238,11 @@ const loadGalleryBatch = async ({
   };
 };
 
-const getGroupMetadata = (date: Date, groupBy: Exclude<GroupBy, 'none'>) => groupMetadataBy[groupBy](date);
-
-const groupGalleryItems = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup[] => {
+const groupGalleryItems = (
+  items: GalleryItem[],
+  groupBy: GroupBy,
+  getGroupMetadata: (date: Date, groupBy: Exclude<GroupBy, 'none'>) => GalleryGroupMeta
+): GalleryGroup[] => {
   if (groupBy === 'none') {
     return [{ key: 'all', label: '', items }];
   }
@@ -366,7 +270,7 @@ const groupGalleryItems = (items: GalleryItem[], groupBy: GroupBy): GalleryGroup
 
 export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode }) {
   const isTrashMode = mode === 'trash';
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { servers } = useServerContext();
   const { openModal } = useUi();
   const queryClient = useQueryClient();
@@ -381,6 +285,104 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
   const currentAlbum = isTrashMode || albumPath.length === 0 ? null : albumPath[albumPath.length - 1];
+  const appLanguage = resolveAppLanguage(i18n.language);
+  const dateLocale = appLanguage === 'pl' ? pl : enUS;
+  const formatPhotoCount = (count: number) => `${count} ${t('common.nouns.photos')}`;
+  const groupByOptions: LabelledOption<GroupBy>[] = [
+    { label: t('gallery.groupBy.day'), value: 'day' },
+    { label: t('gallery.groupBy.week'), value: 'week' },
+    { label: t('gallery.groupBy.month'), value: 'month' },
+    { label: t('gallery.groupBy.year'), value: 'year' },
+    { label: t('gallery.groupBy.none'), value: 'none' },
+  ];
+  const galleryViewModeOptions: LabelledOption<GalleryViewMode>[] = [
+    { label: t('gallery.viewModes.photosOnly'), value: 'photos-only' },
+    { label: t('gallery.viewModes.photosAndAlbums'), value: 'photos-and-albums' },
+    { label: t('gallery.viewModes.albumsOnly'), value: 'albums-only' },
+    { label: t('gallery.viewModes.photosNotInAlbumsOnly'), value: 'photos-not-in-albums-only' },
+  ];
+  const groupMetadataBy: Record<Exclude<GroupBy, 'none'>, (date: Date) => GalleryGroupMeta> = {
+    day: (date) => ({
+      key: format(date, 'yyyy-MM-dd'),
+      label: format(date, 'EEEE, d MMMM yyyy', { locale: dateLocale }),
+    }),
+    week: (date) => {
+      const start = startOfWeek(date, { weekStartsOn: 1 });
+      const end = endOfWeek(date, { weekStartsOn: 1 });
+
+      return {
+        key: format(start, "yyyy-'W'II"),
+        label: `${format(start, 'd MMM', { locale: dateLocale })} - ${format(end, 'd MMM yyyy', { locale: dateLocale })}`,
+      };
+    },
+    month: (date) => ({
+      key: format(date, 'yyyy-MM'),
+      label: format(date, 'MMMM yyyy', { locale: dateLocale }),
+    }),
+    year: (date) => ({
+      key: format(date, 'yyyy'),
+      label: format(date, 'yyyy', { locale: dateLocale }),
+    }),
+  };
+  const getGroupMetadata = (date: Date, nextGroupBy: Exclude<GroupBy, 'none'>) => groupMetadataBy[nextGroupBy](date);
+  const selectedPhotoActionMessages: Record<
+    SelectedPhotoAction,
+    {
+      success: (count: number) => string;
+      failure: (failedCount: number) => string;
+    }
+  > = {
+    trash: {
+      success: (count) => t('gallery.toasts.trashSuccess', { photoCount: formatPhotoCount(count) }),
+      failure: (failedCount) =>
+        t('gallery.toasts.trashFailure', { serverCount: `${failedCount} ${t('common.nouns.servers')}` }),
+    },
+    restore: {
+      success: (count) => t('gallery.toasts.restoreSuccess', { photoCount: formatPhotoCount(count) }),
+      failure: (failedCount) =>
+        t('gallery.toasts.restoreFailure', { serverCount: `${failedCount} ${t('common.nouns.servers')}` }),
+    },
+    'delete-permanently': {
+      success: (count) => t('gallery.toasts.deleteSuccess', { photoCount: formatPhotoCount(count) }),
+      failure: (failedCount) =>
+        t('gallery.toasts.deleteFailure', { serverCount: `${failedCount} ${t('common.nouns.servers')}` }),
+    },
+  };
+  const allTrashActionMessages: Record<
+    AllTrashAction,
+    {
+      success: (count: number) => string;
+      empty: string;
+      failure: (failedCount: number) => string;
+    }
+  > = {
+    'restore-all': {
+      success: (count) => t('gallery.toasts.allRestoreSuccess', { photoCount: formatPhotoCount(count) }),
+      empty: t('gallery.toasts.allRestoreEmpty'),
+      failure: (failedCount) =>
+        t('gallery.toasts.allRestoreFailure', { serverCount: `${failedCount} ${t('common.nouns.servers')}` }),
+    },
+    'delete-all': {
+      success: (count) => t('gallery.toasts.allDeleteSuccess', { photoCount: formatPhotoCount(count) }),
+      empty: t('gallery.toasts.allDeleteEmpty'),
+      failure: (failedCount) =>
+        t('gallery.toasts.allDeleteFailure', { serverCount: `${failedCount} ${t('common.nouns.servers')}` }),
+    },
+  };
+  const selectedPhotoActionConfirmations: Partial<
+    Record<SelectedPhotoAction, { title: string; message: (count: number) => string }>
+  > = {
+    'delete-permanently': {
+      title: t('gallery.confirmations.deletePermanentTitle'),
+      message: (count) => t('gallery.confirmations.deletePermanentMessage', { photoCount: formatPhotoCount(count) }),
+    },
+  };
+  const allTrashActionConfirmations: Partial<Record<AllTrashAction, { title: string; message: string }>> = {
+    'delete-all': {
+      title: t('gallery.confirmations.deleteAllTitle'),
+      message: t('gallery.confirmations.deleteAllMessage'),
+    },
+  };
   const effectiveGroupBy = isTrashMode ? 'day' : groupBy;
   const effectiveViewMode = isTrashMode ? 'photos-only' : viewMode;
   const scopedServers = currentAlbum ? servers.filter((server) => server.id === currentAlbum.serverId) : servers;
@@ -467,7 +469,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   })();
   const isSelectionMode = selectedPhotos.length > 0;
   const hasMorePhotos = Boolean(hasNextPage);
-  const galleryGroups = groupGalleryItems(galleryItems, effectiveGroupBy);
+  const galleryGroups = groupGalleryItems(galleryItems, effectiveGroupBy, getGroupMetadata);
   const lightboxImages: GalleryLightboxItem[] = photos.map((item) => ({
     key: `${item.serverId}:${item.id}`,
     uri: `${item.baseUrl}${item.previewPath}`,
@@ -551,8 +553,8 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
             title,
             message,
             [
-              { text: 'Cancel', style: 'cancel', onPress: () => finish(false) },
-              { text: 'Continue', style: 'destructive', onPress: () => finish(true) },
+              { text: t('common.actions.cancel'), style: 'cancel', onPress: () => finish(false) },
+              { text: t('common.actions.continue'), style: 'destructive', onPress: () => finish(true) },
             ],
             { cancelable: true, onDismiss: () => finish(false) }
           );
@@ -653,7 +655,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     ? [
         {
           key: 'gallery-root',
-          label: t('Gallery'),
+          label: t('navigation.gallery'),
           onPress: handleNavigateToRoot,
         },
         ...albumPath.map((album, index) => ({
@@ -666,7 +668,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
 
   const handleOpenCreateAlbumModal = () => {
     if (selectedPhotos.length > 0 && !selectedServer) {
-      toast.error('Select photos from a single server to create an album from them');
+      toast.error(t('gallery.errors.createAlbumDifferentServer'));
       return;
     }
 
@@ -674,7 +676,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       selectedPhotos.length > 0 && selectedServer ? [selectedServer] : currentAlbum ? scopedServers : servers;
 
     if (!candidateServers.length) {
-      toast.error('No active server connections');
+      toast.error(t('gallery.errors.noActiveServers'));
     } else
       openModal(
         <GalleryCreateAlbumModal
@@ -691,7 +693,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const handleOpenAddToAlbumModal = () => {
     if (selectedPhotos.length) {
       if (!selectedServer) {
-        toast.error('Select photos from a single server to add them to an album');
+        toast.error(t('gallery.errors.addToAlbumDifferentServer'));
       } else
         openModal(
           <GalleryAddToAlbumModal
@@ -721,7 +723,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     mutationFn: async (files: File[]) => {
       const targetServer = servers[0];
       if (!targetServer) {
-        throw new Error('No active server connections');
+        throw new Error(t('gallery.errors.noActiveServers'));
       }
 
       const settled = await Promise.allSettled(
@@ -734,20 +736,20 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     },
     onSuccess: ({ successCount, failedCount }) => {
       if (successCount > 0) {
-        toast.success(`Uploaded ${successCount} file${successCount === 1 ? '' : 's'}`);
+        toast.success(t('gallery.toasts.uploadSuccess', { fileCount: `${successCount} ${t('common.nouns.files')}` }));
       }
       if (failedCount > 0) {
-        toast.error(`Failed uploads: ${failedCount}`);
+        toast.error(t('gallery.toasts.uploadFailedCount', { fileCount: `${failedCount} ${t('common.nouns.files')}` }));
       }
       refreshGalleryQueries();
     },
     onError: () => {
-      toast.error('Upload failed');
+      toast.error(t('gallery.toasts.uploadFailed'));
     },
   });
 
   const handleUploadButtonPress = () => {
-    if (Platform.OS !== 'web') toast.error('Gallery upload is currently available on web only');
+    if (Platform.OS !== 'web') toast.error(t('gallery.toasts.uploadWebOnly'));
     else uploadInputRef.current?.click();
   };
 
@@ -762,7 +764,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const header = (
     <GalleryBrowserHeader
       isTrashMode={isTrashMode}
-      title={isTrashMode ? 'Trash' : currentAlbum ? currentAlbum.name : t('Gallery')}
+      title={isTrashMode ? t('navigation.trash') : currentAlbum ? currentAlbum.name : t('navigation.gallery')}
       breadcrumbItems={albumBreadcrumbItems}
       viewModeOptions={galleryViewModeOptions}
       viewMode={effectiveViewMode}
@@ -771,7 +773,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       groupBy={effectiveGroupBy}
       onGroupByChange={setGroupBy}
       isSelectionMode={isSelectionMode}
-      selectedPhotoCountLabel={`${formatPhotoCount(selectedPhotos.length)} selected`}
+      selectedPhotoCountLabel={t('gallery.selectionCount', { photoCount: formatPhotoCount(selectedPhotos.length) })}
       hasSelectedServer={Boolean(selectedServer)}
       pendingAction={pendingAction}
       serverCount={isTrashMode ? scopedServers.length : servers.length}
@@ -794,10 +796,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         <input ref={uploadInputRef} type="file" multiple onChange={handleFileInputChange} style={{ display: 'none' }} />
       ) : null}
 
-      {isPending ? <Text className="text-muted-foreground">Loading gallery...</Text> : null}
+      {isPending ? <Text className="text-muted-foreground">{t('gallery.loading')}</Text> : null}
       {!isPending && galleryItems.length === 0 ? (
         <Text className="text-muted-foreground">
-          {isTrashMode ? 'Trash is empty' : currentAlbum ? 'This album is empty' : 'No photos or albums yet'}
+          {isTrashMode
+            ? t('gallery.empty.trash')
+            : currentAlbum
+              ? t('gallery.empty.album')
+              : t('gallery.empty.library')}
         </Text>
       ) : null}
 
@@ -813,10 +819,10 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       />
 
       {!isPending && hasMorePhotos && !isFetchingNextPage ? (
-        <Text className="pt-4 text-center text-muted-foreground">Scroll to load more items</Text>
+        <Text className="pt-4 text-center text-muted-foreground">{t('gallery.scrollToLoadMore')}</Text>
       ) : null}
       {isFetchingNextPage ? (
-        <Text className="pt-4 text-center text-muted-foreground">Loading more items...</Text>
+        <Text className="pt-4 text-center text-muted-foreground">{t('gallery.loadingMore')}</Text>
       ) : null}
 
       <GalleryLightbox

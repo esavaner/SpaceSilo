@@ -20,8 +20,9 @@ import { type GroupListItem, useGroupList } from '@/hooks/useGroupList';
 import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
+import { useTranslation } from 'react-i18next';
 
-const getNoteTitle = (note: Pick<NoteListItem, 'title' | 'content'>) => {
+const getNoteTitle = (note: Pick<NoteListItem, 'title' | 'content'>, untitledLabel: string) => {
   const title = note.title?.trim();
 
   if (title) {
@@ -29,7 +30,7 @@ const getNoteTitle = (note: Pick<NoteListItem, 'title' | 'content'>) => {
   }
 
   const [firstLine] = note.content.split(/\r?\n/);
-  const preview = firstLine?.trim() || 'Untitled note';
+  const preview = firstLine?.trim() || untitledLabel;
   return preview.length > 72 ? `${preview.slice(0, 72).trimEnd()}...` : preview;
 };
 
@@ -43,7 +44,7 @@ const getNotePreview = (content: string) => {
   return `${collapsed.slice(0, 180).trimEnd()}...`;
 };
 
-const formatUpdatedAt = (value: Date | string) => new Date(value).toLocaleString();
+const formatUpdatedAt = (value: Date | string, language: string) => new Date(value).toLocaleString(language);
 
 const getGroupLookupKey = (
   noteOrGroup: Pick<NoteListItem, 'groupId' | 'serverId'> | Pick<GroupListItem, 'id' | 'serverId'>
@@ -53,6 +54,7 @@ const getGroupLookupKey = (
     : `${noteOrGroup.serverId}:${noteOrGroup.id}`;
 
 export default function NotesPage() {
+  const { i18n, t } = useTranslation();
   const { width } = useWindowDimensions();
   const { openModal } = useUi();
   const { allServers, servers } = useServerContext();
@@ -64,7 +66,7 @@ export default function NotesPage() {
   const groupLookup = new Map(groups.map((group) => [getGroupLookupKey(group), group]));
   const serverLookup = new Map(allServers.map((server) => [server.id, server]));
   const serverFilterOptions = [
-    { value: 'all', label: 'All active servers' },
+    { value: 'all', label: t('notes.allActiveServers') },
     ...servers.map((server) => ({ value: server.id, label: server.label })),
   ];
   const normalizedQuery = query.trim().toLowerCase();
@@ -85,8 +87,8 @@ export default function NotesPage() {
     const group = groupLookup.get(getGroupLookupKey(note));
     const serverLabel = serverLookup.get(note.serverId)?.label ?? '';
 
-    return [getNoteTitle(note), note.content, group?.name ?? '', serverLabel].some((value) =>
-      value.toLowerCase().includes(normalizedQuery)
+    return [getNoteTitle(note, t('notes.details.untitled')), note.content, group?.name ?? '', serverLabel].some(
+      (value) => value.toLowerCase().includes(normalizedQuery)
     );
   });
 
@@ -101,13 +103,13 @@ export default function NotesPage() {
 
   const openDetailsModal = (note: NoteListItem) => {
     const group = groupLookup.get(getGroupLookupKey(note));
-    const serverLabel = serverLookup.get(note.serverId)?.label ?? 'Connected server';
+    const serverLabel = serverLookup.get(note.serverId)?.label ?? t('common.messages.connectedServer');
 
     openModal(
       <NoteDetailsModal
         note={note}
         groups={groups}
-        groupName={group?.name ?? 'Unknown group'}
+        groupName={group?.name ?? t('common.messages.unknownGroup')}
         serverLabel={serverLabel}
       />
     );
@@ -127,15 +129,17 @@ export default function NotesPage() {
         <View className="gap-3">
           <View className="flex-row items-center justify-between gap-3">
             <View className="flex-1 gap-1">
-              <Text variant="h1">Notes</Text>
+              <Text variant="h1">{t('navigation.notes')}</Text>
               <Text className="text-muted-foreground">
-                {isNotesLoading || isGroupsLoading ? 'Loading notes...' : `${visibleNotes.length} notes in view`}
+                {isNotesLoading || isGroupsLoading
+                  ? t('notes.loading')
+                  : `${visibleNotes.length} ${t('common.nouns.notes')} ${t('common.labels.inView')}`}
               </Text>
             </View>
 
             <Button onPress={openCreateModal} disabled={groups.length === 0}>
               <Icon.Add className="text-black" />
-              <Text>New note</Text>
+              <Text>{t('notes.actions.create')}</Text>
             </Button>
           </View>
 
@@ -145,20 +149,20 @@ export default function NotesPage() {
               <Input
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search notes, content, groups, or servers"
+                placeholder={t('notes.searchPlaceholder')}
                 className="flex-1 border-0 bg-transparent px-0"
               />
             </View>
 
             <View className="gap-2">
-              <Text className="text-sm text-muted-foreground">Filter by server</Text>
+              <Text className="text-sm text-muted-foreground">{t('notes.filterByServer')}</Text>
               <Select
                 value={serverFilterOptions.find((option) => option.value === selectedServerId)}
                 onValueChange={(option) => setSelectedServerId(option?.value ?? 'all')}
                 disabled={servers.length === 0}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All active servers" />
+                  <SelectValue placeholder={t('notes.allActiveServers')} />
                 </SelectTrigger>
                 <SelectContent>
                   <NativeSelectScrollView>
@@ -174,25 +178,23 @@ export default function NotesPage() {
 
         {servers.length === 0 ? (
           <View className="gap-3 rounded-2xl border border-dashed border-border p-6">
-            <Text variant="h3">No active servers</Text>
-            <Text className="text-muted-foreground">Connect a server before creating or syncing notes.</Text>
+            <Text variant="h3">{t('notes.empty.noServersTitle')}</Text>
+            <Text className="text-muted-foreground">{t('notes.empty.noServersDescription')}</Text>
           </View>
         ) : isNotesLoading || isGroupsLoading ? (
           <View className="rounded-2xl border border-border bg-layer-secondary/30 p-6">
-            <Text className="text-muted-foreground">Loading notes and groups...</Text>
+            <Text className="text-muted-foreground">{t('notes.loadingAll')}</Text>
           </View>
         ) : visibleNotes.length === 0 ? (
           <View className="gap-3 rounded-2xl border border-dashed border-border p-6">
-            <Text variant="h3">{query.trim() ? 'No matching notes' : 'No notes yet'}</Text>
+            <Text variant="h3">{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text>
             <Text className="text-muted-foreground">
-              {query.trim()
-                ? 'Try a different search query.'
-                : 'Create a note in your personal group or share one with a group.'}
+              {query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
             </Text>
             {!query.trim() ? (
               <Button onPress={openCreateModal} className="self-start" disabled={groups.length === 0}>
                 <Icon.Add className="text-black" />
-                <Text>Create your first note</Text>
+                <Text>{t('notes.actions.createFirst')}</Text>
               </Button>
             ) : null}
           </View>
@@ -200,7 +202,7 @@ export default function NotesPage() {
           <View className="flex-row flex-wrap items-start gap-3">
             {visibleNotes.map((note) => {
               const group = groupLookup.get(getGroupLookupKey(note));
-              const serverLabel = serverLookup.get(note.serverId)?.label ?? 'Connected server';
+              const serverLabel = serverLookup.get(note.serverId)?.label ?? t('common.messages.connectedServer');
 
               return (
                 <View
@@ -212,9 +214,13 @@ export default function NotesPage() {
                     <Pressable className="flex-1 gap-3" onPress={() => openDetailsModal(note)}>
                       <View className="gap-2">
                         <View className="flex-row flex-wrap items-center gap-2">
-                          <Text className="text-lg font-semibold">{getNoteTitle(note)}</Text>
+                          <Text className="text-lg font-semibold">
+                            {getNoteTitle(note, t('notes.details.untitled'))}
+                          </Text>
                           <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                            <Text className="text-xs text-muted-foreground">{group?.name ?? 'Unknown group'}</Text>
+                            <Text className="text-xs text-muted-foreground">
+                              {group?.name ?? t('common.messages.unknownGroup')}
+                            </Text>
                           </View>
                           <View className="rounded-full border border-border bg-background px-2.5 py-1">
                             <Text className="text-xs text-muted-foreground">{serverLabel}</Text>
@@ -226,7 +232,9 @@ export default function NotesPage() {
                         </Text>
                       </View>
 
-                      <Text className="text-xs text-muted-foreground">Updated {formatUpdatedAt(note.updatedAt)}</Text>
+                      <Text className="text-xs text-muted-foreground">
+                        {t('notes.details.updated', { value: formatUpdatedAt(note.updatedAt, i18n.language) })}
+                      </Text>
                     </Pressable>
 
                     <View className="gap-2">

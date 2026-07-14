@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   AddGroupMemberRequest,
   AddGroupMembersRequest,
@@ -12,6 +12,7 @@ import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { type TokenPayload } from '@repo/shared';
+import { Err } from '@/common/api-message';
 
 @Injectable()
 export class GroupsService {
@@ -43,7 +44,7 @@ export class GroupsService {
     });
 
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw Err.NotFound('api.groups.Err.NotFound');
     }
 
     const isOwner = group.ownerId === user.sub;
@@ -51,7 +52,7 @@ export class GroupsService {
     const isAdmin = user.role === 'admin';
 
     if (!isOwner && !isMember && !isAdmin) {
-      throw new UnauthorizedException('You are not allowed to access this group');
+      throw Err.Unauthorized('api.groups.accessDenied');
     }
 
     return group;
@@ -63,7 +64,7 @@ export class GroupsService {
     const isAdmin = user.role === 'admin';
 
     if (!isOwner && !isAdmin) {
-      throw new ForbiddenException('Only the group owner can manage this group');
+      throw Err.Forbidden('api.groups.ownerRequired');
     }
 
     return group;
@@ -87,7 +88,7 @@ export class GroupsService {
     const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
 
     if (existingGroup) {
-      throw new ForbiddenException('Group with this ID already exists');
+      throw Err.Forbidden('api.groups.duplicateId');
     }
 
     const res = await this.prisma.group.create({
@@ -112,7 +113,7 @@ export class GroupsService {
 
   async findAll(user: TokenPayload) {
     if (user.role !== 'admin') {
-      throw new UnauthorizedException('You are not allowed to access this resource');
+      throw Err.Unauthorized('api.groups.resourceAccessDenied');
     }
     return await this.prisma.group.findMany({
       ...this.options,

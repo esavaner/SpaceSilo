@@ -30,14 +30,16 @@ export default function FilesPage() {
 
   const header = (
     <View className="gap-4 flex-row">
-      <Text variant="h1">{t('Files')}</Text>
+      <Text variant="h1">{t('navigation.files')}</Text>
       <View className={cn('flex-row h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
         {hasSelectedItems ? (
           <View className="flex-row w-full items-center gap-2">
             <Button variant="ghost" onPress={handleClearSelection} className="p-2">
               <Icon.Close />
             </Button>
-            <Text className="mr-auto">{selectedItems.length} item(s)</Text>
+            <Text className="mr-auto">
+              {selectedItems.length} {t('common.nouns.items')}
+            </Text>
             <Button
               onPress={() => openModal(<FileMoveCopyModal path={currentPath} selectedItems={selectedItems} />)}
               variant="ghost"

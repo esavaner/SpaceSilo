@@ -5,19 +5,21 @@ import { useFilesContext } from '@/providers/FilesProvider';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   type CopyFileRequest,
   type CreateFolderRequest,
   type MoveFileRequest,
   type RemoveFileRequest,
 } from '@repo/shared';
+import { tApiErr, translateDescriptor } from '@/i18n/translate';
 
 type RequestWithServerId<T> = T & {
   serverId: string;
 };
 
-// @TODO add translations
 export const useFileActions = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { closeModal } = useUi();
   const { handleClearSelection } = useFilesContext();
@@ -26,15 +28,15 @@ export const useFileActions = () => {
   const getServerClient = (serverId: string) => {
     const server = allServers.find((item) => item.id === serverId);
     if (!server) {
-      throw new Error(`Server connection ${serverId} not found`);
+      throw new Error(t('common.messages.serverConnectionErr.NotFound', { serverId }));
     }
     return server.client;
   };
 
-  const success = (message: string) => {
+  const success = (message: Parameters<typeof translateDescriptor>[1], fallbackKey: string) => {
     closeModal();
     handleClearSelection();
-    toast.success(message);
+    toast.success(translateDescriptor(t, message, fallbackKey));
     queryClient.invalidateQueries({ queryKey: ['files'] });
   };
 
@@ -44,9 +46,9 @@ export const useFileActions = () => {
       const client = getServerClient(serverId);
       return client.files.copy(data);
     },
-    onSuccess: () => success('File copied'),
-    onError: () => {
-      toast.error('Error copying file');
+    onSuccess: (response) => success(response.message, 'files.toasts.copySuccess'),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'files.errors.copy'));
     },
   });
 
@@ -56,9 +58,10 @@ export const useFileActions = () => {
       const client = getServerClient(serverId);
       return client.files.createFolder(data);
     },
-    onSuccess: (_, { name }) => success(`Folder ${name} created`),
-    onError: (_, { name }) => {
-      toast.error(`Error creating folder: ${name}`);
+    onSuccess: (response) => success(response.message, 'files.toasts.createFolderSuccess'),
+    onError: (error, { name }) => {
+      const message = tApiErr(t, error);
+      toast.error(message === t('common.messages.genericError') ? t('files.errors.createFolder', { name }) : message);
     },
   });
 
@@ -68,9 +71,9 @@ export const useFileActions = () => {
       const client = getServerClient(serverId);
       return client.files.move(data);
     },
-    onSuccess: () => success('File moved'),
-    onError: () => {
-      toast.error('Error moving file');
+    onSuccess: (response) => success(response.message, 'files.toasts.moveSuccess'),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'files.errors.move'));
     },
   });
 
@@ -80,9 +83,9 @@ export const useFileActions = () => {
       const client = getServerClient(serverId);
       return client.files.remove(data);
     },
-    onSuccess: () => success('File removed'),
-    onError: () => {
-      toast.error('Error removing file');
+    onSuccess: (response) => success(response.message, 'files.toasts.removeSuccess'),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'files.errors.remove'));
     },
   });
 
@@ -92,9 +95,9 @@ export const useFileActions = () => {
       const client = getServerClient(serverId);
       return client.files.move(data);
     },
-    onSuccess: () => success('File renamed'),
-    onError: () => {
-      toast.error('Error renaming file');
+    onSuccess: (response) => success(response.message, 'files.toasts.renameSuccess'),
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'files.errors.rename'));
     },
   });
 

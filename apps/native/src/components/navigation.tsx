@@ -8,16 +8,18 @@ import { cn } from '@/utils/cn';
 import { Button } from './general/button';
 import { useServerContext } from '@/providers/ServerProvider';
 import { serverIcons } from '@/constants/server-icons';
+import { useTranslation } from 'react-i18next';
 
 type NavigationProps = DrawerContentComponentProps;
 
 export const Navigation = (props: NavigationProps) => {
+  const { t } = useTranslation();
   const { allServers } = useServerContext();
 
   const currentRoute = props.state.routeNames[props.state.index];
   return (
     <>
-      <Text className="self-center my-6">App</Text>
+      <Text className="self-center my-6">{t('navigation.app')}</Text>
       <DrawerContentScrollView {...props}>
         {Object.values(routes).map((key) => (
           <Pressable
@@ -33,7 +35,7 @@ export const Navigation = (props: NavigationProps) => {
           </Pressable>
         ))}
         <View className="flex-row justify-between items-center mt-6 mx-3 mb-2">
-          <Text variant="small">Connections</Text>
+          <Text variant="small">{t('navigation.connections')}</Text>
           <Button variant="ghost" onPress={() => router.push('/connections')}>
             <Icon.Add />
           </Button>

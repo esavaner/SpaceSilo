@@ -9,17 +9,20 @@ import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { InputController } from '../controllers/input.controller';
 import { DialogFooter } from './dialog-footer';
 
-const schema = yup.object().shape({
-  name: yup.string().required('Group name is required'),
-  id: yup.string().required('Group id is required'),
-  color: yup.string(),
-});
-
-type CreateGroupForm = yup.InferType<typeof schema>;
+type CreateGroupForm = {
+  color?: string;
+  id: string;
+  name: string;
+};
 
 export const GroupCreateModal = () => {
   const { t } = useTranslation();
   const { createGroup, isPending } = useGroupActions();
+  const schema = yup.object().shape({
+    name: yup.string().required(t('groups.createModal.validation.nameRequired')),
+    id: yup.string().required(t('groups.createModal.validation.groupIdRequired')),
+    color: yup.string(),
+  });
 
   const {
     handleSubmit,
@@ -37,10 +40,10 @@ export const GroupCreateModal = () => {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{t('Create Group')}</DialogTitle>
+        <DialogTitle>{t('groups.createModal.title')}</DialogTitle>
       </DialogHeader>
-      <InputController control={control} name="name" label={t('Name')} error={errors.name?.message} />
-      <InputController control={control} name="id" label={t('Group ID')} error={errors.id?.message} />
+      <InputController control={control} name="name" label={t('common.labels.name')} error={errors.name?.message} />
+      <InputController control={control} name="id" label={t('common.labels.groupId')} error={errors.id?.message} />
       <Controller
         control={control}
         name="color"
@@ -57,7 +60,7 @@ export const GroupCreateModal = () => {
         )}
       />
       {/* @ts-expect-error sada sdsa */}
-      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
+      <DialogFooter okText={t('common.actions.create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
 };

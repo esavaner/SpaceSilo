@@ -11,3 +11,4 @@ export * from './dto/notes.dto';
 export * from './dto/backup.dto';
 export * from './constants/api';
 export * from './types/auth';
+export * from './types/common';

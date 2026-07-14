@@ -1,0 +1,647 @@
+{
+  "common": {
+    "actions": {
+      "add": "Dodaj",
+      "apply": "Zastosuj",
+      "cancel": "Anuluj",
+      "close": "Zamknij",
+      "connect": "Połącz",
+      "continue": "Kontynuuj",
+      "copy": "Kopiuj",
+      "create": "Utwórz",
+      "details": "Szczegóły",
+      "disable": "Wyłącz",
+      "edit": "Edytuj",
+      "enable": "Włącz",
+      "move": "Przenieś",
+      "ok": "OK",
+      "remove": "Usuń",
+      "rename": "Zmień nazwę",
+      "save": "Zapisz",
+      "scan": "Skanuj",
+      "select": "Wybierz"
+    },
+    "labels": {
+      "access": "Dostęp",
+      "actions": "Akcje",
+      "albumName": "Nazwa albumu",
+      "belongsTo": "Należy do",
+      "content": "Treść",
+      "createGroup": "Utwórz grupę",
+      "filterGroups": "Filtruj grupy",
+      "folderName": "Nazwa folderu",
+      "groupId": "ID grupy",
+      "home": "Start",
+      "inView": "w widoku",
+      "name": "Nazwa",
+      "parentAlbum": "Album nadrzędny",
+      "password": "Hasło",
+      "personal": "Prywatna",
+      "search": "Szukaj",
+      "sourceServer": "Serwer źródłowy",
+      "destinationServer": "Serwer docelowy",
+      "title": "Tytuł"
+    },
+    "status": {
+      "connected": "Połączono",
+      "disabled": "Wyłączono",
+      "disconnected": "Rozłączono",
+      "enabled": "Włączono",
+      "loading": "Ładowanie...",
+      "never": "Nigdy",
+      "notScheduled": "Nie zaplanowano"
+    },
+    "counts": {
+      "album_one": "{{count}} album",
+      "album_other": "{{count}} albumy",
+      "file_one": "{{count}} plik",
+      "file_other": "{{count}} pliki",
+      "group_one": "{{count}} grupa",
+      "group_other": "{{count}} grupy",
+      "item_one": "{{count}} element",
+      "item_other": "{{count}} elementy",
+      "member_one": "{{count}} członek",
+      "member_other": "{{count}} członkowie",
+      "note_one": "{{count}} notatka",
+      "note_other": "{{count}} notatki",
+      "photo_one": "{{count}} zdjęcie",
+      "photo_other": "{{count}} zdjęcia",
+      "server_one": "{{count}} serwer",
+      "server_other": "{{count}} serwery"
+    },
+    "messages": {
+      "connectedServer": "Połączony serwer",
+      "genericError": "Coś poszło nie tak",
+      "noActiveServers": "Brak aktywnych połączeń z serwerami",
+      "selectServerFirst": "Najpierw wybierz serwer",
+      "serverConnectionErr.NotFound": "Nie znaleziono połączenia z serwerem {{serverId}}",
+      "unknownGroup": "Nieznana grupa"
+    },
+    "nouns": {
+      "albums": "albumy",
+      "files": "pliki",
+      "groups": "grupy",
+      "items": "elementy",
+      "members": "członkowie",
+      "notes": "notatki",
+      "photos": "zdjęcia",
+      "servers": "serwery"
+    }
+  },
+  "navigation": {
+    "app": "Aplikacja",
+    "backups": "Kopie zapasowe",
+    "connection": "Połączenie",
+    "connections": "Połączenia",
+    "dashboard": "Pulpit",
+    "files": "Pliki",
+    "gallery": "Galeria",
+    "groups": "Grupy",
+    "notes": "Notatki",
+    "trash": "Kosz"
+  },
+  "auth": {
+    "login": {
+      "actions": {
+        "submit": "Zaloguj się"
+      },
+      "fields": {
+        "email": "E-mail",
+        "password": "Hasło"
+      },
+      "placeholders": {
+        "email": "ty@example.com",
+        "password": "••••••••"
+      },
+      "validation": {
+        "emailInvalid": "Wpisz poprawny adres e-mail",
+        "emailRequired": "Adres e-mail jest wymagany",
+        "passwordRequired": "Hasło jest wymagane"
+      }
+    }
+  },
+  "connections": {
+    "title": "Połączenia",
+    "subtitle": "Tutaj możesz zarządzać połączeniami z usługami zewnętrznymi",
+    "add": "Dodaj nowe połączenie",
+    "existing": "Istniejące połączenia",
+    "select": "Wybierz dostawcę, aby rozszerzyć możliwości przechowywania",
+    "setup": "Skonfiguruj {{provider}}, aby rozszerzyć możliwości przechowywania",
+    "oauth": "Przepływ OAuth dla {{provider}} zostanie podłączony w następnym kroku",
+    "providers": {
+      "coreNas": {
+        "title": "Core NAS",
+        "desc": "Połącz z własnym serwerem Core NAS"
+      },
+      "googleDrive": {
+        "title": "Google Drive",
+        "desc": "Połącz konto Google Drive przez OAuth"
+      },
+      "dropbox": {
+        "title": "Dropbox",
+        "desc": "Połącz konto Dropbox przez OAuth"
+      }
+    },
+    "actions": {
+      "addCoreNas": "Dodaj połączenie Core NAS",
+      "chooseOther": "Wybierz inne połączenie",
+      "connectWith": "Połącz z {{provider}}",
+      "disable": "Wyłącz",
+      "enable": "Włącz",
+      "remove": "Usuń"
+    },
+    "status": {
+      "disabled": "Wyłączone",
+      "enabled": "Włączone"
+    },
+    "messages": {
+      "connected": "Dodano połączenie {{provider}} \"{{name}}\"",
+      "failed": "Nie udało się teraz połączyć",
+      "none": "Nie dodano jeszcze żadnych połączeń",
+      "removed": "Usunięto połączenie"
+    },
+    "details": {
+      "actionDescription": "Uruchom skanowanie po dodaniu plików obrazów bezpośrednio do folderów magazynu serwera. Serwer przeskanuje obsługiwane pliki obrazów, pominie już zindeksowane i utworzy wpisy dla nowych obrazów.",
+      "actions": {
+        "scanAndIndex": "Skanuj i indeksuj nowe obrazy",
+        "scanImages": "Skanuj obrazy"
+      },
+      "messages": {
+        "Err.NotFound": "Nie znaleziono połączenia z serwerem.",
+        "scanFailed": "Skanowanie nie powiodło się",
+        "scanSuccess": "Przeskanowano {{scanned}} obrazów, dodano {{added}} nowych",
+        "statsUnavailable": "Ten serwer musi być włączony i zalogowany, aby statystyki i skanowanie były dostępne."
+      },
+      "stats": {
+        "imageFiles": "Pliki obrazów",
+        "indexedImages": "Zindeksowane obrazy",
+        "storageSize": "Rozmiar magazynu",
+        "storedFiles": "Zapisane pliki"
+      },
+      "state": {
+        "connected": "Połączono",
+        "disabled": "Wyłączono",
+        "disconnected": "Rozłączono"
+      }
+    }
+  },
+  "files": {
+    "title": "Pliki",
+    "homeDir": "Start",
+    "selectionCount_one": "{{count}} element",
+    "selectionCount_other": "{{count}} elementy",
+    "actions": {
+      "add": "Dodaj",
+      "file": "Plik",
+      "folder": "Folder"
+    },
+    "filter": {
+      "groups": "Grupy",
+      "personal": "Prywatne",
+      "title": "Filtruj"
+    },
+    "createFolder": {
+      "defaultName": "Nowy folder",
+      "submit": "Utwórz",
+      "title": "Utwórz folder",
+      "validation": {
+        "folderRequired": "Nazwa folderu jest wymagana"
+      }
+    },
+    "toasts": {
+      "copySuccess": "Skopiowano plik",
+      "createFolderSuccess": "Utworzono folder {{name}}",
+      "moveSuccess": "Przeniesiono plik",
+      "removeSuccess": "Usunięto plik",
+      "renameSuccess": "Zmieniono nazwę pliku"
+    },
+    "errors": {
+      "copy": "Błąd kopiowania pliku",
+      "createFolder": "Błąd tworzenia folderu: {{name}}",
+      "move": "Błąd przenoszenia pliku",
+      "remove": "Błąd usuwania pliku",
+      "rename": "Błąd zmiany nazwy pliku"
+    }
+  },
+  "groups": {
+    "title": "Grupy",
+    "loading": "Ładowanie grup...",
+    "countInView_one": "{{count}} grupa w widoku",
+    "countInView_other": "{{count}} grupy w widoku",
+    "searchPlaceholder": "Szukaj grup lub ID",
+    "emptyFiltered": "Żadna grupa nie pasuje do bieżących filtrów",
+    "actions": {
+      "create": "Utwórz"
+    },
+    "badges": {
+      "owned": "Własna"
+    },
+    "filters": {
+      "all": "Wszystkie grupy",
+      "owned": "Moje grupy",
+      "personal": "Prywatne",
+      "shared": "Współdzielone",
+      "trigger": "Filtruj grupy",
+      "withMembers": "Z członkami"
+    },
+    "createModal": {
+      "title": "Utwórz grupę",
+      "validation": {
+        "groupIdRequired": "ID grupy jest wymagane",
+        "nameRequired": "Nazwa grupy jest wymagana"
+      }
+    },
+    "details": {
+      "backToGroups": "Wróć do grup",
+      "color": "Kolor",
+      "editGroup": "Edytuj grupę",
+      "emptyMembers": "Brak dodatkowych członków",
+      "fullAccess": "Pełny dostęp",
+      "loading": "Ładowanie grupy...",
+      "members": "Członkowie",
+      "Err.NotFound": "Nie znaleziono grupy",
+      "ownedByYou": "Twoja grupa",
+      "owner": "Właściciel",
+      "removeGroup": "Usuń grupę",
+      "shared": "Współdzielona"
+    },
+    "membersModal": {
+      "access": "Dostęp",
+      "levels": {
+        "admin": "Administrator",
+        "edit": "Edycja",
+        "read": "Odczyt"
+      },
+      "title": "Dodaj członków"
+    },
+    "toasts": {
+      "addMemberSuccess": "Dodano członka",
+      "addMembersSuccess": "Dodano członków",
+      "createSuccess": "Utworzono grupę {{name}}",
+      "removeMemberSuccess": "Usunięto członka",
+      "removeSuccess": "Usunięto grupę",
+      "updateMemberSuccess": "Zaktualizowano członka",
+      "updateSuccess": "Zaktualizowano grupę"
+    },
+    "errors": {
+      "addMember": "Błąd dodawania członka",
+      "addMembers": "Błąd dodawania członków",
+      "create": "Błąd tworzenia grupy: {{name}}",
+      "remove": "Błąd usuwania grupy",
+      "removeMember": "Błąd usuwania członka",
+      "update": "Błąd aktualizacji grupy",
+      "updateMember": "Błąd aktualizacji członka"
+    }
+  },
+  "Err.NotFound": {
+    "cta": "Przejdź do ekranu głównego!",
+    "description": "Ten ekran nie istnieje.",
+    "title": "Ups!"
+  },
+  "notes": {
+    "title": "Notatki",
+    "loading": "Ładowanie notatek...",
+    "loadingAll": "Ładowanie notatek i grup...",
+    "countInView_one": "{{count}} notatka w widoku",
+    "countInView_other": "{{count}} notatki w widoku",
+    "actions": {
+      "create": "Nowa notatka",
+      "createFirst": "Utwórz pierwszą notatkę"
+    },
+    "searchPlaceholder": "Szukaj notatek, treści, grup lub serwerów",
+    "filterByServer": "Filtruj według serwera",
+    "allActiveServers": "Wszystkie aktywne serwery",
+    "empty": {
+      "noServersTitle": "Brak aktywnych serwerów",
+      "noServersDescription": "Połącz serwer przed tworzeniem lub synchronizacją notatek.",
+      "noneTitle": "Brak notatek",
+      "noneDescription": "Utwórz notatkę w swojej prywatnej grupie lub udostępnij ją grupie.",
+      "noMatchesTitle": "Brak pasujących notatek",
+      "noMatchesDescription": "Spróbuj innego zapytania wyszukiwania."
+    },
+    "details": {
+      "updated": "Zaktualizowano {{value}}",
+      "untitled": "Notatka bez tytułu"
+    },
+    "editor": {
+      "titleCreate": "Utwórz notatkę",
+      "titleEdit": "Edytuj notatkę",
+      "descriptionCreate": "Wybierz, do której grupy należy ta notatka. Prywatne grupy pozostają domyślnie wybrane.",
+      "descriptionEdit": "Zaktualizuj treść notatki i w razie potrzeby przenieś ją do innej grupy na tym samym serwerze.",
+      "optionalTitle": "Opcjonalny tytuł notatki",
+      "selectGroup": "Wybierz grupę",
+      "writeHere": "Napisz treść notatki tutaj",
+      "noAccessibleGroups": "Brak dostępnych grup dla tej notatki.",
+      "save": "Zapisz",
+      "create": "Utwórz"
+    },
+    "toasts": {
+      "createSuccess": "Utworzono notatkę",
+      "removeSuccess": "Usunięto notatkę",
+      "updateSuccess": "Zaktualizowano notatkę"
+    },
+    "errors": {
+      "create": "Błąd tworzenia notatki",
+      "groupRequired": "Najpierw wybierz grupę",
+      "remove": "Błąd usuwania notatki",
+      "update": "Błąd aktualizacji notatki"
+    }
+  },
+  "gallery": {
+    "loading": "Ładowanie galerii...",
+    "loadingMore": "Ładowanie kolejnych elementów...",
+    "scrollToLoadMore": "Przewiń, aby załadować więcej elementów",
+    "selectionCount": "Wybrano {{photoCount}}",
+    "title": "Galeria",
+    "trash": "Kosz",
+    "empty": {
+      "album": "Ten album jest pusty",
+      "library": "Brak jeszcze zdjęć lub albumów",
+      "trash": "Kosz jest pusty"
+    },
+    "groupBy": {
+      "day": "Dzień",
+      "month": "Miesiąc",
+      "none": "Brak",
+      "week": "Tydzień",
+      "year": "Rok"
+    },
+    "viewModes": {
+      "albumsOnly": "Tylko albumy",
+      "photosAndAlbums": "Zdjęcia + albumy",
+      "photosNotInAlbumsOnly": "Tylko zdjęcia spoza albumów",
+      "photosOnly": "Tylko zdjęcia"
+    },
+    "confirmations": {
+      "deleteAllMessage": "Trwale usunąć wszystkie zdjęcia z kosza na połączonych serwerach? Tego nie można cofnąć.",
+      "deleteAllTitle": "Usuń wszystko trwale",
+      "deletePermanentMessage": "Trwale usunąć {{photoCount}}? Tego nie można cofnąć.",
+      "deletePermanentTitle": "Usuń trwale"
+    },
+    "toasts": {
+      "addToAlbumSuccess": "Dodano zdjęcia do albumu",
+      "allDeleteEmpty": "Nie ma już nic do usunięcia",
+      "allDeleteFailure": "Nie udało się trwale usunąć kosza na {{serverCount}}",
+      "allDeleteSuccess": "Trwale usunięto {{photoCount}}",
+      "allRestoreEmpty": "Kosz jest już pusty",
+      "allRestoreFailure": "Nie udało się przywrócić kosza na {{serverCount}}",
+      "allRestoreSuccess": "Przywrócono {{photoCount}}",
+      "createAlbumFailure": "Nie udało się utworzyć albumu",
+      "createAlbumSuccess": "Utworzono album",
+      "createAlbumWithPhotosSuccess": "Utworzono album z {{photoCount}}",
+      "deleteFailure": "Nie udało się trwale usunąć zdjęć na {{serverCount}}",
+      "deleteSuccess": "Trwale usunięto {{photoCount}}",
+      "restoreFailure": "Nie udało się przywrócić zdjęć na {{serverCount}}",
+      "restoreSuccess": "Przywrócono {{photoCount}}",
+      "trashFailure": "Nie udało się przenieść zdjęć do kosza na {{serverCount}}",
+      "trashSuccess": "Przeniesiono {{photoCount}} do kosza",
+      "uploadFailed": "Przesyłanie nie powiodło się",
+      "uploadFailedCount": "Nieudane przesłania: {{fileCount}}",
+      "uploadSuccess": "Przesłano {{fileCount}}",
+      "uploadWebOnly": "Przesyłanie do galerii jest obecnie dostępne tylko w wersji webowej"
+    },
+    "errors": {
+      "addToAlbumDifferentServer": "Wybierz zdjęcia z jednego serwera, aby dodać je do albumu",
+      "createAlbumDifferentServer": "Wybierz zdjęcia z jednego serwera, aby utworzyć z nich album",
+      "noActiveServers": "Brak aktywnych połączeń z serwerami"
+    },
+    "albumModal": {
+      "createTitle": "Utwórz album",
+      "createDescription": "Utwórz nowy album na jednym z aktywnych serwerów",
+      "createFromSelectionTitle": "Utwórz album z zaznaczenia",
+      "createFromSelectionDescription": "Utwórz album z {{photoCount}}",
+      "createSubalbumTitle": "Utwórz podalbum",
+      "createSubalbumDescription": "Nowy album w {{name}}",
+      "subalbumCreated": "Utworzono podalbum",
+      "selectServer": "Wybierz serwer",
+      "subalbumName": "Nazwa podalbumu",
+      "topLevelAlbum": "Album najwyższego poziomu",
+      "noParent": "Bez rodzica",
+      "rootLevelDescription": "Album zostanie utworzony w katalogu głównym",
+      "loadingAlbums": "Ładowanie albumów...",
+      "emptyAlbum": "Pusty album",
+      "nameRequired": "Nazwa albumu jest wymagana",
+      "createAlbum": "Utwórz album",
+      "createSubalbum": "Utwórz podalbum",
+      "addToAlbumTitle": "Dodaj do albumu",
+      "selectedOnServer": "Wybrano {{photoCount}} na serwerze {{server}}",
+      "emptyState": "Nie ma jeszcze albumów. Najpierw utwórz album, a potem dodaj wybrane zdjęcia.",
+      "close": "Zamknij",
+      "addToAlbumFailure": "Nie udało się dodać zdjęć do albumu"
+    }
+  },
+  "backups": {
+    "title": "Kopie zapasowe",
+    "subtitle": "Zarządzaj harmonogramami kopii zapasowych między serwerami. Rekordy wychodzące są wykonywane na serwerze źródłowym, a przychodzące przechowują własne metadane celu.",
+    "adminAccessRequired": "Wymagany dostęp administratora",
+    "adminIgnored": "{{serverCount}} zostały pominięte, ponieważ bieżące konto nie ma tam uprawnień administratora.",
+    "form": {
+      "createTitle": "Utwórz kopię zapasową",
+      "editTitle": "Edytuj kopię zapasową",
+      "createDescription": "Utwórz parę kopii wychodzącej i przychodzącej między dwoma połączonymi serwerami administratora.",
+      "editDescription": "Harmonogramy i wybór mediów są aktualizowane na obu serwerach. Użyj przełącznika na karcie, aby włączyć lub wyłączyć kopię.",
+      "needTwoServersTitle": "Wymagane są dwa serwery połączone jako administrator",
+      "needTwoServersDescription": "Połącz się i zaloguj jako administrator na serwerze źródłowym i docelowym przed utworzeniem kopii zapasowej.",
+      "schedule": "Harmonogram",
+      "sourceServer": "Serwer źródłowy",
+      "destinationServer": "Serwer docelowy",
+      "cancel": "Anuluj",
+      "reset": "Resetuj",
+      "saveChanges": "Zapisz zmiany"
+    },
+    "media": {
+      "title": "Co ma zostać skopiowane",
+      "photos": {
+        "title": "Zdjęcia",
+        "description": "Pliki magazynu i oryginały zdjęć"
+      },
+      "files": {
+        "title": "Pliki",
+        "description": "Współdzielone katalogi plików"
+      },
+      "notes": {
+        "title": "Notatki",
+        "description": "Uporządkowane migawki notatek"
+      }
+    },
+    "list": {
+      "title": "Kopie wychodzące",
+      "description": "Zarządzaj kopiami zapasowymi z poziomu rekordu źródłowego. Rekordy docelowe pozostają automatycznie zsynchronizowane i pojawiają się tutaj, gdy są dostępne.",
+      "noServersTitle": "Brak serwerów połączonych jako administrator",
+      "noServersDescription": "Połącz co najmniej jeden serwer core jako administrator, aby wczytać kopie zapasowe.",
+      "loading": "Ładowanie kopii zapasowych...",
+      "emptyTitle": "Brak kopii wychodzących",
+      "emptyDescription": "Utwórz kopię powyżej, aby rozpocząć planowanie kopii z serwera źródłowego.",
+      "notLinkedYet": "Jeszcze niepołączone",
+      "running": "Trwa",
+      "route": "{{source}} do {{destination}}",
+      "storedOn": "Zapisano na {{server}}",
+      "schedule": "Harmonogram {{schedule}}",
+      "runCount": "Uruchomiono {{runTotal}} razy",
+      "lastExecution": "Ostatnie wykonanie {{value}}",
+      "nextExecution": "Następne wykonanie {{value}}",
+      "destinationPath": "Ścieżka docelowa {{path}}",
+      "destinationRecordMissing": "Rekord po stronie docelowej nie jest obecnie wczytany. Akcje zarządzania pozostaną wyłączone, dopóki oba serwery nie odpowiedzą.",
+      "lastError": "Ostatni błąd",
+      "triggerNow": "Uruchom teraz"
+    },
+    "stats": {
+      "title": "Zapisane statystyki",
+      "photos": "Zdjęcia: {{fileCount}}, {{size}}",
+      "files": "Pliki: {{fileCount}}, {{size}}",
+      "notes": "Notatki: {{itemCount}}, {{size}}",
+      "total": "Razem: {{itemCount}}, {{size}}"
+    },
+    "toasts": {
+      "createSuccess": "Utworzono kopię zapasową",
+      "deletePartial": "Jedna strona kopii zapasowej została usunięta, ale nie udało się automatycznie usunąć rekordu sparowanego.",
+      "deleteSuccess": "Usunięto kopię zapasową",
+      "disableSuccess": "Wyłączono kopię zapasową",
+      "enableSuccess": "Włączono kopię zapasową",
+      "triggerSuccess": "Uruchomiono kopię zapasową",
+      "updateSuccess": "Zaktualizowano kopię zapasową"
+    },
+    "errors": {
+      "connectedForDelete": "Nie było połączonych rekordów kopii zapasowej do usunięcia",
+      "connectedForEdit": "Serwer źródłowy i docelowy muszą być połączone, aby edytować tę kopię zapasową",
+      "connectedForToggle": "Serwer źródłowy i docelowy muszą być połączone, aby włączyć lub wyłączyć tę kopię zapasową",
+      "delete": "Nie udało się usunąć kopii zapasowej",
+      "mediaRequired": "Wybierz co najmniej jeden typ mediów",
+      "save": "Nie udało się zapisać kopii zapasowej",
+      "scheduleRequired": "Wymagany jest harmonogram cron",
+      "serversDifferent": "Serwer źródłowy i docelowy muszą być różne",
+      "serversRequired": "Wybierz serwer źródłowy i docelowy",
+      "sourceRecordUnavailable": "Źródłowy rekord kopii zapasowej nie jest obecnie połączony",
+      "toggle": "Nie udało się zaktualizować stanu kopii zapasowej",
+      "trigger": "Nie udało się uruchomić kopii zapasowej"
+    }
+  },
+  "inputs": {
+    "displayName": "Nazwa wyświetlana",
+    "email": "E-mail",
+    "password": "Hasło",
+    "serverUrl": "Adres URL serwera"
+  },
+  "placeholders": {
+    "displayName": "Mój Core NAS",
+    "email": "ty@example.com",
+    "password": "••••••••",
+    "serverUrl": "https://nas.example.com"
+  },
+  "errors": {
+    "displayNameRequired": "Nazwa wyświetlana jest wymagana",
+    "emailInvalid": "Wpisz poprawny adres e-mail",
+    "emailRequired": "Adres e-mail jest wymagany",
+    "passwordRequired": "Hasło jest wymagane",
+    "serverUrlInvalid": "Wpisz poprawny adres URL",
+    "serverUrlRequired": "Adres URL serwera jest wymagany"
+  },
+  "sort": {
+    "date": "Data",
+    "name": "Nazwa",
+    "size": "Rozmiar",
+    "title": "Sortuj według",
+    "type": "Typ"
+  },
+  "dropdown": {
+    "copy": "Kopiuj",
+    "info": "Informacje",
+    "move": "Przenieś",
+    "remove": "Usuń",
+    "rename": "Zmień nazwę",
+    "share": "Udostępnij"
+  },
+  "api": {
+    "albums": {
+      "cycle": "Zagnieżdżenie albumów utworzyłoby cykl",
+      "groupsMissing": "Jedna lub więcej grup nie istnieje",
+      "Err.NotFound": "Nie znaleziono albumu",
+      "parentErr.NotFound": "Nie znaleziono albumu nadrzędnego",
+      "photosMissing": "Jedno lub więcej zdjęć nie istnieje",
+      "selfParent": "Album nie może być swoim własnym rodzicem"
+    },
+    "auth": {
+      "invalidCredentials": "Nieprawidłowy e-mail lub hasło",
+      "invalidRefreshToken": "Nieprawidłowy token odświeżania",
+      "userAlreadyExists": "Użytkownik już istnieje"
+    },
+    "backups": {
+      "alreadyRunning": "Kopia zapasowa jest już uruchomiona",
+      "destinationPathMissing": "Ścieżka docelowa nie jest skonfigurowana",
+      "destinationPathRequired": "Dla kopii wychodzących wymagana jest ścieżka docelowa",
+      "duplicatePair": "Kopia zapasowa dla tego źródła i celu już istnieje",
+      "invalidSchedule": "Harmonogram musi być poprawnym wyrażeniem cron",
+      "invalidServerUrl": "Nieprawidłowy adres URL serwera: {{value}}",
+      "manageUnauthorized": "Nie masz uprawnień do zarządzania kopiami zapasowymi",
+      "Err.NotFound": "Nie znaleziono kopii zapasowej",
+      "outgoingTriggerOnly": "Tylko kopie wychodzące można uruchamiać ręcznie",
+      "pairSecretRequired": "Sekret pary jest wymagany",
+      "rsyncFailed": "Synchronizacja kopii zapasowej nie powiodła się",
+      "rsyncMissing": "rsync nie jest zainstalowany na tym serwerze",
+      "selectMediaType": "Wybierz co najmniej jeden typ mediów dla kopii zapasowej",
+      "serverKeyRequired": "Klucz serwera jest wymagany",
+      "serversMustDiffer": "Serwer źródłowy i docelowy muszą być różne",
+      "sourceLabelRequired": "Etykieta serwera źródłowego jest wymagana",
+      "destinationLabelRequired": "Etykieta serwera docelowego jest wymagana"
+    },
+    "common": {
+      "Err.BadRequest": "Nieprawidłowe żądanie",
+      "conflict": "Konflikt",
+      "fieldMustBeBoolean": "{{fieldName}} musi być wartością logiczną",
+      "forbidden": "Brak dostępu",
+      "internalServerError": "Wewnętrzny błąd serwera",
+      "Err.NotFound": "Nie znaleziono",
+      "unauthorized": "Wymagane jest uwierzytelnienie"
+    },
+    "files": {
+      "copySuccess": "Skopiowano plik",
+      "createFileSuccess": "Utworzono plik",
+      "createFolderSuccess": "Utworzono folder",
+      "fileErr.NotFound": "Nie znaleziono pliku",
+      "groupErr.NotFound": "Nie znaleziono grupy",
+      "moveSuccess": "Przeniesiono plik",
+      "removeSuccess": "Usunięto plik"
+    },
+    "groups": {
+      "accessDenied": "Nie masz uprawnień do tej grupy",
+      "duplicateId": "Grupa o tym ID już istnieje",
+      "Err.NotFound": "Nie znaleziono grupy",
+      "ownerRequired": "Tylko właściciel grupy może nią zarządzać",
+      "resourceAccessDenied": "Nie masz uprawnień do tego zasobu"
+    },
+    "notes": {
+      "contentRequired": "Treść notatki jest wymagana",
+      "groupErr.NotFound": "Nie znaleziono grupy",
+      "groupAccessDenied": "Nie masz uprawnień do tej grupy",
+      "groupWriteDenied": "Nie masz uprawnień do modyfikowania notatek w tej grupie",
+      "Err.NotFound": "Nie znaleziono notatki",
+      "noteAccessDenied": "Nie masz uprawnień do tej notatki",
+      "noteWriteDenied": "Nie masz uprawnień do modyfikowania tej notatki"
+    },
+    "photos": {
+      "duplicate": "Zdjęcie już istnieje",
+      "fileRequired": "Plik jest wymagany",
+      "Err.NotFound": "Nie znaleziono zdjęcia",
+      "photosMissing": "Jedno lub więcej zdjęć nie istnieje",
+      "thumbnailErr.NotFound": "Nie znaleziono miniatury"
+    }
+  },
+  "cancel": "Anuluj",
+  "ok": "OK",
+  "create": "Utwórz",
+  "remove": "Usuń",
+  "rename": "Zmień nazwę",
+  "newName": "Nowa nazwa",
+  "createFolder": "Utwórz folder",
+  "Folder Name": "Nazwa folderu",
+  "removeItem": "Usuń element(y)",
+  "renameItem": "Zmień nazwę elementu(ów)",
+  "addMembers": "Dodaj członków",
+  "Add": "Dodaj",
+  "Create Group": "Utwórz grupę",
+  "Name": "Nazwa",
+  "Group ID": "ID grupy",
+  "Gallery": "Galeria",
+  "Files": "Pliki",
+  "Groups": "Grupy"
+}

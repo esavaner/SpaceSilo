@@ -1,4 +1,4 @@
-import { ApiClient, ApiClientOptions } from './_client';
+import { ApiClient, createApiError, type ApiClientOptions } from './_client';
 import { buildQuery } from '../utils/requests';
 import {
   type AddGroupMemberRequest,
@@ -76,8 +76,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
       body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Login failed: ${response.status} ${response.statusText} - ${errorText}`);
+      throw await createApiError(response);
     }
     const result = (await response.json()) as AuthResponse;
     this.accessToken = result.accessToken;

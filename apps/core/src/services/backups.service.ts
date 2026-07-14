@@ -1,13 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  OnModuleDestroy,
-  OnModuleInit,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import {
   BackupDirection,
   type BackupResponse,
@@ -22,6 +13,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from '@/common/prisma.service';
+import { Err } from '@/common/api-message';
 
 type MediaKey = 'photos' | 'files' | 'notes';
 
@@ -182,7 +174,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     const normalized = this.normalizeCreateRequest(dto);
     if (!normalized.destinationPath) {
-      throw new BadRequestException('Destination path is required for outgoing backups');
+      throw Err.BadRequest('api.backups.destinationPathRequired');
     }
 
     await this.assertPairAvailable(
@@ -237,7 +229,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
         : normalized.destinationPath;
 
     if (backup.direction === BackupDirection.outgoing && !destinationPath) {
-      throw new BadRequestException('Destination path is required for outgoing backups');
+      throw Err.BadRequest('api.backups.destinationPathRequired');
     }
 
     const updated = await this.prisma.backup.update({
@@ -291,12 +283,12 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     const backup = await this.getBackupOrThrow(id);
     if (backup.direction !== BackupDirection.outgoing) {
-      throw new BadRequestException('Only outgoing backups can be triggered manually');
+      throw Err.BadRequest('api.backups.outgoingTriggerOnly');
     }
 
     const updated = await this.executeBackupById(id, true);
     if (!updated) {
-      throw new ConflictException('Backup is already running');
+      throw Err.Conflict('api.backups.alreadyRunning');
     }
 
     return this.toBackupResponse(updated);
@@ -304,7 +296,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
   private assertAdmin(user: TokenPayload) {
     if (user.role !== 'admin') {
-      throw new UnauthorizedException('You are not allowed to manage backups');
+      throw Err.Unauthorized('api.backups.manageUnauthorized');
     }
   }
 
@@ -361,7 +353,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     if (claimed.count === 0) {
       if (failIfRunning) {
-        throw new ConflictException('Backup is already running');
+        throw Err.Conflict('api.backups.alreadyRunning');
       }
 
       return null;
@@ -369,8 +361,8 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     const backup = await this.getBackupOrThrow(id);
     if (!backup.destinationPath) {
-      await this.failBackupRun(backup, startedAt, 'Destination path is not configured');
-      throw new BadRequestException('Destination path is not configured');
+      await this.failBackupRun(backup, startedAt, 'api.backups.destinationPathMissing');
+      throw Err.BadRequest('api.backups.destinationPathMissing');
     }
 
     try {
@@ -460,7 +452,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (plans.length === 0) {
-      throw new BadRequestException('Select at least one media type for a backup');
+      throw Err.BadRequest('api.backups.selectMediaType');
     }
 
     return plans;
@@ -533,15 +525,10 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     await new Promise<void>((resolve, reject) => {
       const child = spawn(rsyncPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-      let stderr = '';
-
-      child.stderr.on('data', (chunk) => {
-        stderr += chunk.toString();
-      });
 
       child.on('error', (error: NodeJS.ErrnoException) => {
         if (error.code === 'ENOENT') {
-          reject(new BadRequestException('rsync is not installed on this server'));
+          reject(Err.BadRequest('api.backups.rsyncMissing'));
           return;
         }
 
@@ -554,7 +541,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
           return;
         }
 
-        reject(new BadRequestException(stderr.trim() || `rsync exited with code ${code}`));
+        reject(Err.BadRequest('api.backups.rsyncFailed'));
       });
     });
   }
@@ -644,16 +631,16 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     return {
       pairId: dto.pairId?.trim() || crypto.randomUUID(),
-      pairSecret: this.requireText(dto.pairSecret, 'Pair secret'),
+      pairSecret: this.requireText(dto.pairSecret, 'api.backups.pairSecretRequired'),
       schedule,
       active: dto.active ?? true,
       copyPhotos: media.copyPhotos,
       copyFiles: media.copyFiles,
       copyNotes: media.copyNotes,
-      sourceServerLabel: this.requireText(dto.sourceServerLabel, 'Source server label'),
+      sourceServerLabel: this.requireText(dto.sourceServerLabel, 'api.backups.sourceLabelRequired'),
       sourceServerBaseUrl,
       sourceServerKey,
-      destinationServerLabel: this.requireText(dto.destinationServerLabel, 'Destination server label'),
+      destinationServerLabel: this.requireText(dto.destinationServerLabel, 'api.backups.destinationLabelRequired'),
       destinationServerBaseUrl,
       destinationServerKey,
       destinationPath: dto.destinationPath?.trim() || null,
@@ -693,12 +680,12 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private normalizeSchedule(schedule: string) {
-    const normalized = this.requireText(schedule, 'Schedule');
+    const normalized = this.requireText(schedule, 'api.backups.invalidSchedule');
 
     try {
       CronExpressionParser.parse(normalized);
     } catch {
-      throw new BadRequestException('Schedule must be a valid cron expression');
+      throw Err.BadRequest('api.backups.invalidSchedule');
     }
 
     return normalized;
@@ -706,32 +693,32 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
   private normalizeMediaSelection(copyPhotos = false, copyFiles = false, copyNotes = false) {
     if (!copyPhotos && !copyFiles && !copyNotes) {
-      throw new BadRequestException('Select at least one media type for a backup');
+      throw Err.BadRequest('api.backups.selectMediaType');
     }
 
     return { copyPhotos, copyFiles, copyNotes };
   }
 
   private normalizeUrl(value: string) {
-    const normalized = this.requireText(value, 'Server URL');
+    const normalized = this.requireText(value, 'api.backups.invalidServerUrl');
 
     try {
       const url = new URL(normalized);
       url.pathname = url.pathname.replace(/\/+$/, '') || '/';
       return url.toString().replace(/\/$/, '');
     } catch {
-      throw new BadRequestException(`Invalid server URL: ${normalized}`);
+      throw Err.BadRequest('api.backups.invalidServerUrl');
     }
   }
 
   private normalizeServerKey(value: string) {
-    const normalized = this.requireText(value, 'Server key')
+    const normalized = this.requireText(value, 'api.backups.serverKeyRequired')
       .toLowerCase()
       .replace(/[^a-z0-9.-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
     if (!normalized) {
-      throw new BadRequestException('Server key is required');
+      throw Err.BadRequest('api.backups.serverKeyRequired');
     }
 
     return normalized;
@@ -744,7 +731,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     destinationServerKey: string
   ) {
     if (sourceServerBaseUrl === destinationServerBaseUrl || sourceServerKey === destinationServerKey) {
-      throw new BadRequestException('Source and destination servers must be different');
+      throw Err.BadRequest('api.backups.serversMustDiffer');
     }
   }
 
@@ -765,7 +752,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     });
 
     if (existing) {
-      throw new ConflictException('A backup for this source and destination already exists');
+      throw Err.Conflict('api.backups.duplicatePair');
     }
   }
 
@@ -789,7 +776,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     try {
       return CronExpressionParser.parse(schedule, { currentDate }).next().toDate();
     } catch {
-      throw new BadRequestException('Schedule must be a valid cron expression');
+      throw Err.BadRequest('api.backups.invalidSchedule');
     }
   }
 
@@ -809,7 +796,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     });
 
     if (!backup) {
-      throw new NotFoundException('Backup not found');
+      throw Err.NotFound('api.backups.Err.NotFound');
     }
 
     return backup;
@@ -918,10 +905,10 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  private requireText(value: string | undefined | null, label: string) {
+  private requireText(value: string | undefined | null, message: string) {
     const normalized = value?.trim();
     if (!normalized) {
-      throw new BadRequestException(`${label} is required`);
+      throw Err.BadRequest(message);
     }
 
     return normalized;
@@ -933,10 +920,20 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private toErrorMessage(error: unknown) {
+    if (error instanceof HttpException) {
+      const response = error.getResponse();
+      if (typeof response === 'object' && response !== null && 'message' in response) {
+        const message = (response as { message?: unknown }).message;
+        if (typeof message === 'string') {
+          return message;
+        }
+      }
+    }
+
     if (error instanceof Error) {
       return error.message;
     }
 
-    return 'Backup execution failed';
+    return 'api.backups.rsyncFailed';
   }
 }

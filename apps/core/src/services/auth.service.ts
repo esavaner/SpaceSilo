@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '@/services/users.service';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -11,6 +11,7 @@ import {
   TokenPayload,
 } from '@repo/shared';
 import { compare, genSalt, hash } from 'bcrypt';
+import { Err } from '@/common/api-message';
 
 @Injectable()
 export class AuthService {
@@ -46,11 +47,11 @@ export class AuthService {
   async login(loginDto: LoginRequest): Promise<AuthResponse> {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
-      throw new UnauthorizedException('User does not exists');
+      throw Err.Unauthorized('api.auth.invalidCredentials');
     }
     const isEqual = await compare(loginDto.password, user.password);
     if (!isEqual) {
-      throw new UnauthorizedException('Password does not match');
+      throw Err.Unauthorized('api.auth.invalidCredentials');
     }
 
     const payload: TokenClaims = {
@@ -69,7 +70,7 @@ export class AuthService {
   async register(registerDto: RegisterRequest): Promise<AuthResponse> {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new ConflictException('User already exists');
+      throw Err.Conflict('api.auth.userAlreadyExists');
     }
     const salt = await genSalt();
     const hashedPassword = await hash(registerDto.password, salt);
@@ -98,7 +99,7 @@ export class AuthService {
       const payload = this.jwtService.verify<TokenPayload>(dto.refreshToken);
 
       if (payload.typ !== 'refresh') {
-        throw new UnauthorizedException('Invalid refresh token');
+        throw Err.Unauthorized('api.auth.invalidRefreshToken');
       }
 
       const nextPayload: TokenClaims = {
@@ -112,7 +113,7 @@ export class AuthService {
         refreshToken: this.signRefreshToken(nextPayload),
       };
     } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw Err.Unauthorized('api.auth.invalidRefreshToken');
     }
   }
 }

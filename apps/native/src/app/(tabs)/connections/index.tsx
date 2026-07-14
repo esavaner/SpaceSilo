@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { tApiErr } from '@/i18n/translate';
 import { useForm } from 'react-hook-form';
 import { Pressable, View } from 'react-native';
 import * as yup from 'yup';
@@ -97,7 +98,7 @@ export default function ConnectionsPage() {
       if (savedServer) {
         await removeServer(savedServer.id);
       }
-      toast.error(error instanceof Error ? error.message : t('connections.messages.failed'));
+      toast.error(tApiErr(t, error, 'connections.messages.failed'));
     } finally {
       setIsSavingCoreNas(false);
     }
@@ -242,7 +243,7 @@ export default function ConnectionsPage() {
                   variant="outline"
                   onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
                 >
-                  Details
+                  {t('common.actions.details')}
                 </Button>
                 <Button
                   variant="secondary"

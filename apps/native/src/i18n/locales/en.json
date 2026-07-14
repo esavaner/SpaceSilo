@@ -1,4 +1,125 @@
 {
+  "common": {
+    "actions": {
+      "add": "Add",
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "close": "Close",
+      "connect": "Connect",
+      "continue": "Continue",
+      "copy": "Copy",
+      "create": "Create",
+      "details": "Details",
+      "disable": "Disable",
+      "edit": "Edit",
+      "enable": "Enable",
+      "move": "Move",
+      "ok": "OK",
+      "remove": "Remove",
+      "rename": "Rename",
+      "save": "Save",
+      "scan": "Scan",
+      "select": "Select"
+    },
+    "labels": {
+      "access": "Access",
+      "actions": "Actions",
+      "albumName": "Album name",
+      "belongsTo": "Belongs to",
+      "content": "Content",
+      "createGroup": "Create group",
+      "filterGroups": "Filter groups",
+      "folderName": "Folder name",
+      "groupId": "Group ID",
+      "home": "Home",
+      "inView": "in view",
+      "name": "Name",
+      "parentAlbum": "Parent album",
+      "password": "Password",
+      "personal": "Personal",
+      "search": "Search",
+      "sourceServer": "Source server",
+      "destinationServer": "Destination server",
+      "title": "Title"
+    },
+    "status": {
+      "connected": "Connected",
+      "disabled": "Disabled",
+      "disconnected": "Disconnected",
+      "enabled": "Enabled",
+      "loading": "Loading...",
+      "never": "Never",
+      "notScheduled": "Not scheduled"
+    },
+    "counts": {
+      "album_one": "{{count}} album",
+      "album_other": "{{count}} albums",
+      "file_one": "{{count}} file",
+      "file_other": "{{count}} files",
+      "group_one": "{{count}} group",
+      "group_other": "{{count}} groups",
+      "item_one": "{{count}} item",
+      "item_other": "{{count}} items",
+      "member_one": "{{count}} member",
+      "member_other": "{{count}} members",
+      "note_one": "{{count}} note",
+      "note_other": "{{count}} notes",
+      "photo_one": "{{count}} photo",
+      "photo_other": "{{count}} photos",
+      "server_one": "{{count}} server",
+      "server_other": "{{count}} servers"
+    },
+    "messages": {
+      "connectedServer": "Connected server",
+      "genericError": "Something went wrong",
+      "noActiveServers": "No active server connections",
+      "selectServerFirst": "Select a server first",
+      "serverConnectionErr.NotFound": "Server connection {{serverId}} not found",
+      "unknownGroup": "Unknown group"
+    },
+    "nouns": {
+      "albums": "albums",
+      "files": "files",
+      "groups": "groups",
+      "items": "items",
+      "members": "members",
+      "notes": "notes",
+      "photos": "photos",
+      "servers": "servers"
+    }
+  },
+  "navigation": {
+    "app": "App",
+    "backups": "Backups",
+    "connection": "Connection",
+    "connections": "Connections",
+    "dashboard": "Dashboard",
+    "files": "Files",
+    "gallery": "Gallery",
+    "groups": "Groups",
+    "notes": "Notes",
+    "trash": "Trash"
+  },
+  "auth": {
+    "login": {
+      "actions": {
+        "submit": "Login"
+      },
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "placeholders": {
+        "email": "you@example.com",
+        "password": "••••••••"
+      },
+      "validation": {
+        "emailInvalid": "Enter a valid email",
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required"
+      }
+    }
+  },
   "connections": {
     "title": "Connections",
     "subtitle": "Here you can manage your connections to external services",
@@ -23,62 +144,504 @@
     },
     "actions": {
       "addCoreNas": "Add Core NAS Connection",
-      "connectWith": "Connect with {{provider}}",
       "chooseOther": "Choose another connection",
-      "enable": "Enable",
+      "connectWith": "Connect with {{provider}}",
       "disable": "Disable",
+      "enable": "Enable",
       "remove": "Remove"
     },
     "status": {
-      "enabled": "Enabled",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "enabled": "Enabled"
     },
     "messages": {
       "connected": "{{provider}} connection \"{{name}}\" added",
       "failed": "Could not connect right now",
-      "removed": "Connection removed",
-      "none": "No connections added yet"
+      "none": "No connections added yet",
+      "removed": "Connection removed"
+    },
+    "details": {
+      "actionDescription": "Run a scan after adding image files directly to the server storage folders. The server will scan supported image files, skip ones already indexed, and create entries for new images.",
+      "actions": {
+        "scanAndIndex": "Scan and index new images",
+        "scanImages": "Scan images"
+      },
+      "messages": {
+        "Err.NotFound": "Server connection not found.",
+        "scanFailed": "Scan failed",
+        "scanSuccess": "Scanned {{scanned}} images, added {{added}} new",
+        "statsUnavailable": "This server must be enabled and logged in before stats and scanning are available."
+      },
+      "stats": {
+        "imageFiles": "Image files",
+        "indexedImages": "Indexed images",
+        "storageSize": "Storage size",
+        "storedFiles": "Stored files"
+      },
+      "state": {
+        "connected": "Connected",
+        "disabled": "Disabled",
+        "disconnected": "Disconnected"
+      }
+    }
+  },
+  "files": {
+    "title": "Files",
+    "homeDir": "Home",
+    "selectionCount_one": "{{count}} item",
+    "selectionCount_other": "{{count}} items",
+    "actions": {
+      "add": "Add",
+      "file": "File",
+      "folder": "Folder"
+    },
+    "filter": {
+      "groups": "Groups",
+      "personal": "Personal",
+      "title": "Filter"
+    },
+    "createFolder": {
+      "defaultName": "New folder",
+      "submit": "Create",
+      "title": "Create folder",
+      "validation": {
+        "folderRequired": "Folder name is required"
+      }
+    },
+    "toasts": {
+      "copySuccess": "File copied",
+      "createFolderSuccess": "Folder {{name}} created",
+      "moveSuccess": "File moved",
+      "removeSuccess": "File removed",
+      "renameSuccess": "File renamed"
+    },
+    "errors": {
+      "copy": "Error copying file",
+      "createFolder": "Error creating folder: {{name}}",
+      "move": "Error moving file",
+      "remove": "Error removing file",
+      "rename": "Error renaming file"
+    }
+  },
+  "groups": {
+    "title": "Groups",
+    "loading": "Loading groups...",
+    "countInView_one": "{{count}} group in view",
+    "countInView_other": "{{count}} groups in view",
+    "searchPlaceholder": "Search groups or IDs",
+    "emptyFiltered": "No groups match the current filters",
+    "actions": {
+      "create": "Create"
+    },
+    "badges": {
+      "owned": "Owned"
+    },
+    "filters": {
+      "all": "All groups",
+      "owned": "Owned by me",
+      "personal": "Personal",
+      "shared": "Shared",
+      "trigger": "Filter groups",
+      "withMembers": "With members"
+    },
+    "createModal": {
+      "title": "Create group",
+      "validation": {
+        "groupIdRequired": "Group ID is required",
+        "nameRequired": "Group name is required"
+      }
+    },
+    "details": {
+      "backToGroups": "Back to groups",
+      "color": "Color",
+      "editGroup": "Edit group",
+      "emptyMembers": "No additional members yet",
+      "fullAccess": "Full access",
+      "loading": "Loading group...",
+      "members": "Members",
+      "Err.NotFound": "Group not found",
+      "ownedByYou": "Owned by you",
+      "owner": "Owner",
+      "removeGroup": "Remove group",
+      "shared": "Shared"
+    },
+    "membersModal": {
+      "access": "Access",
+      "levels": {
+        "admin": "Admin",
+        "edit": "Edit",
+        "read": "Read"
+      },
+      "title": "Add members"
+    },
+    "toasts": {
+      "addMemberSuccess": "Member added",
+      "addMembersSuccess": "Members added",
+      "createSuccess": "Group {{name}} created",
+      "removeMemberSuccess": "Member removed",
+      "removeSuccess": "Group removed",
+      "updateMemberSuccess": "Member updated",
+      "updateSuccess": "Group updated"
+    },
+    "errors": {
+      "addMember": "Error adding member",
+      "addMembers": "Error adding members",
+      "create": "Error creating group: {{name}}",
+      "remove": "Error removing group",
+      "removeMember": "Error removing member",
+      "update": "Error updating group",
+      "updateMember": "Error updating member"
+    }
+  },
+  "Err.NotFound": {
+    "cta": "Go to home screen!",
+    "description": "This screen doesn't exist.",
+    "title": "Oops!"
+  },
+  "notes": {
+    "title": "Notes",
+    "loading": "Loading notes...",
+    "loadingAll": "Loading notes and groups...",
+    "countInView_one": "{{count}} note in view",
+    "countInView_other": "{{count}} notes in view",
+    "actions": {
+      "create": "New note",
+      "createFirst": "Create your first note"
+    },
+    "searchPlaceholder": "Search notes, content, groups, or servers",
+    "filterByServer": "Filter by server",
+    "allActiveServers": "All active servers",
+    "empty": {
+      "noServersTitle": "No active servers",
+      "noServersDescription": "Connect a server before creating or syncing notes.",
+      "noneTitle": "No notes yet",
+      "noneDescription": "Create a note in your personal group or share one with a group.",
+      "noMatchesTitle": "No matching notes",
+      "noMatchesDescription": "Try a different search query."
+    },
+    "details": {
+      "updated": "Updated {{value}}",
+      "untitled": "Untitled note"
+    },
+    "editor": {
+      "titleCreate": "Create note",
+      "titleEdit": "Edit note",
+      "descriptionCreate": "Choose which group owns this note. Personal groups stay selected by default.",
+      "descriptionEdit": "Update the note content and move it to another group on the same server if needed.",
+      "optionalTitle": "Optional note title",
+      "selectGroup": "Select a group",
+      "writeHere": "Write the note here",
+      "noAccessibleGroups": "No accessible groups are available for this note.",
+      "save": "Save",
+      "create": "Create"
+    },
+    "toasts": {
+      "createSuccess": "Note created",
+      "removeSuccess": "Note deleted",
+      "updateSuccess": "Note updated"
+    },
+    "errors": {
+      "create": "Error creating note",
+      "groupRequired": "Select a group first",
+      "remove": "Error deleting note",
+      "update": "Error updating note"
+    }
+  },
+  "gallery": {
+    "loading": "Loading gallery...",
+    "loadingMore": "Loading more items...",
+    "scrollToLoadMore": "Scroll to load more items",
+    "selectionCount": "{{photoCount}} selected",
+    "title": "Gallery",
+    "trash": "Trash",
+    "empty": {
+      "album": "This album is empty",
+      "library": "No photos or albums yet",
+      "trash": "Trash is empty"
+    },
+    "groupBy": {
+      "day": "Day",
+      "month": "Month",
+      "none": "None",
+      "week": "Week",
+      "year": "Year"
+    },
+    "viewModes": {
+      "albumsOnly": "Albums only",
+      "photosAndAlbums": "Photos + albums",
+      "photosNotInAlbumsOnly": "Photos not in albums only",
+      "photosOnly": "Photos only"
+    },
+    "confirmations": {
+      "deleteAllMessage": "Permanently delete every trashed photo across connected servers? This cannot be undone.",
+      "deleteAllTitle": "Delete everything permanently",
+      "deletePermanentMessage": "Permanently delete {{photoCount}}? This cannot be undone.",
+      "deletePermanentTitle": "Delete permanently"
+    },
+    "toasts": {
+      "addToAlbumSuccess": "Photos added to album",
+      "allDeleteEmpty": "There is nothing left to delete",
+      "allDeleteFailure": "Failed to delete trash permanently on {{serverCount}}",
+      "allDeleteSuccess": "Deleted {{photoCount}} permanently",
+      "allRestoreEmpty": "Trash is already empty",
+      "allRestoreFailure": "Failed to restore trash on {{serverCount}}",
+      "allRestoreSuccess": "Restored {{photoCount}}",
+      "createAlbumFailure": "Failed to create album",
+      "createAlbumSuccess": "Album created",
+      "createAlbumWithPhotosSuccess": "Album created with {{photoCount}}",
+      "deleteFailure": "Failed to delete photos permanently on {{serverCount}}",
+      "deleteSuccess": "Deleted {{photoCount}} permanently",
+      "restoreFailure": "Failed to restore photos on {{serverCount}}",
+      "restoreSuccess": "Restored {{photoCount}}",
+      "trashFailure": "Failed to move photos to trash on {{serverCount}}",
+      "trashSuccess": "Moved {{photoCount}} to trash",
+      "uploadFailed": "Upload failed",
+      "uploadFailedCount": "Failed uploads: {{fileCount}}",
+      "uploadSuccess": "Uploaded {{fileCount}}",
+      "uploadWebOnly": "Gallery upload is currently available on web only"
+    },
+    "errors": {
+      "addToAlbumDifferentServer": "Select photos from a single server to add them to an album",
+      "createAlbumDifferentServer": "Select photos from a single server to create an album from them",
+      "noActiveServers": "No active server connections"
+    },
+    "albumModal": {
+      "createTitle": "Create album",
+      "createDescription": "Create a new album on one of your active servers",
+      "createFromSelectionTitle": "Create album from selection",
+      "createFromSelectionDescription": "Create an album with {{photoCount}}",
+      "createSubalbumTitle": "Create subalbum",
+      "createSubalbumDescription": "New album inside {{name}}",
+      "subalbumCreated": "Subalbum created",
+      "selectServer": "Select a server",
+      "subalbumName": "Subalbum name",
+      "topLevelAlbum": "Top level album",
+      "noParent": "No parent",
+      "rootLevelDescription": "Album will be created at the root level",
+      "loadingAlbums": "Loading albums...",
+      "emptyAlbum": "Empty album",
+      "nameRequired": "Album name is required",
+      "createAlbum": "Create album",
+      "createSubalbum": "Create subalbum",
+      "addToAlbumTitle": "Add to album",
+      "selectedOnServer": "{{photoCount}} selected on {{server}}",
+      "emptyState": "No albums yet. Create one first, then add the selected photos.",
+      "close": "Close",
+      "addToAlbumFailure": "Failed to add photos to album"
+    }
+  },
+  "backups": {
+    "title": "Backups",
+    "subtitle": "Manage scheduled server-to-server backups. Outgoing records execute on the source server; incoming records store their own destination metadata.",
+    "adminAccessRequired": "Admin access required",
+    "adminIgnored": "{{serverCount}} were ignored because the current account is not an admin there.",
+    "form": {
+      "createTitle": "Create backup",
+      "editTitle": "Edit backup",
+      "createDescription": "Create a paired outgoing and incoming backup between two connected admin servers.",
+      "editDescription": "Schedules and media selection are updated on both servers. Use the card toggle to enable or disable a backup.",
+      "needTwoServersTitle": "Two admin-connected servers are required",
+      "needTwoServersDescription": "Connect and sign in as an admin on both the source and destination servers before creating a backup.",
+      "schedule": "Schedule",
+      "sourceServer": "Source server",
+      "destinationServer": "Destination server",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "saveChanges": "Save changes"
+    },
+    "media": {
+      "title": "What should be copied",
+      "photos": {
+        "title": "Photos",
+        "description": "Storage files and photo originals"
+      },
+      "files": {
+        "title": "Files",
+        "description": "Shared file directories"
+      },
+      "notes": {
+        "title": "Notes",
+        "description": "Structured note snapshots"
+      }
+    },
+    "list": {
+      "title": "Outgoing backups",
+      "description": "Manage backups from the source-side record. Destination records stay in sync automatically and surface here when available.",
+      "noServersTitle": "No admin-connected servers",
+      "noServersDescription": "Connect at least one core server as an admin to load backups.",
+      "loading": "Loading backups...",
+      "emptyTitle": "No outgoing backups yet",
+      "emptyDescription": "Create one above to start scheduling backups from a source server.",
+      "notLinkedYet": "Not linked yet",
+      "running": "Running",
+      "route": "{{source}} to {{destination}}",
+      "storedOn": "Stored on {{server}}",
+      "schedule": "Schedule {{schedule}}",
+      "runCount": "Runs {{runTotal}} times",
+      "lastExecution": "Last execution {{value}}",
+      "nextExecution": "Next execution {{value}}",
+      "destinationPath": "Destination path {{path}}",
+      "destinationRecordMissing": "The destination-side record is not currently loaded. Management actions stay disabled until both servers respond.",
+      "lastError": "Last error",
+      "triggerNow": "Trigger now"
+    },
+    "stats": {
+      "title": "Stored stats",
+      "photos": "Photos: {{fileCount}}, {{size}}",
+      "files": "Files: {{fileCount}}, {{size}}",
+      "notes": "Notes: {{itemCount}}, {{size}}",
+      "total": "Total: {{itemCount}}, {{size}}"
+    },
+    "toasts": {
+      "createSuccess": "Backup created",
+      "deletePartial": "One side of the backup was removed, but the paired record could not be deleted automatically.",
+      "deleteSuccess": "Backup deleted",
+      "disableSuccess": "Backup disabled",
+      "enableSuccess": "Backup enabled",
+      "triggerSuccess": "Backup triggered",
+      "updateSuccess": "Backup updated"
+    },
+    "errors": {
+      "connectedForDelete": "No connected backup records were available to delete",
+      "connectedForEdit": "Both source and destination servers must be connected to edit this backup",
+      "connectedForToggle": "Both source and destination servers must be connected to enable or disable this backup",
+      "delete": "Unable to delete backup",
+      "mediaRequired": "Select at least one media type",
+      "save": "Unable to save backup",
+      "scheduleRequired": "A cron schedule is required",
+      "serversDifferent": "Source and destination servers must be different",
+      "serversRequired": "Select both a source and a destination server",
+      "sourceRecordUnavailable": "The source backup record is not currently connected",
+      "toggle": "Unable to update backup state",
+      "trigger": "Unable to trigger backup"
     }
   },
   "inputs": {
     "displayName": "Display Name",
-    "serverUrl": "Server URL",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "serverUrl": "Server URL"
   },
   "placeholders": {
     "displayName": "My Core NAS",
-    "serverUrl": "https://nas.example.com",
     "email": "you@example.com",
-    "password": "••••••••"
+    "password": "••••••••",
+    "serverUrl": "https://nas.example.com"
   },
   "errors": {
     "displayNameRequired": "Display name is required",
-    "serverUrlRequired": "Server URL is required",
-    "serverUrlInvalid": "Enter a valid URL",
-    "emailRequired": "Email is required",
     "emailInvalid": "Enter a valid email",
-    "passwordRequired": "Password is required"
-  },
-  "files": {
-    "title": "Files",
-    "homeDir": "Home"
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "serverUrlInvalid": "Enter a valid URL",
+    "serverUrlRequired": "Server URL is required"
   },
   "sort": {
-    "title": "Sort by",
-    "name": "Name",
     "date": "Date",
+    "name": "Name",
     "size": "Size",
+    "title": "Sort by",
     "type": "Type"
   },
   "dropdown": {
-    "info": "Info",
-    "share": "Share",
-    "rename": "Rename",
-    "move": "Move",
     "copy": "Copy",
-    "remove": "Remove"
+    "info": "Info",
+    "move": "Move",
+    "remove": "Remove",
+    "rename": "Rename",
+    "share": "Share"
   },
+  "api": {
+    "albums": {
+      "cycle": "Album nesting would create a cycle",
+      "groupsMissing": "One or more groups do not exist",
+      "Err.NotFound": "Album not found",
+      "parentErr.NotFound": "Parent album not found",
+      "photosMissing": "One or more photos do not exist",
+      "selfParent": "Album cannot be its own parent"
+    },
+    "auth": {
+      "invalidCredentials": "Invalid email or password",
+      "invalidRefreshToken": "Invalid refresh token",
+      "userAlreadyExists": "User already exists"
+    },
+    "backups": {
+      "alreadyRunning": "Backup is already running",
+      "destinationPathMissing": "Destination path is not configured",
+      "destinationPathRequired": "Destination path is required for outgoing backups",
+      "duplicatePair": "A backup for this source and destination already exists",
+      "invalidSchedule": "Schedule must be a valid cron expression",
+      "invalidServerUrl": "Invalid server URL: {{value}}",
+      "manageUnauthorized": "You are not allowed to manage backups",
+      "Err.NotFound": "Backup not found",
+      "outgoingTriggerOnly": "Only outgoing backups can be triggered manually",
+      "pairSecretRequired": "Pair secret is required",
+      "rsyncFailed": "Backup sync failed",
+      "rsyncMissing": "rsync is not installed on this server",
+      "selectMediaType": "Select at least one media type for a backup",
+      "serverKeyRequired": "Server key is required",
+      "serversMustDiffer": "Source and destination servers must be different",
+      "sourceLabelRequired": "Source server label is required",
+      "destinationLabelRequired": "Destination server label is required"
+    },
+    "common": {
+      "Err.BadRequest": "Bad request",
+      "conflict": "Conflict",
+      "fieldMustBeBoolean": "{{fieldName}} must be a boolean",
+      "forbidden": "Forbidden",
+      "internalServerError": "Internal server error",
+      "Err.NotFound": "Not found",
+      "unauthorized": "Authentication is required"
+    },
+    "files": {
+      "copySuccess": "File copied",
+      "createFileSuccess": "File created successfully",
+      "createFolderSuccess": "Folder created successfully",
+      "fileErr.NotFound": "File not found",
+      "groupErr.NotFound": "Group not found",
+      "moveSuccess": "File moved",
+      "removeSuccess": "File removed"
+    },
+    "groups": {
+      "accessDenied": "You are not allowed to access this group",
+      "duplicateId": "Group with this ID already exists",
+      "Err.NotFound": "Group not found",
+      "ownerRequired": "Only the group owner can manage this group",
+      "resourceAccessDenied": "You are not allowed to access this resource"
+    },
+    "notes": {
+      "contentRequired": "Note content is required",
+      "groupErr.NotFound": "Group not found",
+      "groupAccessDenied": "You are not allowed to access this group",
+      "groupWriteDenied": "You are not allowed to modify notes in this group",
+      "Err.NotFound": "Note not found",
+      "noteAccessDenied": "You are not allowed to access this note",
+      "noteWriteDenied": "You are not allowed to modify this note"
+    },
+    "photos": {
+      "duplicate": "Photo already exists",
+      "fileRequired": "File is required",
+      "Err.NotFound": "Photo not found",
+      "photosMissing": "One or more photos do not exist",
+      "thumbnailErr.NotFound": "Thumbnail not found"
+    }
+  },
+  "cancel": "Cancel",
+  "ok": "OK",
+  "create": "Create",
+  "remove": "Remove",
+  "rename": "Rename",
+  "newName": "New name",
+  "createFolder": "Create folder",
+  "Folder Name": "Folder name",
+  "removeItem": "Remove item(s)",
   "renameItem": "Rename item(s)",
-  "removeItem": "Remove item(s)"
+  "addMembers": "Add members",
+  "Add": "Add",
+  "Create Group": "Create group",
+  "Name": "Name",
+  "Group ID": "Group ID",
+  "Gallery": "Gallery",
+  "Files": "Files",
+  "Groups": "Groups"
 }

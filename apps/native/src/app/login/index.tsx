@@ -4,21 +4,27 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useUserContext } from '@/providers/UserProvider';
 import { Button } from '@/components/general/button';
 import { InputController } from '@/components/controllers/input.controller';
 import { type AuthResponse } from '@repo/shared';
 
-const schema = yup.object().shape({
-  // serverUrl: yup.string().required('Server URL is required'),
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().required('Password is required'),
-});
-
-type LoginForm = yup.InferType<typeof schema>;
+type LoginForm = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { setUser } = useUserContext();
+  const schema = yup.object().shape({
+    email: yup
+      .string()
+      .email(t('auth.login.validation.emailInvalid'))
+      .required(t('auth.login.validation.emailRequired')),
+    password: yup.string().required(t('auth.login.validation.passwordRequired')),
+  });
 
   const { mutate: login, isPending } = useMutation<AuthResponse, Error, LoginForm>({
     mutationKey: ['login'],
@@ -49,16 +55,21 @@ export default function LoginPage() {
   return (
     <View className="p-6 flex flex-1 gap-2 bg-background items-center">
       <View className="mt-48 max-w-sm w-full gap-6">
-        <InputController control={control} name="email" label="Email" error={errors.email?.message} />
+        <InputController
+          control={control}
+          name="email"
+          label={t('auth.login.fields.email')}
+          error={errors.email?.message}
+        />
         <InputController
           control={control}
           name="password"
-          label="Password"
+          label={t('auth.login.fields.password')}
           error={errors.password?.message}
           secureTextEntry
         />
         <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
-          Login
+          {t('auth.login.actions.submit')}
         </Button>
       </View>
     </View>

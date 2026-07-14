@@ -6,6 +6,7 @@ import { Text } from './general/text';
 import { cn } from '@/utils/cn';
 import { GroupOptionsDropdown } from './dropdowns/GroupOptions.dropdown';
 import { type GroupListItem } from '@/hooks/useGroupList';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   groups?: GroupListItem[];
@@ -27,9 +28,14 @@ const GroupBadge = ({ label, tone = 'default' }: { label: string; tone?: 'defaul
   </View>
 );
 
-const formatCount = (value: number, label: string) => `${value} ${label}${value === 1 ? '' : 's'}`;
-
 export const GroupList = ({ groups, emptyText = 'No groups found', scrollable = true, viewerIds = [] }: Props) => {
+  const { t } = useTranslation();
+
+  const formatCount = (value: number, label: 'member' | 'album' | 'photo') => {
+    const nounKey = { album: 'albums', member: 'members', photo: 'photos' }[label];
+    return `${value} ${t(`common.nouns.${nounKey}`)}`;
+  };
+
   const content =
     groups && groups.length > 0 ? (
       <View className="w-full flex-row flex-wrap gap-3">
@@ -65,7 +71,7 @@ export const GroupList = ({ groups, emptyText = 'No groups found', scrollable = 
                       <View className="flex-1 gap-2">
                         <View className="flex-row flex-wrap items-center gap-2">
                           <Text className="flex-1 text-lg leading-5">{group.name}</Text>
-                          {isOwnedByViewer ? <GroupBadge label="Owned" tone="accent" /> : null}
+                          {isOwnedByViewer ? <GroupBadge label={t('groups.badges.owned')} tone="accent" /> : null}
                         </View>
                       </View>
                     </View>

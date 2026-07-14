@@ -8,6 +8,7 @@ import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type AlbumResponse } from '@repo/shared';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
@@ -26,8 +27,6 @@ type AlbumRow = {
   album: AlbumResponse;
   depth: number;
 };
-
-const pluralize = (count: number, label: string) => `${count} ${label}${count === 1 ? '' : 's'}`;
 
 const compareAlbums = (left: AlbumResponse, right: AlbumResponse) => {
   const dateDifference = +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt);
@@ -67,14 +66,6 @@ const buildAlbumRows = (albums: AlbumResponse[]) => {
   return rows;
 };
 
-const describeAlbum = (album: AlbumResponse) =>
-  [
-    album.subalbumCount && pluralize(album.subalbumCount, 'album'),
-    album.photoCount && pluralize(album.photoCount, 'photo'),
-  ]
-    .filter(Boolean)
-    .join(' / ') || 'Empty album';
-
 type GalleryCreateAlbumModalProps = {
   servers: ServerConnectionWithClient[];
   parentAlbum?: AlbumParentContext | null;
@@ -88,29 +79,46 @@ export const GalleryCreateAlbumModal = ({
   selectedPhotos = [],
   onCreated,
 }: GalleryCreateAlbumModalProps) => {
+  const { t } = useTranslation();
   const { closeModal } = useUi();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [selectedServerId, setSelectedServerId] = useState(parentAlbum?.serverId ?? servers[0]?.id ?? '');
   const [selectedParentId, setSelectedParentId] = useState<string | null>(parentAlbum?.id ?? null);
   const selectedPhotoCount = selectedPhotos.length;
+  const formatCount = (count: number, label: 'album' | 'photo') => {
+    const nounKey = label === 'album' ? 'albums' : 'photos';
+    return `${count} ${t(`common.nouns.${nounKey}`)}`;
+  };
+  const describeAlbum = (album: AlbumResponse) =>
+    [
+      album.subalbumCount && formatCount(album.subalbumCount, 'album'),
+      album.photoCount && formatCount(album.photoCount, 'photo'),
+    ]
+      .filter(Boolean)
+      .join(' / ') || t('gallery.albumModal.emptyAlbum');
+
   const createAlbumCopy =
     selectedPhotoCount > 0
       ? {
-          title: 'Create album from selection',
-          description: `Create an album with ${pluralize(selectedPhotoCount, 'selected photo')}`,
-          success: `Album created with ${pluralize(selectedPhotoCount, 'photo')}`,
+          title: t('gallery.albumModal.createFromSelectionTitle'),
+          description: t('gallery.albumModal.createFromSelectionDescription', {
+            photoCount: formatCount(selectedPhotoCount, 'photo'),
+          }),
+          success: t('gallery.albumModal.createAlbumWithPhotosSuccess', {
+            photoCount: formatCount(selectedPhotoCount, 'photo'),
+          }),
         }
       : parentAlbum
         ? {
-            title: 'Create subalbum',
-            description: `New album inside ${parentAlbum.name}`,
-            success: 'Subalbum created',
+            title: t('gallery.albumModal.createSubalbumTitle'),
+            description: t('gallery.albumModal.createSubalbumDescription', { name: parentAlbum.name }),
+            success: t('gallery.albumModal.subalbumCreated'),
           }
         : {
-            title: 'Create album',
-            description: 'Create a new album on one of your active servers',
-            success: 'Album created',
+            title: t('gallery.albumModal.createTitle'),
+            description: t('gallery.albumModal.createDescription'),
+            success: t('gallery.albumModal.createAlbumSuccess'),
           };
 
   const selectedServer = servers.find((server) => server.id === selectedServerId) ?? null;
@@ -144,11 +152,11 @@ export const GalleryCreateAlbumModal = ({
       const trimmedName = name.trim();
 
       if (!trimmedName) {
-        throw new Error('Album name is required');
+        throw new Error(t('gallery.albumModal.nameRequired'));
       }
 
       if (!selectedServer) {
-        throw new Error('Select a server first');
+        throw new Error(t('common.messages.selectServerFirst'));
       }
 
       return selectedServer.client.album.create({
@@ -167,7 +175,7 @@ export const GalleryCreateAlbumModal = ({
       closeModal();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to create album');
+      toast.error(error instanceof Error ? error.message : t('gallery.toasts.createAlbumFailure'));
     },
   });
 
@@ -180,7 +188,7 @@ export const GalleryCreateAlbumModal = ({
 
       {!selectedPhotoCount && !parentAlbum && servers.length > 1 ? (
         <View className="gap-2">
-          <Text>Select a server</Text>
+          <Text>{t('gallery.albumModal.selectServer')}</Text>
           <View className="flex-row flex-wrap gap-2">
             {servers.map((server) => (
               <Button
@@ -196,17 +204,17 @@ export const GalleryCreateAlbumModal = ({
       ) : null}
 
       <View className="gap-2">
-        <Text>Album name</Text>
+        <Text>{t('common.labels.albumName')}</Text>
         <Input
           value={name}
           onChangeText={setName}
-          placeholder={parentAlbum ? 'Subalbum name' : 'Album name'}
+          placeholder={parentAlbum ? t('gallery.albumModal.subalbumName') : t('common.labels.albumName')}
           autoFocus
         />
       </View>
 
       <View className="gap-2">
-        <Text>Parent album</Text>
+        <Text>{t('common.labels.parentAlbum')}</Text>
         <Button
           variant={selectedParentId === null ? 'default' : 'outline'}
           onPress={() => setSelectedParentId(null)}
@@ -215,12 +223,18 @@ export const GalleryCreateAlbumModal = ({
         >
           <Icon.Folder className={selectedParentId === null ? 'text-primary-foreground' : 'text-foreground'} />
           <View className="shrink">
-            <Text>{selectedPhotoCount > 0 ? 'Top level album' : 'No parent'}</Text>
-            <Text className="text-left text-xs text-muted-foreground">Album will be created at the root level</Text>
+            <Text>
+              {selectedPhotoCount > 0 ? t('gallery.albumModal.topLevelAlbum') : t('gallery.albumModal.noParent')}
+            </Text>
+            <Text className="text-left text-xs text-muted-foreground">
+              {t('gallery.albumModal.rootLevelDescription')}
+            </Text>
           </View>
         </Button>
 
-        {isLoadingAlbums ? <Text className="text-muted-foreground">Loading albums...</Text> : null}
+        {isLoadingAlbums ? (
+          <Text className="text-muted-foreground">{t('gallery.albumModal.loadingAlbums')}</Text>
+        ) : null}
         {!isLoadingAlbums && albumRows.length > 0 ? (
           <ScrollView className="max-h-64">
             <View className="gap-2">
@@ -248,7 +262,7 @@ export const GalleryCreateAlbumModal = ({
       </View>
 
       <DialogFooter
-        okText={parentAlbum ? 'Create subalbum' : 'Create album'}
+        okText={parentAlbum ? t('gallery.albumModal.createSubalbum') : t('gallery.albumModal.createAlbum')}
         onOk={() => createAlbum()}
         loading={isPending}
       />
@@ -263,8 +277,20 @@ type GalleryAddToAlbumModalProps = {
 };
 
 export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: GalleryAddToAlbumModalProps) => {
+  const { t } = useTranslation();
   const { closeModal } = useUi();
   const queryClient = useQueryClient();
+  const formatCount = (count: number, label: 'album' | 'photo') => {
+    const nounKey = label === 'album' ? 'albums' : 'photos';
+    return `${count} ${t(`common.nouns.${nounKey}`)}`;
+  };
+  const describeAlbum = (album: AlbumResponse) =>
+    [
+      album.subalbumCount && formatCount(album.subalbumCount, 'album'),
+      album.photoCount && formatCount(album.photoCount, 'photo'),
+    ]
+      .filter(Boolean)
+      .join(' / ') || t('gallery.albumModal.emptyAlbum');
 
   const { data: albums = [], isPending: isLoadingAlbums } = useQuery({
     queryKey: ['albums', server.id],
@@ -282,26 +308,29 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
       queryClient.invalidateQueries({ queryKey: ['gallery'] });
       queryClient.invalidateQueries({ queryKey: ['albums', server.id] });
       onAdded?.();
-      toast.success('Photos added to album');
+      toast.success(t('gallery.toasts.addToAlbumSuccess'));
       closeModal();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to add photos to album');
+      toast.error(error instanceof Error ? error.message : t('gallery.albumModal.addToAlbumFailure'));
     },
   });
 
   return (
     <DialogContent className="sm:max-w-xl">
       <DialogHeader>
-        <DialogTitle>Add to album</DialogTitle>
+        <DialogTitle>{t('gallery.albumModal.addToAlbumTitle')}</DialogTitle>
         <DialogDescription>
-          {pluralize(selectedPhotos.length, 'photo')} selected on {server.label}
+          {t('gallery.albumModal.selectedOnServer', {
+            photoCount: formatCount(selectedPhotos.length, 'photo'),
+            server: server.label,
+          })}
         </DialogDescription>
       </DialogHeader>
 
-      {isLoadingAlbums ? <Text className="text-muted-foreground">Loading albums...</Text> : null}
+      {isLoadingAlbums ? <Text className="text-muted-foreground">{t('gallery.albumModal.loadingAlbums')}</Text> : null}
       {!isLoadingAlbums && albumRows.length === 0 ? (
-        <Text className="text-muted-foreground">No albums yet. Create one first, then add the selected photos.</Text>
+        <Text className="text-muted-foreground">{t('gallery.albumModal.emptyState')}</Text>
       ) : null}
 
       {!isLoadingAlbums && albumRows.length > 0 ? (
@@ -330,7 +359,7 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
       <View className="flex-row justify-end">
         <DialogClose asChild>
           <Button variant="secondary" disabled={isPending}>
-            Close
+            {t('common.actions.close')}
           </Button>
         </DialogClose>
       </View>

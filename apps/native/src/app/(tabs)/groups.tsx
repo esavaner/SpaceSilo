@@ -65,15 +65,17 @@ export default function GroupsPage() {
         <View className="gap-3">
           <View className="flex-row items-center justify-between gap-3">
             <View className="flex-1 gap-1">
-              <Text variant="h1">{t('Groups')}</Text>
+              <Text variant="h1">{t('navigation.groups')}</Text>
               <Text className="text-muted-foreground">
-                {isGroupsLoading ? 'Loading groups...' : `${visibleGroupCount} groups in view`}
+                {isGroupsLoading
+                  ? t('groups.loading')
+                  : `${visibleGroupCount} ${t('common.nouns.groups')} ${t('common.labels.inView')}`}
               </Text>
             </View>
 
             <Button onPress={() => openModal(<GroupCreateModal />)}>
               <Icon.Add className="text-black" />
-              <Text>Create</Text>
+              <Text>{t('groups.actions.create')}</Text>
             </Button>
           </View>
 
@@ -83,7 +85,7 @@ export default function GroupsPage() {
               <Input
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search groups or ids"
+                placeholder={t('groups.searchPlaceholder')}
                 className="flex-1 border-0 bg-transparent px-0"
               />
             </View>
@@ -98,7 +100,7 @@ export default function GroupsPage() {
           groups={visibleGroups}
           viewerIds={viewerIds}
           scrollable={false}
-          emptyText="No groups match the current filters"
+          emptyText={t('groups.emptyFiltered')}
         />
       </View>
     </BaseLayout>

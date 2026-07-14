@@ -10,16 +10,9 @@ import {
   DropdownMenuTrigger,
 } from './dropdown';
 import { useDropdown } from './useDropdown';
+import { useTranslation } from 'react-i18next';
 
 export type GroupFilter = 'all' | 'owned' | 'personal' | 'shared' | 'with-members';
-
-const filters: { label: string; value: GroupFilter }[] = [
-  { label: 'All groups', value: 'all' },
-  { label: 'Owned by me', value: 'owned' },
-  { label: 'Personal', value: 'personal' },
-  { label: 'Shared', value: 'shared' },
-  { label: 'With members', value: 'with-members' },
-];
 
 type Props = {
   value: GroupFilter;
@@ -27,19 +20,27 @@ type Props = {
 };
 
 export const GroupFilterDropdown = ({ value, onChange }: Props) => {
+  const { t } = useTranslation();
   const { ref, closeDropdown } = useDropdown();
+  const filters: { label: string; value: GroupFilter }[] = [
+    { label: t('groups.filters.all'), value: 'all' },
+    { label: t('groups.filters.owned'), value: 'owned' },
+    { label: t('groups.filters.personal'), value: 'personal' },
+    { label: t('groups.filters.shared'), value: 'shared' },
+    { label: t('groups.filters.withMembers'), value: 'with-members' },
+  ];
   const selected = filters.find((option) => option.value === value);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger ref={ref}>
         <Button variant="outline" size="sm">
-          <Text>{selected?.label ?? 'Filter groups'}</Text>
+          <Text>{selected?.label ?? t('groups.filters.trigger')}</Text>
           <Icon.Filter />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>Filter groups</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('groups.filters.trigger')}</DropdownMenuLabel>
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(nextValue) => {

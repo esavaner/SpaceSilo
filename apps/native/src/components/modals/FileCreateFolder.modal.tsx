@@ -13,17 +13,18 @@ type FileCreateFolderModalProps = {
   currentPath?: string;
 };
 
-const schema = yup.object().shape({
-  folder: yup.string().required('Folder name is required'),
-});
-
-type CreateFolderForm = yup.InferType<typeof schema>;
+type CreateFolderForm = {
+  folder: string;
+};
 
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
   const { t } = useTranslation();
   const { create, isPending } = useFileActions();
   const { servers } = useServerContext();
   const { selectedGroupIds } = useFilesContext();
+  const schema = yup.object().shape({
+    folder: yup.string().required(t('files.createFolder.validation.folderRequired')),
+  });
 
   const {
     handleSubmit,
@@ -32,7 +33,7 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   } = useForm<CreateFolderForm>({
     resolver: yupResolver(schema),
     defaultValues: {
-      folder: 'New folder',
+      folder: t('files.createFolder.defaultName'),
     },
   });
 
@@ -48,16 +49,16 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{t('createFolder')}</DialogTitle>
+        <DialogTitle>{t('files.createFolder.title')}</DialogTitle>
       </DialogHeader>
       <InputController
         control={control}
         name="folder"
-        label={t('Folder Name')}
+        label={t('common.labels.folderName')}
         error={errors.folder?.message}
         onEnter={handleSubmit(onSubmit)}
       />
-      <DialogFooter okText={t('create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
+      <DialogFooter okText={t('files.createFolder.submit')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
 };

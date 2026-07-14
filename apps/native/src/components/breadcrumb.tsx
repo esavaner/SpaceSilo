@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from './general/text';
 import { Button } from './general/button';
 import { Icon } from './general/icon';
@@ -27,7 +28,7 @@ type Props =
     };
 
 const ROOT_KEY = '__breadcrumb_root__';
-const HOME_LABEL = 'Home';
+const HOME_LABEL = 'common.labels.home';
 
 const createPathBreadcrumbItems = ({
   pathItems,
@@ -44,6 +45,7 @@ const createPathBreadcrumbItems = ({
 };
 
 export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: Props) => {
+  const { t } = useTranslation();
   const breadcrumbItems =
     pathItems !== undefined
       ? createPathBreadcrumbItems({
@@ -61,7 +63,7 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: P
             {index !== 0 && <Icon.NavigateNext className="mr-1 text-muted-foreground" size={14} />}
             {item.onPress ? (
               <Button variant="ghost" size="sm" onPress={item.onPress}>
-                <Text>{item.label}</Text>
+                <Text>{item.label === HOME_LABEL ? t(HOME_LABEL) : item.label}</Text>
               </Button>
             ) : (
               <Text className="text-muted-foreground">{item.label}</Text>

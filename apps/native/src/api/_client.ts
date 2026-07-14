@@ -1,4 +1,5 @@
 import { API_PREFIX_PATH } from '@repo/shared/constants/api';
+import { type ApiErrorResponse } from '@repo/shared';
 
 export const ServerType = { CORE: 'core', DROPBOX: 'dropbox', GOOGLE_DRIVE: 'googleDrive' } as const;
 
@@ -12,16 +13,42 @@ export const ClientStatus = {
 export type ServerType = (typeof ServerType)[keyof typeof ServerType];
 export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus];
 
-class ApiError extends Error {
+const parseApiErrorResponse = (body: string): ApiErrorResponse | undefined => {
+  if (!body) {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as Partial<ApiErrorResponse>;
+
+    if (typeof parsed.message !== 'string' || typeof parsed.statusCode !== 'number') {
+      return undefined;
+    }
+
+    return parsed as ApiErrorResponse;
+  } catch {
+    return undefined;
+  }
+};
+
+export class ApiError extends Error {
   public readonly status: number;
   public readonly statusText: string;
+  public readonly responseBody?: ApiErrorResponse;
 
-  constructor(status: number, statusText: string, body: string) {
-    super(`API call failed: ${status} ${statusText} - ${body}`);
+  constructor(status: number, statusText: string, body: string, responseBody?: ApiErrorResponse) {
+    super(responseBody?.message ?? `API call failed: ${status} ${statusText} - ${body}`);
     this.status = status;
     this.statusText = statusText;
+    this.message = responseBody?.message || '';
+    this.responseBody = responseBody;
   }
 }
+
+export const createApiError = async (response: Response) => {
+  const errorText = await response.text();
+  return new ApiError(response.status, response.statusText, errorText, parseApiErrorResponse(errorText));
+};
 
 export type ApiClientOptions = {
   baseUrl: string;
@@ -132,8 +159,7 @@ export class ApiClient<TAccount = unknown> {
       });
     const response = await doFetch();
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new ApiError(response.status, response.statusText, errorText);
+      throw await createApiError(response);
     }
     return unparsed ? (response as Res) : (response.json() as Promise<Res>);
   }

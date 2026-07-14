@@ -11,6 +11,7 @@ import {
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { toast } from '@/lib/toast';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { Input } from '../form/input';
 import { Text } from '../general/text';
@@ -24,6 +25,7 @@ type NoteEditorModalProps = {
 };
 
 export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorModalProps) => {
+  const { t } = useTranslation();
   const availableGroups = [...(note ? groups.filter((group) => group.serverId === note.serverId) : groups)].sort(
     (left, right) => {
       const personalDifference = Number(Boolean(right.personal)) - Number(Boolean(left.personal));
@@ -50,7 +52,7 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
     const parts = [group.name];
 
     if (group.personal) {
-      parts.push('Personal');
+      parts.push(t('common.labels.personal'));
     }
 
     if (hasMultipleServers) {
@@ -64,12 +66,12 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
     const trimmedContent = content.trim();
 
     if (!selectedGroup) {
-      toast.error('Select a group first');
+      toast.error(t('notes.errors.groupRequired'));
       return;
     }
 
     if (!trimmedContent) {
-      toast.error('Note content is required');
+      toast.error(t('api.notes.contentRequired'));
       return;
     }
 
@@ -95,24 +97,27 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{isEditing ? 'Edit note' : 'Create note'}</DialogTitle>
+        <DialogTitle>{isEditing ? t('notes.editor.titleEdit') : t('notes.editor.titleCreate')}</DialogTitle>
         <DialogDescription>
-          {isEditing
-            ? 'Update the note content and move it to another group on the same server if needed.'
-            : 'Choose which group owns this note. Personal groups stay selected by default.'}
+          {isEditing ? t('notes.editor.descriptionEdit') : t('notes.editor.descriptionCreate')}
         </DialogDescription>
       </DialogHeader>
 
       <View className="gap-2">
-        <Text>Title</Text>
-        <Input value={title} onChangeText={setTitle} placeholder="Optional note title" autoFocus={!isEditing} />
+        <Text>{t('common.labels.title')}</Text>
+        <Input
+          value={title}
+          onChangeText={setTitle}
+          placeholder={t('notes.editor.optionalTitle')}
+          autoFocus={!isEditing}
+        />
       </View>
 
       <View className="gap-2">
-        <Text>Belongs to</Text>
+        <Text>{t('common.labels.belongsTo')}</Text>
         {availableGroups.length === 0 ? (
           <View className="rounded-xl border border-dashed border-border p-4">
-            <Text className="text-sm text-muted-foreground">No accessible groups are available for this note.</Text>
+            <Text className="text-sm text-muted-foreground">{t('notes.editor.noAccessibleGroups')}</Text>
           </View>
         ) : (
           <Select
@@ -120,7 +125,7 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
             onValueChange={(option) => setSelectedGroupId(option?.value ?? '')}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a group" />
+              <SelectValue placeholder={t('notes.editor.selectGroup')} />
             </SelectTrigger>
             <SelectContent>
               <NativeSelectScrollView>
@@ -134,11 +139,11 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
       </View>
 
       <View className="gap-2">
-        <Text>Content</Text>
+        <Text>{t('common.labels.content')}</Text>
         <Input
           value={content}
           onChangeText={setContent}
-          placeholder="Write the note here"
+          placeholder={t('notes.editor.writeHere')}
           multiline
           numberOfLines={10}
           textAlignVertical="top"
@@ -146,7 +151,11 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
         />
       </View>
 
-      <DialogFooter okText={isEditing ? 'Save' : 'Create'} onOk={handleSubmit} loading={isPending} />
+      <DialogFooter
+        okText={isEditing ? t('notes.editor.save') : t('notes.editor.create')}
+        onOk={handleSubmit}
+        loading={isPending}
+      />
     </DialogContent>
   );
 };

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { API_PREFIX_PATH } from '@repo/shared/constants/api';
 import {
@@ -11,6 +11,7 @@ import {
   type TokenPayload,
   type UpdateAlbumRequest,
 } from '@repo/shared';
+import { Err } from '@/common/api-message';
 
 const PHOTO_ORDER_BY: Prisma.PhotoOrderByWithRelationInput[] = [
   { capturedAt: 'desc' },
@@ -131,7 +132,7 @@ export class AlbumService {
     });
 
     if (!album) {
-      throw new NotFoundException('Album not found');
+      throw Err.NotFound('api.albums.Err.NotFound');
     }
 
     return album;
@@ -144,7 +145,7 @@ export class AlbumService {
     });
 
     if (!parent) {
-      throw new NotFoundException('Parent album not found');
+      throw Err.NotFound('api.albums.parentErr.NotFound');
     }
   }
 
@@ -154,14 +155,14 @@ export class AlbumService {
     }
 
     if (parentId === albumId) {
-      throw new BadRequestException('Album cannot be its own parent');
+      throw Err.BadRequest('api.albums.selfParent');
     }
 
     let currentParentId: string | null | undefined = parentId;
 
     while (currentParentId) {
       if (currentParentId === albumId) {
-        throw new BadRequestException('Album nesting would create a cycle');
+        throw Err.BadRequest('api.albums.cycle');
       }
 
       const album = await this.prisma.album.findFirst({
@@ -170,7 +171,7 @@ export class AlbumService {
       });
 
       if (!album) {
-        throw new NotFoundException('Parent album not found');
+        throw Err.NotFound('api.albums.parentErr.NotFound');
       }
 
       currentParentId = album.parentId;
@@ -191,7 +192,7 @@ export class AlbumService {
     });
 
     if (count !== photoIds.length) {
-      throw new BadRequestException('One or more photos do not exist');
+      throw Err.BadRequest('api.albums.photosMissing');
     }
   }
 
@@ -208,7 +209,7 @@ export class AlbumService {
     });
 
     if (count !== groupIds.length) {
-      throw new BadRequestException('One or more groups do not exist');
+      throw Err.BadRequest('api.albums.groupsMissing');
     }
   }
 
@@ -404,7 +405,7 @@ export class AlbumService {
     });
 
     if (!album) {
-      throw new NotFoundException('Album not found');
+      throw Err.NotFound('api.albums.Err.NotFound');
     }
 
     return this.mapAlbumResponse(album);

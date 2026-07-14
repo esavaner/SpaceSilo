@@ -4,6 +4,7 @@ import { Text } from '../general/text';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
 import { Icon } from '../general/icon';
 import { useUi } from '@/providers/UiProvider';
+import { useTranslation } from 'react-i18next';
 
 type FileAddDropdownProps = {
   currentPath: string;
@@ -11,6 +12,7 @@ type FileAddDropdownProps = {
 };
 
 export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps) => {
+  const { t } = useTranslation();
   const { openModal } = useUi();
 
   return (
@@ -18,13 +20,13 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
       <DropdownMenuTrigger>
         <Button className={className}>
           <Icon.Add className="text-black" />
-          <Text>Add</Text>
+          <Text>{t('files.actions.add')}</Text>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onPress={() => openModal(<FileCreateFolderModal currentPath={currentPath} />)}>
           <Icon.Folder />
-          <Text>Folder</Text>
+          <Text>{t('files.actions.folder')}</Text>
         </DropdownMenuItem>
         <DropdownMenuItem
           onPress={() => {
@@ -32,7 +34,7 @@ export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps
           }}
         >
           <Icon.File />
-          <Text>File</Text>
+          <Text>{t('files.actions.file')}</Text>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

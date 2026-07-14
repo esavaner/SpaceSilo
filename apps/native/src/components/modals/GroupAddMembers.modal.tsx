@@ -30,35 +30,40 @@ type GroupWithMembers = Omit<GroupResponse, 'members'> & {
 };
 type SelectedUser = SearchUserResult & Required<Pick<AddGroupMemberRequest, 'userId'>> & { access: AccessLevel };
 
-const selectOptions = [
-  { label: 'Admin', value: 'admin' },
-  { label: 'Edit', value: 'edit' },
-  { label: 'Read', value: 'read' },
-] as const satisfies { label: string; value: AccessLevel }[];
-
 type Props = {
   group: GroupWithMembers;
 };
 
-const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger>
-      <Button variant="outline">
-        <Text>{selectOptions.find((option) => option.value === value)?.label ?? 'Read'}</Text>
-        <Icon.ChevronDown />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent>
-      <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
-        {selectOptions.map((option) => (
-          <DropdownMenuRadioItem key={option.value} value={option.value}>
-            <Text>{option.label}</Text>
-          </DropdownMenuRadioItem>
-        ))}
-      </DropdownMenuRadioGroup>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => {
+  const { t } = useTranslation();
+  const selectOptions = [
+    { label: t('groups.membersModal.levels.admin'), value: 'admin' },
+    { label: t('groups.membersModal.levels.edit'), value: 'edit' },
+    { label: t('groups.membersModal.levels.read'), value: 'read' },
+  ] as const satisfies { label: string; value: AccessLevel }[];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="outline">
+          <Text>
+            {selectOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read')}
+          </Text>
+          <Icon.ChevronDown />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
+          {selectOptions.map((option) => (
+            <DropdownMenuRadioItem key={option.value} value={option.value}>
+              <Text>{option.label}</Text>
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
@@ -112,13 +117,13 @@ export const GroupAddMembersModal = ({ group }: Props) => {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{t('addMembers')}</DialogTitle>
+        <DialogTitle>{t('groups.membersModal.title')}</DialogTitle>
       </DialogHeader>
       {selectedMembers.length > 0 && (
         <View className="flex-row gap-2 p-2">
           <Text>{selectedMembers.length}</Text>
-          <Text>Access</Text>
-          <Text>Remove</Text>
+          <Text>{t('groups.membersModal.access')}</Text>
+          <Text>{t('common.actions.remove')}</Text>
         </View>
       )}
       <ScrollView className="h-max-96">
@@ -134,7 +139,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
       </ScrollView>
       <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
       {/* @TODO */}
-      <DialogFooter okText={t('Add')} onOk={handleSubmit} loading={isPending} className="z-[-2]" />
+      <DialogFooter okText={t('common.actions.add')} onOk={handleSubmit} loading={isPending} className="z-[-2]" />
     </DialogContent>
   );
 };

@@ -1,9 +1,10 @@
-import { BadRequestException, Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Err } from '@/common/api-message';
 import { GalleryService } from '@/services/gallery.service';
 import { User } from '@/decorators/user.decorator';
 import { FindGalleryImagesRequest, type TokenPayload } from '@repo/shared';
 
-const parseOptionalBooleanQuery = (value: unknown, fieldName: string) => {
+const parseOptionalBooleanQuery = (value: unknown) => {
   if (value === undefined) {
     return undefined;
   }
@@ -16,7 +17,7 @@ const parseOptionalBooleanQuery = (value: unknown, fieldName: string) => {
     return false;
   }
 
-  throw new BadRequestException(`${fieldName} must be a boolean`);
+  throw Err.BadRequest('api.common.fieldMustBeBoolean');
 };
 
 @Controller('gallery')
@@ -33,8 +34,8 @@ export class GalleryController {
     return this.galleryService.findAll(
       {
         ...query,
-        condensed: parseOptionalBooleanQuery(condensed, 'condensed'),
-        trash: parseOptionalBooleanQuery(trash, 'trash'),
+        condensed: parseOptionalBooleanQuery(condensed),
+        trash: parseOptionalBooleanQuery(trash),
       },
       user
     );

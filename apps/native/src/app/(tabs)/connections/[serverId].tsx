@@ -8,7 +8,9 @@ import { useServerContext } from '@/providers/ServerProvider';
 import { fileSize } from '@/utils/common';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+import { tApiErr } from '@/i18n/translate';
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
   <View className="border border-border rounded-lg p-4 gap-1 bg-layer-secondary/40 min-w-40 flex-1">
@@ -20,6 +22,7 @@ const StatCard = ({ label, value }: { label: string; value: string }) => (
 );
 
 export default function ConnectionDetailsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { serverId } = useLocalSearchParams<{ serverId: string }>();
   const { allServers } = useServerContext();
@@ -37,21 +40,23 @@ export default function ConnectionDetailsPage() {
     mutationKey: ['server-gallery-scan', serverId],
     mutationFn: () => server!.client.gallery.scan(),
     onSuccess: (result: GalleryScanResponse) => {
-      toast.success(`Scanned ${result.scannedImages} images, added ${result.addedImages} new`);
+      toast.success(
+        t('connections.details.messages.scanSuccess', { scanned: result.scannedImages, added: result.addedImages })
+      );
       queryClient.invalidateQueries({ queryKey: ['server-gallery-stats', serverId] });
       queryClient.invalidateQueries({ queryKey: ['gallery'] });
     },
-    onError: () => {
-      toast.error('Scan failed');
+    onError: (error) => {
+      toast.error(tApiErr(t, error, 'connections.details.messages.scanFailed'));
     },
   });
 
   if (!server) {
     return (
       <BaseLayout>
-        <Text variant="h1">Connection</Text>
+        <Text variant="h1">{t('navigation.connection')}</Text>
         <Text variant="muted" className="mt-4">
-          Server connection not found.
+          {t('connections.details.messages.Err.NotFound')}
         </Text>
       </BaseLayout>
     );
@@ -73,38 +78,51 @@ export default function ConnectionDetailsPage() {
             <Text variant="h1">{server.label}</Text>
             <Text variant="muted">{server.baseUrl}</Text>
             <Text variant="small">
-              {server.disabled ? 'Disabled' : server.client.status === 'logged_in' ? 'Connected' : 'Disconnected'}
+              {server.disabled
+                ? t('connections.details.state.disabled')
+                : server.client.status === 'logged_in'
+                  ? t('connections.details.state.connected')
+                  : t('connections.details.state.disconnected')}
             </Text>
             {server.client.account?.email && <Text variant="muted">{server.client.account.email}</Text>}
           </View>
         </View>
 
         <Button onPress={() => triggerScan()} loading={isScanning} disabled={!canQuery}>
-          Scan images
+          {t('connections.details.actions.scanImages')}
         </Button>
       </View>
 
       {!canQuery && (
         <Text variant="muted" className="mb-4">
-          This server must be enabled and logged in before stats and scanning are available.
+          {t('connections.details.messages.statsUnavailable')}
         </Text>
       )}
 
       <View className="gap-3 grid md:grid-cols-2 xl:grid-cols-4 mb-6">
-        <StatCard label="Stored files" value={isPending ? '...' : String(statValues.totalFiles)} />
-        <StatCard label="Image files" value={isPending ? '...' : String(statValues.totalImages)} />
-        <StatCard label="Indexed images" value={isPending ? '...' : String(statValues.indexedImages)} />
-        <StatCard label="Storage size" value={isPending ? '...' : fileSize(statValues.storageSize)} />
+        <StatCard
+          label={t('connections.details.stats.storedFiles')}
+          value={isPending ? '...' : String(statValues.totalFiles)}
+        />
+        <StatCard
+          label={t('connections.details.stats.imageFiles')}
+          value={isPending ? '...' : String(statValues.totalImages)}
+        />
+        <StatCard
+          label={t('connections.details.stats.indexedImages')}
+          value={isPending ? '...' : String(statValues.indexedImages)}
+        />
+        <StatCard
+          label={t('connections.details.stats.storageSize')}
+          value={isPending ? '...' : fileSize(statValues.storageSize)}
+        />
       </View>
 
       <View className="border border-border rounded-lg p-4 gap-2">
-        <Text variant="h3">Actions</Text>
-        <Text variant="muted">
-          Run a scan after adding image files directly to the server storage folders. The server will scan supported
-          image files, skip ones already indexed, and create entries for new images.
-        </Text>
+        <Text variant="h3">{t('common.labels.actions')}</Text>
+        <Text variant="muted">{t('connections.details.actionDescription')}</Text>
         <Button className="self-start mt-2" onPress={() => triggerScan()} loading={isScanning} disabled={!canQuery}>
-          Scan and index new images
+          {t('connections.details.actions.scanAndIndex')}
         </Button>
       </View>
     </BaseLayout>
