@@ -136,7 +136,7 @@ export class ApiClient<TAccount = unknown> {
     const headers: Record<string, string> = {
       ...this.headersToRecord(this.defaultConfig.headers),
       ...this.headersToRecord(config.headers),
-      ...(this.accessToken ? { Authorization: `Bearer ${this.accessToken}` } : {}),
+      ...this.getAuthHeaders(),
     };
 
     if (
@@ -196,12 +196,16 @@ export class ApiClient<TAccount = unknown> {
     return response.blob();
   }
 
-  public post<Req, Res>(path: string, body?: Req, config?: RequestInit) {
+  private bodyRequest<Req, Res>(method: string, path: string, body?: Req, config?: RequestInit) {
     return this.request<Res>(path, {
       ...config,
-      method: 'POST',
+      method,
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
+  }
+
+  public post<Req, Res>(path: string, body?: Req, config?: RequestInit) {
+    return this.bodyRequest<Req, Res>('POST', path, body, config);
   }
 
   public postFormData<Res>(path: string, body: FormData, config?: RequestInit) {
@@ -213,27 +217,15 @@ export class ApiClient<TAccount = unknown> {
   }
 
   public put<Req, Res>(path: string, body?: Req, config?: RequestInit) {
-    return this.request<Res>(path, {
-      ...config,
-      method: 'PUT',
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    return this.bodyRequest<Req, Res>('PUT', path, body, config);
   }
 
   public patch<Req, Res>(path: string, body?: Req, config?: RequestInit) {
-    return this.request<Res>(path, {
-      ...config,
-      method: 'PATCH',
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    return this.bodyRequest<Req, Res>('PATCH', path, body, config);
   }
 
   public delete<Req, Res>(path: string, body?: Req, config?: RequestInit) {
-    return this.request<Res>(path, {
-      ...config,
-      method: 'DELETE',
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    return this.bodyRequest<Req, Res>('DELETE', path, body, config);
   }
 
   public async reconnect() {

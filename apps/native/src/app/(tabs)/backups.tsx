@@ -19,6 +19,7 @@ import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
 import { toast } from '@/lib/toast';
 import { type ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
+import { createId } from '@/utils/common';
 import { useTranslation } from 'react-i18next';
 
 type BackupListItem = BackupResponse & {
@@ -28,11 +29,6 @@ type BackupListItem = BackupResponse & {
 };
 
 const DEFAULT_SCHEDULE = '0 2 * * *';
-
-const createLocalId = () =>
-  typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 
 const sanitizeServerKey = (value: string) =>
   value
@@ -297,8 +293,8 @@ export default function BackupsPage() {
           throw new Error(t('backups.errors.serversDifferent'));
         }
 
-        const pairId = createLocalId();
-        const pairSecret = createLocalId();
+        const pairId = createId();
+        const pairSecret = createId();
         const basePayload = {
           ...buildPayload(selectedSourceServer, selectedDestinationServer),
           pairId,

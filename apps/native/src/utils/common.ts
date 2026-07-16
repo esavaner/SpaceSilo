@@ -12,3 +12,8 @@ export const getInitials = (name?: string) => {
   if (!first || !last) return first ? first[0].toUpperCase() : '';
   return `${first[0]}${last[0]}`.toUpperCase();
 };
+
+export const createId = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;

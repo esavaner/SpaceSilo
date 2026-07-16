@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { type ServerType } from '../api/_client';
 import { CoreApiClient } from '../api/core.client';
 import { storage } from '../utils/storage';
+import { createId } from '../utils/common';
 
 export type ServerConnection = {
   id: string;
@@ -46,11 +47,6 @@ export const ServerContext = createContext<ServerContextType | undefined>(undefi
 export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [allServers, setServers] = useState<ServerConnectionWithClient[]>([]);
-
-  const createServerId = () =>
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 
   const readServersFromStorage = async () => {
     try {
@@ -97,7 +93,7 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
         saved = newServers[existingIndex];
       } else {
         saved = {
-          id: createServerId(),
+          id: createId(),
           type,
           label: label || baseUrl || email,
           baseUrl,

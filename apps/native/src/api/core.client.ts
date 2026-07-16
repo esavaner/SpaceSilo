@@ -63,18 +63,22 @@ export type Options = ApiClientOptions & {
 
 export class CoreApiClient extends ApiClient<UserResponse> {
   constructor(options: Options) {
-    super({ ...options });
+    super(options);
     if (options.email && options.password) {
       void this.startLogin(() => this.login(options.email!, options.password!));
     }
   }
 
-  private async login(email: string, password: string) {
-    const response = await fetch(this.buildApiUrl(endpoints.login), {
+  private rawJsonPost(path: string, body: unknown) {
+    return fetch(this.buildApiUrl(path), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(body),
     });
+  }
+
+  private async login(email: string, password: string) {
+    const response = await this.rawJsonPost(endpoints.login, { email, password });
     if (!response.ok) {
       throw await createApiError(response);
     }
@@ -94,11 +98,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     if (!refreshToken) {
       return false;
     }
-    const response = await fetch(this.buildApiUrl(endpoints.refresh), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
+    const response = await this.rawJsonPost(endpoints.refresh, { refreshToken });
     if (!response.ok) {
       return false;
     }
