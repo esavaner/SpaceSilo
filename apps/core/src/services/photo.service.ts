@@ -16,6 +16,16 @@ const PREVIEW_MAX_WIDTH = 1920;
 const PREVIEW_MAX_HEIGHT = 1080;
 const PREVIEW_JPEG_QUALITY = 90;
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff', '.avif']);
+const MIME_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
+  '.tif': 'image/tiff',
+  '.tiff': 'image/tiff',
+  '.avif': 'image/avif',
+};
 
 type StoredPhotoMetadata = Prisma.InputJsonObject & {
   capturedAt?: string | null;
@@ -312,31 +322,22 @@ export class PhotoService {
   }
 
   private getMimeType(filePath: string) {
-    const extension = path.extname(filePath).toLowerCase();
-    switch (extension) {
-      case '.jpg':
-      case '.jpeg':
-        return 'image/jpeg';
-      case '.png':
-        return 'image/png';
-      case '.webp':
-        return 'image/webp';
-      case '.bmp':
-        return 'image/bmp';
-      case '.tif':
-      case '.tiff':
-        return 'image/tiff';
-      case '.avif':
-        return 'image/avif';
-      default:
-        return 'application/octet-stream';
-    }
+    return MIME_TYPES[path.extname(filePath).toLowerCase()] ?? 'application/octet-stream';
   }
 
   private async findOwnedPhoto(id: string, user: TokenPayload) {
     return this.prisma.photo.findFirst({
       where: { id, ownerId: user.sub },
     });
+  }
+
+  private async getOwnedPhotoOrThrow(id: string, user: TokenPayload) {
+    const photo = await this.findOwnedPhoto(id, user);
+    if (!photo) {
+      throw Err.NotFound('api.photos.Err.NotFound');
+    }
+
+    return photo;
   }
 
   private async ensureOwnedPhotoIds(
@@ -388,6 +389,15 @@ export class PhotoService {
     const normalizedAlbumIds = this.normalizeIds(albumIds);
 
     await Promise.all(normalizedAlbumIds.map((albumId) => this.albumService.refreshAlbumCapturedAtCascade(albumId)));
+  }
+
+  private async getTrashedPhotoIds(ownerId: string) {
+    const photos = await this.prisma.photo.findMany({
+      where: { ownerId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+
+    return photos.map((photo) => photo.id);
   }
 
   private createBulkActionResponse(
@@ -456,11 +466,7 @@ export class PhotoService {
   }
 
   async findOne(id: string, user: TokenPayload): Promise<GalleryImageResponse> {
-    const photo = await this.findOwnedPhoto(id, user);
-    if (!photo) {
-      throw Err.NotFound('api.photos.Err.NotFound');
-    }
-
+    const photo = await this.getOwnedPhotoOrThrow(id, user);
     const capturedAt = await this.ensureCapturedAt(photo);
 
     return this.toGalleryImageResponse({
@@ -475,10 +481,7 @@ export class PhotoService {
   // }
 
   async remove(id: string, user: TokenPayload) {
-    const photo = await this.findOwnedPhoto(id, user);
-    if (!photo) {
-      throw Err.NotFound('api.photos.Err.NotFound');
-    }
+    const photo = await this.getOwnedPhotoOrThrow(id, user);
 
     if (!photo.deletedAt) {
       await this.trashMany([photo.id], user);
@@ -532,12 +535,7 @@ export class PhotoService {
   }
 
   async restoreAll(user: TokenPayload) {
-    const photoIds = (
-      await this.prisma.photo.findMany({
-        where: { ownerId: user.sub, deletedAt: { not: null } },
-        select: { id: true },
-      })
-    ).map((photo) => photo.id);
+    const photoIds = await this.getTrashedPhotoIds(user.sub);
 
     if (!photoIds.length) {
       return this.createBulkActionResponse('restore', [], 'all', 0);
@@ -575,12 +573,7 @@ export class PhotoService {
   }
 
   async removeAllTrashed(user: TokenPayload) {
-    const photoIds = (
-      await this.prisma.photo.findMany({
-        where: { ownerId: user.sub, deletedAt: { not: null } },
-        select: { id: true },
-      })
-    ).map((photo) => photo.id);
+    const photoIds = await this.getTrashedPhotoIds(user.sub);
 
     if (!photoIds.length) {
       return this.createBulkActionResponse('delete-permanently', [], 'all', 0);

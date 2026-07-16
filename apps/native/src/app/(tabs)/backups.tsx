@@ -76,14 +76,6 @@ const formatDateTime = (value: string | Date | null | undefined, language: strin
   return new Date(value).toLocaleString(language);
 };
 
-const formatMaybeDateTime = (value: string | Date | null | undefined, language: string, fallback: string) => {
-  if (!value) {
-    return fallback;
-  }
-
-  return new Date(value).toLocaleString(language);
-};
-
 const compareBackups = (left: BackupListItem, right: BackupListItem) => {
   const updatedDifference = +new Date(right.updatedAt) - +new Date(left.updatedAt);
 
@@ -250,24 +242,34 @@ export default function BackupsPage() {
     setCopyNotes(backup.copyNotes);
   };
 
-  const saveBackup = async () => {
+  const runAction = async (key: string, errorKey: string, action: () => Promise<void>) => {
     if (busyAction) {
       return;
     }
 
-    if (!schedule.trim()) {
-      toast.error(t('backups.errors.scheduleRequired'));
-      return;
-    }
-
-    if (!hasMediaSelection) {
-      toast.error(t('backups.errors.mediaRequired'));
-      return;
-    }
-
-    setBusyAction('save');
+    setBusyAction(key);
 
     try {
+      await action();
+    } catch (error) {
+      toast.error(tApiErr(t, error, errorKey));
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
+  const saveBackup = () =>
+    runAction('save', 'backups.errors.save', async () => {
+      if (!schedule.trim()) {
+        toast.error(t('backups.errors.scheduleRequired'));
+        return;
+      }
+
+      if (!hasMediaSelection) {
+        toast.error(t('backups.errors.mediaRequired'));
+        return;
+      }
+
       if (currentEditingBackup) {
         const { sourceServer, destinationServer, sourceConfigId, destinationConfigId } =
           resolveOutgoingTargets(currentEditingBackup);
@@ -321,21 +323,10 @@ export default function BackupsPage() {
 
       resetForm();
       await refreshBackups();
-    } catch (error) {
-      toast.error(tApiErr(t, error, 'backups.errors.save'));
-    } finally {
-      setBusyAction(null);
-    }
-  };
+    });
 
-  const toggleBackup = async (backup: BackupListItem) => {
-    if (busyAction) {
-      return;
-    }
-
-    setBusyAction(`toggle:${backup.id}`);
-
-    try {
+  const toggleBackup = (backup: BackupListItem) =>
+    runAction(`toggle:${backup.id}`, 'backups.errors.toggle', async () => {
       const { sourceServer, destinationServer, sourceConfigId, destinationConfigId } = resolveOutgoingTargets(backup);
 
       if (!sourceServer || !destinationServer || !sourceConfigId || !destinationConfigId) {
@@ -360,21 +351,10 @@ export default function BackupsPage() {
 
       toast.success(nextActive ? t('backups.toasts.enableSuccess') : t('backups.toasts.disableSuccess'));
       await refreshBackups();
-    } catch (error) {
-      toast.error(tApiErr(t, error, 'backups.errors.toggle'));
-    } finally {
-      setBusyAction(null);
-    }
-  };
+    });
 
-  const deleteBackup = async (backup: BackupListItem) => {
-    if (busyAction) {
-      return;
-    }
-
-    setBusyAction(`delete:${backup.id}`);
-
-    try {
+  const deleteBackup = (backup: BackupListItem) =>
+    runAction(`delete:${backup.id}`, 'backups.errors.delete', async () => {
       const { sourceServer, destinationServer, sourceConfigId, destinationConfigId } = resolveOutgoingTargets(backup);
       const actions: Array<Promise<unknown>> = [];
 
@@ -407,21 +387,10 @@ export default function BackupsPage() {
         toast.info(t('backups.toasts.deletePartial'));
       }
       await refreshBackups();
-    } catch (error) {
-      toast.error(tApiErr(t, error, 'backups.errors.delete'));
-    } finally {
-      setBusyAction(null);
-    }
-  };
+    });
 
-  const triggerBackup = async (backup: BackupListItem) => {
-    if (busyAction) {
-      return;
-    }
-
-    setBusyAction(`trigger:${backup.id}`);
-
-    try {
+  const triggerBackup = (backup: BackupListItem) =>
+    runAction(`trigger:${backup.id}`, 'backups.errors.trigger', async () => {
       const { sourceServer, sourceConfigId } = resolveOutgoingTargets(backup);
 
       if (!sourceServer || !sourceConfigId) {
@@ -431,31 +400,31 @@ export default function BackupsPage() {
       await sourceServer.client.backups.trigger(sourceConfigId);
       toast.success(t('backups.toasts.triggerSuccess'));
       await refreshBackups();
-    } catch (error) {
-      toast.error(tApiErr(t, error, 'backups.errors.trigger'));
-    } finally {
-      setBusyAction(null);
-    }
-  };
+    });
 
-  const renderMediaToggle = (
-    label: string,
-    selected: boolean,
-    onPress: () => void,
-    description: string,
-    disabled = false
-  ) => (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      className={`min-w-35 flex-1 rounded-xl border px-4 py-3 ${
-        selected ? 'border-primary bg-primary/10' : 'border-border bg-background'
-      } ${disabled ? 'opacity-50' : ''}`}
-    >
-      <Text className="font-medium">{label}</Text>
-      <Text className="mt-1 text-xs text-muted-foreground">{description}</Text>
-    </Pressable>
-  );
+  const mediaOptions = [
+    {
+      key: 'photos',
+      selected: copyPhotos,
+      toggle: () => setCopyPhotos((value) => !value),
+      title: t('backups.media.photos.title'),
+      description: t('backups.media.photos.description'),
+    },
+    {
+      key: 'files',
+      selected: copyFiles,
+      toggle: () => setCopyFiles((value) => !value),
+      title: t('backups.media.files.title'),
+      description: t('backups.media.files.description'),
+    },
+    {
+      key: 'notes',
+      selected: copyNotes,
+      toggle: () => setCopyNotes((value) => !value),
+      title: t('backups.media.notes.title'),
+      description: t('backups.media.notes.description'),
+    },
+  ];
 
   const sourceOptions = adminServers.map((server) => ({
     value: server.id,
@@ -574,24 +543,18 @@ export default function BackupsPage() {
           <View className="gap-3">
             <Text className="text-sm text-muted-foreground">{t('backups.media.title')}</Text>
             <View className="flex-row flex-wrap gap-3">
-              {renderMediaToggle(
-                t('backups.media.photos.title'),
-                copyPhotos,
-                () => setCopyPhotos((value) => !value),
-                t('backups.media.photos.description')
-              )}
-              {renderMediaToggle(
-                t('backups.media.files.title'),
-                copyFiles,
-                () => setCopyFiles((value) => !value),
-                t('backups.media.files.description')
-              )}
-              {renderMediaToggle(
-                t('backups.media.notes.title'),
-                copyNotes,
-                () => setCopyNotes((value) => !value),
-                t('backups.media.notes.description')
-              )}
+              {mediaOptions.map((option) => (
+                <Pressable
+                  key={option.key}
+                  onPress={option.toggle}
+                  className={`min-w-35 flex-1 rounded-xl border px-4 py-3 ${
+                    option.selected ? 'border-primary bg-primary/10' : 'border-border bg-background'
+                  }`}
+                >
+                  <Text className="font-medium">{option.title}</Text>
+                  <Text className="mt-1 text-xs text-muted-foreground">{option.description}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
 
@@ -648,6 +611,11 @@ export default function BackupsPage() {
                 const displayedStats = incoming?.stats ?? backup.stats;
                 const displayedDestinationPath =
                   incoming?.destinationPath ?? backup.destinationPath ?? t('backups.list.notLinkedYet');
+                const enabledMedia = [
+                  { key: 'photos', enabled: backup.copyPhotos, label: t('backups.media.photos.title') },
+                  { key: 'files', enabled: backup.copyFiles, label: t('backups.media.files.title') },
+                  { key: 'notes', enabled: backup.copyNotes, label: t('backups.media.notes.title') },
+                ].filter((item) => item.enabled);
 
                 return (
                   <View
@@ -710,21 +678,11 @@ export default function BackupsPage() {
                     </View>
 
                     <View className="mt-4 flex-row flex-wrap gap-2">
-                      {backup.copyPhotos ? (
-                        <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">{t('backups.media.photos.title')}</Text>
+                      {enabledMedia.map((item) => (
+                        <View key={item.key} className="rounded-full border border-border bg-background px-2.5 py-1">
+                          <Text className="text-xs text-muted-foreground">{item.label}</Text>
                         </View>
-                      ) : null}
-                      {backup.copyFiles ? (
-                        <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">{t('backups.media.files.title')}</Text>
-                        </View>
-                      ) : null}
-                      {backup.copyNotes ? (
-                        <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">{t('backups.media.notes.title')}</Text>
-                        </View>
-                      ) : null}
+                      ))}
                     </View>
 
                     <View className="mt-4 gap-2">
@@ -741,7 +699,7 @@ export default function BackupsPage() {
                       </Text>
                       <Text className="text-sm text-muted-foreground">
                         {t('backups.list.nextExecution', {
-                          value: formatMaybeDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
+                          value: formatDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
                         })}
                       </Text>
                       <Text className="text-sm text-muted-foreground">

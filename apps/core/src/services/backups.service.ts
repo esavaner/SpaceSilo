@@ -143,24 +143,9 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     const created = await this.prisma.backup.create({
       data: {
-        pairId: normalized.pairId,
-        pairSecret: normalized.pairSecret,
+        ...this.buildCreateData(normalized, user.sub),
         direction: BackupDirection.incoming,
-        active: normalized.active,
-        schedule: normalized.schedule,
-        copyPhotos: normalized.copyPhotos,
-        copyFiles: normalized.copyFiles,
-        copyNotes: normalized.copyNotes,
-        sourceServerLabel: normalized.sourceServerLabel,
-        sourceServerBaseUrl: normalized.sourceServerBaseUrl,
-        sourceServerKey: normalized.sourceServerKey,
-        destinationServerLabel: normalized.destinationServerLabel,
-        destinationServerBaseUrl: normalized.destinationServerBaseUrl,
-        destinationServerKey: normalized.destinationServerKey,
         destinationPath,
-        remoteConfigId: normalized.remoteConfigId,
-        nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
-        createdById: user.sub,
       },
       select: BACKUP_SELECT,
     });
@@ -185,24 +170,9 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
     const created = await this.prisma.backup.create({
       data: {
-        pairId: normalized.pairId,
-        pairSecret: normalized.pairSecret,
+        ...this.buildCreateData(normalized, user.sub),
         direction: BackupDirection.outgoing,
-        active: normalized.active,
-        schedule: normalized.schedule,
-        copyPhotos: normalized.copyPhotos,
-        copyFiles: normalized.copyFiles,
-        copyNotes: normalized.copyNotes,
-        sourceServerLabel: normalized.sourceServerLabel,
-        sourceServerBaseUrl: normalized.sourceServerBaseUrl,
-        sourceServerKey: normalized.sourceServerKey,
-        destinationServerLabel: normalized.destinationServerLabel,
-        destinationServerBaseUrl: normalized.destinationServerBaseUrl,
-        destinationServerKey: normalized.destinationServerKey,
         destinationPath: normalized.destinationPath,
-        remoteConfigId: normalized.remoteConfigId,
-        nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
-        createdById: user.sub,
       },
       select: BACKUP_SELECT,
     });
@@ -620,6 +590,27 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     return this.collectDirectoryStats(dirPath).sizeBytes;
   }
 
+  private buildCreateData(normalized: ReturnType<BackupsService['normalizeCreateRequest']>, createdById: string) {
+    return {
+      pairId: normalized.pairId,
+      pairSecret: normalized.pairSecret,
+      active: normalized.active,
+      schedule: normalized.schedule,
+      copyPhotos: normalized.copyPhotos,
+      copyFiles: normalized.copyFiles,
+      copyNotes: normalized.copyNotes,
+      sourceServerLabel: normalized.sourceServerLabel,
+      sourceServerBaseUrl: normalized.sourceServerBaseUrl,
+      sourceServerKey: normalized.sourceServerKey,
+      destinationServerLabel: normalized.destinationServerLabel,
+      destinationServerBaseUrl: normalized.destinationServerBaseUrl,
+      destinationServerKey: normalized.destinationServerKey,
+      remoteConfigId: normalized.remoteConfigId,
+      nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
+      createdById,
+    };
+  }
+
   private normalizeCreateRequest(dto: CreateBackupRequest) {
     const schedule = this.normalizeSchedule(dto.schedule);
     const media = this.normalizeMediaSelection(dto.copyPhotos, dto.copyFiles, dto.copyNotes);
@@ -782,7 +773,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
   private tryComputeNextRun(schedule: string, currentDate = new Date()) {
     try {
-      return CronExpressionParser.parse(schedule, { currentDate }).next().toDate();
+      return this.computeNextRun(schedule, currentDate);
     } catch {
       this.logger.warn(`Unable to compute next run for schedule "${schedule}"`);
       return null;
@@ -864,8 +855,6 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private toBackupResponse(backup: BackupRecord): BackupResponse {
-    const stats = this.parseStats(backup.lastStats);
-
     return {
       id: backup.id,
       pairId: backup.pairId,
@@ -893,15 +882,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       lastSuccessAt: backup.lastSuccessAt,
       nextRunAt: backup.nextRunAt,
       lastError: backup.lastError,
-      stats: stats
-        ? {
-            photos: stats.photos,
-            files: stats.files,
-            notes: stats.notes,
-            totalCount: stats.totalCount,
-            totalSizeBytes: stats.totalSizeBytes,
-          }
-        : null,
+      stats: this.parseStats(backup.lastStats),
     };
   }
 
