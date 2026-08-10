@@ -195,6 +195,7 @@
     "homeDir": "Home",
     "selectionCount_one": "{{count}} item",
     "selectionCount_other": "{{count}} items",
+    "searchPlaceholder": "Search all files",
     "actions": {
       "add": "Add",
       "file": "File",

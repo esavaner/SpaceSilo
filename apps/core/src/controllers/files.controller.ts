@@ -10,6 +10,8 @@ import {
   FindFileRequest,
   MoveFileRequest,
   RemoveFileRequest,
+  FileSearchResponse,
+  SearchFilesRequest,
 } from '@repo/shared';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from '@/services/files.service';
@@ -40,6 +42,11 @@ export class FilesController {
   @Post('/all')
   findAll(@Body() dto: FindAllFilesRequest, @User() user: TokenPayload): Promise<FileResponse[]> {
     return this.filesService.findAll(dto, user);
+  }
+
+  @Get('/search')
+  search(@Query() dto: SearchFilesRequest, @User() user: TokenPayload): Promise<FileSearchResponse[]> {
+    return this.filesService.search(dto, user);
   }
 
   @Get()

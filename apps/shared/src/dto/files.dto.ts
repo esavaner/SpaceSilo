@@ -1,5 +1,16 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -68,7 +79,38 @@ export class FindAllFilesRequest {
   items!: FindAllFilesItemRequest[];
 }
 
+export class SearchFilesRequest {
+  @IsString()
+  @IsNotEmpty()
+  query!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+}
+
 /* ------------------------- Responses ------------------------- */
+
+export class FileSearchResponse {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  uri!: string;
+
+  @IsBoolean()
+  isDirectory!: boolean;
+
+  @IsString()
+  groupId!: string;
+
+  @IsOptional()
+  @IsString()
+  type?: string;
+}
 
 export class FileResponse {
   @IsString()

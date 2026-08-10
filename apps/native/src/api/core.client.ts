@@ -32,6 +32,7 @@ import {
   type RefreshResponse,
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
+  type SearchFilesRequest,
   type CreateNoteRequest,
   type UpdateAlbumRequest,
   type UpdateBackupRequest,
@@ -39,6 +40,7 @@ import {
   type UpdateGroupMemberRequest,
   type UpdateNoteRequest,
   type UserResponse,
+  type FileSearchResponse,
 } from '@repo/shared';
 
 export const endpoints = {
@@ -113,6 +115,8 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     find: (dto: FindFileRequest) => this.get<FileResponse>(buildQuery(endpoints.files, { ...dto })),
     findAll: (dto: FindAllFilesRequest) =>
       this.post<FindAllFilesRequest, FileResponse[]>(`${endpoints.files}/all`, dto),
+    search: (dto: SearchFilesRequest) =>
+      this.get<FileSearchResponse[]>(buildQuery(`${endpoints.files}/search`, { ...dto })),
     createFile: async (dto: CreateFileRequest, file: Blob, fileName: string) => {
       const formData = new FormData();
       formData.append('newPath', dto.newPath);

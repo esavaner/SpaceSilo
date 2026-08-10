@@ -10,6 +10,8 @@ import {
   FindFileRequest,
   MoveFileRequest,
   RemoveFileRequest,
+  FileSearchResponse,
+  SearchFilesRequest,
 } from '@repo/shared';
 import * as fs from 'fs';
 import * as fsa from 'fs-extra';
@@ -100,6 +102,67 @@ export class FilesService {
       }
     }
     return files;
+  }
+
+  async search(dto: SearchFilesRequest, user: TokenPayload): Promise<FileSearchResponse[]> {
+    const query = dto.query.trim().toLocaleLowerCase();
+    if (!query) {
+      return [];
+    }
+
+    const limit = dto.limit ?? 50;
+    const groups = await this.groupService.findAccessibleGroupIds(user);
+    const results: FileSearchResponse[] = [];
+
+    for (const group of groups) {
+      if (results.length >= limit) {
+        break;
+      }
+
+      const groupPath = path.join(process.env.FILES_PATH, group.id);
+      const directories = [groupPath];
+
+      while (directories.length > 0 && results.length < limit) {
+        const directoryPath = directories.pop()!;
+        let entries: fs.Dirent[];
+
+        try {
+          entries = await fs.promises.readdir(directoryPath, { withFileTypes: true });
+        } catch {
+          continue;
+        }
+
+        for (const entry of entries) {
+          if (results.length >= limit) {
+            break;
+          }
+
+          if (entry.isSymbolicLink()) {
+            continue;
+          }
+
+          const filePath = path.join(directoryPath, entry.name);
+          const relativePath = path.relative(groupPath, filePath);
+          const uri = `/${relativePath.split(path.sep).join('/')}`;
+
+          if (uri.toLocaleLowerCase().includes(query)) {
+            results.push({
+              name: entry.name,
+              uri,
+              isDirectory: entry.isDirectory(),
+              groupId: group.id,
+              type: entry.isDirectory() ? '' : path.extname(entry.name).replace('.', '').toLocaleLowerCase(),
+            });
+          }
+
+          if (entry.isDirectory()) {
+            directories.push(filePath);
+          }
+        }
+      }
+    }
+
+    return results;
   }
 
   async findFile(dto: FindFileRequest, user: TokenPayload): Promise<FileResponse> {

@@ -129,6 +129,16 @@ export class GroupsService {
     });
   }
 
+  async findAccessibleGroupIds(user: TokenPayload): Promise<{ id: string }[]> {
+    return await this.prisma.group.findMany({
+      where:
+        user.role === 'admin'
+          ? undefined
+          : { OR: [{ members: { some: { userId: user.sub } } }, { ownerId: user.sub }] },
+      select: { id: true },
+    });
+  }
+
   async findOne(id: string, user: TokenPayload): Promise<GroupResponse> {
     await this.assertGroupAccess(id, user);
 
