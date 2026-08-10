@@ -21,6 +21,7 @@ import * as crypto from 'crypto';
 import { type TokenPayload } from '@repo/shared';
 import { GroupsService } from './groups.service';
 import { Err } from '@/common/api-message';
+import { environment } from '@/common/env.validation';
 
 @Injectable()
 export class FilesService {
@@ -53,7 +54,7 @@ export class FilesService {
 
   async createFile(dto: CreateFileRequest, file: Express.Multer.File, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
-    const fileDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
+    const fileDir = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
     if (!fs.existsSync(fileDir)) {
       fs.mkdirSync(fileDir, { recursive: true });
@@ -64,7 +65,7 @@ export class FilesService {
 
   async createFolder(dto: CreateFolderRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
-    const folderDir = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
+    const folderDir = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(folderDir)) {
       fs.mkdirSync(folderDir, { recursive: true });
     }
@@ -83,7 +84,7 @@ export class FilesService {
       const skip = item.skip ?? 0;
       const take = item.take;
       this.groupCheck(groupId, user);
-      const fileDir = path.join(process.env.FILES_PATH, groupId, relativePath);
+      const fileDir = path.join(environment.filesPath, groupId, relativePath);
       if (!fs.existsSync(fileDir)) {
         continue;
       }
@@ -119,7 +120,7 @@ export class FilesService {
         break;
       }
 
-      const groupPath = path.join(process.env.FILES_PATH, group.id);
+      const groupPath = path.join(environment.filesPath, group.id);
       const directories = [groupPath];
 
       while (directories.length > 0 && results.length < limit) {
@@ -167,7 +168,7 @@ export class FilesService {
 
   async findFile(dto: FindFileRequest, user: TokenPayload): Promise<FileResponse> {
     this.groupCheck(dto.groupId, user);
-    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw Err.NotFound('api.files.fileErr.NotFound');
     }
@@ -177,7 +178,7 @@ export class FilesService {
 
   async download(dto: DownloadFileRequest, user: TokenPayload) {
     this.groupCheck(dto.groupId, user);
-    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw Err.NotFound('api.files.fileErr.NotFound');
     }
@@ -194,8 +195,8 @@ export class FilesService {
 
   async move(dto: MoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
-    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
-    let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
+    let newFilePath = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
     if (!fs.existsSync(filePath)) {
       throw Err.NotFound('api.files.fileErr.NotFound');
     }
@@ -214,7 +215,7 @@ export class FilesService {
 
   async remove(dto: RemoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
-    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
     if (!fs.existsSync(filePath)) {
       throw Err.NotFound('api.files.fileErr.NotFound');
     }
@@ -229,8 +230,8 @@ export class FilesService {
 
   async copy(dto: CopyFileRequest, user: TokenPayload): Promise<FileActionResponse> {
     this.groupCheck(dto.groupId, user);
-    const filePath = path.join(process.env.FILES_PATH, dto.groupId, dto.fileUri);
-    let newFilePath = path.join(process.env.FILES_PATH, dto.groupId, dto.newPath, dto.name);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
+    let newFilePath = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
 
     if (!fs.existsSync(filePath)) {
       throw Err.NotFound('api.files.fileErr.NotFound');

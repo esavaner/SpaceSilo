@@ -9,6 +9,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Err } from '@/common/api-message';
+import { environment } from '@/common/env.validation';
 
 const THUMBNAIL_HEIGHT = 300;
 const THUMBNAIL_JPEG_QUALITY = 82;
@@ -208,9 +209,9 @@ export class PhotoService {
 
   getStoragePaths() {
     return {
-      storagePath: process.env.STORAGE_PATH!,
-      thumbnailsPath: path.join(process.env.APPDATA_PATH!, 'thumbnails'),
-      previewsPath: path.join(process.env.APPDATA_PATH!, 'previews'),
+      storagePath: environment.storagePath,
+      thumbnailsPath: path.join(environment.appDataPath, 'thumbnails'),
+      previewsPath: path.join(environment.appDataPath, 'previews'),
     };
   }
 

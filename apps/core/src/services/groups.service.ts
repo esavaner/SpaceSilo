@@ -13,6 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { type TokenPayload } from '@repo/shared';
 import { Err } from '@/common/api-message';
+import { environment } from '@/common/env.validation';
 
 @Injectable()
 export class GroupsService {
@@ -103,7 +104,7 @@ export class GroupsService {
       ...this.options,
     });
 
-    const groupPath = path.join(process.env.FILES_PATH, dto.id);
+    const groupPath = path.join(environment.filesPath, dto.id);
     if (!fs.existsSync(groupPath)) {
       fs.mkdirSync(groupPath, { recursive: true });
     }

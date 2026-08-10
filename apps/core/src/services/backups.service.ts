@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from '@/common/prisma.service';
 import { Err } from '@/common/api-message';
+import { environment } from '@/common/env.validation';
 
 type MediaKey = 'photos' | 'files' | 'notes';
 
@@ -391,7 +392,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     const plans: BackupPlan[] = [];
 
     if (backup.copyPhotos) {
-      const sourcePath = this.ensureDirectory(process.env.STORAGE_PATH!);
+      const sourcePath = this.ensureDirectory(environment.storagePath);
       plans.push({
         key: 'photos',
         sourcePath,
@@ -402,7 +403,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (backup.copyFiles) {
-      const sourcePath = this.ensureDirectory(process.env.FILES_PATH!);
+      const sourcePath = this.ensureDirectory(environment.filesPath);
       plans.push({
         key: 'files',
         sourcePath,
@@ -443,7 +444,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
-    const rootPath = path.join(process.env.APPDATA_PATH!, 'backup-staging', pairId, 'notes');
+    const rootPath = path.join(environment.appDataPath, 'backup-staging', pairId, 'notes');
     const dataPath = path.join(rootPath, 'data');
     fs.rmSync(rootPath, { recursive: true, force: true });
     fs.mkdirSync(dataPath, { recursive: true });
@@ -478,14 +479,14 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     targetPath: string,
     excludePatterns: string[] = []
   ) {
-    const rsyncPath = process.env.RSYNC_BIN?.trim() || 'rsync';
+    const rsyncPath = environment.rsyncBin;
     const args = ['-a', '--delete'];
 
     for (const pattern of excludePatterns) {
       args.push('--exclude', pattern);
     }
 
-    const sshPort = process.env.BACKUP_RSYNC_SSH_PORT?.trim();
+    const sshPort = environment.backupRsyncSshPort;
     if (sshPort) {
       args.push('-e', `ssh -p ${sshPort}`);
     }
@@ -518,7 +519,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
 
   private buildRemoteTarget(destinationBaseUrl: string, targetPath: string) {
     const destination = new URL(this.normalizeUrl(destinationBaseUrl));
-    const sshUser = process.env.BACKUP_RSYNC_SSH_USER?.trim();
+    const sshUser = environment.backupRsyncSshUser;
     const host = sshUser ? `${sshUser}@${destination.hostname}` : destination.hostname;
     return `${host}:${this.toRsyncPath(targetPath, true)}`;
   }
@@ -748,7 +749,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private ensureIncomingDestinationPath(sourceServerKey: string) {
-    const rootPath = path.join(process.env.STORAGE_PATH!, 'backups', sourceServerKey);
+    const rootPath = path.join(environment.storagePath, 'backups', sourceServerKey);
     this.ensureDirectory(path.join(rootPath, 'photos'));
     this.ensureDirectory(path.join(rootPath, 'files'));
     this.ensureDirectory(path.join(rootPath, 'notes', 'data'));
