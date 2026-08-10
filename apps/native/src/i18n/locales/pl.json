@@ -163,11 +163,16 @@
     "details": {
       "actionDescription": "Uruchom skanowanie po dodaniu plików obrazów bezpośrednio do folderów magazynu serwera. Serwer przeskanuje obsługiwane pliki obrazów, pominie już zindeksowane i utworzy wpisy dla nowych obrazów.",
       "actions": {
+        "resetAndScan": "Zresetuj i przeskanuj obrazy ponownie",
         "scanAndIndex": "Skanuj i indeksuj nowe obrazy",
         "scanImages": "Skanuj obrazy"
       },
       "messages": {
         "Err.NotFound": "Nie znaleziono połączenia z serwerem.",
+        "resetAndScanDescription": "Spowoduje to usunięcie wszystkich zindeksowanych obrazów i odbudowanie indeksu z magazynu serwera. Albumy pozostaną, ale przypisania obrazów do nich zostaną wyczyszczone.",
+        "resetAndScanFailed": "Resetowanie i ponowne skanowanie nie powiodło się",
+        "resetAndScanSuccess": "Zresetowano indeks obrazów i przeskanowano {{scanned}} obrazów",
+        "resetAndScanTitle": "Zresetować indeks obrazów?",
         "scanFailed": "Skanowanie nie powiodło się",
         "scanSuccess": "Przeskanowano {{scanned}} obrazów, dodano {{added}} nowych",
         "statsUnavailable": "Ten serwer musi być włączony i zalogowany, aby statystyki i skanowanie były dostępne."

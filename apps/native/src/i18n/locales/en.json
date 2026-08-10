@@ -163,11 +163,16 @@
     "details": {
       "actionDescription": "Run a scan after adding image files directly to the server storage folders. The server will scan supported image files, skip ones already indexed, and create entries for new images.",
       "actions": {
+        "resetAndScan": "Reset and rescan images",
         "scanAndIndex": "Scan and index new images",
         "scanImages": "Scan images"
       },
       "messages": {
         "Err.NotFound": "Server connection not found.",
+        "resetAndScanDescription": "This will remove all indexed images and rebuild the index from the server storage. Albums will remain, but their image assignments will be cleared.",
+        "resetAndScanFailed": "Reset and rescan failed",
+        "resetAndScanSuccess": "Reset image index and scanned {{scanned}} images",
+        "resetAndScanTitle": "Reset image index?",
         "scanFailed": "Scan failed",
         "scanSuccess": "Scanned {{scanned}} images, added {{added}} new",
         "statsUnavailable": "This server must be enabled and logged in before stats and scanning are available."

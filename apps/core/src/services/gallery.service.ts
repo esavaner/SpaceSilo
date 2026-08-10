@@ -72,7 +72,7 @@ export class GalleryService {
     };
   }
 
-  async scan(user: TokenPayload): Promise<GalleryScanResponse> {
+  private async indexImages(user: TokenPayload): Promise<GalleryScanResponse> {
     const { storagePath } = this.photoService.getStoragePaths();
     const imageFiles = this.photoService
       .listFilesRecursive(storagePath)
@@ -159,6 +159,15 @@ export class GalleryService {
       scannedImages: imageFiles.length,
       addedImages,
     };
+  }
+
+  async scan(user: TokenPayload): Promise<GalleryScanResponse> {
+    return this.indexImages(user);
+  }
+
+  async resetAndScan(user: TokenPayload): Promise<GalleryScanResponse> {
+    await this.prisma.photo.deleteMany();
+    return this.indexImages(user);
   }
 
   async findAll(query: FindGalleryImagesRequest, user: TokenPayload): Promise<GalleryImagePageResponse> {

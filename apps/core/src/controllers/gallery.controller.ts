@@ -50,4 +50,9 @@ export class GalleryController {
   scan(@User() user: TokenPayload) {
     return this.galleryService.scan(user);
   }
+
+  @Post('reset-and-scan')
+  resetAndScan(@User() user: TokenPayload) {
+    return this.galleryService.resetAndScan(user);
+  }
 }

@@ -114,7 +114,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 ## Localization Guidance
 
 - Treat every user-facing string as localizable. Do not add new hardcoded UI labels, button text, empty states, toasts, alerts, validation messages, or backend-exposed response messages directly in code.
-- Add new native-app translation keys to `apps/native/src/i18n/locales/en.json` at minimum. English-only entries are acceptable for now, but the string must still live in the locale JSON rather than inline in code.
+- Add new native-app translation keys to `apps/native/src/i18n/locales/en.json`. Do English only, do not add other locales.
 - When other locale files already cover the same feature area, keep the key structure aligned even if only the English text is added immediately.
 - For simple count labels, prefer direct composition like `${count} ${t('files')}` over i18next `count`-option pluralization.
 - Avoid introducing `t('some.key', { count })` for cases where the count is only leading or trailing display text. Keep the translated noun or suffix in JSON, but compose the visible count in code.

@@ -9,7 +9,7 @@ import { fileSize } from '@/utils/common';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 import { tApiErr } from '@/i18n/translate';
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
@@ -38,18 +38,45 @@ export default function ConnectionDetailsPage() {
 
   const { mutate: triggerScan, isPending: isScanning } = useMutation({
     mutationKey: ['server-gallery-scan', serverId],
-    mutationFn: () => server!.client.gallery.scan(),
-    onSuccess: (result: GalleryScanResponse) => {
+    mutationFn: (shouldReset: boolean) =>
+      shouldReset ? server!.client.gallery.resetAndScan() : server!.client.gallery.scan(),
+    onSuccess: (result: GalleryScanResponse, shouldReset) => {
       toast.success(
-        t('connections.details.messages.scanSuccess', { scanned: result.scannedImages, added: result.addedImages })
+        t(
+          shouldReset ? 'connections.details.messages.resetAndScanSuccess' : 'connections.details.messages.scanSuccess',
+          { scanned: result.scannedImages, added: result.addedImages }
+        )
       );
       queryClient.invalidateQueries({ queryKey: ['server-gallery-stats', serverId] });
       queryClient.invalidateQueries({ queryKey: ['gallery'] });
     },
-    onError: (error) => {
-      toast.error(tApiErr(t, error, 'connections.details.messages.scanFailed'));
+    onError: (error, shouldReset) => {
+      toast.error(
+        tApiErr(
+          t,
+          error,
+          shouldReset ? 'connections.details.messages.resetAndScanFailed' : 'connections.details.messages.scanFailed'
+        )
+      );
     },
   });
+
+  const confirmResetAndScan = () => {
+    const title = t('connections.details.messages.resetAndScanTitle');
+    const message = t('connections.details.messages.resetAndScanDescription');
+
+    if (Platform.OS === 'web') {
+      if (typeof window === 'undefined' || window.confirm(message)) {
+        triggerScan(true);
+      }
+      return;
+    }
+
+    Alert.alert(title, message, [
+      { text: t('common.actions.cancel'), style: 'cancel' },
+      { text: t('common.actions.continue'), style: 'destructive', onPress: () => triggerScan(true) },
+    ]);
+  };
 
   if (!server) {
     return (
@@ -88,7 +115,7 @@ export default function ConnectionDetailsPage() {
           </View>
         </View>
 
-        <Button onPress={() => triggerScan()} loading={isScanning} disabled={!canQuery}>
+        <Button onPress={() => triggerScan(false)} loading={isScanning} disabled={!canQuery}>
           {t('connections.details.actions.scanImages')}
         </Button>
       </View>
@@ -121,8 +148,22 @@ export default function ConnectionDetailsPage() {
       <View className="border border-border rounded-lg p-4 gap-2">
         <Text variant="h3">{t('common.labels.actions')}</Text>
         <Text variant="muted">{t('connections.details.actionDescription')}</Text>
-        <Button className="self-start mt-2" onPress={() => triggerScan()} loading={isScanning} disabled={!canQuery}>
+        <Button
+          className="self-start mt-2"
+          onPress={() => triggerScan(false)}
+          loading={isScanning}
+          disabled={!canQuery}
+        >
           {t('connections.details.actions.scanAndIndex')}
+        </Button>
+        <Button
+          className="self-start"
+          onPress={confirmResetAndScan}
+          loading={isScanning}
+          disabled={!canQuery}
+          variant="destructive"
+        >
+          {t('connections.details.actions.resetAndScan')}
         </Button>
       </View>
     </BaseLayout>

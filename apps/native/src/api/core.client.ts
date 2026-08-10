@@ -179,6 +179,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
       this.get<GalleryImagePageResponse>(buildQuery(endpoints.gallery, { ...(dto ?? {}) })),
     getStats: () => this.get<GalleryStatsResponse>(`${endpoints.gallery}/stats`),
     scan: () => this.post<undefined, GalleryScanResponse>(`${endpoints.gallery}/scan`),
+    resetAndScan: () => this.post<undefined, GalleryScanResponse>(`${endpoints.gallery}/reset-and-scan`),
   };
 
   public readonly album = {

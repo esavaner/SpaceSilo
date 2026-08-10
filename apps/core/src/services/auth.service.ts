@@ -39,7 +39,7 @@ export class AuthService {
         typ: 'refresh',
       },
       {
-        expiresIn: '30d',
+        expiresIn: '365d',
       }
     );
   }
