@@ -1,5 +1,6 @@
 import { BaseLayout } from '@/components/base-layout';
 import { GalleryBrowserHeader } from '@/components/gallery/GalleryBrowserHeader';
+import { Icon } from '@/components/general/icon';
 import {
   GalleryGrid,
   type GalleryAlbumItem,
@@ -13,13 +14,22 @@ import { toast } from '@/lib/toast';
 import { resolveAppLanguage } from '@/i18n';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
+import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, pl } from 'date-fns/locale';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, NativeScrollEvent, NativeSyntheticEvent, Platform, useWindowDimensions } from 'react-native';
+import {
+  Alert,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  Pressable,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { GalleryLightbox } from './GalleryLightbox';
 
 export type GalleryBrowserMode = 'gallery' | 'trash';
@@ -232,6 +242,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const { i18n, t } = useTranslation();
   const { servers } = useServerContext();
   const { openModal } = useUi();
+  const { clearSearch, query: albumSearchQuery, results: albumSearchResults, searchAlbums } = useAlbumSearch();
   const queryClient = useQueryClient();
   const { width } = useWindowDimensions();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
@@ -461,6 +472,34 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     setSelectedPhotoIndex(null);
   };
 
+  const handleSearchAlbumSelect = (album: AlbumSearchItem) => {
+    setAlbumPath(
+      album.path.map((pathItem) => ({
+        ...pathItem,
+        serverId: album.serverId,
+        label: album.label,
+      }))
+    );
+    setSelectedPhotoIndex(null);
+    clearSearch();
+  };
+
+  const albumSearchOptions = albumSearchResults.map((album) => (
+    <Pressable
+      key={`${album.serverId}:${album.id}`}
+      onPress={() => handleSearchAlbumSelect(album)}
+      className="flex-row items-center gap-2 px-3 py-2 hover:bg-accent active:bg-accent"
+    >
+      <Icon.Folder className="text-primary" size={18} />
+      <View className="flex-1 gap-0.5">
+        <Text numberOfLines={1}>{album.name}</Text>
+        <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+          {album.path.map((pathItem) => pathItem.name).join(' / ')}
+        </Text>
+      </View>
+    </Pressable>
+  ));
+
   const confirmAction = (title: string, message: string) =>
     Platform.OS === 'web'
       ? Promise.resolve(typeof window === 'undefined' ? true : window.confirm(message))
@@ -683,6 +722,16 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       isTrashMode={isTrashMode}
       title={isTrashMode ? t('navigation.trash') : currentAlbum ? currentAlbum.name : t('navigation.gallery')}
       breadcrumbItems={albumBreadcrumbItems}
+      albumSearch={
+        isTrashMode
+          ? undefined
+          : {
+              value: albumSearchQuery,
+              options: albumSearchOptions,
+              onChangeText: searchAlbums,
+              placeholder: t('gallery.searchAlbumsPlaceholder'),
+            }
+      }
       viewModeOptions={galleryViewModeOptions}
       viewMode={effectiveViewMode}
       onViewModeChange={setViewMode}

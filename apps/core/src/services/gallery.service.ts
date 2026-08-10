@@ -166,7 +166,7 @@ export class GalleryService {
   }
 
   async resetAndScan(user: TokenPayload): Promise<GalleryScanResponse> {
-    await this.prisma.photo.deleteMany();
+    await this.prisma.$transaction([this.prisma.album.deleteMany(), this.prisma.photo.deleteMany()]);
     return this.indexImages(user);
   }
 

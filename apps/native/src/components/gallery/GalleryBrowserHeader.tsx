@@ -8,6 +8,8 @@ import {
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
+import { Search } from '@/components/search';
+import { type ReactNode } from 'react';
 import { View } from 'react-native';
 
 type LabelledOption<T extends string> = {
@@ -19,6 +21,12 @@ type GalleryBrowserHeaderProps<GroupBy extends string, ViewMode extends string, 
   isTrashMode: boolean;
   title: string;
   breadcrumbItems: BreadcrumbItem[];
+  albumSearch?: {
+    value: string;
+    options: ReactNode[];
+    onChangeText: (value: string) => void;
+    placeholder: string;
+  };
   viewModeOptions: LabelledOption<ViewMode>[];
   viewMode: ViewMode;
   onViewModeChange: (value: ViewMode) => void;
@@ -77,6 +85,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
   isTrashMode,
   title,
   breadcrumbItems,
+  albumSearch,
   viewModeOptions,
   viewMode,
   onViewModeChange,
@@ -104,6 +113,15 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
       <View className="flex-row flex-wrap items-start justify-between gap-3">
         <View className="gap-2">
           <Text variant="h1">{title}</Text>
+          {albumSearch ? (
+            <Search
+              className="w-full md:w-80"
+              options={albumSearch.options}
+              value={albumSearch.value}
+              onChangeText={albumSearch.onChangeText}
+              placeholder={albumSearch.placeholder}
+            />
+          ) : null}
           {!isTrashMode && breadcrumbItems.length > 0 ? <Breadcrumb items={breadcrumbItems} /> : null}
         </View>
 

@@ -5,6 +5,7 @@ import {
   type AddGroupMembersRequest,
   type AddPhotosToAlbumRequest,
   type AlbumResponse,
+  type AlbumSearchResponse,
   type AuthResponse,
   type BackupResponse,
   type CopyFileRequest,
@@ -189,6 +190,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   public readonly album = {
     create: (dto: CreateAlbumRequest) => this.post<CreateAlbumRequest, AlbumResponse>(endpoints.album, dto),
     findAll: (dto?: FindAlbumsRequest) => this.get<AlbumResponse[]>(buildQuery(endpoints.album, { ...(dto ?? {}) })),
+    search: (query: string) => this.get<AlbumSearchResponse[]>(buildQuery(`${endpoints.album}/search`, { query })),
     findOne: (id: string) => this.get<AlbumResponse>(`${endpoints.album}/${id}`),
     addPhotos: (id: string, dto: AddPhotosToAlbumRequest) =>
       this.post<AddPhotosToAlbumRequest, AlbumResponse>(`${endpoints.album}/${id}/photos`, dto),

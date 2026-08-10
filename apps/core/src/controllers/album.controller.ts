@@ -4,6 +4,7 @@ import {
   AddPhotosToAlbumRequest,
   CreateAlbumRequest,
   FindAlbumsRequest,
+  SearchAlbumsRequest,
   type TokenPayload,
   UpdateAlbumRequest,
 } from '@repo/shared';
@@ -26,6 +27,11 @@ export class AlbumController {
   @Get()
   findAll(@Query() query: FindAlbumsRequest, @User() user: TokenPayload) {
     return this.albumService.findAll(query, user);
+  }
+
+  @Get('search')
+  search(@Query() query: SearchAlbumsRequest, @User() user: TokenPayload) {
+    return this.albumService.search(query, user);
   }
 
   @Get(':id')

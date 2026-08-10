@@ -1,4 +1,5 @@
-import { IsArray, IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -34,6 +35,19 @@ export class FindAlbumsRequest {
   parentId?: string | null;
 }
 
+export class SearchAlbumsRequest {
+  @IsString()
+  @IsNotEmpty()
+  query!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+}
+
 export class UpdateAlbumRequest {
   @IsOptional()
   @IsString()
@@ -56,6 +70,31 @@ export class UpdateAlbumRequest {
 }
 
 /* ------------------------- Responses ------------------------- */
+
+export class AlbumSearchPathItem {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  name!: string;
+}
+
+export class AlbumSearchResponse {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  parentId?: string | null;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AlbumSearchPathItem)
+  path!: AlbumSearchPathItem[];
+}
 
 export class AlbumResponse {
   @IsString()

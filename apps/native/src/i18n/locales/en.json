@@ -357,6 +357,7 @@
     "loading": "Loading gallery...",
     "loadingMore": "Loading more items...",
     "scrollToLoadMore": "Scroll to load more items",
+    "searchAlbumsPlaceholder": "Search albums",
     "selectionCount": "{{photoCount}} selected",
     "title": "Gallery",
     "trash": "Trash",

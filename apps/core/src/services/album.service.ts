@@ -4,10 +4,12 @@ import { API_PREFIX_PATH } from '@repo/shared/constants/api';
 import {
   AddPhotosToAlbumRequest,
   type AlbumResponse,
+  type AlbumSearchResponse,
   type CreateAlbumRequest,
   type FindAlbumsRequest,
   type GalleryImageResponse,
   type Prisma,
+  type SearchAlbumsRequest,
   type TokenPayload,
   type UpdateAlbumRequest,
 } from '@repo/shared';
@@ -62,12 +64,22 @@ const GALLERY_ALBUM_SELECT = {
   },
 } satisfies Prisma.AlbumSelect;
 
+const ALBUM_SEARCH_SELECT = {
+  id: true,
+  name: true,
+  parentId: true,
+} satisfies Prisma.AlbumSelect;
+
 type AlbumResponseRecord = Prisma.AlbumGetPayload<{
   select: typeof ALBUM_RESPONSE_SELECT;
 }>;
 
 type GalleryAlbumRecord = Prisma.AlbumGetPayload<{
   select: typeof GALLERY_ALBUM_SELECT;
+}>;
+
+type AlbumSearchRecord = Prisma.AlbumGetPayload<{
+  select: typeof ALBUM_SEARCH_SELECT;
 }>;
 
 const compareAlbumRecords = (
@@ -396,6 +408,68 @@ export class AlbumService {
     });
 
     return albums.map((album) => this.mapAlbumResponse(album));
+  }
+
+  async search(query: SearchAlbumsRequest, user: TokenPayload): Promise<AlbumSearchResponse[]> {
+    const searchQuery = query.query.trim();
+    if (!searchQuery) {
+      return [];
+    }
+
+    const matchingAlbums = await this.prisma.album.findMany({
+      where: {
+        ownerId: user.sub,
+        deletedAt: null,
+        name: { contains: searchQuery, mode: 'insensitive' },
+      },
+      orderBy: [{ capturedAt: 'desc' }, { createdAt: 'desc' }, { name: 'asc' }],
+      take: query.limit ?? 50,
+      select: ALBUM_SEARCH_SELECT,
+    });
+
+    const albumsById = new Map<string, AlbumSearchRecord>(matchingAlbums.map((album) => [album.id, album]));
+    let parentIds = matchingAlbums.flatMap((album) =>
+      album.parentId && !albumsById.has(album.parentId) ? [album.parentId] : []
+    );
+
+    while (parentIds.length > 0) {
+      const parentAlbums = await this.prisma.album.findMany({
+        where: {
+          id: { in: parentIds },
+          ownerId: user.sub,
+          deletedAt: null,
+        },
+        select: ALBUM_SEARCH_SELECT,
+      });
+
+      if (!parentAlbums.length) {
+        break;
+      }
+
+      parentAlbums.forEach((album) => albumsById.set(album.id, album));
+      parentIds = parentAlbums.flatMap((album) =>
+        album.parentId && !albumsById.has(album.parentId) ? [album.parentId] : []
+      );
+    }
+
+    return matchingAlbums.map((album) => {
+      const path = [];
+      const visitedIds = new Set<string>();
+      let currentAlbum: AlbumSearchRecord | undefined = album;
+
+      while (currentAlbum && !visitedIds.has(currentAlbum.id)) {
+        path.push({ id: currentAlbum.id, name: currentAlbum.name });
+        visitedIds.add(currentAlbum.id);
+        currentAlbum = currentAlbum.parentId ? albumsById.get(currentAlbum.parentId) : undefined;
+      }
+
+      return {
+        id: album.id,
+        name: album.name,
+        parentId: album.parentId,
+        path: path.reverse(),
+      };
+    });
   }
 
   async findOne(id: string, user: TokenPayload) {
