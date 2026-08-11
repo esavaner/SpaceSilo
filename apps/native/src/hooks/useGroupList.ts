@@ -7,9 +7,11 @@ export type GroupListItem = GroupResponse & {
   serverId: string;
 };
 
+const getGroupKey = (group: Pick<GroupListItem, 'id' | 'serverId'>) => `${group.serverId}:${group.id}`;
+
 export const useGroupList = () => {
   const { servers } = useServerContext();
-  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
+  const [excludedGroupKeys, setExcludedGroupKeys] = useState<string[]>([]);
 
   const { data: groups, isLoading: isGroupsLoading } = useQuery({
     queryKey: ['groups'],
@@ -35,36 +37,41 @@ export const useGroupList = () => {
     select: (data) => data.data,
   });
 
-  const groupsPersonal = groups?.filter((group) => group.personal);
-  const groupsShared = groups?.filter((group) => !group.personal);
+  const groupList = groups ?? [];
+  const excludedGroupKeySet = new Set(excludedGroupKeys);
+  const includedGroups = groupList.filter((group) => !excludedGroupKeySet.has(getGroupKey(group)));
+  const groupsPersonal = groupList.filter((group) => group.personal);
+  const groupsShared = groupList.filter((group) => !group.personal);
+  const isGroupIncluded = (group: Pick<GroupListItem, 'id' | 'serverId'>) =>
+    !excludedGroupKeySet.has(getGroupKey(group));
 
   useEffect(() => {
-    if (groups) {
-      setSelectedGroupIds(groups.map((group) => group.id));
-    }
+    const availableGroupKeys = new Set(groupList.map(getGroupKey));
+
+    setExcludedGroupKeys((current) => {
+      const next = current.filter((key) => availableGroupKeys.has(key));
+      return next.length === current.length ? current : next;
+    });
   }, [groups]);
 
-  const handleSelectAllGroups = () => {
-    const g = groups || [];
-    setSelectedGroupIds(g.map((group) => group.id));
-  };
+  const handleIncludeAllGroups = () => setExcludedGroupKeys([]);
 
-  const handleSelectGroup = (group: Pick<GroupListItem, 'id'>) => {
-    const isSelected = selectedGroupIds.includes(group.id);
-    if (isSelected) {
-      setSelectedGroupIds(selectedGroupIds.filter((id) => id !== group.id));
-    } else {
-      setSelectedGroupIds([...selectedGroupIds, group.id]);
-    }
+  const handleToggleIncludedGroup = (group: Pick<GroupListItem, 'id' | 'serverId'>) => {
+    const groupKey = getGroupKey(group);
+
+    setExcludedGroupKeys((current) =>
+      current.includes(groupKey) ? current.filter((key) => key !== groupKey) : [...current, groupKey]
+    );
   };
 
   return {
-    groups: groups || [],
+    groups: groupList,
     groupsPersonal,
     groupsShared,
+    includedGroups,
     isGroupsLoading,
-    handleSelectAllGroups,
-    handleSelectGroup,
-    selectedGroupIds,
+    isGroupIncluded,
+    handleIncludeAllGroups,
+    handleToggleIncludedGroup,
   };
 };

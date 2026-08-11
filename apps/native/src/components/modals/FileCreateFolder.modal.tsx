@@ -6,7 +6,6 @@ import { useFileActions } from '@/hooks/useFileActions';
 import { InputController } from '../controllers/input.controller';
 import { DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { DialogFooter } from './dialog-footer';
-import { useServerContext } from '@/providers/ServerProvider';
 import { useFilesContext } from '@/providers/FilesProvider';
 
 type FileCreateFolderModalProps = {
@@ -20,8 +19,7 @@ type CreateFolderForm = {
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
   const { t } = useTranslation();
   const { create, isPending } = useFileActions();
-  const { servers } = useServerContext();
-  const { selectedGroupIds } = useFilesContext();
+  const { includedGroups } = useFilesContext();
   const schema = yup.object().shape({
     folder: yup.string().required(t('files.createFolder.validation.folderRequired')),
   });
@@ -38,11 +36,13 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   });
 
   const onSubmit = (values: CreateFolderForm) => {
+    const targetGroup = includedGroups[0];
+
     create({
       newPath: currentPath,
       name: values.folder,
-      groupId: selectedGroupIds[0] || '',
-      serverId: servers[0]?.id || '',
+      groupId: targetGroup?.id ?? '',
+      serverId: targetGroup?.serverId ?? '',
     });
   };
 

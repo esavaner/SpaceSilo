@@ -202,9 +202,11 @@
       "folder": "Folder"
     },
     "filter": {
+      "empty": "No groups available",
       "groups": "Groups",
+      "included": "Included groups",
       "personal": "Personal",
-      "title": "Filter"
+      "title": "Groups"
     },
     "createFolder": {
       "defaultName": "New folder",

@@ -38,28 +38,43 @@ const comparators: Record<SortBy, (a: FileListItem, b: FileListItem) => number> 
 
 export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) => {
   const { servers } = useServerContext();
-  const { groups, groupsPersonal, groupsShared, handleSelectGroup, isGroupsLoading, selectedGroupIds } = useGroupList();
+  const {
+    groups,
+    groupsPersonal,
+    groupsShared,
+    handleToggleIncludedGroup,
+    includedGroups,
+    isGroupIncluded,
+    isGroupsLoading,
+  } = useGroupList();
   const [currentPath, setCurrentPath] = useState(path);
   const [selectedItems, setSelectedItems] = useState<FileListItem[]>([]);
   const [comparator, setComparator] = useState<Comparator>({ sort: 'name', order: 1 });
 
   const getItemKey = (item: Pick<FileListItem, 'uri' | 'groupId' | 'serverId'>) =>
     `${item.serverId}:${item.groupId}:${item.uri}`;
+  const includedGroupKeys = includedGroups.map((group) => `${group.serverId}:${group.id}`);
 
-  const { data: f, refetch } = useQuery({
-    queryKey: ['files', currentPath, groups, servers.map((server) => server.id)],
+  const { data: f } = useQuery({
+    queryKey: ['files', currentPath, includedGroupKeys, servers.map((server) => server.id)],
     queryFn: async () => {
-      if (!servers.length || !groups?.length) {
+      if (!servers.length || !groups.length) {
         return { data: [] };
       }
-
-      const request = {
-        items: groups.map((group) => ({ groupId: group.id, path: currentPath })),
-      };
 
       const responses = await Promise.all(
         servers.map(async (server) => {
           try {
+            const request = {
+              items: includedGroups
+                .filter((group) => group.serverId === server.id)
+                .map((group) => ({ groupId: group.id, path: currentPath })),
+            };
+
+            if (!request.items.length) {
+              return [];
+            }
+
             const files = await server.client.files.findAll(request);
             return files.map((file) => ({ ...file, serverId: server.id }));
           } catch {
@@ -71,7 +86,7 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
       return { data: responses.flat() };
     },
 
-    enabled: !isGroupsLoading && servers.length > 0 && groups?.length > 0,
+    enabled: !isGroupsLoading && servers.length > 0 && groups.length > 0,
     select: (data) => data.data,
   });
 
@@ -135,10 +150,6 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
   const handleItemClick = (item: FileListItem) =>
     hasSelectedItems ? handleSelectItem(item) : item.isDirectory ? onDirClick(item) : onFileClick(item);
 
-  const handleApplyGroupSelect = () => {
-    refetch();
-  };
-
   return {
     comparator,
     currentPath,
@@ -146,17 +157,17 @@ export const useFileList = ({ onPathChange, onFileSelect, path = '' }: Props) =>
     groups,
     groupsPersonal,
     groupsShared,
-    handleApplyGroupSelect,
+    includedGroups,
     handleItemClick,
     handleClearSelection,
-    handleSelectGroup,
+    handleToggleIncludedGroup,
     handlePathClick,
     handleSelectAll,
     handleSelectItem,
     handleSort,
     hasSelectedAll,
     hasSelectedItems,
+    isGroupIncluded,
     selectedItems,
-    selectedGroupIds,
   };
 };
