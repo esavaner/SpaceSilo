@@ -31,7 +31,17 @@ export class GroupsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  private async assertGroupAccess(groupId: string, user: TokenPayload) {
+  private verifyGroupAccess(group: { ownerId: string; members: readonly unknown[] }, user: TokenPayload) {
+    const isOwner = group.ownerId === user.sub;
+    const isMember = group.members.length > 0;
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isMember && !isAdmin) {
+      throw Err.Unauthorized('api.groups.accessDenied');
+    }
+  }
+
+  async assertGroupAccess(groupId: string, user: TokenPayload) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },
       select: {
@@ -48,15 +58,40 @@ export class GroupsService {
       throw Err.NotFound('api.groups.Err.NotFound');
     }
 
-    const isOwner = group.ownerId === user.sub;
-    const isMember = group.members.length > 0;
-    const isAdmin = user.role === 'admin';
+    this.verifyGroupAccess(group, user);
+    return group;
+  }
 
-    if (!isOwner && !isMember && !isAdmin) {
-      throw Err.Unauthorized('api.groups.accessDenied');
+  async findFileInfoGroup(groupId: string, user: TokenPayload) {
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      select: {
+        id: true,
+        name: true,
+        personal: true,
+        ownerId: true,
+        owner: {
+          select: { id: true, email: true, name: true },
+        },
+        members: {
+          where: { userId: user.sub },
+          select: { access: true },
+        },
+      },
+    });
+
+    if (!group) {
+      throw Err.NotFound('api.groups.Err.NotFound');
     }
 
-    return group;
+    this.verifyGroupAccess(group, user);
+    return {
+      id: group.id,
+      name: group.name,
+      personal: group.personal,
+      owner: group.owner,
+      access: group.ownerId === user.sub ? 'owner' : group.members[0]?.access,
+    };
   }
 
   private async assertGroupOwner(groupId: string, user: TokenPayload) {

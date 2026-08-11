@@ -5,6 +5,7 @@ import {
   CreateFolderRequest,
   DownloadFileRequest,
   FileActionResponse,
+  FileInfoResponse,
   FileResponse,
   FindAllFilesRequest,
   FindFileRequest,
@@ -174,6 +175,20 @@ export class FilesService {
     }
 
     return this.toFileResponse(filePath, dto.groupId, dto.fileUri);
+  }
+
+  async findInfo(dto: FindFileRequest, user: TokenPayload): Promise<FileInfoResponse> {
+    const group = await this.groupService.findFileInfoGroup(dto.groupId, user);
+    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
+    if (!fs.existsSync(filePath)) {
+      throw Err.NotFound('api.files.fileErr.NotFound');
+    }
+
+    return {
+      ...this.toFileResponse(filePath, dto.groupId, dto.fileUri),
+      createdAt: fs.statSync(filePath).birthtime,
+      group,
+    };
   }
 
   async download(dto: DownloadFileRequest, user: TokenPayload) {

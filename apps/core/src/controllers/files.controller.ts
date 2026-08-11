@@ -5,6 +5,7 @@ import {
   CreateFolderRequest,
   DownloadFileRequest,
   FileActionResponse,
+  FileInfoResponse,
   FileResponse,
   FindAllFilesRequest,
   FindFileRequest,
@@ -52,6 +53,11 @@ export class FilesController {
   @Get()
   find(@Query() dto: FindFileRequest, @User() user: TokenPayload): Promise<FileResponse> {
     return this.filesService.findFile(dto, user);
+  }
+
+  @Get('/info')
+  findInfo(@Query() dto: FindFileRequest, @User() user: TokenPayload): Promise<FileInfoResponse> {
+    return this.filesService.findInfo(dto, user);
   }
 
   @Get('/download')

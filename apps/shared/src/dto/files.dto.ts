@@ -139,6 +139,47 @@ export class FileResponse {
   type?: string;
 }
 
+export class FileInfoOwnerResponse {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string | null;
+}
+
+export class FileInfoGroupResponse {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  personal?: boolean | null;
+
+  @ValidateNested()
+  @Type(() => FileInfoOwnerResponse)
+  owner!: FileInfoOwnerResponse;
+
+  @IsOptional()
+  @IsString()
+  access?: string;
+}
+
+export class FileInfoResponse extends FileResponse {
+  @IsDate()
+  createdAt!: Date;
+
+  @ValidateNested()
+  @Type(() => FileInfoGroupResponse)
+  group!: FileInfoGroupResponse;
+}
+
 export class FileActionResponse {
   @IsString()
   message!: string;

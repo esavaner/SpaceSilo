@@ -227,6 +227,34 @@
       "move": "Error moving file",
       "remove": "Error removing file",
       "rename": "Error renaming file"
+    },
+    "infoModal": {
+      "title": "File details",
+      "loading": "Loading file details...",
+      "unavailable": "File details are unavailable.",
+      "folder": "Folder",
+      "unknown": "Unknown",
+      "labels": {
+        "name": "Name",
+        "type": "Type",
+        "size": "Size",
+        "modified": "Modified",
+        "created": "Created",
+        "path": "Path",
+        "checksum": "Checksum (MD5)",
+        "group": "Group",
+        "groupId": "Group ID",
+        "groupOwner": "Group owner",
+        "groupAccess": "Your access",
+        "server": "Server",
+        "serverAddress": "Server address"
+      },
+      "access": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "edit": "Can edit",
+        "read": "Read only"
+      }
     }
   },
   "groups": {

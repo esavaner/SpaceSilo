@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { FileRenameModal } from '../modals/FileRename.modal';
 import { FileRemoveModal } from '../modals/FileRemove.modal';
 import { FileMoveCopyModal } from '../modals/FileMoveCopy.modal';
+import { FileInfoModal } from '../modals/FileInfo.modal';
 import { useUi } from '@/providers/UiProvider';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
 import { Button } from '../general/button';
@@ -18,7 +19,7 @@ export const FileOptionsDropdown = ({ file }: FileOptionsDropdownProps) => {
   const { openModal } = useUi();
 
   const items = [
-    { label: t('dropdown.info'), icon: <Icon.Info />, onPress: () => {} },
+    { label: t('dropdown.info'), icon: <Icon.Info />, onPress: () => openModal(<FileInfoModal file={file} />) },
     { label: t('dropdown.share'), icon: <Icon.Share />, onPress: () => {} },
     {
       label: t('dropdown.rename'),

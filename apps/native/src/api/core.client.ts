@@ -16,6 +16,7 @@ import {
   type CreateFolderRequest,
   type DownloadFileRequest,
   type FileActionResponse,
+  type FileInfoResponse,
   type FileResponse,
   type FindAlbumsRequest,
   type FindAllFilesRequest,
@@ -114,6 +115,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
 
   public readonly files = {
     find: (dto: FindFileRequest) => this.get<FileResponse>(buildQuery(endpoints.files, { ...dto })),
+    info: (dto: FindFileRequest) => this.get<FileInfoResponse>(buildQuery(`${endpoints.files}/info`, { ...dto })),
     findAll: (dto: FindAllFilesRequest) =>
       this.post<FindAllFilesRequest, FileResponse[]>(`${endpoints.files}/all`, dto),
     search: (dto: SearchFilesRequest) =>
