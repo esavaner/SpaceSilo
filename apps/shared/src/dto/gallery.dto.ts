@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsIn, IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export const galleryItemTypes = ['photo', 'album'] as const;
@@ -42,6 +43,12 @@ export class FindGalleryImagesRequest {
   @IsOptional()
   @IsBoolean()
   trash?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => (value === undefined ? undefined : Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true })
+  excludedGroupIds?: string[];
 }
 
 /* ------------------------- Responses ------------------------- */

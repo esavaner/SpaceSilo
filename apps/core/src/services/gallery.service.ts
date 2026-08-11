@@ -176,6 +176,7 @@ export class GalleryService {
     const fetchLimit = skip + take + 1;
     const isTrashView = query.trash === true;
     const viewMode = isTrashView ? 'photos-only' : this.resolveGalleryViewMode(query);
+    const excludedGroupIds = Array.from(new Set((query.excludedGroupIds ?? []).filter(Boolean)));
 
     if (skip === 0) {
       await this.photoService.repairCapturedAtFromMetadata(user.sub);
@@ -192,6 +193,8 @@ export class GalleryService {
     const currentAlbumTreeIds = query.parentAlbumId && !isTrashView ? [query.parentAlbumId, ...descendantAlbumIds] : [];
 
     const deletedFilter: Prisma.PhotoWhereInput = isTrashView ? { deletedAt: { not: null } } : { deletedAt: null };
+    const excludedGroupsFilter: Prisma.PhotoWhereInput =
+      excludedGroupIds.length > 0 ? { group: { none: { id: { in: excludedGroupIds } } } } : {};
     const shouldFetchAlbums = !isTrashView && (viewMode === 'photos-and-albums' || viewMode === 'albums-only');
     const shouldFetchPhotos = isTrashView || viewMode !== 'albums-only';
 
@@ -203,19 +206,21 @@ export class GalleryService {
           ? {
               ownerId: user.sub,
               ...deletedFilter,
+              ...excludedGroupsFilter,
               albums: {
                 some: {
                   id: { in: currentAlbumTreeIds },
                 },
               },
             }
-          : { ownerId: user.sub, ...deletedFilter };
+          : { ownerId: user.sub, ...deletedFilter, ...excludedGroupsFilter };
         break;
       case 'photos-and-albums':
         photoWhere = query.parentAlbumId
           ? {
               ownerId: user.sub,
               ...deletedFilter,
+              ...excludedGroupsFilter,
               AND: [
                 { albums: { some: { id: query.parentAlbumId } } },
                 ...(descendantAlbumIds.length > 0 ? [{ albums: { none: { id: { in: descendantAlbumIds } } } }] : []),
@@ -224,6 +229,7 @@ export class GalleryService {
           : {
               ownerId: user.sub,
               ...deletedFilter,
+              ...excludedGroupsFilter,
               albums: { none: {} },
             };
         break;
@@ -235,11 +241,13 @@ export class GalleryService {
           ? {
               ownerId: user.sub,
               ...deletedFilter,
+              ...excludedGroupsFilter,
               id: { in: [] },
             }
           : {
               ownerId: user.sub,
               ...deletedFilter,
+              ...excludedGroupsFilter,
               albums: { none: {} },
             };
         break;

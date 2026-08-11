@@ -1,8 +1,10 @@
 import { Breadcrumb, type BreadcrumbItem } from '@/components/breadcrumb';
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/dropdowns/dropdown';
 import { Button } from '@/components/general/button';
@@ -15,6 +17,21 @@ import { View } from 'react-native';
 type LabelledOption<T extends string> = {
   label: string;
   value: T;
+};
+
+type GroupFilterOption = {
+  key: string;
+  label: string;
+  serverLabel: string;
+};
+
+type GroupFilter = {
+  options: GroupFilterOption[];
+  includedKeys: string[];
+  title: string;
+  includeLabel: string;
+  emptyLabel: string;
+  onToggleIncluded: (key: string) => void;
 };
 
 type GalleryBrowserHeaderProps<GroupBy extends string, ViewMode extends string, PendingAction extends string> = {
@@ -33,6 +50,7 @@ type GalleryBrowserHeaderProps<GroupBy extends string, ViewMode extends string, 
   groupByOptions: LabelledOption<GroupBy>[];
   groupBy: GroupBy;
   onGroupByChange: (value: GroupBy) => void;
+  groupFilter: GroupFilter;
   isSelectionMode: boolean;
   selectedPhotoCountLabel: string;
   hasSelectedServer: boolean;
@@ -81,6 +99,38 @@ function OptionMenu<T extends string>({
   );
 }
 
+function GroupFilterMenu({ filter }: { filter: GroupFilter }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="outline">
+          <Icon.Filter className="text-foreground" />
+          <Text>{filter.title}</Text>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="min-w-56">
+        <DropdownMenuLabel>{filter.includeLabel}</DropdownMenuLabel>
+        {filter.options.length > 0 ? (
+          filter.options.map((option) => (
+            <DropdownMenuCheckboxItem
+              key={option.key}
+              checked={filter.includedKeys.includes(option.key)}
+              onCheckedChange={() => filter.onToggleIncluded(option.key)}
+            >
+              <View className="flex-1 gap-0.5">
+                <Text>{option.label}</Text>
+                <Text className="text-muted-foreground text-xs">{option.serverLabel}</Text>
+              </View>
+            </DropdownMenuCheckboxItem>
+          ))
+        ) : (
+          <Text className="px-2 py-1.5 text-sm text-muted-foreground">{filter.emptyLabel}</Text>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends string, PendingAction extends string>({
   isTrashMode,
   title,
@@ -92,6 +142,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
   groupByOptions,
   groupBy,
   onGroupByChange,
+  groupFilter,
   isSelectionMode,
   selectedPhotoCountLabel,
   hasSelectedServer,
@@ -126,6 +177,8 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
         </View>
 
         <View className="flex-row flex-wrap items-center gap-2">
+          <GroupFilterMenu filter={groupFilter} />
+
           {isTrashMode ? (
             <>
               <Button

@@ -16,7 +16,7 @@ import { useServerContext, type ServerConnectionWithClient } from '@/providers/S
 import { useUi } from '@/providers/UiProvider';
 import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, pl } from 'date-fns/locale';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
@@ -85,8 +85,18 @@ type LabelledOption<T extends string> = {
   value: T;
 };
 
+type GalleryGroupFilterOption = {
+  key: string;
+  groupId: string;
+  label: string;
+  serverId: string;
+  serverLabel: string;
+};
+
 const GALLERY_BATCH_ROWS = 10;
 const LOAD_MORE_THRESHOLD_PX = 720;
+
+const getGalleryGroupFilterKey = (serverId: string, groupId: string) => `${serverId}:${groupId}`;
 
 const sortGalleryItems = (left: GalleryItem, right: GalleryItem) =>
   +new Date(right.capturedAt ?? right.createdAt) - +new Date(left.capturedAt ?? left.createdAt) ||
@@ -132,6 +142,7 @@ const loadGalleryBatch = async ({
   trash,
   pageParam,
   serversById,
+  excludedGroupIdsByServer,
 }: {
   batchSize: number;
   viewMode: GalleryViewMode;
@@ -139,6 +150,7 @@ const loadGalleryBatch = async ({
   trash: boolean;
   pageParam: GalleryPageParam;
   serversById: Map<string, ServerConnectionWithClient>;
+  excludedGroupIdsByServer: Map<string, string[]>;
 }): Promise<GalleryBatchResponse> => {
   const hydratedStates = await Promise.all(
     pageParam.serverStates.map(async (state) => {
@@ -163,6 +175,7 @@ const loadGalleryBatch = async ({
           viewMode,
           parentAlbumId: trash ? undefined : currentAlbum?.id,
           trash: trash ? true : undefined,
+          excludedGroupIds: excludedGroupIdsByServer.get(state.serverId),
         };
         const page = await server.client.gallery.findAll(request);
 
@@ -253,6 +266,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const [selectedPhotoMap, setSelectedPhotoMap] = useState<Record<string, SelectedPhoto>>({});
   const [galleryRevision, setGalleryRevision] = useState(0);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [excludedGroupKeys, setExcludedGroupKeys] = useState<string[]>([]);
 
   const currentAlbum = isTrashMode || albumPath.length === 0 ? null : albumPath[albumPath.length - 1];
   const appLanguage = resolveAppLanguage(i18n.language);
@@ -358,6 +372,45 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const batchSize = columnCount * GALLERY_BATCH_ROWS;
   const initialPageParam = createInitialPageParam(scopedServers);
   const scopedServersById = new Map(scopedServers.map((server) => [server.id, server]));
+  const { data: groupFilterOptions = [] } = useQuery({
+    queryKey: ['gallery-group-filter-options', servers.map((server) => server.id)],
+    queryFn: async (): Promise<GalleryGroupFilterOption[]> => {
+      const groupsByServer = await Promise.all(
+        servers.map(async (server) => {
+          try {
+            const groups = await server.client.groups.findUserGroups();
+            return groups.map((group) => ({
+              key: getGalleryGroupFilterKey(server.id, group.id),
+              groupId: group.id,
+              label: group.name,
+              serverId: server.id,
+              serverLabel: server.label,
+            }));
+          } catch {
+            return [];
+          }
+        })
+      );
+
+      return groupsByServer.flat();
+    },
+    enabled: servers.length > 0,
+  });
+  const excludedGroupKeySet = new Set(excludedGroupKeys);
+  const excludedGroupIdsByServer = new Map<string, string[]>();
+
+  for (const group of groupFilterOptions) {
+    if (excludedGroupKeySet.has(group.key)) {
+      const excludedGroupIds = excludedGroupIdsByServer.get(group.serverId) ?? [];
+      excludedGroupIds.push(group.groupId);
+      excludedGroupIdsByServer.set(group.serverId, excludedGroupIds);
+    }
+  }
+
+  const excludedGroupFilterKey = [...excludedGroupIdsByServer.entries()];
+  const includedGroupKeys = groupFilterOptions
+    .filter((group) => !excludedGroupKeySet.has(group.key))
+    .map((group) => group.key);
 
   useEffect(() => {
     if (isTrashMode) {
@@ -376,7 +429,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   useEffect(() => {
     setSelectedPhotoMap({});
     setSelectedPhotoIndex(null);
-  }, [currentAlbum?.id, effectiveViewMode, isTrashMode]);
+  }, [currentAlbum?.id, effectiveViewMode, isTrashMode, excludedGroupKeys]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
     queryKey: [
@@ -387,6 +440,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       currentAlbum?.serverId ?? null,
       currentAlbum?.id ?? null,
       effectiveViewMode,
+      excludedGroupFilterKey,
     ],
     initialPageParam,
     queryFn: ({ pageParam }) =>
@@ -397,6 +451,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         trash: isTrashMode,
         pageParam: pageParam as GalleryPageParam,
         serversById: scopedServersById,
+        excludedGroupIdsByServer,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageParam,
     enabled: scopedServers.length > 0,
@@ -445,6 +500,12 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
 
   const handleClearSelection = () => {
     setSelectedPhotoMap({});
+  };
+
+  const handleToggleIncludedGroup = (groupKey: string) => {
+    setExcludedGroupKeys((current) =>
+      current.includes(groupKey) ? current.filter((key) => key !== groupKey) : [...current, groupKey]
+    );
   };
 
   const handleOpenAlbum = (item: GalleryAlbumItem) => {
@@ -738,6 +799,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       groupByOptions={groupByOptions}
       groupBy={effectiveGroupBy}
       onGroupByChange={setGroupBy}
+      groupFilter={{
+        options: groupFilterOptions,
+        includedKeys: includedGroupKeys,
+        title: t('gallery.groupFilter.title'),
+        includeLabel: t('gallery.groupFilter.include'),
+        emptyLabel: t('gallery.groupFilter.empty'),
+        onToggleIncluded: handleToggleIncludedGroup,
+      }}
       isSelectionMode={isSelectionMode}
       selectedPhotoCountLabel={t('gallery.selectionCount', { photoCount: formatPhotoCount(selectedPhotos.length) })}
       hasSelectedServer={Boolean(selectedServer)}

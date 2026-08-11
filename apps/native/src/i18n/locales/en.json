@@ -401,6 +401,11 @@
       "week": "Week",
       "year": "Year"
     },
+    "groupFilter": {
+      "empty": "No groups available",
+      "include": "Included groups",
+      "title": "Groups"
+    },
     "viewModes": {
       "albumsOnly": "Albums only",
       "photosAndAlbums": "Photos + albums",
