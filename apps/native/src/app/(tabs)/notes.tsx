@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 import { BaseLayout } from '@/components/base-layout';
-import {
-  NativeSelectScrollView,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/form/select';
+import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';
@@ -59,16 +52,18 @@ export default function NotesPage() {
   const { openModal } = useUi();
   const { allServers, servers } = useServerContext();
   const { notes, isNotesLoading } = useNoteList();
-  const { groups, isGroupsLoading } = useGroupList();
+  const { groups, includedGroups, isGroupsLoading, handleToggleIncludedGroup } = useGroupList();
   const [query, setQuery] = useState('');
-  const [selectedServerId, setSelectedServerId] = useState<string>('all');
 
   const groupLookup = new Map(groups.map((group) => [getGroupLookupKey(group), group]));
   const serverLookup = new Map(allServers.map((server) => [server.id, server]));
-  const serverFilterOptions = [
-    { value: 'all', label: t('notes.allActiveServers') },
-    ...servers.map((server) => ({ value: server.id, label: server.label })),
-  ];
+  const groupFilterOptions: IncludedGroupOption[] = groups.map((group) => ({
+    key: getGroupLookupKey(group),
+    label: group.name,
+    serverLabel: serverLookup.get(group.serverId)?.label,
+  }));
+  const includedGroupKeys = includedGroups.map((group) => getGroupLookupKey(group));
+  const includedGroupKeySet = new Set(includedGroupKeys);
   const normalizedQuery = query.trim().toLowerCase();
   const columnCount = width > 1480 ? 4 : width > 1120 ? 3 : width > 720 ? 2 : 1;
   const availableWidth = Math.min(Math.max(width - 32, 280), 1280);
@@ -76,7 +71,7 @@ export default function NotesPage() {
   const cardWidth = columnCount === 1 ? availableWidth : (availableWidth - columnGap * (columnCount - 1)) / columnCount;
 
   const visibleNotes = notes.filter((note) => {
-    if (selectedServerId !== 'all' && note.serverId !== selectedServerId) {
+    if (!includedGroupKeySet.has(getGroupLookupKey(note))) {
       return false;
     }
 
@@ -154,24 +149,22 @@ export default function NotesPage() {
               />
             </View>
 
-            <View className="gap-2">
-              <Text className="text-sm text-muted-foreground">{t('notes.filterByServer')}</Text>
-              <Select
-                value={serverFilterOptions.find((option) => option.value === selectedServerId)}
-                onValueChange={(option) => setSelectedServerId(option?.value ?? 'all')}
-                disabled={servers.length === 0}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('notes.allActiveServers')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <NativeSelectScrollView>
-                    {serverFilterOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} label={option.label} />
-                    ))}
-                  </NativeSelectScrollView>
-                </SelectContent>
-              </Select>
+            <View className="flex-row flex-wrap items-center gap-2">
+              <IncludedGroupsDropdown
+                options={groupFilterOptions}
+                includedKeys={includedGroupKeys}
+                title={t('notes.groupFilter.title')}
+                includeLabel={t('notes.groupFilter.include')}
+                emptyLabel={t('notes.groupFilter.empty')}
+                onToggleIncluded={(key) => {
+                  const group = groups.find((item) => getGroupLookupKey(item) === key);
+
+                  if (group) {
+                    handleToggleIncludedGroup(group);
+                  }
+                }}
+                buttonVariant="outline"
+              />
             </View>
           </View>
         </View>

@@ -345,8 +345,11 @@
       "createFirst": "Create your first note"
     },
     "searchPlaceholder": "Search notes, content, groups, or servers",
-    "filterByServer": "Filter by server",
-    "allActiveServers": "All active servers",
+    "groupFilter": {
+      "empty": "No groups available",
+      "include": "Included groups",
+      "title": "Groups"
+    },
     "empty": {
       "noServersTitle": "No active servers",
       "noServersDescription": "Connect a server before creating or syncing notes.",
