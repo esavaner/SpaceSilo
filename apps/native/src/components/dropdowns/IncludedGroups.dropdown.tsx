@@ -6,14 +6,16 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown';
-import { View } from 'react-native';
+import { Fragment } from 'react';
 
 export type IncludedGroupOption = {
   key: string;
   label: string;
-  serverLabel?: string;
+  serverId: string;
+  serverLabel: string;
 };
 
 type IncludedGroupsDropdownProps = {
@@ -38,6 +40,18 @@ export const IncludedGroupsDropdown = ({
   buttonVariant,
 }: IncludedGroupsDropdownProps) => {
   const includedKeySet = new Set(includedKeys);
+  const serverGroups = new Map<string, { id: string; label: string; options: IncludedGroupOption[] }>();
+
+  for (const option of options) {
+    let serverGroup = serverGroups.get(option.serverId);
+
+    if (!serverGroup) {
+      serverGroup = { id: option.serverId, label: option.serverLabel, options: [] };
+      serverGroups.set(option.serverId, serverGroup);
+    }
+
+    serverGroup.options.push(option);
+  }
 
   return (
     <DropdownMenu>
@@ -50,20 +64,24 @@ export const IncludedGroupsDropdown = ({
       <DropdownMenuContent className="min-w-56">
         <DropdownMenuLabel>{includeLabel}</DropdownMenuLabel>
         {options.length > 0 ? (
-          options.map((option) => (
-            <DropdownMenuCheckboxItem
-              key={option.key}
-              checked={includedKeySet.has(option.key)}
-              onCheckedChange={() => onToggleIncluded(option.key)}
-            >
-              <View className="flex-1 gap-0.5">
-                <Text>{option.label}</Text>
-                {option.serverLabel ? (
-                  <Text className="text-muted-foreground text-xs">{option.serverLabel}</Text>
-                ) : null}
-              </View>
-            </DropdownMenuCheckboxItem>
-          ))
+          <>
+            <DropdownMenuSeparator />
+            {[...serverGroups.values()].map((serverGroup, serverIndex) => (
+              <Fragment key={serverGroup.id}>
+                {serverIndex > 0 ? <DropdownMenuSeparator /> : null}
+                <DropdownMenuLabel className="text-muted-foreground text-xs">{serverGroup.label}</DropdownMenuLabel>
+                {serverGroup.options.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={option.key}
+                    checked={includedKeySet.has(option.key)}
+                    onCheckedChange={() => onToggleIncluded(option.key)}
+                  >
+                    <Text>{option.label}</Text>
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </Fragment>
+            ))}
+          </>
         ) : (
           <Text className="px-2 py-1.5 text-sm text-muted-foreground">{emptyLabel}</Text>
         )}

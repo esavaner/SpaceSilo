@@ -15,7 +15,8 @@ export const FileFilterDropdown = ({ className }: Props) => {
   const options: IncludedGroupOption[] = groups.map((group) => ({
     key: `${group.serverId}:${group.id}`,
     label: group.name,
-    serverLabel: serverLabels.get(group.serverId),
+    serverId: group.serverId,
+    serverLabel: serverLabels.get(group.serverId) ?? t('common.messages.connectedServer'),
   }));
   const includedKeys = groups.filter((group) => isGroupIncluded(group)).map((group) => `${group.serverId}:${group.id}`);
 

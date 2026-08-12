@@ -60,7 +60,8 @@ export default function NotesPage() {
   const groupFilterOptions: IncludedGroupOption[] = groups.map((group) => ({
     key: getGroupLookupKey(group),
     label: group.name,
-    serverLabel: serverLookup.get(group.serverId)?.label,
+    serverId: group.serverId,
+    serverLabel: serverLookup.get(group.serverId)?.label ?? t('common.messages.connectedServer'),
   }));
   const includedGroupKeys = includedGroups.map((group) => getGroupLookupKey(group));
   const includedGroupKeySet = new Set(includedGroupKeys);
