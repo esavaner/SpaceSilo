@@ -210,7 +210,7 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   settings?: Prisma.JsonNullableFilter<"User">
-  photos?: Prisma.PhotoListRelationFilter
+  media?: Prisma.MediaListRelationFilter
   albums?: Prisma.AlbumListRelationFilter
   notes?: Prisma.NoteListRelationFilter
   backups?: Prisma.BackupListRelationFilter
@@ -228,7 +228,7 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   settings?: Prisma.SortOrderInput | Prisma.SortOrder
-  photos?: Prisma.PhotoOrderByRelationAggregateInput
+  media?: Prisma.MediaOrderByRelationAggregateInput
   albums?: Prisma.AlbumOrderByRelationAggregateInput
   notes?: Prisma.NoteOrderByRelationAggregateInput
   backups?: Prisma.BackupOrderByRelationAggregateInput
@@ -249,7 +249,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   settings?: Prisma.JsonNullableFilter<"User">
-  photos?: Prisma.PhotoListRelationFilter
+  media?: Prisma.MediaListRelationFilter
   albums?: Prisma.AlbumListRelationFilter
   notes?: Prisma.NoteListRelationFilter
   backups?: Prisma.BackupListRelationFilter
@@ -297,7 +297,7 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
@@ -315,7 +315,7 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
@@ -333,7 +333,7 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
@@ -351,7 +351,7 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -468,18 +468,18 @@ export type UserUpdateOneRequiredWithoutBackupsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBackupsInput, Prisma.UserUpdateWithoutBackupsInput>, Prisma.UserUncheckedUpdateWithoutBackupsInput>
 }
 
-export type UserCreateNestedOneWithoutPhotosInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPhotosInput, Prisma.UserUncheckedCreateWithoutPhotosInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPhotosInput
+export type UserCreateNestedOneWithoutMediaInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaInput, Prisma.UserUncheckedCreateWithoutMediaInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutPhotosNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPhotosInput, Prisma.UserUncheckedCreateWithoutPhotosInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPhotosInput
-  upsert?: Prisma.UserUpsertWithoutPhotosInput
+export type UserUpdateOneRequiredWithoutMediaNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaInput, Prisma.UserUncheckedCreateWithoutMediaInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaInput
+  upsert?: Prisma.UserUpsertWithoutMediaInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPhotosInput, Prisma.UserUpdateWithoutPhotosInput>, Prisma.UserUncheckedUpdateWithoutPhotosInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMediaInput, Prisma.UserUpdateWithoutMediaInput>, Prisma.UserUncheckedUpdateWithoutMediaInput>
 }
 
 export type UserCreateNestedOneWithoutAlbumsInput = {
@@ -548,7 +548,7 @@ export type UserCreateWithoutBackupsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
@@ -565,7 +565,7 @@ export type UserUncheckedCreateWithoutBackupsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
@@ -598,7 +598,7 @@ export type UserUpdateWithoutBackupsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
@@ -615,14 +615,14 @@ export type UserUncheckedUpdateWithoutBackupsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutPhotosInput = {
+export type UserCreateWithoutMediaInput = {
   id?: string
   email: string
   password: string
@@ -639,7 +639,7 @@ export type UserCreateWithoutPhotosInput = {
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutPhotosInput = {
+export type UserUncheckedCreateWithoutMediaInput = {
   id?: string
   email: string
   password: string
@@ -656,23 +656,23 @@ export type UserUncheckedCreateWithoutPhotosInput = {
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutPhotosInput = {
+export type UserCreateOrConnectWithoutMediaInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutPhotosInput, Prisma.UserUncheckedCreateWithoutPhotosInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaInput, Prisma.UserUncheckedCreateWithoutMediaInput>
 }
 
-export type UserUpsertWithoutPhotosInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutPhotosInput, Prisma.UserUncheckedUpdateWithoutPhotosInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutPhotosInput, Prisma.UserUncheckedCreateWithoutPhotosInput>
+export type UserUpsertWithoutMediaInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMediaInput, Prisma.UserUncheckedUpdateWithoutMediaInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaInput, Prisma.UserUncheckedCreateWithoutMediaInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutPhotosInput = {
+export type UserUpdateToOneWithWhereWithoutMediaInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutPhotosInput, Prisma.UserUncheckedUpdateWithoutPhotosInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMediaInput, Prisma.UserUncheckedUpdateWithoutMediaInput>
 }
 
-export type UserUpdateWithoutPhotosInput = {
+export type UserUpdateWithoutMediaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
@@ -689,7 +689,7 @@ export type UserUpdateWithoutPhotosInput = {
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutPhotosInput = {
+export type UserUncheckedUpdateWithoutMediaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
@@ -716,7 +716,7 @@ export type UserCreateWithoutAlbumsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
@@ -733,7 +733,7 @@ export type UserUncheckedCreateWithoutAlbumsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
@@ -766,7 +766,7 @@ export type UserUpdateWithoutAlbumsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
@@ -783,7 +783,7 @@ export type UserUncheckedUpdateWithoutAlbumsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
@@ -800,7 +800,7 @@ export type UserCreateWithoutOwnerOfInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
@@ -817,7 +817,7 @@ export type UserUncheckedCreateWithoutOwnerOfInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
@@ -850,7 +850,7 @@ export type UserUpdateWithoutOwnerOfInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
@@ -867,7 +867,7 @@ export type UserUncheckedUpdateWithoutOwnerOfInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -884,7 +884,7 @@ export type UserCreateWithoutNotesInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
@@ -901,7 +901,7 @@ export type UserUncheckedCreateWithoutNotesInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
@@ -934,7 +934,7 @@ export type UserUpdateWithoutNotesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
@@ -951,7 +951,7 @@ export type UserUncheckedUpdateWithoutNotesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
@@ -968,7 +968,7 @@ export type UserCreateWithoutMemberOfInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
@@ -985,7 +985,7 @@ export type UserUncheckedCreateWithoutMemberOfInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutOwnerInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1018,7 +1018,7 @@ export type UserUpdateWithoutMemberOfInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
@@ -1035,7 +1035,7 @@ export type UserUncheckedUpdateWithoutMemberOfInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutOwnerNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1048,7 +1048,7 @@ export type UserUncheckedUpdateWithoutMemberOfInput = {
  */
 
 export type UserCountOutputType = {
-  photos: number
+  media: number
   albums: number
   notes: number
   backups: number
@@ -1057,7 +1057,7 @@ export type UserCountOutputType = {
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  photos?: boolean | UserCountOutputTypeCountPhotosArgs
+  media?: boolean | UserCountOutputTypeCountMediaArgs
   albums?: boolean | UserCountOutputTypeCountAlbumsArgs
   notes?: boolean | UserCountOutputTypeCountNotesArgs
   backups?: boolean | UserCountOutputTypeCountBackupsArgs
@@ -1078,8 +1078,8 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PhotoWhereInput
+export type UserCountOutputTypeCountMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MediaWhereInput
 }
 
 /**
@@ -1128,7 +1128,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   deletedAt?: boolean
   settings?: boolean
-  photos?: boolean | Prisma.User$photosArgs<ExtArgs>
+  media?: boolean | Prisma.User$mediaArgs<ExtArgs>
   albums?: boolean | Prisma.User$albumsArgs<ExtArgs>
   notes?: boolean | Prisma.User$notesArgs<ExtArgs>
   backups?: boolean | Prisma.User$backupsArgs<ExtArgs>
@@ -1175,7 +1175,7 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "createdAt" | "updatedAt" | "deletedAt" | "settings", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  photos?: boolean | Prisma.User$photosArgs<ExtArgs>
+  media?: boolean | Prisma.User$mediaArgs<ExtArgs>
   albums?: boolean | Prisma.User$albumsArgs<ExtArgs>
   notes?: boolean | Prisma.User$notesArgs<ExtArgs>
   backups?: boolean | Prisma.User$backupsArgs<ExtArgs>
@@ -1189,7 +1189,7 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    photos: Prisma.$PhotoPayload<ExtArgs>[]
+    media: Prisma.$MediaPayload<ExtArgs>[]
     albums: Prisma.$AlbumPayload<ExtArgs>[]
     notes: Prisma.$NotePayload<ExtArgs>[]
     backups: Prisma.$BackupPayload<ExtArgs>[]
@@ -1600,7 +1600,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  photos<T extends Prisma.User$photosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$photosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  media<T extends Prisma.User$mediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   albums<T extends Prisma.User$albumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$albumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notes<T extends Prisma.User$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   backups<T extends Prisma.User$backupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$backupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BackupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2032,27 +2032,27 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.photos
+ * User.media
  */
-export type User$photosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$mediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Photo
+   * Select specific fields to fetch from the Media
    */
-  select?: Prisma.PhotoSelect<ExtArgs> | null
+  select?: Prisma.MediaSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Photo
+   * Omit specific fields from the Media
    */
-  omit?: Prisma.PhotoOmit<ExtArgs> | null
+  omit?: Prisma.MediaOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PhotoInclude<ExtArgs> | null
-  where?: Prisma.PhotoWhereInput
-  orderBy?: Prisma.PhotoOrderByWithRelationInput | Prisma.PhotoOrderByWithRelationInput[]
-  cursor?: Prisma.PhotoWhereUniqueInput
+  include?: Prisma.MediaInclude<ExtArgs> | null
+  where?: Prisma.MediaWhereInput
+  orderBy?: Prisma.MediaOrderByWithRelationInput | Prisma.MediaOrderByWithRelationInput[]
+  cursor?: Prisma.MediaWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PhotoScalarFieldEnum | Prisma.PhotoScalarFieldEnum[]
+  distinct?: Prisma.MediaScalarFieldEnum | Prisma.MediaScalarFieldEnum[]
 }
 
 /**

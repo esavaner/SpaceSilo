@@ -28,10 +28,15 @@ export type User = Prisma.UserModel
  */
 export type Backup = Prisma.BackupModel
 /**
- * Model Photo
+ * Model Media
  * 
  */
-export type Photo = Prisma.PhotoModel
+export type Media = Prisma.MediaModel
+/**
+ * Model MediaFile
+ * 
+ */
+export type MediaFile = Prisma.MediaFileModel
 /**
  * Model Album
  * 

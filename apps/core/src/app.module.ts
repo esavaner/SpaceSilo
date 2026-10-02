@@ -9,7 +9,7 @@ import { AlbumController } from './controllers/album.controller';
 import { GalleryController } from './controllers/gallery.controller';
 import { GroupsController } from './controllers/groups.controller';
 import { NotesController } from './controllers/notes.controller';
-import { PhotoController } from './controllers/photo.controller';
+import { MediaController } from './controllers/media.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BackupsController } from './controllers/backups.controller';
 import { FilesController } from './controllers/files.controller';
@@ -21,7 +21,7 @@ import { FilesService } from './services/files.service';
 import { GalleryService } from './services/gallery.service';
 import { GroupsService } from './services/groups.service';
 import { NotesService } from './services/notes.service';
-import { PhotoService } from './services/photo.service';
+import { MediaService } from './services/media.service';
 import { UsersService } from './services/users.service';
 import { CommonModule } from './common/common.module';
 import { validateEnvironment } from './common/env.validation';
@@ -47,7 +47,7 @@ import { validateEnvironment } from './common/env.validation';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    PhotoService,
+    MediaService,
     AlbumService,
     AuthService,
     BackupsService,
@@ -65,7 +65,7 @@ import { validateEnvironment } from './common/env.validation';
     GalleryController,
     GroupsController,
     NotesController,
-    PhotoController,
+    MediaController,
     UsersController,
   ],
 })

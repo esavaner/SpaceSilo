@@ -2,7 +2,7 @@ import { IsArray, IsDate, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min
 
 /* ------------------------- Requests -------------------------- */
 
-export class CreatePhotoRequest {
+export class CreateMediaRequest {
   @IsString()
   @IsNotEmpty()
   url!: string;
@@ -11,9 +11,9 @@ export class CreatePhotoRequest {
   @IsNotEmpty()
   path!: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  thumbnailPath!: string;
+  thumbnailPath?: string | null;
 
   @IsString()
   @IsNotEmpty()
@@ -38,7 +38,7 @@ export class CreatePhotoRequest {
   groupIds?: string[];
 }
 
-export class UpdatePhotoRequest {
+export class UpdateMediaRequest {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -74,7 +74,7 @@ export class UpdatePhotoRequest {
   groupIds?: string[];
 }
 
-export class PhotoBulkActionRequest {
+export class MediaBulkActionRequest {
   @IsArray()
   @IsString({ each: true })
   photoIds!: string[];
@@ -82,7 +82,7 @@ export class PhotoBulkActionRequest {
 
 /* ------------------------- Responses ------------------------- */
 
-export class PhotoBulkActionResponse {
+export class MediaBulkActionResponse {
   @IsString()
   action!: 'trash' | 'restore' | 'delete-permanently';
 
@@ -101,7 +101,7 @@ export class PhotoBulkActionResponse {
   count!: number;
 }
 
-export class PhotoResponse {
+export class MediaResponse {
   @IsString()
   id!: string;
 
@@ -111,8 +111,9 @@ export class PhotoResponse {
   @IsString()
   path!: string;
 
+  @IsOptional()
   @IsString()
-  thumbnailPath!: string;
+  thumbnailPath?: string | null;
 
   @IsString()
   hash!: string;

@@ -472,11 +472,13 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const isSelectionMode = selectedPhotos.length > 0;
   const hasMorePhotos = Boolean(hasNextPage);
   const galleryGroups = groupGalleryItems(galleryItems, effectiveGroupBy, groupFormatters);
-  const lightboxImages: GalleryLightboxItem[] = photos.map((item) => ({
-    key: `${item.serverId}:${item.id}`,
-    uri: `${item.baseUrl}${item.previewPath}`,
-    headers: item.headers,
-  }));
+  const lightboxImages: GalleryLightboxItem[] = photos
+    .filter((item) => item.displayable !== false)
+    .map((item) => ({
+      key: `${item.serverId}:${item.id}`,
+      uri: `${item.baseUrl}${item.previewPath}`,
+      headers: item.headers,
+    }));
   const photoIndexByKey = new Map(lightboxImages.map((item, index) => [item.key, index]));
 
   const refreshGalleryQueries = () => {

@@ -53,7 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Backup: 'Backup',
-  Photo: 'Photo',
+  Media: 'Media',
+  MediaFile: 'MediaFile',
   Album: 'Album',
   Group: 'Group',
   Note: 'Note',
@@ -126,12 +127,13 @@ export const BackupScalarFieldEnum = {
 export type BackupScalarFieldEnum = (typeof BackupScalarFieldEnum)[keyof typeof BackupScalarFieldEnum]
 
 
-export const PhotoScalarFieldEnum = {
+export const MediaScalarFieldEnum = {
   id: 'id',
   url: 'url',
   path: 'path',
   thumbnailPath: 'thumbnailPath',
   hash: 'hash',
+  stemKey: 'stemKey',
   metadata: 'metadata',
   capturedAt: 'capturedAt',
   createdAt: 'createdAt',
@@ -140,7 +142,21 @@ export const PhotoScalarFieldEnum = {
   ownerId: 'ownerId'
 } as const
 
-export type PhotoScalarFieldEnum = (typeof PhotoScalarFieldEnum)[keyof typeof PhotoScalarFieldEnum]
+export type MediaScalarFieldEnum = (typeof MediaScalarFieldEnum)[keyof typeof MediaScalarFieldEnum]
+
+
+export const MediaFileScalarFieldEnum = {
+  id: 'id',
+  originalName: 'originalName',
+  path: 'path',
+  hash: 'hash',
+  size: 'size',
+  displayable: 'displayable',
+  createdAt: 'createdAt',
+  mediaId: 'mediaId'
+} as const
+
+export type MediaFileScalarFieldEnum = (typeof MediaFileScalarFieldEnum)[keyof typeof MediaFileScalarFieldEnum]
 
 
 export const AlbumScalarFieldEnum = {

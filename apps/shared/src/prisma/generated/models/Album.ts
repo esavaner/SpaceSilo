@@ -209,7 +209,7 @@ export type AlbumWhereInput = {
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.AlbumNullableScalarRelationFilter, Prisma.AlbumWhereInput> | null
   subalbums?: Prisma.AlbumListRelationFilter
-  photos?: Prisma.PhotoListRelationFilter
+  media?: Prisma.MediaListRelationFilter
   group?: Prisma.GroupListRelationFilter
 }
 
@@ -225,7 +225,7 @@ export type AlbumOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   parent?: Prisma.AlbumOrderByWithRelationInput
   subalbums?: Prisma.AlbumOrderByRelationAggregateInput
-  photos?: Prisma.PhotoOrderByRelationAggregateInput
+  media?: Prisma.MediaOrderByRelationAggregateInput
   group?: Prisma.GroupOrderByRelationAggregateInput
 }
 
@@ -244,7 +244,7 @@ export type AlbumWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.AlbumNullableScalarRelationFilter, Prisma.AlbumWhereInput> | null
   subalbums?: Prisma.AlbumListRelationFilter
-  photos?: Prisma.PhotoListRelationFilter
+  media?: Prisma.MediaListRelationFilter
   group?: Prisma.GroupListRelationFilter
 }, "id">
 
@@ -286,7 +286,7 @@ export type AlbumCreateInput = {
   owner: Prisma.UserCreateNestedOneWithoutAlbumsInput
   parent?: Prisma.AlbumCreateNestedOneWithoutSubalbumsInput
   subalbums?: Prisma.AlbumCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupCreateNestedManyWithoutAlbumsInput
 }
 
@@ -300,7 +300,7 @@ export type AlbumUncheckedCreateInput = {
   ownerId: string
   parentId?: string | null
   subalbums?: Prisma.AlbumUncheckedCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
@@ -314,7 +314,7 @@ export type AlbumUpdateInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutAlbumsNestedInput
   parent?: Prisma.AlbumUpdateOneWithoutSubalbumsNestedInput
   subalbums?: Prisma.AlbumUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -328,7 +328,7 @@ export type AlbumUncheckedUpdateInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subalbums?: Prisma.AlbumUncheckedUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -453,41 +453,41 @@ export type AlbumUncheckedUpdateManyWithoutOwnerNestedInput = {
   deleteMany?: Prisma.AlbumScalarWhereInput | Prisma.AlbumScalarWhereInput[]
 }
 
-export type AlbumCreateNestedManyWithoutPhotosInput = {
-  create?: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput> | Prisma.AlbumCreateWithoutPhotosInput[] | Prisma.AlbumUncheckedCreateWithoutPhotosInput[]
-  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutPhotosInput | Prisma.AlbumCreateOrConnectWithoutPhotosInput[]
+export type AlbumCreateNestedManyWithoutMediaInput = {
+  create?: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput> | Prisma.AlbumCreateWithoutMediaInput[] | Prisma.AlbumUncheckedCreateWithoutMediaInput[]
+  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutMediaInput | Prisma.AlbumCreateOrConnectWithoutMediaInput[]
   connect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
 }
 
-export type AlbumUncheckedCreateNestedManyWithoutPhotosInput = {
-  create?: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput> | Prisma.AlbumCreateWithoutPhotosInput[] | Prisma.AlbumUncheckedCreateWithoutPhotosInput[]
-  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutPhotosInput | Prisma.AlbumCreateOrConnectWithoutPhotosInput[]
+export type AlbumUncheckedCreateNestedManyWithoutMediaInput = {
+  create?: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput> | Prisma.AlbumCreateWithoutMediaInput[] | Prisma.AlbumUncheckedCreateWithoutMediaInput[]
+  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutMediaInput | Prisma.AlbumCreateOrConnectWithoutMediaInput[]
   connect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
 }
 
-export type AlbumUpdateManyWithoutPhotosNestedInput = {
-  create?: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput> | Prisma.AlbumCreateWithoutPhotosInput[] | Prisma.AlbumUncheckedCreateWithoutPhotosInput[]
-  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutPhotosInput | Prisma.AlbumCreateOrConnectWithoutPhotosInput[]
-  upsert?: Prisma.AlbumUpsertWithWhereUniqueWithoutPhotosInput | Prisma.AlbumUpsertWithWhereUniqueWithoutPhotosInput[]
+export type AlbumUpdateManyWithoutMediaNestedInput = {
+  create?: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput> | Prisma.AlbumCreateWithoutMediaInput[] | Prisma.AlbumUncheckedCreateWithoutMediaInput[]
+  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutMediaInput | Prisma.AlbumCreateOrConnectWithoutMediaInput[]
+  upsert?: Prisma.AlbumUpsertWithWhereUniqueWithoutMediaInput | Prisma.AlbumUpsertWithWhereUniqueWithoutMediaInput[]
   set?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   disconnect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   delete?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   connect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
-  update?: Prisma.AlbumUpdateWithWhereUniqueWithoutPhotosInput | Prisma.AlbumUpdateWithWhereUniqueWithoutPhotosInput[]
-  updateMany?: Prisma.AlbumUpdateManyWithWhereWithoutPhotosInput | Prisma.AlbumUpdateManyWithWhereWithoutPhotosInput[]
+  update?: Prisma.AlbumUpdateWithWhereUniqueWithoutMediaInput | Prisma.AlbumUpdateWithWhereUniqueWithoutMediaInput[]
+  updateMany?: Prisma.AlbumUpdateManyWithWhereWithoutMediaInput | Prisma.AlbumUpdateManyWithWhereWithoutMediaInput[]
   deleteMany?: Prisma.AlbumScalarWhereInput | Prisma.AlbumScalarWhereInput[]
 }
 
-export type AlbumUncheckedUpdateManyWithoutPhotosNestedInput = {
-  create?: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput> | Prisma.AlbumCreateWithoutPhotosInput[] | Prisma.AlbumUncheckedCreateWithoutPhotosInput[]
-  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutPhotosInput | Prisma.AlbumCreateOrConnectWithoutPhotosInput[]
-  upsert?: Prisma.AlbumUpsertWithWhereUniqueWithoutPhotosInput | Prisma.AlbumUpsertWithWhereUniqueWithoutPhotosInput[]
+export type AlbumUncheckedUpdateManyWithoutMediaNestedInput = {
+  create?: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput> | Prisma.AlbumCreateWithoutMediaInput[] | Prisma.AlbumUncheckedCreateWithoutMediaInput[]
+  connectOrCreate?: Prisma.AlbumCreateOrConnectWithoutMediaInput | Prisma.AlbumCreateOrConnectWithoutMediaInput[]
+  upsert?: Prisma.AlbumUpsertWithWhereUniqueWithoutMediaInput | Prisma.AlbumUpsertWithWhereUniqueWithoutMediaInput[]
   set?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   disconnect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   delete?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
   connect?: Prisma.AlbumWhereUniqueInput | Prisma.AlbumWhereUniqueInput[]
-  update?: Prisma.AlbumUpdateWithWhereUniqueWithoutPhotosInput | Prisma.AlbumUpdateWithWhereUniqueWithoutPhotosInput[]
-  updateMany?: Prisma.AlbumUpdateManyWithWhereWithoutPhotosInput | Prisma.AlbumUpdateManyWithWhereWithoutPhotosInput[]
+  update?: Prisma.AlbumUpdateWithWhereUniqueWithoutMediaInput | Prisma.AlbumUpdateWithWhereUniqueWithoutMediaInput[]
+  updateMany?: Prisma.AlbumUpdateManyWithWhereWithoutMediaInput | Prisma.AlbumUpdateManyWithWhereWithoutMediaInput[]
   deleteMany?: Prisma.AlbumScalarWhereInput | Prisma.AlbumScalarWhereInput[]
 }
 
@@ -596,7 +596,7 @@ export type AlbumCreateWithoutOwnerInput = {
   deletedAt?: Date | string | null
   parent?: Prisma.AlbumCreateNestedOneWithoutSubalbumsInput
   subalbums?: Prisma.AlbumCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupCreateNestedManyWithoutAlbumsInput
 }
 
@@ -609,7 +609,7 @@ export type AlbumUncheckedCreateWithoutOwnerInput = {
   deletedAt?: Date | string | null
   parentId?: string | null
   subalbums?: Prisma.AlbumUncheckedCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
@@ -653,7 +653,7 @@ export type AlbumScalarWhereInput = {
   parentId?: Prisma.StringNullableFilter<"Album"> | string | null
 }
 
-export type AlbumCreateWithoutPhotosInput = {
+export type AlbumCreateWithoutMediaInput = {
   id?: string
   name: string
   capturedAt?: Date | string | null
@@ -666,7 +666,7 @@ export type AlbumCreateWithoutPhotosInput = {
   group?: Prisma.GroupCreateNestedManyWithoutAlbumsInput
 }
 
-export type AlbumUncheckedCreateWithoutPhotosInput = {
+export type AlbumUncheckedCreateWithoutMediaInput = {
   id?: string
   name: string
   capturedAt?: Date | string | null
@@ -679,25 +679,25 @@ export type AlbumUncheckedCreateWithoutPhotosInput = {
   group?: Prisma.GroupUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
-export type AlbumCreateOrConnectWithoutPhotosInput = {
+export type AlbumCreateOrConnectWithoutMediaInput = {
   where: Prisma.AlbumWhereUniqueInput
-  create: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput>
+  create: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput>
 }
 
-export type AlbumUpsertWithWhereUniqueWithoutPhotosInput = {
+export type AlbumUpsertWithWhereUniqueWithoutMediaInput = {
   where: Prisma.AlbumWhereUniqueInput
-  update: Prisma.XOR<Prisma.AlbumUpdateWithoutPhotosInput, Prisma.AlbumUncheckedUpdateWithoutPhotosInput>
-  create: Prisma.XOR<Prisma.AlbumCreateWithoutPhotosInput, Prisma.AlbumUncheckedCreateWithoutPhotosInput>
+  update: Prisma.XOR<Prisma.AlbumUpdateWithoutMediaInput, Prisma.AlbumUncheckedUpdateWithoutMediaInput>
+  create: Prisma.XOR<Prisma.AlbumCreateWithoutMediaInput, Prisma.AlbumUncheckedCreateWithoutMediaInput>
 }
 
-export type AlbumUpdateWithWhereUniqueWithoutPhotosInput = {
+export type AlbumUpdateWithWhereUniqueWithoutMediaInput = {
   where: Prisma.AlbumWhereUniqueInput
-  data: Prisma.XOR<Prisma.AlbumUpdateWithoutPhotosInput, Prisma.AlbumUncheckedUpdateWithoutPhotosInput>
+  data: Prisma.XOR<Prisma.AlbumUpdateWithoutMediaInput, Prisma.AlbumUncheckedUpdateWithoutMediaInput>
 }
 
-export type AlbumUpdateManyWithWhereWithoutPhotosInput = {
+export type AlbumUpdateManyWithWhereWithoutMediaInput = {
   where: Prisma.AlbumScalarWhereInput
-  data: Prisma.XOR<Prisma.AlbumUpdateManyMutationInput, Prisma.AlbumUncheckedUpdateManyWithoutPhotosInput>
+  data: Prisma.XOR<Prisma.AlbumUpdateManyMutationInput, Prisma.AlbumUncheckedUpdateManyWithoutMediaInput>
 }
 
 export type AlbumCreateWithoutSubalbumsInput = {
@@ -709,7 +709,7 @@ export type AlbumCreateWithoutSubalbumsInput = {
   deletedAt?: Date | string | null
   owner: Prisma.UserCreateNestedOneWithoutAlbumsInput
   parent?: Prisma.AlbumCreateNestedOneWithoutSubalbumsInput
-  photos?: Prisma.PhotoCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupCreateNestedManyWithoutAlbumsInput
 }
 
@@ -722,7 +722,7 @@ export type AlbumUncheckedCreateWithoutSubalbumsInput = {
   deletedAt?: Date | string | null
   ownerId: string
   parentId?: string | null
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
@@ -740,7 +740,7 @@ export type AlbumCreateWithoutParentInput = {
   deletedAt?: Date | string | null
   owner: Prisma.UserCreateNestedOneWithoutAlbumsInput
   subalbums?: Prisma.AlbumCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupCreateNestedManyWithoutAlbumsInput
 }
 
@@ -753,7 +753,7 @@ export type AlbumUncheckedCreateWithoutParentInput = {
   deletedAt?: Date | string | null
   ownerId: string
   subalbums?: Prisma.AlbumUncheckedCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutAlbumsInput
   group?: Prisma.GroupUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
@@ -787,7 +787,7 @@ export type AlbumUpdateWithoutSubalbumsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   owner?: Prisma.UserUpdateOneRequiredWithoutAlbumsNestedInput
   parent?: Prisma.AlbumUpdateOneWithoutSubalbumsNestedInput
-  photos?: Prisma.PhotoUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -800,7 +800,7 @@ export type AlbumUncheckedUpdateWithoutSubalbumsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -830,7 +830,7 @@ export type AlbumCreateWithoutGroupInput = {
   owner: Prisma.UserCreateNestedOneWithoutAlbumsInput
   parent?: Prisma.AlbumCreateNestedOneWithoutSubalbumsInput
   subalbums?: Prisma.AlbumCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaCreateNestedManyWithoutAlbumsInput
 }
 
 export type AlbumUncheckedCreateWithoutGroupInput = {
@@ -843,7 +843,7 @@ export type AlbumUncheckedCreateWithoutGroupInput = {
   ownerId: string
   parentId?: string | null
   subalbums?: Prisma.AlbumUncheckedCreateNestedManyWithoutParentInput
-  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutAlbumsInput
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutAlbumsInput
 }
 
 export type AlbumCreateOrConnectWithoutGroupInput = {
@@ -886,7 +886,7 @@ export type AlbumUpdateWithoutOwnerInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   parent?: Prisma.AlbumUpdateOneWithoutSubalbumsNestedInput
   subalbums?: Prisma.AlbumUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -899,7 +899,7 @@ export type AlbumUncheckedUpdateWithoutOwnerInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subalbums?: Prisma.AlbumUncheckedUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -913,7 +913,7 @@ export type AlbumUncheckedUpdateManyWithoutOwnerInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type AlbumUpdateWithoutPhotosInput = {
+export type AlbumUpdateWithoutMediaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -926,7 +926,7 @@ export type AlbumUpdateWithoutPhotosInput = {
   group?: Prisma.GroupUpdateManyWithoutAlbumsNestedInput
 }
 
-export type AlbumUncheckedUpdateWithoutPhotosInput = {
+export type AlbumUncheckedUpdateWithoutMediaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -939,7 +939,7 @@ export type AlbumUncheckedUpdateWithoutPhotosInput = {
   group?: Prisma.GroupUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
-export type AlbumUncheckedUpdateManyWithoutPhotosInput = {
+export type AlbumUncheckedUpdateManyWithoutMediaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -969,7 +969,7 @@ export type AlbumUpdateWithoutParentInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   owner?: Prisma.UserUpdateOneRequiredWithoutAlbumsNestedInput
   subalbums?: Prisma.AlbumUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -982,7 +982,7 @@ export type AlbumUncheckedUpdateWithoutParentInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   subalbums?: Prisma.AlbumUncheckedUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutAlbumsNestedInput
   group?: Prisma.GroupUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
@@ -1006,7 +1006,7 @@ export type AlbumUpdateWithoutGroupInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutAlbumsNestedInput
   parent?: Prisma.AlbumUpdateOneWithoutSubalbumsNestedInput
   subalbums?: Prisma.AlbumUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUpdateManyWithoutAlbumsNestedInput
 }
 
 export type AlbumUncheckedUpdateWithoutGroupInput = {
@@ -1019,7 +1019,7 @@ export type AlbumUncheckedUpdateWithoutGroupInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subalbums?: Prisma.AlbumUncheckedUpdateManyWithoutParentNestedInput
-  photos?: Prisma.PhotoUncheckedUpdateManyWithoutAlbumsNestedInput
+  media?: Prisma.MediaUncheckedUpdateManyWithoutAlbumsNestedInput
 }
 
 export type AlbumUncheckedUpdateManyWithoutGroupInput = {
@@ -1040,13 +1040,13 @@ export type AlbumUncheckedUpdateManyWithoutGroupInput = {
 
 export type AlbumCountOutputType = {
   subalbums: number
-  photos: number
+  media: number
   group: number
 }
 
 export type AlbumCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subalbums?: boolean | AlbumCountOutputTypeCountSubalbumsArgs
-  photos?: boolean | AlbumCountOutputTypeCountPhotosArgs
+  media?: boolean | AlbumCountOutputTypeCountMediaArgs
   group?: boolean | AlbumCountOutputTypeCountGroupArgs
 }
 
@@ -1070,8 +1070,8 @@ export type AlbumCountOutputTypeCountSubalbumsArgs<ExtArgs extends runtime.Types
 /**
  * AlbumCountOutputType without action
  */
-export type AlbumCountOutputTypeCountPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PhotoWhereInput
+export type AlbumCountOutputTypeCountMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MediaWhereInput
 }
 
 /**
@@ -1094,7 +1094,7 @@ export type AlbumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Album$parentArgs<ExtArgs>
   subalbums?: boolean | Prisma.Album$subalbumsArgs<ExtArgs>
-  photos?: boolean | Prisma.Album$photosArgs<ExtArgs>
+  media?: boolean | Prisma.Album$mediaArgs<ExtArgs>
   group?: boolean | Prisma.Album$groupArgs<ExtArgs>
   _count?: boolean | Prisma.AlbumCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["album"]>
@@ -1141,7 +1141,7 @@ export type AlbumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Album$parentArgs<ExtArgs>
   subalbums?: boolean | Prisma.Album$subalbumsArgs<ExtArgs>
-  photos?: boolean | Prisma.Album$photosArgs<ExtArgs>
+  media?: boolean | Prisma.Album$mediaArgs<ExtArgs>
   group?: boolean | Prisma.Album$groupArgs<ExtArgs>
   _count?: boolean | Prisma.AlbumCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1160,7 +1160,7 @@ export type $AlbumPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     owner: Prisma.$UserPayload<ExtArgs>
     parent: Prisma.$AlbumPayload<ExtArgs> | null
     subalbums: Prisma.$AlbumPayload<ExtArgs>[]
-    photos: Prisma.$PhotoPayload<ExtArgs>[]
+    media: Prisma.$MediaPayload<ExtArgs>[]
     group: Prisma.$GroupPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1569,7 +1569,7 @@ export interface Prisma__AlbumClient<T, Null = never, ExtArgs extends runtime.Ty
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.Album$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Album$parentArgs<ExtArgs>>): Prisma.Prisma__AlbumClient<runtime.Types.Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   subalbums<T extends Prisma.Album$subalbumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Album$subalbumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  photos<T extends Prisma.Album$photosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Album$photosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  media<T extends Prisma.Album$mediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Album$mediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   group<T extends Prisma.Album$groupArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Album$groupArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2047,27 +2047,27 @@ export type Album$subalbumsArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Album.photos
+ * Album.media
  */
-export type Album$photosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Album$mediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Photo
+   * Select specific fields to fetch from the Media
    */
-  select?: Prisma.PhotoSelect<ExtArgs> | null
+  select?: Prisma.MediaSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Photo
+   * Omit specific fields from the Media
    */
-  omit?: Prisma.PhotoOmit<ExtArgs> | null
+  omit?: Prisma.MediaOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PhotoInclude<ExtArgs> | null
-  where?: Prisma.PhotoWhereInput
-  orderBy?: Prisma.PhotoOrderByWithRelationInput | Prisma.PhotoOrderByWithRelationInput[]
-  cursor?: Prisma.PhotoWhereUniqueInput
+  include?: Prisma.MediaInclude<ExtArgs> | null
+  where?: Prisma.MediaWhereInput
+  orderBy?: Prisma.MediaOrderByWithRelationInput | Prisma.MediaOrderByWithRelationInput[]
+  cursor?: Prisma.MediaWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PhotoScalarFieldEnum | Prisma.PhotoScalarFieldEnum[]
+  distinct?: Prisma.MediaScalarFieldEnum | Prisma.MediaScalarFieldEnum[]
 }
 
 /**

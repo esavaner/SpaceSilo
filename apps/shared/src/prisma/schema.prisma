@@ -41,7 +41,7 @@ model User {
   deletedAt DateTime?
   settings  Json?
 
-  photos    Photo[]
+  media     Media[]
   albums    Album[]
   notes     Note[]
   backups   Backup[]
@@ -88,12 +88,16 @@ model Backup {
 }
 
 
-model Photo {
+// One gallery entry: a main file plus any sidecar files that share its name stem.
+model Media {
   id        String   @id @default(cuid())
   url       String
+  // path/hash/thumbnailPath mirror the current main file; thumbnailPath is null when no file is displayable.
   path      String
-  thumbnailPath String
+  thumbnailPath String?
   hash      String
+  // Directory + lowercased name stem relative to storage; used to attach late-arriving sidecars.
+  stemKey   String
   metadata  Json?
   capturedAt DateTime @default(now())
   createdAt DateTime @default(now())
@@ -104,8 +108,26 @@ model Photo {
   owner     User     @relation(fields: [ownerId], references: [id])
   albums    Album[]
   group     Group[]
+  files     MediaFile[]
 
+  @@unique([ownerId, stemKey])
   @@index([ownerId, capturedAt, createdAt])
+}
+
+model MediaFile {
+  id           String   @id @default(cuid())
+  originalName String
+  path         String
+  hash         String
+  size         Int
+  displayable  Boolean
+  createdAt    DateTime @default(now())
+
+  mediaId      String
+  media        Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId])
+  @@index([hash])
 }
 
 model Album {
@@ -121,7 +143,7 @@ model Album {
   parentId  String?
   parent    Album?   @relation("Subalbums", fields: [parentId], references: [id])
   subalbums Album[]  @relation("Subalbums")
-  photos    Photo[]
+  media     Media[]
   group     Group[]
 
   @@index([ownerId, capturedAt, createdAt])
@@ -142,7 +164,7 @@ model Group {
   color     String?
   members   GroupMember[]
   albums    Album[]
-  photos    Photo[]
+  media     Media[]
   notes     Note[]
 }
 

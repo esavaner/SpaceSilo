@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
-import { PhotoService } from '@/services/photo.service';
-import * as crypto from 'crypto';
+import { MediaService } from '@/services/media.service';
 import * as fs from 'fs';
+import * as path from 'path';
 import {
   type FindGalleryImagesRequest,
   type GalleryImageResponse,
@@ -17,6 +17,8 @@ import {
 
 const DEFAULT_GALLERY_PAGE_SIZE = 50;
 const MAX_GALLERY_PAGE_SIZE = 200;
+// Incoming backups are copies of other servers' data, so only their images are indexed.
+const BACKUPS_DIRECTORY_NAME = 'backups';
 
 const compareGalleryItems = (
   left: Pick<GalleryImageResponse, 'id' | 'capturedAt' | 'createdAt'>,
@@ -35,7 +37,7 @@ const compareGalleryItems = (
 export class GalleryService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly photoService: PhotoService,
+    private readonly mediaService: MediaService,
     private readonly albumService: AlbumService
   ) {}
 
@@ -56,11 +58,11 @@ export class GalleryService {
   }
 
   async getStats(user: TokenPayload): Promise<GalleryStatsResponse> {
-    const { storagePath } = this.photoService.getStoragePaths();
-    const allFiles = this.photoService.listFilesRecursive(storagePath);
-    const totalImages = allFiles.filter((filePath) => this.photoService.isSupportedImage(filePath)).length;
+    const { storagePath } = this.mediaService.getStoragePaths();
+    const allFiles = this.mediaService.listFilesRecursive(storagePath);
+    const totalImages = allFiles.filter((filePath) => this.mediaService.isSupportedImage(filePath)).length;
     const storageSize = allFiles.reduce((total, filePath) => total + fs.statSync(filePath).size, 0);
-    const indexedImages = await this.prisma.photo.count({
+    const indexedImages = await this.prisma.media.count({
       where: { ownerId: user.sub },
     });
 
@@ -72,92 +74,48 @@ export class GalleryService {
     };
   }
 
+  private isIndexableFile(storagePath: string, filePath: string) {
+    if (this.mediaService.isSupportedImage(filePath)) {
+      return true;
+    }
+
+    const [topLevelEntry] = path.relative(storagePath, filePath).split(path.sep);
+    return topLevelEntry !== BACKUPS_DIRECTORY_NAME && !this.mediaService.isIgnoredFile(filePath);
+  }
+
   private async indexImages(user: TokenPayload): Promise<GalleryScanResponse> {
-    const { storagePath } = this.photoService.getStoragePaths();
-    const imageFiles = this.photoService
+    const { storagePath } = this.mediaService.getStoragePaths();
+    const files = this.mediaService
       .listFilesRecursive(storagePath)
-      .filter((filePath) => this.photoService.isSupportedImage(filePath));
+      .filter((filePath) => this.isIndexableFile(storagePath, filePath));
 
-    let addedImages = 0;
-    const albumPhotosToRefresh = new Set<string>();
+    let addedFiles = 0;
 
-    for (const filePath of imageFiles) {
+    for (const filePath of files) {
       try {
         const fileBuffer = fs.readFileSync(filePath);
-        const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-        const capturedAt = await this.photoService.extractCapturedAt(fileBuffer);
-        const existingPhoto = await this.prisma.photo.findFirst({
-          where: { hash },
-          select: { id: true, metadata: true, thumbnailPath: true, createdAt: true, capturedAt: true },
+        const result = await this.mediaService.attachFile({
+          ownerId: user.sub,
+          buffer: fileBuffer,
+          filePath,
+          originalName: path.basename(filePath),
+          stemKey: this.mediaService.getStemKeyForStoredFile(filePath),
         });
 
-        const thumbnailPath = this.photoService.getThumbnailOutputPath(filePath);
-        await this.photoService.ensurePreviewAsset(filePath, fileBuffer);
-
-        if (existingPhoto) {
-          const updateData: Prisma.PhotoUpdateInput = {};
-          const resolvedCapturedAt = capturedAt
-            ? new Date(capturedAt)
-            : this.photoService.resolveCapturedAt(existingPhoto);
-
-          if (capturedAt && !this.photoService.getCapturedAtFromMetadata(existingPhoto.metadata)) {
-            updateData.metadata = this.photoService.mergePhotoMetadata(existingPhoto.metadata, capturedAt);
-          }
-
-          if (!existingPhoto.capturedAt || existingPhoto.capturedAt.getTime() !== resolvedCapturedAt.getTime()) {
-            updateData.capturedAt = resolvedCapturedAt;
-          }
-
-          if (
-            !existingPhoto.thumbnailPath ||
-            existingPhoto.thumbnailPath !== thumbnailPath ||
-            !fs.existsSync(existingPhoto.thumbnailPath)
-          ) {
-            await this.photoService.createThumbnail(fileBuffer, thumbnailPath);
-            updateData.thumbnailPath = thumbnailPath;
-          }
-
-          if (Object.keys(updateData).length > 0) {
-            await this.prisma.photo.update({
-              where: { id: existingPhoto.id },
-              data: updateData,
-            });
-
-            if (updateData.capturedAt) {
-              albumPhotosToRefresh.add(existingPhoto.id);
-            }
-          }
-          continue;
+        if (result.duplicate) {
+          await this.mediaService.repairIndexedMedia(result.media, filePath, fileBuffer);
+        } else {
+          addedFiles += 1;
         }
-
-        await this.photoService.createThumbnail(fileBuffer, thumbnailPath);
-        const createdAt = new Date();
-
-        await this.prisma.photo.create({
-          data: {
-            url: '',
-            thumbnailPath,
-            path: filePath,
-            capturedAt: capturedAt ? new Date(capturedAt) : createdAt,
-            createdAt,
-            metadata: this.photoService.mergePhotoMetadata(null, capturedAt),
-            ownerId: user.sub,
-            hash,
-          },
-        });
-
-        addedImages += 1;
       } catch (error) {
         console.log(error);
         continue;
       }
     }
 
-    await this.albumService.refreshCapturedAtForPhotos(Array.from(albumPhotosToRefresh));
-
     return {
-      scannedImages: imageFiles.length,
-      addedImages,
+      scannedImages: files.length,
+      addedImages: addedFiles,
     };
   }
 
@@ -166,7 +124,7 @@ export class GalleryService {
   }
 
   async resetAndScan(user: TokenPayload): Promise<GalleryScanResponse> {
-    await this.prisma.$transaction([this.prisma.album.deleteMany(), this.prisma.photo.deleteMany()]);
+    await this.prisma.$transaction([this.prisma.album.deleteMany(), this.prisma.media.deleteMany()]);
     return this.indexImages(user);
   }
 
@@ -179,7 +137,7 @@ export class GalleryService {
     const excludedGroupIds = Array.from(new Set((query.excludedGroupIds ?? []).filter(Boolean)));
 
     if (skip === 0) {
-      await this.photoService.repairCapturedAtFromMetadata(user.sub);
+      await this.mediaService.repairCapturedAtFromMetadata(user.sub);
     }
 
     if (query.parentAlbumId && !isTrashView) {
@@ -192,13 +150,13 @@ export class GalleryService {
         : [];
     const currentAlbumTreeIds = query.parentAlbumId && !isTrashView ? [query.parentAlbumId, ...descendantAlbumIds] : [];
 
-    const deletedFilter: Prisma.PhotoWhereInput = isTrashView ? { deletedAt: { not: null } } : { deletedAt: null };
-    const excludedGroupsFilter: Prisma.PhotoWhereInput =
+    const deletedFilter: Prisma.MediaWhereInput = isTrashView ? { deletedAt: { not: null } } : { deletedAt: null };
+    const excludedGroupsFilter: Prisma.MediaWhereInput =
       excludedGroupIds.length > 0 ? { group: { none: { id: { in: excludedGroupIds } } } } : {};
     const shouldFetchAlbums = !isTrashView && (viewMode === 'photos-and-albums' || viewMode === 'albums-only');
     const shouldFetchPhotos = isTrashView || viewMode !== 'albums-only';
 
-    let photoWhere: Prisma.PhotoWhereInput | undefined;
+    let photoWhere: Prisma.MediaWhereInput | undefined;
 
     switch (viewMode) {
       case 'photos-only':
@@ -255,11 +213,18 @@ export class GalleryService {
 
     const [photos, albums] = await Promise.all([
       shouldFetchPhotos && photoWhere
-        ? this.prisma.photo.findMany({
+        ? this.prisma.media.findMany({
             where: photoWhere,
             orderBy: [{ capturedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
             take: fetchLimit,
-            select: { id: true, createdAt: true, capturedAt: true, metadata: true },
+            select: {
+              id: true,
+              createdAt: true,
+              capturedAt: true,
+              metadata: true,
+              thumbnailPath: true,
+              _count: { select: { files: true } },
+            },
           })
         : Promise.resolve([]),
       shouldFetchAlbums
@@ -271,13 +236,12 @@ export class GalleryService {
         : Promise.resolve([]),
     ]);
 
-    await this.photoService.repairCapturedAtForPhotos(photos);
+    await this.mediaService.repairCapturedAtForPhotos(photos);
 
     const photoItems = photos.map((photo) =>
-      this.photoService.toGalleryImageResponse({
-        id: photo.id,
-        createdAt: photo.createdAt,
-        capturedAt: this.photoService.resolveCapturedAt(photo),
+      this.mediaService.toGalleryImageResponse({
+        ...photo,
+        capturedAt: this.mediaService.resolveCapturedAt(photo),
       })
     );
 

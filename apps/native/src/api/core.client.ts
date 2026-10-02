@@ -29,8 +29,8 @@ import {
   type GroupResponse,
   type MoveFileRequest,
   type NoteResponse,
-  type PhotoBulkActionRequest,
-  type PhotoBulkActionResponse,
+  type MediaBulkActionRequest,
+  type MediaBulkActionResponse,
   type RefreshResponse,
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
@@ -208,14 +208,14 @@ export class CoreApiClient extends ApiClient<UserResponse> {
       formData.append('file', file, fileName);
       return this.postFormData(endpoints.photo, formData);
     },
-    trashMany: (dto: PhotoBulkActionRequest) =>
-      this.patch<PhotoBulkActionRequest, PhotoBulkActionResponse>(`${endpoints.photo}/trash`, dto),
-    restoreMany: (dto: PhotoBulkActionRequest) =>
-      this.patch<PhotoBulkActionRequest, PhotoBulkActionResponse>(`${endpoints.photo}/restore`, dto),
-    restoreAll: () => this.patch<undefined, PhotoBulkActionResponse>(`${endpoints.photo}/restore-all`),
-    removeManyPermanently: (dto: PhotoBulkActionRequest) =>
-      this.delete<PhotoBulkActionRequest, PhotoBulkActionResponse>(`${endpoints.photo}/permanent`, dto),
-    removeAllTrashed: () => this.delete<undefined, PhotoBulkActionResponse>(`${endpoints.photo}/trash`),
+    trashMany: (dto: MediaBulkActionRequest) =>
+      this.patch<MediaBulkActionRequest, MediaBulkActionResponse>(`${endpoints.photo}/trash`, dto),
+    restoreMany: (dto: MediaBulkActionRequest) =>
+      this.patch<MediaBulkActionRequest, MediaBulkActionResponse>(`${endpoints.photo}/restore`, dto),
+    restoreAll: () => this.patch<undefined, MediaBulkActionResponse>(`${endpoints.photo}/restore-all`),
+    removeManyPermanently: (dto: MediaBulkActionRequest) =>
+      this.delete<MediaBulkActionRequest, MediaBulkActionResponse>(`${endpoints.photo}/permanent`, dto),
+    removeAllTrashed: () => this.delete<undefined, MediaBulkActionResponse>(`${endpoints.photo}/trash`),
     remove: (id: string) => this.delete<undefined, unknown>(`${endpoints.photo}/${id}`),
   };
 }

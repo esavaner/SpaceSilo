@@ -386,7 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Backup: 'Backup',
-  Photo: 'Photo',
+  Media: 'Media',
+  MediaFile: 'MediaFile',
   Album: 'Album',
   Group: 'Group',
   Note: 'Note',
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "backup" | "photo" | "album" | "group" | "note" | "groupMember"
+    modelProps: "user" | "backup" | "media" | "mediaFile" | "album" | "group" | "note" | "groupMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -558,77 +559,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Photo: {
-      payload: Prisma.$PhotoPayload<ExtArgs>
-      fields: Prisma.PhotoFieldRefs
+    Media: {
+      payload: Prisma.$MediaPayload<ExtArgs>
+      fields: Prisma.MediaFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.PhotoFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload> | null
+          args: Prisma.MediaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.PhotoFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         findFirst: {
-          args: Prisma.PhotoFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload> | null
+          args: Prisma.MediaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.PhotoFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         findMany: {
-          args: Prisma.PhotoFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>[]
+          args: Prisma.MediaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>[]
         }
         create: {
-          args: Prisma.PhotoCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         createMany: {
-          args: Prisma.PhotoCreateManyArgs<ExtArgs>
+          args: Prisma.MediaCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.PhotoCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>[]
+          args: Prisma.MediaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>[]
         }
         delete: {
-          args: Prisma.PhotoDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         update: {
-          args: Prisma.PhotoUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         deleteMany: {
-          args: Prisma.PhotoDeleteManyArgs<ExtArgs>
+          args: Prisma.MediaDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.PhotoUpdateManyArgs<ExtArgs>
+          args: Prisma.MediaUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.PhotoUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>[]
+          args: Prisma.MediaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>[]
         }
         upsert: {
-          args: Prisma.PhotoUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhotoPayload>
+          args: Prisma.MediaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaPayload>
         }
         aggregate: {
-          args: Prisma.PhotoAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePhoto>
+          args: Prisma.MediaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMedia>
         }
         groupBy: {
-          args: Prisma.PhotoGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PhotoGroupByOutputType>[]
+          args: Prisma.MediaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaGroupByOutputType>[]
         }
         count: {
-          args: Prisma.PhotoCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PhotoCountAggregateOutputType> | number
+          args: Prisma.MediaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaCountAggregateOutputType> | number
+        }
+      }
+    }
+    MediaFile: {
+      payload: Prisma.$MediaFilePayload<ExtArgs>
+      fields: Prisma.MediaFileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MediaFileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MediaFileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        findFirst: {
+          args: Prisma.MediaFileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MediaFileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        findMany: {
+          args: Prisma.MediaFileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        create: {
+          args: Prisma.MediaFileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        createMany: {
+          args: Prisma.MediaFileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MediaFileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        delete: {
+          args: Prisma.MediaFileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        update: {
+          args: Prisma.MediaFileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        deleteMany: {
+          args: Prisma.MediaFileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MediaFileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MediaFileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        upsert: {
+          args: Prisma.MediaFileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        aggregate: {
+          args: Prisma.MediaFileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMediaFile>
+        }
+        groupBy: {
+          args: Prisma.MediaFileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MediaFileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFileCountAggregateOutputType> | number
         }
       }
     }
@@ -1017,12 +1092,13 @@ export const BackupScalarFieldEnum = {
 export type BackupScalarFieldEnum = (typeof BackupScalarFieldEnum)[keyof typeof BackupScalarFieldEnum]
 
 
-export const PhotoScalarFieldEnum = {
+export const MediaScalarFieldEnum = {
   id: 'id',
   url: 'url',
   path: 'path',
   thumbnailPath: 'thumbnailPath',
   hash: 'hash',
+  stemKey: 'stemKey',
   metadata: 'metadata',
   capturedAt: 'capturedAt',
   createdAt: 'createdAt',
@@ -1031,7 +1107,21 @@ export const PhotoScalarFieldEnum = {
   ownerId: 'ownerId'
 } as const
 
-export type PhotoScalarFieldEnum = (typeof PhotoScalarFieldEnum)[keyof typeof PhotoScalarFieldEnum]
+export type MediaScalarFieldEnum = (typeof MediaScalarFieldEnum)[keyof typeof MediaScalarFieldEnum]
+
+
+export const MediaFileScalarFieldEnum = {
+  id: 'id',
+  originalName: 'originalName',
+  path: 'path',
+  hash: 'hash',
+  size: 'size',
+  displayable: 'displayable',
+  createdAt: 'createdAt',
+  mediaId: 'mediaId'
+} as const
+
+export type MediaFileScalarFieldEnum = (typeof MediaFileScalarFieldEnum)[keyof typeof MediaFileScalarFieldEnum]
 
 
 export const AlbumScalarFieldEnum = {
@@ -1349,7 +1439,8 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   backup?: Prisma.BackupOmit
-  photo?: Prisma.PhotoOmit
+  media?: Prisma.MediaOmit
+  mediaFile?: Prisma.MediaFileOmit
   album?: Prisma.AlbumOmit
   group?: Prisma.GroupOmit
   note?: Prisma.NoteOmit

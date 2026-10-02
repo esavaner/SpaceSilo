@@ -2,7 +2,7 @@ import { Injectable, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
 import { API_PREFIX_PATH } from '@repo/shared/constants/api';
-import { type GalleryImageResponse, type PhotoBulkActionResponse, type Prisma, type TokenPayload } from '@repo/shared';
+import { type GalleryImageResponse, type MediaBulkActionResponse, type Prisma, type TokenPayload } from '@repo/shared';
 import exifr from 'exifr';
 import sharp from 'sharp';
 import * as crypto from 'crypto';
@@ -17,6 +17,32 @@ const PREVIEW_MAX_WIDTH = 1920;
 const PREVIEW_MAX_HEIGHT = 1080;
 const PREVIEW_JPEG_QUALITY = 90;
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff', '.avif']);
+// Extensions that may appear before a sidecar extension, as in IMG_1.jpg.xmp.
+const KNOWN_MEDIA_EXTENSIONS = new Set([
+  ...SUPPORTED_IMAGE_EXTENSIONS,
+  '.heic',
+  '.heif',
+  '.cr2',
+  '.cr3',
+  '.nef',
+  '.arw',
+  '.dng',
+  '.raf',
+  '.orf',
+  '.rw2',
+  '.mov',
+  '.mp4',
+]);
+const IGNORED_FILE_NAMES = new Set(['thumbs.db', 'desktop.ini']);
+const MEDIA_SUMMARY_SELECT = {
+  id: true,
+  createdAt: true,
+  capturedAt: true,
+  metadata: true,
+  path: true,
+  thumbnailPath: true,
+  _count: { select: { files: true } },
+} satisfies Prisma.MediaSelect;
 const MIME_TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
@@ -37,8 +63,20 @@ type UploadedImageFile = {
   originalname: string;
 };
 
+export type MediaSummary = Prisma.MediaGetPayload<{ select: typeof MEDIA_SUMMARY_SELECT }>;
+
+type AttachFileInput = {
+  ownerId: string;
+  buffer: Buffer;
+  filePath: string;
+  originalName: string;
+  stemKey: string;
+};
+
+type AttachFileResult = { duplicate: boolean; media: MediaSummary };
+
 @Injectable()
-export class PhotoService {
+export class MediaService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly albumService: AlbumService
@@ -106,7 +144,7 @@ export class PhotoService {
     const metadataCapturedAt = this.getCapturedAtFromMetadata(photo.metadata);
     if (metadataCapturedAt) {
       if (!photo.capturedAt || metadataCapturedAt.getTime() !== photo.capturedAt.getTime()) {
-        await this.prisma.photo.update({
+        await this.prisma.media.update({
           where: { id: photo.id },
           data: {
             capturedAt: metadataCapturedAt,
@@ -114,7 +152,7 @@ export class PhotoService {
           },
         });
 
-        await this.albumService.refreshCapturedAtForPhotos([photo.id]);
+        await this.albumService.refreshCapturedAtForMedia([photo.id]);
       }
 
       return metadataCapturedAt;
@@ -132,7 +170,7 @@ export class PhotoService {
     const capturedAt = await this.extractCapturedAt(sourceBuffer);
     const resolvedCapturedAt = capturedAt ? new Date(capturedAt) : photo.createdAt;
 
-    await this.prisma.photo.update({
+    await this.prisma.media.update({
       where: { id: photo.id },
       data: {
         capturedAt: resolvedCapturedAt,
@@ -140,7 +178,7 @@ export class PhotoService {
       },
     });
 
-    await this.albumService.refreshCapturedAtForPhotos([photo.id]);
+    await this.albumService.refreshCapturedAtForMedia([photo.id]);
 
     return resolvedCapturedAt;
   }
@@ -151,7 +189,7 @@ export class PhotoService {
 
   async repairCapturedAtFromMetadata(ownerId: string) {
     const updatedPhotos = await this.prisma.$queryRaw<Array<{ id: string }>>`
-      UPDATE "Photo"
+      UPDATE "Media"
       SET "capturedAt" = NULLIF("metadata"->>'capturedAt', '')::timestamptz
       WHERE "ownerId" = ${ownerId}
         AND NULLIF("metadata"->>'capturedAt', '') IS NOT NULL
@@ -159,7 +197,7 @@ export class PhotoService {
       RETURNING "id"
     `;
 
-    await this.albumService.refreshCapturedAtForPhotos(updatedPhotos.map((photo) => photo.id));
+    await this.albumService.refreshCapturedAtForMedia(updatedPhotos.map((photo) => photo.id));
   }
 
   async repairCapturedAtForPhotos(
@@ -179,25 +217,33 @@ export class PhotoService {
 
     await Promise.all(
       stalePhotos.map((photo) =>
-        this.prisma.photo.update({
+        this.prisma.media.update({
           where: { id: photo.id },
           data: { capturedAt: photo.resolvedCapturedAt },
         })
       )
     );
 
-    await this.albumService.refreshCapturedAtForPhotos(stalePhotos.map((photo) => photo.id));
+    await this.albumService.refreshCapturedAtForMedia(stalePhotos.map((photo) => photo.id));
   }
 
-  toGalleryImageResponse(photo: { id: string; createdAt: Date; capturedAt: Date }): GalleryImageResponse {
+  toGalleryImageResponse(media: {
+    id: string;
+    createdAt: Date;
+    capturedAt: Date;
+    thumbnailPath?: string | null;
+    _count: { files: number };
+  }): GalleryImageResponse {
     return {
-      id: photo.id,
+      id: media.id,
       type: 'photo',
-      imagePath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/file`,
-      previewPath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/preview`,
-      thumbnailPath: `${API_PREFIX_PATH}/gallery/photo/${photo.id}/thumbnail`,
-      capturedAt: photo.capturedAt,
-      createdAt: photo.createdAt,
+      imagePath: `${API_PREFIX_PATH}/gallery/photo/${media.id}/file`,
+      previewPath: `${API_PREFIX_PATH}/gallery/photo/${media.id}/preview`,
+      thumbnailPath: `${API_PREFIX_PATH}/gallery/photo/${media.id}/thumbnail`,
+      displayable: Boolean(media.thumbnailPath),
+      sidecarCount: Math.max(media._count.files - 1, 0),
+      capturedAt: media.capturedAt,
+      createdAt: media.createdAt,
     };
   }
 
@@ -238,18 +284,45 @@ export class PhotoService {
     return SUPPORTED_IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
   }
 
+  isIgnoredFile(filePath: string) {
+    const name = path.basename(filePath).toLowerCase();
+    return name.startsWith('.') || IGNORED_FILE_NAMES.has(name);
+  }
+
+  // Files in the same directory with the same stem (any extension) belong to one media item.
+  getStemKey(relativeDir: string, fileName: string) {
+    let stem = path.parse(fileName).name;
+    const innerExtension = path.extname(stem).toLowerCase();
+
+    if (KNOWN_MEDIA_EXTENSIONS.has(innerExtension)) {
+      stem = stem.slice(0, -innerExtension.length);
+    }
+
+    return path.posix.join(relativeDir.split(path.sep).join('/'), stem).toLowerCase();
+  }
+
+  getStemKeyForStoredFile(filePath: string) {
+    const { storagePath } = this.getStoragePaths();
+    const relativePath = path.relative(storagePath, filePath);
+    return this.getStemKey(
+      path.dirname(relativePath) === '.' ? '' : path.dirname(relativePath),
+      path.basename(filePath)
+    );
+  }
+
   getThumbnailOutputPath(imagePath: string) {
     const { storagePath, thumbnailsPath } = this.ensureStoragePaths();
     const relativePath = path.relative(storagePath, imagePath);
     const parsed = path.parse(relativePath);
-    return path.join(thumbnailsPath, parsed.dir, `${parsed.name}.jpg`);
+    // Keep the source extension so IMG_1.jpg and IMG_1.png don't share one thumbnail.
+    return path.join(thumbnailsPath, parsed.dir, `${parsed.base}.jpg`);
   }
 
   private getPreviewOutputPath(imagePath: string) {
     const { storagePath, previewsPath } = this.ensureStoragePaths();
     const relativePath = path.relative(storagePath, imagePath);
     const parsed = path.parse(relativePath);
-    return path.join(previewsPath, parsed.dir, `${parsed.name}.jpg`);
+    return path.join(previewsPath, parsed.dir, `${parsed.base}.jpg`);
   }
 
   private getNormalizedDimensions(metadata: sharp.Metadata) {
@@ -327,8 +400,9 @@ export class PhotoService {
   }
 
   private async findOwnedPhoto(id: string, user: TokenPayload) {
-    return this.prisma.photo.findFirst({
+    return this.prisma.media.findFirst({
       where: { id, ownerId: user.sub },
+      include: { _count: { select: { files: true } } },
     });
   }
 
@@ -352,7 +426,7 @@ export class PhotoService {
       return normalizedIds;
     }
 
-    const photos = await this.prisma.photo.findMany({
+    const photos = await this.prisma.media.findMany({
       where: {
         id: { in: normalizedIds },
         ownerId,
@@ -376,7 +450,7 @@ export class PhotoService {
 
     const albums = await this.prisma.album.findMany({
       where: {
-        photos: {
+        media: {
           some: { id: { in: photoIds } },
         },
       },
@@ -393,7 +467,7 @@ export class PhotoService {
   }
 
   private async getTrashedPhotoIds(ownerId: string) {
-    const photos = await this.prisma.photo.findMany({
+    const photos = await this.prisma.media.findMany({
       where: { ownerId, deletedAt: { not: null } },
       select: { id: true },
     });
@@ -402,11 +476,11 @@ export class PhotoService {
   }
 
   private createBulkActionResponse(
-    action: PhotoBulkActionResponse['action'],
+    action: MediaBulkActionResponse['action'],
     photoIds: string[],
-    scope: PhotoBulkActionResponse['scope'],
+    scope: MediaBulkActionResponse['scope'],
     count: number
-  ): PhotoBulkActionResponse {
+  ): MediaBulkActionResponse {
     return {
       action,
       photoIds,
@@ -422,48 +496,185 @@ export class PhotoService {
   }
 
   async create(file: UploadedImageFile, user: TokenPayload) {
-    if (!file?.buffer) {
+    const originalName = path.basename(file?.originalname ?? '');
+    if (!file?.buffer || !originalName) {
       throw Err.BadRequest('api.photos.fileRequired');
     }
 
-    const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
-    const existingPhoto = await this.prisma.photo.findFirst({
-      where: { hash },
-      select: { id: true },
-    });
-    if (existingPhoto) {
+    const { storagePath } = this.ensureStoragePaths();
+    const filePath = this.writeUniqueFile(storagePath, originalName, file.buffer);
+
+    let result: AttachFileResult;
+    try {
+      result = await this.attachFile({
+        ownerId: user.sub,
+        buffer: file.buffer,
+        filePath,
+        originalName,
+        stemKey: this.getStemKey('', originalName),
+      });
+    } catch (error) {
+      fs.rmSync(filePath, { force: true });
+      throw error;
+    }
+
+    if (result.duplicate) {
+      fs.rmSync(filePath, { force: true });
       throw Err.Conflict('api.photos.duplicate');
     }
-    const { storagePath } = this.ensureStoragePaths();
-    const photoPath = path.join(storagePath, file.originalname);
-    this.ensureDirectoryExists(path.dirname(photoPath));
-    fs.writeFileSync(photoPath, file.buffer);
-
-    const thumbnailPath = this.getThumbnailOutputPath(photoPath);
-    await this.createThumbnail(file.buffer, thumbnailPath);
-    await this.ensurePreviewAsset(photoPath, file.buffer);
-    const capturedAt = await this.extractCapturedAt(file.buffer);
-    const createdAt = new Date();
-    const resolvedCapturedAt = capturedAt ? new Date(capturedAt) : createdAt;
-
-    const photo = await this.prisma.photo.create({
-      data: {
-        url: '',
-        thumbnailPath,
-        path: photoPath,
-        capturedAt: resolvedCapturedAt,
-        createdAt,
-        metadata: this.mergePhotoMetadata(null, capturedAt),
-        ownerId: user.sub,
-        hash,
-      },
-    });
 
     return this.toGalleryImageResponse({
-      id: photo.id,
-      createdAt: photo.createdAt,
-      capturedAt: resolvedCapturedAt,
+      ...result.media,
+      capturedAt: this.resolveCapturedAt(result.media),
     });
+  }
+
+  private writeUniqueFile(dirPath: string, fileName: string, buffer: Buffer) {
+    const { name, ext } = path.parse(fileName);
+
+    for (let index = 0; ; index += 1) {
+      const candidate = path.join(dirPath, index === 0 ? fileName : `${name} (${index})${ext}`);
+
+      try {
+        fs.writeFileSync(candidate, buffer, { flag: 'wx' });
+        return candidate;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+          throw error;
+        }
+      }
+    }
+  }
+
+  private async prepareDisplayableAssets(filePath: string, buffer: Buffer) {
+    const thumbnailPath = this.getThumbnailOutputPath(filePath);
+
+    try {
+      await this.createThumbnail(buffer, thumbnailPath);
+      await this.ensurePreviewAsset(filePath, buffer);
+    } catch {
+      return null;
+    }
+
+    return { thumbnailPath, capturedAt: await this.extractCapturedAt(buffer) };
+  }
+
+  // Registers an on-disk file and attaches it to the media item sharing its stem, creating one if needed.
+  async attachFile({ ownerId, buffer, filePath, originalName, stemKey }: AttachFileInput): Promise<AttachFileResult> {
+    const hash = crypto.createHash('sha256').update(buffer).digest('hex');
+    const duplicate = await this.prisma.mediaFile.findFirst({
+      where: { hash },
+      select: { media: { select: MEDIA_SUMMARY_SELECT } },
+    });
+    if (duplicate) {
+      return { duplicate: true, media: duplicate.media };
+    }
+
+    const assets = this.isSupportedImage(originalName) ? await this.prepareDisplayableAssets(filePath, buffer) : null;
+    const fileData = {
+      originalName,
+      path: filePath,
+      hash,
+      size: buffer.length,
+      displayable: assets !== null,
+    };
+
+    for (let attempt = 0; ; attempt += 1) {
+      const existing = await this.prisma.media.findUnique({
+        where: { ownerId_stemKey: { ownerId, stemKey } },
+        select: { id: true, createdAt: true, metadata: true, thumbnailPath: true },
+      });
+
+      if (existing) {
+        // The main file is the first displayable one; a later displayable file only takes over from a non-displayable main.
+        const promote = assets !== null && !existing.thumbnailPath;
+        const media = await this.prisma.media.update({
+          where: { id: existing.id },
+          data: {
+            files: { create: fileData },
+            ...(promote
+              ? {
+                  path: filePath,
+                  hash,
+                  thumbnailPath: assets.thumbnailPath,
+                  capturedAt: assets.capturedAt ? new Date(assets.capturedAt) : existing.createdAt,
+                  metadata: this.mergePhotoMetadata(existing.metadata, assets.capturedAt),
+                }
+              : {}),
+          },
+          select: MEDIA_SUMMARY_SELECT,
+        });
+
+        if (promote) {
+          await this.albumService.refreshCapturedAtForMedia([media.id]);
+        }
+
+        return { duplicate: false, media };
+      }
+
+      const createdAt = new Date();
+
+      try {
+        const media = await this.prisma.media.create({
+          data: {
+            url: '',
+            path: filePath,
+            hash,
+            stemKey,
+            thumbnailPath: assets?.thumbnailPath ?? null,
+            capturedAt: assets?.capturedAt ? new Date(assets.capturedAt) : createdAt,
+            createdAt,
+            metadata: this.mergePhotoMetadata(null, assets?.capturedAt ?? null),
+            ownerId,
+            files: { create: fileData },
+          },
+          select: MEDIA_SUMMARY_SELECT,
+        });
+
+        return { duplicate: false, media };
+      } catch (error) {
+        // A concurrent upload with the same stem created the media first; retry as an attach.
+        if (attempt === 0 && (error as { code?: string }).code === 'P2002') {
+          continue;
+        }
+
+        throw error;
+      }
+    }
+  }
+
+  async repairIndexedMedia(media: MediaSummary, filePath: string, fileBuffer: Buffer) {
+    if (media.path !== filePath || !this.isSupportedImage(filePath)) {
+      return;
+    }
+
+    const thumbnailPath = this.getThumbnailOutputPath(filePath);
+    await this.ensurePreviewAsset(filePath, fileBuffer);
+
+    const capturedAt = await this.extractCapturedAt(fileBuffer);
+    const updateData: Prisma.MediaUpdateInput = {};
+    const resolvedCapturedAt = capturedAt ? new Date(capturedAt) : this.resolveCapturedAt(media);
+
+    if (capturedAt && !this.getCapturedAtFromMetadata(media.metadata)) {
+      updateData.metadata = this.mergePhotoMetadata(media.metadata, capturedAt);
+    }
+
+    if (media.capturedAt.getTime() !== resolvedCapturedAt.getTime()) {
+      updateData.capturedAt = resolvedCapturedAt;
+    }
+
+    if (!media.thumbnailPath || media.thumbnailPath !== thumbnailPath || !fs.existsSync(media.thumbnailPath)) {
+      await this.createThumbnail(fileBuffer, thumbnailPath);
+      updateData.thumbnailPath = thumbnailPath;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await this.prisma.media.update({ where: { id: media.id }, data: updateData });
+
+      if (updateData.capturedAt) {
+        await this.albumService.refreshCapturedAtForMedia([media.id]);
+      }
+    }
   }
 
   async findOne(id: string, user: TokenPayload): Promise<GalleryImageResponse> {
@@ -471,8 +682,7 @@ export class PhotoService {
     const capturedAt = await this.ensureCapturedAt(photo);
 
     return this.toGalleryImageResponse({
-      id: photo.id,
-      createdAt: photo.createdAt,
+      ...photo,
       capturedAt,
     });
   }
@@ -492,6 +702,7 @@ export class PhotoService {
     return this.removeManyPermanently([photo.id], user);
   }
 
+  // Provisional: trash, restore and permanent delete act on the whole media item, sidecar files included.
   async trashMany(photoIds: string[], user: TokenPayload) {
     const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireActive: true });
 
@@ -500,7 +711,7 @@ export class PhotoService {
     }
 
     const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
-    const result = await this.prisma.photo.updateMany({
+    const result = await this.prisma.media.updateMany({
       where: {
         id: { in: normalizedIds },
         ownerId: user.sub,
@@ -521,7 +732,7 @@ export class PhotoService {
       return this.createBulkActionResponse('restore', [], 'selected', 0);
     }
 
-    const result = await this.prisma.photo.updateMany({
+    const result = await this.prisma.media.updateMany({
       where: {
         id: { in: normalizedIds },
         ownerId: user.sub,
@@ -530,7 +741,7 @@ export class PhotoService {
       data: { deletedAt: null },
     });
 
-    await this.albumService.refreshCapturedAtForPhotos(normalizedIds);
+    await this.albumService.refreshCapturedAtForMedia(normalizedIds);
 
     return this.createBulkActionResponse('restore', normalizedIds, 'selected', result.count);
   }
@@ -542,12 +753,12 @@ export class PhotoService {
       return this.createBulkActionResponse('restore', [], 'all', 0);
     }
 
-    const result = await this.prisma.photo.updateMany({
+    const result = await this.prisma.media.updateMany({
       where: { ownerId: user.sub, deletedAt: { not: null } },
       data: { deletedAt: null },
     });
 
-    await this.albumService.refreshCapturedAtForPhotos(photoIds);
+    await this.albumService.refreshCapturedAtForMedia(photoIds);
 
     return this.createBulkActionResponse('restore', photoIds, 'all', result.count);
   }
@@ -560,7 +771,7 @@ export class PhotoService {
     }
 
     const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
-    const result = await this.prisma.photo.deleteMany({
+    const result = await this.prisma.media.deleteMany({
       where: {
         id: { in: normalizedIds },
         ownerId: user.sub,
@@ -581,7 +792,7 @@ export class PhotoService {
     }
 
     const albumIds = await this.getAlbumIdsForPhotos(photoIds);
-    const result = await this.prisma.photo.deleteMany({
+    const result = await this.prisma.media.deleteMany({
       where: { ownerId: user.sub, deletedAt: { not: null } },
     });
 
@@ -601,7 +812,7 @@ export class PhotoService {
 
   async findPreview(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
-    if (!photo || !photo.path || !fs.existsSync(photo.path)) {
+    if (!photo || !photo.path || !photo.thumbnailPath || !fs.existsSync(photo.path)) {
       throw Err.NotFound('api.photos.Err.NotFound');
     }
 

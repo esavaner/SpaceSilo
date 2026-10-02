@@ -76,6 +76,17 @@ export class GalleryImageResponse {
   @IsString()
   thumbnailPath?: string;
 
+  // False when no file in the group can be rendered; the tile is an empty box.
+  @IsOptional()
+  @IsBoolean()
+  displayable?: boolean;
+
+  // Number of files besides the main one.
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  sidecarCount?: number;
+
   @IsOptional()
   @IsDate()
   capturedAt?: Date | null;

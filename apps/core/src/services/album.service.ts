@@ -15,7 +15,7 @@ import {
 } from '@repo/shared';
 import { Err } from '@/common/api-message';
 
-const PHOTO_ORDER_BY: Prisma.PhotoOrderByWithRelationInput[] = [
+const MEDIA_ORDER_BY: Prisma.MediaOrderByWithRelationInput[] = [
   { capturedAt: 'desc' },
   { createdAt: 'desc' },
   { id: 'desc' },
@@ -30,7 +30,7 @@ const ALBUM_RESPONSE_SELECT = {
   deletedAt: true,
   ownerId: true,
   parentId: true,
-  photos: {
+  media: {
     where: { deletedAt: null },
     select: { id: true },
   },
@@ -38,7 +38,7 @@ const ALBUM_RESPONSE_SELECT = {
   group: { select: { id: true } },
   _count: {
     select: {
-      photos: { where: { deletedAt: null } },
+      media: { where: { deletedAt: null } },
       subalbums: true,
     },
   },
@@ -50,15 +50,16 @@ const GALLERY_ALBUM_SELECT = {
   parentId: true,
   capturedAt: true,
   createdAt: true,
-  photos: {
-    where: { deletedAt: null },
-    orderBy: PHOTO_ORDER_BY,
+  media: {
+    // Only displayable media can serve as a cover thumbnail.
+    where: { deletedAt: null, thumbnailPath: { not: null } },
+    orderBy: MEDIA_ORDER_BY,
     take: 1,
     select: { id: true },
   },
   _count: {
     select: {
-      photos: { where: { deletedAt: null } },
+      media: { where: { deletedAt: null } },
       subalbums: true,
     },
   },
@@ -114,25 +115,25 @@ export class AlbumService {
       ownerId: album.ownerId,
       parentId: album.parentId,
       subalbumIds: album.subalbums.map((subalbum) => subalbum.id),
-      photoIds: album.photos.map((photo) => photo.id),
+      photoIds: album.media.map((media) => media.id),
       groupIds: album.group.map((group) => group.id),
-      photoCount: album._count.photos,
+      photoCount: album._count.media,
       subalbumCount: album._count.subalbums,
     };
   }
 
   toGalleryItemResponse(album: GalleryAlbumRecord): GalleryImageResponse {
-    const coverPhotoId = album.photos[0]?.id;
+    const coverMediaId = album.media[0]?.id;
 
     return {
       id: album.id,
       type: 'album',
       name: album.name,
-      thumbnailPath: coverPhotoId ? `${API_PREFIX_PATH}/gallery/photo/${coverPhotoId}/thumbnail` : undefined,
+      thumbnailPath: coverMediaId ? `${API_PREFIX_PATH}/gallery/photo/${coverMediaId}/thumbnail` : undefined,
       capturedAt: album.capturedAt,
       createdAt: album.createdAt,
       parentAlbumId: album.parentId,
-      photoCount: album._count.photos,
+      photoCount: album._count.media,
       subalbumCount: album._count.subalbums,
     };
   }
@@ -195,7 +196,7 @@ export class AlbumService {
       return;
     }
 
-    const count = await this.prisma.photo.count({
+    const count = await this.prisma.media.count({
       where: {
         id: { in: photoIds },
         ownerId,
@@ -253,14 +254,14 @@ export class AlbumService {
       }
 
       const [latestPhoto, latestSubalbum] = await Promise.all([
-        this.prisma.photo.findFirst({
+        this.prisma.media.findFirst({
           where: {
             deletedAt: null,
             albums: {
               some: { id: currentAlbum.id },
             },
           },
-          orderBy: PHOTO_ORDER_BY,
+          orderBy: MEDIA_ORDER_BY,
           select: { capturedAt: true },
         }),
         this.prisma.album.aggregate({
@@ -284,15 +285,15 @@ export class AlbumService {
     }
   }
 
-  async refreshCapturedAtForPhotos(photoIds: string[]) {
-    const normalizedIds = this.normalizeIds(photoIds);
+  async refreshCapturedAtForMedia(mediaIds: string[]) {
+    const normalizedIds = this.normalizeIds(mediaIds);
     if (!normalizedIds.length) {
       return;
     }
 
     const albums = await this.prisma.album.findMany({
       where: {
-        photos: {
+        media: {
           some: {
             id: { in: normalizedIds },
           },
@@ -361,7 +362,7 @@ export class AlbumService {
         name: createAlbumDto.name,
         ownerId: user.sub,
         parentId,
-        photos: photoIds.length ? { connect: photoIds.map((id) => ({ id })) } : undefined,
+        media: photoIds.length ? { connect: photoIds.map((id) => ({ id })) } : undefined,
         group: groupIds.length ? { connect: groupIds.map((id) => ({ id })) } : undefined,
       },
       select: { id: true },
@@ -380,7 +381,7 @@ export class AlbumService {
       await this.prisma.album.update({
         where: { id: album.id },
         data: {
-          photos: {
+          media: {
             connect: photoIds.map((photoId) => ({ id: photoId })),
           },
         },
@@ -512,7 +513,7 @@ export class AlbumService {
         ...(updateAlbumDto.parentId !== undefined ? { parentId: nextParentId } : {}),
         ...(photoIds !== undefined
           ? {
-              photos: {
+              media: {
                 set: photoIds.map((photoId) => ({ id: photoId })),
               },
             }

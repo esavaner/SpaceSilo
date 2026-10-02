@@ -10,7 +10,8 @@
  */
 export type * from './models/User'
 export type * from './models/Backup'
-export type * from './models/Photo'
+export type * from './models/Media'
+export type * from './models/MediaFile'
 export type * from './models/Album'
 export type * from './models/Group'
 export type * from './models/Note'

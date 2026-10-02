@@ -95,7 +95,8 @@ const GalleryTile = memo(function GalleryTile({
   onSelectPhoto: (index: number | null) => void;
   onTogglePhotoSelection: (item: GalleryPhotoItem) => void;
 }) {
-  const imageUri = item.thumbnailPath ? `${item.baseUrl}${item.thumbnailPath}` : null;
+  const imageUri = item.thumbnailPath && item.displayable !== false ? `${item.baseUrl}${item.thumbnailPath}` : null;
+  const isEmptyBox = item.type === 'photo' && !imageUri;
   const supportsHoverSelection = useSupportsHoverSelection();
   const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressHandledRef = useRef(false);
@@ -119,7 +120,7 @@ const GalleryTile = memo(function GalleryTile({
       onOpenAlbum(item);
     } else if (isSelectionMode) {
       onTogglePhotoSelection(item);
-    } else {
+    } else if (!isEmptyBox) {
       onSelectPhoto(photoIndex);
     }
   };
@@ -166,9 +167,19 @@ const GalleryTile = memo(function GalleryTile({
           />
         ) : (
           <View className="absolute inset-0 items-center justify-center bg-accent/40">
-            <Icon.Folder className="text-foreground" size={36} />
+            {isEmptyBox ? (
+              <Icon.File className="text-muted-foreground" size={36} />
+            ) : (
+              <Icon.Folder className="text-foreground" size={36} />
+            )}
           </View>
         )}
+
+        {item.type === 'photo' && (item.sidecarCount ?? 0) > 0 ? (
+          <View className="absolute right-2 top-2 rounded-full bg-black/60 p-1">
+            <Icon.Paperclip className="text-white" size={14} />
+          </View>
+        ) : null}
 
         {item.type === 'album' ? <View className="absolute inset-0 bg-black/25" /> : null}
 
