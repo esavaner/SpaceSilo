@@ -484,6 +484,8 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const refreshGalleryQueries = () => {
     setGalleryRevision((current) => current + 1);
     void queryClient.invalidateQueries({ queryKey: ['gallery'] });
+    // The server page stays mounted in the tab navigator, so it won't refetch on its own.
+    void queryClient.invalidateQueries({ queryKey: ['server-gallery-stats'] });
   };
 
   const handleTogglePhotoSelection = (item: GalleryPhotoItem) => {
