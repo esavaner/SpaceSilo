@@ -56,6 +56,8 @@ type GalleryLightboxItem = {
   key: string;
   uri: string;
   headers?: Record<string, string>;
+  serverId: string;
+  mediaId: string;
 };
 
 type ServerGalleryState = {
@@ -478,6 +480,8 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       key: `${item.serverId}:${item.id}`,
       uri: `${item.baseUrl}${item.previewPath}`,
       headers: item.headers,
+      serverId: item.serverId,
+      mediaId: item.id,
     }));
   const photoIndexByKey = new Map(lightboxImages.map((item, index) => [item.key, index]));
 

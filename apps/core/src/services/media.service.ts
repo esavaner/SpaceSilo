@@ -2,7 +2,14 @@ import { Injectable, StreamableFile } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { AlbumService } from '@/services/album.service';
 import { API_PREFIX_PATH } from '@repo/shared/constants/api';
-import { type GalleryImageResponse, type MediaBulkActionResponse, type Prisma, type TokenPayload } from '@repo/shared';
+import {
+  type GalleryImageResponse,
+  type MediaBulkActionResponse,
+  type MediaFileInfoResponse,
+  type MediaInfoResponse,
+  type Prisma,
+  type TokenPayload,
+} from '@repo/shared';
 import exifr from 'exifr';
 import sharp from 'sharp';
 import * as crypto from 'crypto';
@@ -685,6 +692,91 @@ export class MediaService {
       ...photo,
       capturedAt,
     });
+  }
+
+  private async readImageDetails(filePath: string): Promise<Partial<MediaFileInfoResponse>> {
+    if (!fs.existsSync(filePath)) {
+      return {};
+    }
+
+    const details: Partial<MediaFileInfoResponse> = {};
+
+    try {
+      const { width, height } = this.getNormalizedDimensions(await sharp(filePath).metadata());
+      if (width && height) {
+        details.width = width;
+        details.height = height;
+      }
+    } catch {
+      // Unreadable images just have no dimensions.
+    }
+
+    try {
+      const exif = await exifr.parse(filePath, [
+        'Make',
+        'Model',
+        'LensModel',
+        'ISO',
+        'FNumber',
+        'ExposureTime',
+        'FocalLength',
+      ]);
+      const camera = [exif?.Make, exif?.Model].filter((part) => typeof part === 'string' && part.trim()).join(' ');
+      const numberOrUndefined = (value: unknown) => (typeof value === 'number' ? value : undefined);
+
+      details.camera = camera || undefined;
+      details.lens = typeof exif?.LensModel === 'string' ? exif.LensModel : undefined;
+      details.iso = numberOrUndefined(exif?.ISO);
+      details.aperture = numberOrUndefined(exif?.FNumber);
+      details.exposureTime = numberOrUndefined(exif?.ExposureTime);
+      details.focalLength = numberOrUndefined(exif?.FocalLength);
+
+      const gps = await exifr.gps(filePath);
+      details.latitude = numberOrUndefined(gps?.latitude);
+      details.longitude = numberOrUndefined(gps?.longitude);
+    } catch {
+      // Files without EXIF just have no camera details.
+    }
+
+    return details;
+  }
+
+  async findInfo(id: string, user: TokenPayload): Promise<MediaInfoResponse> {
+    const media = await this.getOwnedPhotoOrThrow(id, user);
+    const { storagePath } = this.getStoragePaths();
+    const files = await this.prisma.mediaFile.findMany({
+      where: { mediaId: media.id },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+
+    const fileInfos = await Promise.all(
+      files.map(async (file): Promise<MediaFileInfoResponse> => {
+        const extension = path.extname(file.originalName).toLowerCase();
+        const mimeType = MIME_TYPES[extension];
+
+        return {
+          id: file.id,
+          originalName: file.originalName,
+          extension,
+          mimeType,
+          size: file.size,
+          hash: file.hash,
+          path: path.relative(storagePath, file.path),
+          displayable: file.displayable,
+          isMain: file.path === media.path,
+          createdAt: file.createdAt,
+          ...(file.displayable ? await this.readImageDetails(file.path) : {}),
+        };
+      })
+    );
+
+    return {
+      id: media.id,
+      capturedAt: this.resolveCapturedAt(media),
+      createdAt: media.createdAt,
+      deletedAt: media.deletedAt,
+      files: fileInfos.sort((left, right) => Number(right.isMain) - Number(left.isMain)),
+    };
   }
 
   // update(id: number, updatePhotoDto: UpdatePhotoDto) {

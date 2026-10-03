@@ -67,6 +67,11 @@ export class MediaController {
     return this.mediaService.findOne(id, user);
   }
 
+  @Get(':id/info')
+  findInfo(@Param('id') id: string, @User() user: TokenPayload) {
+    return this.mediaService.findInfo(id, user);
+  }
+
   @Get(':id/file')
   @Header('Cache-Control', GALLERY_CACHE_CONTROL_HEADER)
   @Header('Vary', 'Authorization')

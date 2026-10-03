@@ -1,4 +1,15 @@
-import { IsArray, IsDate, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 /* ------------------------- Requests -------------------------- */
 
@@ -148,4 +159,99 @@ export class MediaResponse {
   @IsArray()
   @IsString({ each: true })
   groupIds?: string[];
+}
+
+export class MediaFileInfoResponse {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  originalName!: string;
+
+  @IsString()
+  extension!: string;
+
+  @IsOptional()
+  @IsString()
+  mimeType?: string;
+
+  @IsInt()
+  @Min(0)
+  size!: number;
+
+  @IsString()
+  hash!: string;
+
+  // Relative to the storage root.
+  @IsString()
+  path!: string;
+
+  @IsBoolean()
+  displayable!: boolean;
+
+  @IsBoolean()
+  isMain!: boolean;
+
+  @IsDate()
+  createdAt!: Date;
+
+  @IsOptional()
+  @IsInt()
+  width?: number;
+
+  @IsOptional()
+  @IsInt()
+  height?: number;
+
+  @IsOptional()
+  @IsString()
+  camera?: string;
+
+  @IsOptional()
+  @IsString()
+  lens?: string;
+
+  @IsOptional()
+  @IsNumber()
+  iso?: number;
+
+  @IsOptional()
+  @IsNumber()
+  aperture?: number;
+
+  @IsOptional()
+  @IsNumber()
+  exposureTime?: number;
+
+  @IsOptional()
+  @IsNumber()
+  focalLength?: number;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+}
+
+export class MediaInfoResponse {
+  @IsString()
+  id!: string;
+
+  @IsOptional()
+  @IsDate()
+  capturedAt?: Date | null;
+
+  @IsDate()
+  createdAt!: Date;
+
+  @IsOptional()
+  @IsDate()
+  deletedAt?: Date | null;
+
+  // The main file comes first, then sidecars in the order they were added.
+  @IsArray()
+  files!: MediaFileInfoResponse[];
 }

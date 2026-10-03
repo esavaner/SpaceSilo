@@ -417,6 +417,41 @@
       "photosNotInAlbumsOnly": "Photos not in albums only",
       "photosOnly": "Photos only"
     },
+    "lightbox": {
+      "close": "Close image viewer",
+      "info": "Show details",
+      "next": "Next image",
+      "previous": "Previous image"
+    },
+    "info": {
+      "title": "Details",
+      "loading": "Loading details...",
+      "unavailable": "Details are unavailable.",
+      "files": "Files",
+      "main": "Main",
+      "yes": "Yes",
+      "no": "No",
+      "inTrash": "In trash",
+      "labels": {
+        "name": "Name",
+        "type": "Type",
+        "size": "Size",
+        "path": "Path",
+        "checksum": "Checksum (SHA-256)",
+        "added": "Added",
+        "captured": "Captured",
+        "preview": "Preview available",
+        "status": "Status",
+        "dimensions": "Dimensions",
+        "camera": "Camera",
+        "lens": "Lens",
+        "iso": "ISO",
+        "aperture": "Aperture",
+        "exposureTime": "Exposure",
+        "focalLength": "Focal length",
+        "location": "Location"
+      }
+    },
     "confirmations": {
       "deleteAllMessage": "Permanently delete every trashed photo across connected servers? This cannot be undone.",
       "deleteAllTitle": "Delete everything permanently",

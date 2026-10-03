@@ -31,6 +31,7 @@ import {
   type NoteResponse,
   type MediaBulkActionRequest,
   type MediaBulkActionResponse,
+  type MediaInfoResponse,
   type RefreshResponse,
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
@@ -203,6 +204,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
 
   public readonly photo = {
     findOne: (id: string) => this.get<GalleryImageResponse>(`${endpoints.photo}/${id}`),
+    info: (id: string) => this.get<MediaInfoResponse>(`${endpoints.photo}/${id}/info`),
     uploadFile: (file: Blob, fileName: string) => {
       const formData = new FormData();
       formData.append('file', file, fileName);
