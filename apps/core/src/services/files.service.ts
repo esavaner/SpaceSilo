@@ -18,23 +18,38 @@ import * as fs from 'fs';
 import * as fsa from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
-// import mime from 'mime';
 import { type TokenPayload } from '@repo/shared';
 import { GroupsService } from './groups.service';
 import { Err } from '@/common/api-message';
 import { environment } from '@/common/env.validation';
 
+const extensionOf = (name: string) => path.extname(name).replace('.', '').toLocaleLowerCase();
+
+const io = <T>(action: () => T): T => {
+  try {
+    return action();
+  } catch (error) {
+    throw new InternalServerErrorException(error);
+  }
+};
+
 @Injectable()
 export class FilesService {
   constructor(private readonly groupService: GroupsService) {}
 
-  private groupCheck(groupId: string, user: TokenPayload) {
-    const groupMember = this.groupService.findGroupMember(groupId, user);
-    if (!groupMember) {
-      throw Err.NotFound('api.files.groupErr.NotFound');
+  private existingPath(groupId: string, fileUri: string) {
+    const filePath = path.join(environment.filesPath, groupId, fileUri);
+    if (!fs.existsSync(filePath)) {
+      throw Err.NotFound('api.files.fileErr.NotFound');
     }
 
-    return groupMember;
+    return filePath;
+  }
+
+  // Copy and move never overwrite: a taken target name gets a `_copy` suffix.
+  private freeTargetPath(dto: { groupId: string; newPath: string; name: string }, filePath: string) {
+    const target = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
+    return filePath === target || fs.existsSync(target) ? `${target}_copy` : target;
   }
 
   private toFileResponse(filePath: string, groupId: string, uri: string): FileResponse {
@@ -47,62 +62,47 @@ export class FilesService {
       size: stats.size,
       modificationTime: stats.mtime,
       isDirectory: stats.isDirectory(),
-      type: path.extname(filePath).replace('.', '').toLocaleLowerCase(),
+      type: extensionOf(filePath),
       md5,
       groupId,
     };
   }
 
   async createFile(dto: CreateFileRequest, file: Express.Multer.File, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupService.assertGroupAccess(dto.groupId, user);
     const fileDir = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
     const filePath = path.join(fileDir, file.originalname);
-    if (!fs.existsSync(fileDir)) {
-      fs.mkdirSync(fileDir, { recursive: true });
-    }
+    fs.mkdirSync(fileDir, { recursive: true });
     fs.writeFileSync(filePath, file.buffer);
     return { message: 'api.files.createFileSuccess', filePath };
   }
 
   async createFolder(dto: CreateFolderRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
+    await this.groupService.assertGroupAccess(dto.groupId, user);
     const folderDir = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
-    if (!fs.existsSync(folderDir)) {
-      fs.mkdirSync(folderDir, { recursive: true });
-    }
+    fs.mkdirSync(folderDir, { recursive: true });
     return { message: 'api.files.createFolderSuccess', folderDir };
   }
 
   async findAll(dto: FindAllFilesRequest, user: TokenPayload): Promise<FileResponse[]> {
-    if (!dto.items?.length) {
-      return [];
-    }
-
     const files: FileResponse[] = [];
-    for (const item of dto.items) {
-      const groupId = item.groupId;
-      const relativePath = item.path || '';
-      const skip = item.skip ?? 0;
-      const take = item.take;
-      this.groupCheck(groupId, user);
+
+    for (const { groupId, path: itemPath, skip = 0, take } of dto.items ?? []) {
+      const relativePath = itemPath || '';
+      await this.groupService.assertGroupAccess(groupId, user);
       const fileDir = path.join(environment.filesPath, groupId, relativePath);
       if (!fs.existsSync(fileDir)) {
         continue;
       }
 
-      try {
-        const fileList = fs.readdirSync(fileDir);
-        const slicedFileList =
-          typeof take === 'number' ? fileList.slice(skip, skip + take) : skip > 0 ? fileList.slice(skip) : fileList;
-
-        for (const fileName of slicedFileList) {
-          const filePath = path.join(fileDir, fileName);
-          files.push(this.toFileResponse(filePath, groupId, path.join('/', relativePath, fileName)));
+      io(() => {
+        const names = fs.readdirSync(fileDir).slice(skip, typeof take === 'number' ? skip + take : undefined);
+        for (const name of names) {
+          files.push(this.toFileResponse(path.join(fileDir, name), groupId, path.join('/', relativePath, name)));
         }
-      } catch (error) {
-        throw new InternalServerErrorException(error);
-      }
+      });
     }
+
     return files;
   }
 
@@ -153,7 +153,7 @@ export class FilesService {
               uri,
               isDirectory: entry.isDirectory(),
               groupId: group.id,
-              type: entry.isDirectory() ? '' : path.extname(entry.name).replace('.', '').toLocaleLowerCase(),
+              type: entry.isDirectory() ? '' : extensionOf(entry.name),
             });
           }
 
@@ -168,21 +168,13 @@ export class FilesService {
   }
 
   async findFile(dto: FindFileRequest, user: TokenPayload): Promise<FileResponse> {
-    this.groupCheck(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
-
-    return this.toFileResponse(filePath, dto.groupId, dto.fileUri);
+    await this.groupService.assertGroupAccess(dto.groupId, user);
+    return this.toFileResponse(this.existingPath(dto.groupId, dto.fileUri), dto.groupId, dto.fileUri);
   }
 
   async findInfo(dto: FindFileRequest, user: TokenPayload): Promise<FileInfoResponse> {
     const group = await this.groupService.findFileInfoGroup(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
+    const filePath = this.existingPath(dto.groupId, dto.fileUri);
 
     return {
       ...this.toFileResponse(filePath, dto.groupId, dto.fileUri),
@@ -192,75 +184,33 @@ export class FilesService {
   }
 
   async download(dto: DownloadFileRequest, user: TokenPayload) {
-    this.groupCheck(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
+    await this.groupService.assertGroupAccess(dto.groupId, user);
+    const filePath = this.existingPath(dto.groupId, dto.fileUri);
 
-    try {
-      const fileContents = fs.createReadStream(filePath);
-      // const mimeType = mime.getType(filePath) || 'application/octet-stream';
-      const mimeType = 'application/octet-stream';
-      return new StreamableFile(fileContents, { type: mimeType });
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return new StreamableFile(fs.createReadStream(filePath), { type: 'application/octet-stream' });
   }
 
   async move(dto: MoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    let newFilePath = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
+    await this.groupService.assertGroupAccess(dto.groupId, user);
+    const filePath = this.existingPath(dto.groupId, dto.fileUri);
 
-    if (filePath === newFilePath || fs.existsSync(newFilePath)) {
-      newFilePath = `${newFilePath}_copy`;
-    }
-
-    try {
-      fsa.moveSync(filePath, newFilePath); // @TODO not sure if this is the best way to rename folders
-      return { message: 'api.files.moveSuccess' };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    io(() => fsa.moveSync(filePath, this.freeTargetPath(dto, filePath))); // @TODO not sure if this is the best way to rename folders
+    return { message: 'api.files.moveSuccess' };
   }
 
   async remove(dto: RemoveFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
+    await this.groupService.assertGroupAccess(dto.groupId, user);
+    const filePath = this.existingPath(dto.groupId, dto.fileUri);
 
-    try {
-      fsa.removeSync(filePath);
-      return { message: 'api.files.removeSuccess' };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    io(() => fsa.removeSync(filePath));
+    return { message: 'api.files.removeSuccess' };
   }
 
   async copy(dto: CopyFileRequest, user: TokenPayload): Promise<FileActionResponse> {
-    this.groupCheck(dto.groupId, user);
-    const filePath = path.join(environment.filesPath, dto.groupId, dto.fileUri);
-    let newFilePath = path.join(environment.filesPath, dto.groupId, dto.newPath, dto.name);
+    await this.groupService.assertGroupAccess(dto.groupId, user);
+    const filePath = this.existingPath(dto.groupId, dto.fileUri);
 
-    if (!fs.existsSync(filePath)) {
-      throw Err.NotFound('api.files.fileErr.NotFound');
-    }
-
-    if (filePath === newFilePath || fs.existsSync(newFilePath)) {
-      newFilePath = `${newFilePath}_copy`;
-    }
-
-    try {
-      fsa.copySync(filePath, newFilePath);
-      return { message: 'api.files.copySuccess' };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    io(() => fsa.copySync(filePath, this.freeTargetPath(dto, filePath)));
+    return { message: 'api.files.copySuccess' };
   }
 }

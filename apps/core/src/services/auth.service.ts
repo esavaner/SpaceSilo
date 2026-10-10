@@ -20,51 +20,26 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  private signAccessToken(payload: TokenClaims) {
-    return this.jwtService.sign(
-      {
-        ...payload,
-        typ: 'access',
-      },
-      {
-        expiresIn: '30m',
-      }
-    );
+  private signTokens({ email, sub, role }: TokenClaims): RefreshResponse {
+    const claims = { email, sub, role };
+
+    return {
+      accessToken: this.jwtService.sign({ ...claims, typ: 'access' }, { expiresIn: '30m' }),
+      refreshToken: this.jwtService.sign({ ...claims, typ: 'refresh' }, { expiresIn: '365d' }),
+    };
   }
 
-  private signRefreshToken(payload: TokenClaims) {
-    return this.jwtService.sign(
-      {
-        ...payload,
-        typ: 'refresh',
-      },
-      {
-        expiresIn: '365d',
-      }
-    );
+  private toAuthResponse({ password: _password, ...user }: Awaited<ReturnType<UsersService['create']>>): AuthResponse {
+    return { ...this.signTokens({ email: user.email, sub: user.id, role: user.role }), user };
   }
 
   async login(loginDto: LoginRequest): Promise<AuthResponse> {
     const user = await this.usersService.findByEmail(loginDto.email);
-    if (!user) {
-      throw Err.Unauthorized('api.auth.invalidCredentials');
-    }
-    const isEqual = await compare(loginDto.password, user.password);
-    if (!isEqual) {
+    if (!user || !(await compare(loginDto.password, user.password))) {
       throw Err.Unauthorized('api.auth.invalidCredentials');
     }
 
-    const payload: TokenClaims = {
-      email: user.email,
-      sub: user.id,
-      role: user.role,
-    };
-    const { password: _password, ...userWithoutPassword } = user;
-    return {
-      accessToken: this.signAccessToken(payload),
-      refreshToken: this.signRefreshToken(payload),
-      user: userWithoutPassword,
-    };
+    return this.toAuthResponse(user);
   }
 
   async register(registerDto: RegisterRequest): Promise<AuthResponse> {
@@ -80,40 +55,21 @@ export class AuthService {
       role: 'user',
     });
 
-    const payload: TokenClaims = {
-      email: user.email,
-      sub: user.id,
-      role: user.role,
-    };
-
-    const { password: _password, ...userWithoutPassword } = user;
-    return {
-      accessToken: this.signAccessToken(payload),
-      refreshToken: this.signRefreshToken(payload),
-      user: userWithoutPassword,
-    };
+    return this.toAuthResponse(user);
   }
 
   async refresh(dto: RefreshRequest): Promise<RefreshResponse> {
+    let payload: TokenPayload;
     try {
-      const payload = this.jwtService.verify<TokenPayload>(dto.refreshToken);
-
-      if (payload.typ !== 'refresh') {
-        throw Err.Unauthorized('api.auth.invalidRefreshToken');
-      }
-
-      const nextPayload: TokenClaims = {
-        email: payload.email,
-        sub: payload.sub,
-        role: payload.role,
-      };
-
-      return {
-        accessToken: this.signAccessToken(nextPayload),
-        refreshToken: this.signRefreshToken(nextPayload),
-      };
+      payload = this.jwtService.verify<TokenPayload>(dto.refreshToken);
     } catch {
       throw Err.Unauthorized('api.auth.invalidRefreshToken');
     }
+
+    if (payload.typ !== 'refresh') {
+      throw Err.Unauthorized('api.auth.invalidRefreshToken');
+    }
+
+    return this.signTokens(payload);
   }
 }

@@ -81,6 +81,7 @@ type BackupRecord = Prisma.BackupGetPayload<{
 }>;
 
 const SCHEDULER_INTERVAL_MS = 30_000;
+const EMPTY_STATS: MediaStats = { count: 0, sizeBytes: 0 };
 
 @Injectable()
 export class BackupsService implements OnModuleInit, OnModuleDestroy {
@@ -112,11 +113,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
     });
 
-    const hydrated = await Promise.all(
-      backups.map((backup) =>
-        backup.direction === BackupDirection.incoming ? this.refreshIncomingStats(backup) : Promise.resolve(backup)
-      )
-    );
+    const hydrated = await Promise.all(backups.map((backup) => this.refreshIfIncoming(backup)));
 
     return hydrated
       .sort((left, right) => {
@@ -130,55 +127,36 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       .map((backup) => this.toBackupResponse(backup));
   }
 
-  async createIncoming(dto: CreateBackupRequest, user: TokenPayload): Promise<BackupResponse> {
-    this.assertAdmin(user);
-
-    const normalized = this.normalizeCreateRequest(dto);
-    await this.assertPairAvailable(
-      BackupDirection.incoming,
-      normalized.sourceServerKey,
-      normalized.destinationServerKey
-    );
-
-    const destinationPath = this.ensureIncomingDestinationPath(normalized.sourceServerKey);
-
-    const created = await this.prisma.backup.create({
-      data: {
-        ...this.buildCreateData(normalized, user.sub),
-        direction: BackupDirection.incoming,
-        destinationPath,
-      },
-      select: BACKUP_SELECT,
-    });
-
-    const refreshed = await this.refreshIncomingStats(created);
-    return this.toBackupResponse(refreshed);
+  createIncoming(dto: CreateBackupRequest, user: TokenPayload) {
+    return this.create(BackupDirection.incoming, dto, user);
   }
 
-  async createOutgoing(dto: CreateBackupRequest, user: TokenPayload): Promise<BackupResponse> {
+  createOutgoing(dto: CreateBackupRequest, user: TokenPayload) {
+    return this.create(BackupDirection.outgoing, dto, user);
+  }
+
+  private async create(
+    direction: BackupDirection,
+    dto: CreateBackupRequest,
+    user: TokenPayload
+  ): Promise<BackupResponse> {
     this.assertAdmin(user);
 
     const normalized = this.normalizeCreateRequest(dto);
-    if (!normalized.destinationPath) {
-      throw Err.BadRequest('api.backups.destinationPathRequired');
-    }
-
-    await this.assertPairAvailable(
-      BackupDirection.outgoing,
-      normalized.sourceServerKey,
-      normalized.destinationServerKey
-    );
+    await this.assertPairAvailable(direction, normalized.sourceServerKey, normalized.destinationServerKey);
 
     const created = await this.prisma.backup.create({
       data: {
-        ...this.buildCreateData(normalized, user.sub),
-        direction: BackupDirection.outgoing,
-        destinationPath: normalized.destinationPath,
+        ...normalized,
+        direction,
+        destinationPath: this.resolveDestinationPath(direction, normalized),
+        nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
+        createdById: user.sub,
       },
       select: BACKUP_SELECT,
     });
 
-    return this.toBackupResponse(created);
+    return this.toBackupResponse(await this.refreshIfIncoming(created));
   }
 
   async update(id: string, dto: UpdateBackupRequest, user: TokenPayload): Promise<BackupResponse> {
@@ -194,43 +172,17 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       backup.id
     );
 
-    const destinationPath =
-      backup.direction === BackupDirection.incoming
-        ? this.ensureIncomingDestinationPath(normalized.sourceServerKey)
-        : normalized.destinationPath;
-
-    if (backup.direction === BackupDirection.outgoing && !destinationPath) {
-      throw Err.BadRequest('api.backups.destinationPathRequired');
-    }
-
     const updated = await this.prisma.backup.update({
       where: { id },
       data: {
-        pairSecret: normalized.pairSecret,
-        active: normalized.active,
-        schedule: normalized.schedule,
-        copyPhotos: normalized.copyPhotos,
-        copyFiles: normalized.copyFiles,
-        copyNotes: normalized.copyNotes,
-        sourceServerLabel: normalized.sourceServerLabel,
-        sourceServerBaseUrl: normalized.sourceServerBaseUrl,
-        sourceServerKey: normalized.sourceServerKey,
-        destinationServerLabel: normalized.destinationServerLabel,
-        destinationServerBaseUrl: normalized.destinationServerBaseUrl,
-        destinationServerKey: normalized.destinationServerKey,
-        destinationPath,
-        remoteConfigId: normalized.remoteConfigId,
+        ...normalized,
+        destinationPath: this.resolveDestinationPath(backup.direction, normalized),
         nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
       },
       select: BACKUP_SELECT,
     });
 
-    if (updated.direction === BackupDirection.incoming) {
-      const refreshed = await this.refreshIncomingStats(updated);
-      return this.toBackupResponse(refreshed);
-    }
-
-    return this.toBackupResponse(updated);
+    return this.toBackupResponse(await this.refreshIfIncoming(updated));
   }
 
   async remove(id: string, user: TokenPayload): Promise<BackupResponse> {
@@ -344,11 +296,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       }
 
       const finishedAt = new Date();
-      const stats = this.buildStatsSummary(
-        plans.find((plan) => plan.key === 'photos')?.stats,
-        plans.find((plan) => plan.key === 'files')?.stats,
-        plans.find((plan) => plan.key === 'notes')?.stats
-      );
+      const stats = this.buildStats(Object.fromEntries(plans.map((plan) => [plan.key, plan.stats])));
 
       const updated = await this.prisma.backup.update({
         where: { id },
@@ -359,7 +307,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
           lastSuccessAt: finishedAt,
           nextRunAt: backup.active ? this.tryComputeNextRun(backup.schedule, finishedAt) : null,
           lastError: null,
-          lastStats: this.toStatsJson(stats),
+          lastStats: stats,
         },
         select: BACKUP_SELECT,
       });
@@ -479,7 +427,6 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     targetPath: string,
     excludePatterns: string[] = []
   ) {
-    const rsyncPath = environment.rsyncBin;
     const args = ['-a', '--delete'];
 
     for (const pattern of excludePatterns) {
@@ -491,11 +438,11 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
       args.push('-e', `ssh -p ${sshPort}`);
     }
 
-    args.push(this.toRsyncPath(sourcePath, true));
+    args.push(this.toRsyncDir(sourcePath));
     args.push(this.buildRemoteTarget(destinationBaseUrl, targetPath));
 
     await new Promise<void>((resolve, reject) => {
-      const child = spawn(rsyncPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn(environment.rsyncBin, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
       child.on('error', (error: NodeJS.ErrnoException) => {
         if (error.code === 'ENOENT') {
@@ -521,39 +468,39 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     const destination = new URL(this.normalizeUrl(destinationBaseUrl));
     const sshUser = environment.backupRsyncSshUser;
     const host = sshUser ? `${sshUser}@${destination.hostname}` : destination.hostname;
-    return `${host}:${this.toRsyncPath(targetPath, true)}`;
+    return `${host}:${this.toRsyncDir(targetPath)}`;
   }
 
   private async refreshIncomingStats(backup: BackupRecord) {
     const stats = this.collectIncomingStats(backup.destinationPath);
     const currentStats = this.parseStats(backup.lastStats);
 
-    if (this.areStatsEqual(currentStats, stats)) {
+    if (JSON.stringify(currentStats) === JSON.stringify(stats)) {
       return backup;
     }
 
     return this.prisma.backup.update({
       where: { id: backup.id },
-      data: {
-        lastStats: this.toStatsJson(stats),
-      },
+      data: { lastStats: stats },
       select: BACKUP_SELECT,
     });
   }
 
   private collectIncomingStats(destinationPath?: string | null) {
     if (!destinationPath) {
-      return this.buildStatsSummary();
+      return this.buildStats();
     }
 
-    const photos = this.collectDirectoryStats(path.join(destinationPath, 'photos'));
-    const files = this.collectDirectoryStats(path.join(destinationPath, 'files'));
-    const notes = {
-      count: this.collectDirectoryStats(path.join(destinationPath, 'notes', 'data')).count,
-      sizeBytes: this.measureDirectorySize(path.join(destinationPath, 'notes')),
-    } satisfies MediaStats;
+    const notesPath = path.join(destinationPath, 'notes');
 
-    return this.buildStatsSummary(photos, files, notes);
+    return this.buildStats({
+      photos: this.collectDirectoryStats(path.join(destinationPath, 'photos')),
+      files: this.collectDirectoryStats(path.join(destinationPath, 'files')),
+      notes: {
+        count: this.collectDirectoryStats(path.join(notesPath, 'data')).count,
+        sizeBytes: this.collectDirectoryStats(notesPath).sizeBytes,
+      },
+    });
   }
 
   private collectDirectoryStats(dirPath: string, excludedTopLevelEntries: string[] = []): MediaStats {
@@ -591,25 +538,23 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     return this.collectDirectoryStats(dirPath).sizeBytes;
   }
 
-  private buildCreateData(normalized: ReturnType<BackupsService['normalizeCreateRequest']>, createdById: string) {
-    return {
-      pairId: normalized.pairId,
-      pairSecret: normalized.pairSecret,
-      active: normalized.active,
-      schedule: normalized.schedule,
-      copyPhotos: normalized.copyPhotos,
-      copyFiles: normalized.copyFiles,
-      copyNotes: normalized.copyNotes,
-      sourceServerLabel: normalized.sourceServerLabel,
-      sourceServerBaseUrl: normalized.sourceServerBaseUrl,
-      sourceServerKey: normalized.sourceServerKey,
-      destinationServerLabel: normalized.destinationServerLabel,
-      destinationServerBaseUrl: normalized.destinationServerBaseUrl,
-      destinationServerKey: normalized.destinationServerKey,
-      remoteConfigId: normalized.remoteConfigId,
-      nextRunAt: normalized.active ? this.computeNextRun(normalized.schedule) : null,
-      createdById,
-    };
+  private resolveDestinationPath(
+    direction: BackupDirection,
+    normalized: { sourceServerKey: string; destinationPath: string | null }
+  ) {
+    if (direction === BackupDirection.incoming) {
+      return this.ensureIncomingDestinationPath(normalized.sourceServerKey);
+    }
+
+    if (!normalized.destinationPath) {
+      throw Err.BadRequest('api.backups.destinationPathRequired');
+    }
+
+    return normalized.destinationPath;
+  }
+
+  private refreshIfIncoming(backup: BackupRecord) {
+    return backup.direction === BackupDirection.incoming ? this.refreshIncomingStats(backup) : backup;
   }
 
   private normalizeCreateRequest(dto: CreateBackupRequest) {
@@ -757,10 +702,7 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private ensureDirectory(dirPath: string) {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-
+    fs.mkdirSync(dirPath, { recursive: true });
     return dirPath;
   }
 
@@ -794,11 +736,11 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     return backup;
   }
 
-  private buildStatsSummary(
-    photos: MediaStats = { count: 0, sizeBytes: 0 },
-    files: MediaStats = { count: 0, sizeBytes: 0 },
-    notes: MediaStats = { count: 0, sizeBytes: 0 }
-  ): BackupStatsShape {
+  private buildStats({
+    photos = EMPTY_STATS,
+    files = EMPTY_STATS,
+    notes = EMPTY_STATS,
+  }: Partial<Record<MediaKey, MediaStats>> = {}): BackupStatsShape {
     return {
       photos,
       files,
@@ -841,50 +783,8 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     return { photos, files, notes, totalCount, totalSizeBytes };
   }
 
-  private areStatsEqual(left: BackupStatsShape | null, right: BackupStatsShape) {
-    return JSON.stringify(left) === JSON.stringify(right);
-  }
-
-  private toStatsJson(stats: BackupStatsShape): Prisma.InputJsonValue {
-    return {
-      photos: { count: stats.photos.count, sizeBytes: stats.photos.sizeBytes },
-      files: { count: stats.files.count, sizeBytes: stats.files.sizeBytes },
-      notes: { count: stats.notes.count, sizeBytes: stats.notes.sizeBytes },
-      totalCount: stats.totalCount,
-      totalSizeBytes: stats.totalSizeBytes,
-    } satisfies Prisma.InputJsonValue;
-  }
-
-  private toBackupResponse(backup: BackupRecord): BackupResponse {
-    return {
-      id: backup.id,
-      pairId: backup.pairId,
-      direction: backup.direction,
-      active: backup.active,
-      schedule: backup.schedule,
-      copyPhotos: backup.copyPhotos,
-      copyFiles: backup.copyFiles,
-      copyNotes: backup.copyNotes,
-      sourceServerLabel: backup.sourceServerLabel,
-      sourceServerBaseUrl: backup.sourceServerBaseUrl,
-      sourceServerKey: backup.sourceServerKey,
-      destinationServerLabel: backup.destinationServerLabel,
-      destinationServerBaseUrl: backup.destinationServerBaseUrl,
-      destinationServerKey: backup.destinationServerKey,
-      destinationPath: backup.destinationPath,
-      remoteConfigId: backup.remoteConfigId,
-      runCount: backup.runCount,
-      running: backup.running,
-      createdAt: backup.createdAt,
-      updatedAt: backup.updatedAt,
-      lastRunAt: backup.lastRunAt,
-      lastStartedAt: backup.lastStartedAt,
-      lastFinishedAt: backup.lastFinishedAt,
-      lastSuccessAt: backup.lastSuccessAt,
-      nextRunAt: backup.nextRunAt,
-      lastError: backup.lastError,
-      stats: this.parseStats(backup.lastStats),
-    };
+  private toBackupResponse({ pairSecret: _pairSecret, lastStats, ...backup }: BackupRecord): BackupResponse {
+    return { ...backup, stats: this.parseStats(lastStats) };
   }
 
   private requireText(value: string | undefined | null, message: string) {
@@ -896,9 +796,8 @@ export class BackupsService implements OnModuleInit, OnModuleDestroy {
     return normalized;
   }
 
-  private toRsyncPath(targetPath: string, trailingSlash = false) {
-    const normalized = targetPath.replace(/\\/g, '/');
-    return trailingSlash ? normalized.replace(/\/?$/, '/') : normalized.replace(/\/$/, '');
+  private toRsyncDir(dirPath: string) {
+    return dirPath.replace(/\\/g, '/').replace(/\/?$/, '/');
   }
 
   private toErrorMessage(error: unknown) {

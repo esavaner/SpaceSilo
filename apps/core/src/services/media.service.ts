@@ -16,31 +16,20 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Err } from '@/common/api-message';
-import { environment } from '@/common/env.validation';
+import { extractCapturedAt, metadataCapturedAt, resolveCapturedAt, withCapturedAt } from '@/common/captured-at';
+import {
+  MIME_TYPES,
+  createThumbnail,
+  ensurePreviewAsset,
+  getMimeType,
+  getNormalizedDimensions,
+  getStemKey,
+  getStoragePaths,
+  getThumbnailOutputPath,
+  isSupportedImage,
+} from '@/common/media-assets';
+import { uniqueIds } from '@/common/utils';
 
-const THUMBNAIL_HEIGHT = 300;
-const THUMBNAIL_JPEG_QUALITY = 82;
-const PREVIEW_MAX_WIDTH = 1920;
-const PREVIEW_MAX_HEIGHT = 1080;
-const PREVIEW_JPEG_QUALITY = 90;
-const SUPPORTED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff', '.avif']);
-// Extensions that may appear before a sidecar extension, as in IMG_1.jpg.xmp.
-const KNOWN_MEDIA_EXTENSIONS = new Set([
-  ...SUPPORTED_IMAGE_EXTENSIONS,
-  '.heic',
-  '.heif',
-  '.cr2',
-  '.cr3',
-  '.nef',
-  '.arw',
-  '.dng',
-  '.raf',
-  '.orf',
-  '.rw2',
-  '.mov',
-  '.mp4',
-]);
-const IGNORED_FILE_NAMES = new Set(['thumbs.db', 'desktop.ini']);
 const MEDIA_SUMMARY_SELECT = {
   id: true,
   createdAt: true,
@@ -50,20 +39,6 @@ const MEDIA_SUMMARY_SELECT = {
   thumbnailPath: true,
   _count: { select: { files: true } },
 } satisfies Prisma.MediaSelect;
-const MIME_TYPES: Record<string, string> = {
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.webp': 'image/webp',
-  '.bmp': 'image/bmp',
-  '.tif': 'image/tiff',
-  '.tiff': 'image/tiff',
-  '.avif': 'image/avif',
-};
-
-type StoredPhotoMetadata = Prisma.InputJsonObject & {
-  capturedAt?: string | null;
-};
 
 type UploadedImageFile = {
   buffer?: Buffer;
@@ -82,6 +57,8 @@ type AttachFileInput = {
 
 type AttachFileResult = { duplicate: boolean; media: MediaSummary };
 
+type BulkAction = MediaBulkActionResponse['action'];
+
 @Injectable()
 export class MediaService {
   constructor(
@@ -89,109 +66,45 @@ export class MediaService {
     private readonly albumService: AlbumService
   ) {}
 
-  private asStoredPhotoMetadata(metadata: unknown): StoredPhotoMetadata | null {
-    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
-      return null;
-    }
-
-    return { ...(metadata as Prisma.InputJsonObject) };
-  }
-
-  private normalizeIds(ids?: string[]) {
-    return Array.from(new Set((ids ?? []).filter(Boolean)));
-  }
-
-  private normalizeCapturedAt(value: unknown): string | null {
-    if (value instanceof Date && !Number.isNaN(value.getTime())) {
-      return value.toISOString();
-    }
-
-    if (typeof value === 'string' || typeof value === 'number') {
-      const parsed = new Date(value);
-      if (!Number.isNaN(parsed.getTime())) {
-        return parsed.toISOString();
-      }
-    }
-
-    return null;
-  }
-
-  getCapturedAtFromMetadata(metadata: unknown): Date | null {
-    const storedMetadata = this.asStoredPhotoMetadata(metadata);
-    const capturedAt = this.normalizeCapturedAt(storedMetadata?.capturedAt);
-    return capturedAt ? new Date(capturedAt) : null;
-  }
-
-  mergePhotoMetadata(metadata: unknown, capturedAt: string | null): StoredPhotoMetadata | undefined {
-    const storedMetadata = this.asStoredPhotoMetadata(metadata) ?? {};
-
-    if (!capturedAt) {
-      return Object.keys(storedMetadata).length > 0 ? storedMetadata : undefined;
-    }
-
-    return {
-      ...storedMetadata,
-      capturedAt,
-    };
-  }
-
-  async extractCapturedAt(fileBuffer: Buffer): Promise<string | null> {
-    try {
-      const metadata = await exifr.parse(fileBuffer, ['DateTimeOriginal', 'CreateDate', 'ModifyDate']);
-      return this.normalizeCapturedAt(metadata?.DateTimeOriginal ?? metadata?.CreateDate ?? metadata?.ModifyDate);
-    } catch {
-      return null;
-    }
-  }
-
-  private async ensureCapturedAt(
-    photo: { id: string; path: string; createdAt: Date; capturedAt?: Date | null; metadata?: unknown },
-    fileBuffer?: Buffer
-  ) {
-    const metadataCapturedAt = this.getCapturedAtFromMetadata(photo.metadata);
-    if (metadataCapturedAt) {
-      if (!photo.capturedAt || metadataCapturedAt.getTime() !== photo.capturedAt.getTime()) {
-        await this.prisma.media.update({
-          where: { id: photo.id },
-          data: {
-            capturedAt: metadataCapturedAt,
-            metadata: this.mergePhotoMetadata(photo.metadata, metadataCapturedAt.toISOString()),
-          },
-        });
-
-        await this.albumService.refreshCapturedAtForMedia([photo.id]);
+  private async ensureCapturedAt(photo: {
+    id: string;
+    path: string;
+    createdAt: Date;
+    capturedAt?: Date | null;
+    metadata?: unknown;
+  }) {
+    const fromMetadata = metadataCapturedAt(photo.metadata);
+    if (fromMetadata) {
+      if (photo.capturedAt?.getTime() !== fromMetadata.getTime()) {
+        await this.saveCapturedAt(photo, fromMetadata, fromMetadata);
       }
 
-      return metadataCapturedAt;
+      return fromMetadata;
     }
 
     if (photo.capturedAt) {
       return photo.capturedAt;
     }
 
-    const sourceBuffer = fileBuffer ?? (fs.existsSync(photo.path) ? fs.readFileSync(photo.path) : null);
-    if (!sourceBuffer) {
+    const source = fs.existsSync(photo.path) ? fs.readFileSync(photo.path) : null;
+    if (!source) {
       return photo.createdAt;
     }
 
-    const capturedAt = await this.extractCapturedAt(sourceBuffer);
-    const resolvedCapturedAt = capturedAt ? new Date(capturedAt) : photo.createdAt;
+    const extracted = await extractCapturedAt(source);
+    const resolved = extracted ?? photo.createdAt;
+    await this.saveCapturedAt(photo, resolved, extracted);
 
+    return resolved;
+  }
+
+  private async saveCapturedAt(photo: { id: string; metadata?: unknown }, capturedAt: Date, storedAt: Date | null) {
     await this.prisma.media.update({
       where: { id: photo.id },
-      data: {
-        capturedAt: resolvedCapturedAt,
-        metadata: this.mergePhotoMetadata(photo.metadata, capturedAt),
-      },
+      data: { capturedAt, metadata: withCapturedAt(photo.metadata, storedAt) },
     });
 
     await this.albumService.refreshCapturedAtForMedia([photo.id]);
-
-    return resolvedCapturedAt;
-  }
-
-  resolveCapturedAt(photo: { createdAt: Date; capturedAt?: Date | null; metadata?: unknown }) {
-    return this.getCapturedAtFromMetadata(photo.metadata) ?? photo.capturedAt ?? photo.createdAt;
   }
 
   async repairCapturedAtFromMetadata(ownerId: string) {
@@ -211,12 +124,8 @@ export class MediaService {
     photos: Array<{ id: string; createdAt: Date; capturedAt?: Date | null; metadata?: unknown }>
   ) {
     const stalePhotos = photos
-      .map((photo) => ({
-        id: photo.id,
-        resolvedCapturedAt: this.resolveCapturedAt(photo),
-        capturedAt: photo.capturedAt,
-      }))
-      .filter((photo) => !photo.capturedAt || photo.capturedAt.getTime() !== photo.resolvedCapturedAt.getTime());
+      .map((photo) => ({ id: photo.id, capturedAt: photo.capturedAt, resolved: resolveCapturedAt(photo) }))
+      .filter((photo) => photo.capturedAt?.getTime() !== photo.resolved.getTime());
 
     if (!stalePhotos.length) {
       return;
@@ -224,10 +133,7 @@ export class MediaService {
 
     await Promise.all(
       stalePhotos.map((photo) =>
-        this.prisma.media.update({
-          where: { id: photo.id },
-          data: { capturedAt: photo.resolvedCapturedAt },
-        })
+        this.prisma.media.update({ where: { id: photo.id }, data: { capturedAt: photo.resolved } })
       )
     );
 
@@ -254,159 +160,7 @@ export class MediaService {
     };
   }
 
-  private ensureDirectoryExists(dirPath: string) {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-  }
-
-  getStoragePaths() {
-    return {
-      storagePath: environment.storagePath,
-      thumbnailsPath: path.join(environment.appDataPath, 'thumbnails'),
-      previewsPath: path.join(environment.appDataPath, 'previews'),
-    };
-  }
-
-  private ensureStoragePaths() {
-    const paths = this.getStoragePaths();
-    this.ensureDirectoryExists(paths.storagePath);
-    this.ensureDirectoryExists(paths.thumbnailsPath);
-    this.ensureDirectoryExists(paths.previewsPath);
-    return paths;
-  }
-
-  listFilesRecursive(dirPath: string): string[] {
-    if (!fs.existsSync(dirPath)) {
-      return [];
-    }
-
-    return fs.readdirSync(dirPath, { withFileTypes: true }).flatMap((entry) => {
-      const entryPath = path.join(dirPath, entry.name);
-      return entry.isDirectory() ? this.listFilesRecursive(entryPath) : [entryPath];
-    });
-  }
-
-  isSupportedImage(filePath: string) {
-    return SUPPORTED_IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
-  }
-
-  isIgnoredFile(filePath: string) {
-    const name = path.basename(filePath).toLowerCase();
-    return name.startsWith('.') || IGNORED_FILE_NAMES.has(name);
-  }
-
-  // Files in the same directory with the same stem (any extension) belong to one media item.
-  getStemKey(relativeDir: string, fileName: string) {
-    let stem = path.parse(fileName).name;
-    const innerExtension = path.extname(stem).toLowerCase();
-
-    if (KNOWN_MEDIA_EXTENSIONS.has(innerExtension)) {
-      stem = stem.slice(0, -innerExtension.length);
-    }
-
-    return path.posix.join(relativeDir.split(path.sep).join('/'), stem).toLowerCase();
-  }
-
-  getStemKeyForStoredFile(filePath: string) {
-    const { storagePath } = this.getStoragePaths();
-    const relativePath = path.relative(storagePath, filePath);
-    return this.getStemKey(
-      path.dirname(relativePath) === '.' ? '' : path.dirname(relativePath),
-      path.basename(filePath)
-    );
-  }
-
-  getThumbnailOutputPath(imagePath: string) {
-    const { storagePath, thumbnailsPath } = this.ensureStoragePaths();
-    const relativePath = path.relative(storagePath, imagePath);
-    const parsed = path.parse(relativePath);
-    // Keep the source extension so IMG_1.jpg and IMG_1.png don't share one thumbnail.
-    return path.join(thumbnailsPath, parsed.dir, `${parsed.base}.jpg`);
-  }
-
-  private getPreviewOutputPath(imagePath: string) {
-    const { storagePath, previewsPath } = this.ensureStoragePaths();
-    const relativePath = path.relative(storagePath, imagePath);
-    const parsed = path.parse(relativePath);
-    return path.join(previewsPath, parsed.dir, `${parsed.base}.jpg`);
-  }
-
-  private getNormalizedDimensions(metadata: sharp.Metadata) {
-    const isRotated = metadata.orientation !== undefined && [5, 6, 7, 8].includes(metadata.orientation);
-    const width = isRotated ? metadata.height : metadata.width;
-    const height = isRotated ? metadata.width : metadata.height;
-
-    return {
-      width: width ?? 0,
-      height: height ?? 0,
-    };
-  }
-
-  private shouldCreatePreview(metadata: sharp.Metadata) {
-    const { width, height } = this.getNormalizedDimensions(metadata);
-    if (!width || !height) {
-      return true;
-    }
-
-    return width > PREVIEW_MAX_WIDTH || height > PREVIEW_MAX_HEIGHT;
-  }
-
-  async createThumbnail(fileBuffer: Buffer, targetPath: string) {
-    this.ensureDirectoryExists(path.dirname(targetPath));
-
-    await sharp(fileBuffer)
-      .rotate()
-      .resize({ height: THUMBNAIL_HEIGHT })
-      .jpeg({ quality: THUMBNAIL_JPEG_QUALITY })
-      .toFile(targetPath);
-  }
-
-  private async createPreview(fileBuffer: Buffer, targetPath: string) {
-    const sharpFile = sharp(fileBuffer).rotate();
-    const metadata = await sharpFile.metadata();
-
-    if (!this.shouldCreatePreview(metadata)) {
-      if (fs.existsSync(targetPath)) {
-        fs.rmSync(targetPath, { force: true });
-      }
-      return false;
-    }
-
-    this.ensureDirectoryExists(path.dirname(targetPath));
-    await sharpFile
-      .resize({
-        width: PREVIEW_MAX_WIDTH,
-        height: PREVIEW_MAX_HEIGHT,
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality: PREVIEW_JPEG_QUALITY, progressive: true })
-      .toFile(targetPath);
-
-    return true;
-  }
-
-  async ensurePreviewAsset(imagePath: string, fileBuffer?: Buffer) {
-    const previewPath = this.getPreviewOutputPath(imagePath);
-    if (fs.existsSync(previewPath)) {
-      return previewPath;
-    }
-
-    const sourceBuffer = fileBuffer ?? (fs.existsSync(imagePath) ? fs.readFileSync(imagePath) : null);
-    if (!sourceBuffer) {
-      return null;
-    }
-
-    const generated = await this.createPreview(sourceBuffer, previewPath);
-    return generated ? previewPath : null;
-  }
-
-  private getMimeType(filePath: string) {
-    return MIME_TYPES[path.extname(filePath).toLowerCase()] ?? 'application/octet-stream';
-  }
-
-  private async findOwnedPhoto(id: string, user: TokenPayload) {
+  private findOwnedPhoto(id: string, user: TokenPayload) {
     return this.prisma.media.findFirst({
       where: { id, ownerId: user.sub },
       include: { _count: { select: { files: true } } },
@@ -422,84 +176,50 @@ export class MediaService {
     return photo;
   }
 
-  private async ensureOwnedPhotoIds(
-    photoIds: string[],
-    ownerId: string,
-    options?: { requireDeleted?: boolean; requireActive?: boolean }
-  ) {
-    const normalizedIds = this.normalizeIds(photoIds);
-
-    if (!normalizedIds.length) {
-      return normalizedIds;
+  private async ensureOwnedPhotoIds(photoIds: string[], ownerId: string, state: Prisma.MediaWhereInput) {
+    const ids = uniqueIds(photoIds);
+    if (!ids.length) {
+      return ids;
     }
 
-    const photos = await this.prisma.media.findMany({
-      where: {
-        id: { in: normalizedIds },
-        ownerId,
-        ...(options?.requireDeleted ? { deletedAt: { not: null } } : {}),
-        ...(options?.requireActive ? { deletedAt: null } : {}),
-      },
-      select: { id: true },
-    });
-
-    if (photos.length !== normalizedIds.length) {
+    const count = await this.prisma.media.count({ where: { id: { in: ids }, ownerId, ...state } });
+    if (count !== ids.length) {
       throw Err.BadRequest('api.photos.photosMissing');
     }
 
-    return normalizedIds;
+    return ids;
   }
 
-  private async getAlbumIdsForPhotos(photoIds: string[]) {
+  // Trash, restore and permanent delete act on the whole media item, sidecar files included.
+  // Without `ids` the action applies to everything currently in the trash.
+  private async bulkAction(action: BulkAction, user: TokenPayload, ids?: string[]): Promise<MediaBulkActionResponse> {
+    const scope = ids ? 'selected' : 'all';
+    const state: Prisma.MediaWhereInput = { deletedAt: action === 'trash' ? null : { not: null } };
+    const photoIds = ids
+      ? await this.ensureOwnedPhotoIds(ids, user.sub, state)
+      : (await this.prisma.media.findMany({ where: { ownerId: user.sub, ...state }, select: { id: true } })).map(
+          (photo) => photo.id
+        );
+
     if (!photoIds.length) {
-      return [];
+      return { action, photoIds: [], scope, status: 'success', count: 0 };
     }
 
-    const albums = await this.prisma.album.findMany({
-      where: {
-        media: {
-          some: { id: { in: photoIds } },
-        },
-      },
-      select: { id: true },
-    });
+    // Albums must be read before a permanent delete drops the links.
+    const albumIds = await this.albumService.findIdsForMedia(photoIds);
+    const where: Prisma.MediaWhereInput = { ownerId: user.sub, ...state, ...(ids ? { id: { in: photoIds } } : {}) };
+    const { count } =
+      action === 'delete-permanently'
+        ? await this.prisma.media.deleteMany({ where })
+        : await this.prisma.media.updateMany({ where, data: { deletedAt: action === 'trash' ? new Date() : null } });
 
-    return albums.map((album) => album.id);
-  }
+    await this.albumService.refreshAlbums(albumIds);
 
-  private async refreshAlbums(albumIds: string[]) {
-    const normalizedAlbumIds = this.normalizeIds(albumIds);
-
-    await Promise.all(normalizedAlbumIds.map((albumId) => this.albumService.refreshAlbumCapturedAtCascade(albumId)));
-  }
-
-  private async getTrashedPhotoIds(ownerId: string) {
-    const photos = await this.prisma.media.findMany({
-      where: { ownerId, deletedAt: { not: null } },
-      select: { id: true },
-    });
-
-    return photos.map((photo) => photo.id);
-  }
-
-  private createBulkActionResponse(
-    action: MediaBulkActionResponse['action'],
-    photoIds: string[],
-    scope: MediaBulkActionResponse['scope'],
-    count: number
-  ): MediaBulkActionResponse {
-    return {
-      action,
-      photoIds,
-      scope,
-      status: 'success',
-      count,
-    };
+    return { action, photoIds, scope, status: 'success', count };
   }
 
   private createStreamableFile(filePath: string) {
-    const file = fs.createReadStream(filePath);
-    return new StreamableFile(file, { type: this.getMimeType(filePath) });
+    return new StreamableFile(fs.createReadStream(filePath), { type: getMimeType(filePath) });
   }
 
   async create(file: UploadedImageFile, user: TokenPayload) {
@@ -508,7 +228,8 @@ export class MediaService {
       throw Err.BadRequest('api.photos.fileRequired');
     }
 
-    const { storagePath } = this.ensureStoragePaths();
+    const { storagePath } = getStoragePaths();
+    fs.mkdirSync(storagePath, { recursive: true });
     const filePath = this.writeUniqueFile(storagePath, originalName, file.buffer);
 
     let result: AttachFileResult;
@@ -518,7 +239,7 @@ export class MediaService {
         buffer: file.buffer,
         filePath,
         originalName,
-        stemKey: this.getStemKey('', originalName),
+        stemKey: getStemKey('', originalName),
       });
     } catch (error) {
       fs.rmSync(filePath, { force: true });
@@ -530,10 +251,7 @@ export class MediaService {
       throw Err.Conflict('api.photos.duplicate');
     }
 
-    return this.toGalleryImageResponse({
-      ...result.media,
-      capturedAt: this.resolveCapturedAt(result.media),
-    });
+    return this.toGalleryImageResponse({ ...result.media, capturedAt: resolveCapturedAt(result.media) });
   }
 
   private writeUniqueFile(dirPath: string, fileName: string, buffer: Buffer) {
@@ -554,16 +272,16 @@ export class MediaService {
   }
 
   private async prepareDisplayableAssets(filePath: string, buffer: Buffer) {
-    const thumbnailPath = this.getThumbnailOutputPath(filePath);
+    const thumbnailPath = getThumbnailOutputPath(filePath);
 
     try {
-      await this.createThumbnail(buffer, thumbnailPath);
-      await this.ensurePreviewAsset(filePath, buffer);
+      await createThumbnail(buffer, thumbnailPath);
+      await ensurePreviewAsset(filePath, buffer);
     } catch {
       return null;
     }
 
-    return { thumbnailPath, capturedAt: await this.extractCapturedAt(buffer) };
+    return { thumbnailPath, capturedAt: await extractCapturedAt(buffer) };
   }
 
   // Registers an on-disk file and attaches it to the media item sharing its stem, creating one if needed.
@@ -577,7 +295,7 @@ export class MediaService {
       return { duplicate: true, media: duplicate.media };
     }
 
-    const assets = this.isSupportedImage(originalName) ? await this.prepareDisplayableAssets(filePath, buffer) : null;
+    const assets = isSupportedImage(originalName) ? await this.prepareDisplayableAssets(filePath, buffer) : null;
     const fileData = {
       originalName,
       path: filePath,
@@ -604,8 +322,8 @@ export class MediaService {
                   path: filePath,
                   hash,
                   thumbnailPath: assets.thumbnailPath,
-                  capturedAt: assets.capturedAt ? new Date(assets.capturedAt) : existing.createdAt,
-                  metadata: this.mergePhotoMetadata(existing.metadata, assets.capturedAt),
+                  capturedAt: assets.capturedAt ?? existing.createdAt,
+                  metadata: withCapturedAt(existing.metadata, assets.capturedAt),
                 }
               : {}),
           },
@@ -629,9 +347,9 @@ export class MediaService {
             hash,
             stemKey,
             thumbnailPath: assets?.thumbnailPath ?? null,
-            capturedAt: assets?.capturedAt ? new Date(assets.capturedAt) : createdAt,
+            capturedAt: assets?.capturedAt ?? createdAt,
             createdAt,
-            metadata: this.mergePhotoMetadata(null, assets?.capturedAt ?? null),
+            metadata: withCapturedAt(null, assets?.capturedAt ?? null),
             ownerId,
             files: { create: fileData },
           },
@@ -651,27 +369,27 @@ export class MediaService {
   }
 
   async repairIndexedMedia(media: MediaSummary, filePath: string, fileBuffer: Buffer) {
-    if (media.path !== filePath || !this.isSupportedImage(filePath)) {
+    if (media.path !== filePath || !isSupportedImage(filePath)) {
       return;
     }
 
-    const thumbnailPath = this.getThumbnailOutputPath(filePath);
-    await this.ensurePreviewAsset(filePath, fileBuffer);
+    const thumbnailPath = getThumbnailOutputPath(filePath);
+    await ensurePreviewAsset(filePath, fileBuffer);
 
-    const capturedAt = await this.extractCapturedAt(fileBuffer);
+    const extracted = await extractCapturedAt(fileBuffer);
     const updateData: Prisma.MediaUpdateInput = {};
-    const resolvedCapturedAt = capturedAt ? new Date(capturedAt) : this.resolveCapturedAt(media);
+    const resolved = extracted ?? resolveCapturedAt(media);
 
-    if (capturedAt && !this.getCapturedAtFromMetadata(media.metadata)) {
-      updateData.metadata = this.mergePhotoMetadata(media.metadata, capturedAt);
+    if (extracted && !metadataCapturedAt(media.metadata)) {
+      updateData.metadata = withCapturedAt(media.metadata, extracted);
     }
 
-    if (media.capturedAt.getTime() !== resolvedCapturedAt.getTime()) {
-      updateData.capturedAt = resolvedCapturedAt;
+    if (media.capturedAt.getTime() !== resolved.getTime()) {
+      updateData.capturedAt = resolved;
     }
 
-    if (!media.thumbnailPath || media.thumbnailPath !== thumbnailPath || !fs.existsSync(media.thumbnailPath)) {
-      await this.createThumbnail(fileBuffer, thumbnailPath);
+    if (media.thumbnailPath !== thumbnailPath || !fs.existsSync(thumbnailPath)) {
+      await createThumbnail(fileBuffer, thumbnailPath);
       updateData.thumbnailPath = thumbnailPath;
     }
 
@@ -686,12 +404,7 @@ export class MediaService {
 
   async findOne(id: string, user: TokenPayload): Promise<GalleryImageResponse> {
     const photo = await this.getOwnedPhotoOrThrow(id, user);
-    const capturedAt = await this.ensureCapturedAt(photo);
-
-    return this.toGalleryImageResponse({
-      ...photo,
-      capturedAt,
-    });
+    return this.toGalleryImageResponse({ ...photo, capturedAt: await this.ensureCapturedAt(photo) });
   }
 
   private async readImageDetails(filePath: string): Promise<Partial<MediaFileInfoResponse>> {
@@ -702,7 +415,7 @@ export class MediaService {
     const details: Partial<MediaFileInfoResponse> = {};
 
     try {
-      const { width, height } = this.getNormalizedDimensions(await sharp(filePath).metadata());
+      const { width, height } = getNormalizedDimensions(await sharp(filePath).metadata());
       if (width && height) {
         details.width = width;
         details.height = height;
@@ -743,7 +456,7 @@ export class MediaService {
 
   async findInfo(id: string, user: TokenPayload): Promise<MediaInfoResponse> {
     const media = await this.getOwnedPhotoOrThrow(id, user);
-    const { storagePath } = this.getStoragePaths();
+    const { storagePath } = getStoragePaths();
     const files = await this.prisma.mediaFile.findMany({
       where: { mediaId: media.id },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
@@ -752,13 +465,12 @@ export class MediaService {
     const fileInfos = await Promise.all(
       files.map(async (file): Promise<MediaFileInfoResponse> => {
         const extension = path.extname(file.originalName).toLowerCase();
-        const mimeType = MIME_TYPES[extension];
 
         return {
           id: file.id,
           originalName: file.originalName,
           extension,
-          mimeType,
+          mimeType: MIME_TYPES[extension],
           size: file.size,
           hash: file.hash,
           path: path.relative(storagePath, file.path),
@@ -772,7 +484,7 @@ export class MediaService {
 
     return {
       id: media.id,
-      capturedAt: this.resolveCapturedAt(media),
+      capturedAt: resolveCapturedAt(media),
       createdAt: media.createdAt,
       deletedAt: media.deletedAt,
       files: fileInfos.sort((left, right) => Number(right.isMain) - Number(left.isMain)),
@@ -794,108 +506,29 @@ export class MediaService {
     return this.removeManyPermanently([photo.id], user);
   }
 
-  // Provisional: trash, restore and permanent delete act on the whole media item, sidecar files included.
-  async trashMany(photoIds: string[], user: TokenPayload) {
-    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireActive: true });
-
-    if (!normalizedIds.length) {
-      return this.createBulkActionResponse('trash', [], 'selected', 0);
-    }
-
-    const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
-    const result = await this.prisma.media.updateMany({
-      where: {
-        id: { in: normalizedIds },
-        ownerId: user.sub,
-        deletedAt: null,
-      },
-      data: { deletedAt: new Date() },
-    });
-
-    await this.refreshAlbums(albumIds);
-
-    return this.createBulkActionResponse('trash', normalizedIds, 'selected', result.count);
+  trashMany(photoIds: string[], user: TokenPayload) {
+    return this.bulkAction('trash', user, photoIds);
   }
 
-  async restoreMany(photoIds: string[], user: TokenPayload) {
-    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireDeleted: true });
-
-    if (!normalizedIds.length) {
-      return this.createBulkActionResponse('restore', [], 'selected', 0);
-    }
-
-    const result = await this.prisma.media.updateMany({
-      where: {
-        id: { in: normalizedIds },
-        ownerId: user.sub,
-        deletedAt: { not: null },
-      },
-      data: { deletedAt: null },
-    });
-
-    await this.albumService.refreshCapturedAtForMedia(normalizedIds);
-
-    return this.createBulkActionResponse('restore', normalizedIds, 'selected', result.count);
+  restoreMany(photoIds: string[], user: TokenPayload) {
+    return this.bulkAction('restore', user, photoIds);
   }
 
-  async restoreAll(user: TokenPayload) {
-    const photoIds = await this.getTrashedPhotoIds(user.sub);
-
-    if (!photoIds.length) {
-      return this.createBulkActionResponse('restore', [], 'all', 0);
-    }
-
-    const result = await this.prisma.media.updateMany({
-      where: { ownerId: user.sub, deletedAt: { not: null } },
-      data: { deletedAt: null },
-    });
-
-    await this.albumService.refreshCapturedAtForMedia(photoIds);
-
-    return this.createBulkActionResponse('restore', photoIds, 'all', result.count);
+  restoreAll(user: TokenPayload) {
+    return this.bulkAction('restore', user);
   }
 
-  async removeManyPermanently(photoIds: string[], user: TokenPayload) {
-    const normalizedIds = await this.ensureOwnedPhotoIds(photoIds, user.sub, { requireDeleted: true });
-
-    if (!normalizedIds.length) {
-      return this.createBulkActionResponse('delete-permanently', [], 'selected', 0);
-    }
-
-    const albumIds = await this.getAlbumIdsForPhotos(normalizedIds);
-    const result = await this.prisma.media.deleteMany({
-      where: {
-        id: { in: normalizedIds },
-        ownerId: user.sub,
-        deletedAt: { not: null },
-      },
-    });
-
-    await this.refreshAlbums(albumIds);
-
-    return this.createBulkActionResponse('delete-permanently', normalizedIds, 'selected', result.count);
+  removeManyPermanently(photoIds: string[], user: TokenPayload) {
+    return this.bulkAction('delete-permanently', user, photoIds);
   }
 
-  async removeAllTrashed(user: TokenPayload) {
-    const photoIds = await this.getTrashedPhotoIds(user.sub);
-
-    if (!photoIds.length) {
-      return this.createBulkActionResponse('delete-permanently', [], 'all', 0);
-    }
-
-    const albumIds = await this.getAlbumIdsForPhotos(photoIds);
-    const result = await this.prisma.media.deleteMany({
-      where: { ownerId: user.sub, deletedAt: { not: null } },
-    });
-
-    await this.refreshAlbums(albumIds);
-
-    return this.createBulkActionResponse('delete-permanently', photoIds, 'all', result.count);
+  removeAllTrashed(user: TokenPayload) {
+    return this.bulkAction('delete-permanently', user);
   }
 
   async findImage(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
-    if (!photo || !photo.path || !fs.existsSync(photo.path)) {
+    if (!photo?.path || !fs.existsSync(photo.path)) {
       throw Err.NotFound('api.photos.Err.NotFound');
     }
 
@@ -904,17 +537,17 @@ export class MediaService {
 
   async findPreview(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
-    if (!photo || !photo.path || !photo.thumbnailPath || !fs.existsSync(photo.path)) {
+    if (!photo?.path || !photo.thumbnailPath || !fs.existsSync(photo.path)) {
       throw Err.NotFound('api.photos.Err.NotFound');
     }
 
-    const previewPath = await this.ensurePreviewAsset(photo.path);
+    const previewPath = await ensurePreviewAsset(photo.path);
     return this.createStreamableFile(previewPath ?? photo.path);
   }
 
   async findThumbnail(id: string, user: TokenPayload) {
     const photo = await this.findOwnedPhoto(id, user);
-    if (!photo || !photo.thumbnailPath || !fs.existsSync(photo.thumbnailPath)) {
+    if (!photo?.thumbnailPath || !fs.existsSync(photo.thumbnailPath)) {
       throw Err.NotFound('api.photos.thumbnailErr.NotFound');
     }
 

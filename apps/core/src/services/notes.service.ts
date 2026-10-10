@@ -53,15 +53,24 @@ export class NotesService {
     return normalized;
   }
 
-  private async getGroupAccess(groupId: string, user: TokenPayload) {
+  private canWrite(user: TokenPayload, group: { ownerId: string; members: Array<{ access: GroupAccessLevel }> }) {
+    const access = group.members[0]?.access;
+    return (
+      user.role === 'admin' ||
+      group.ownerId === user.sub ||
+      access === GroupAccessLevel.admin ||
+      access === GroupAccessLevel.edit
+    );
+  }
+
+  private async ensureWritableGroup(groupId: string, user: TokenPayload) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },
       select: {
-        id: true,
         ownerId: true,
         members: {
           where: { userId: user.sub },
-          select: { userId: true, access: true },
+          select: { access: true },
         },
       },
     });
@@ -70,31 +79,9 @@ export class NotesService {
       throw Err.NotFound('api.notes.groupErr.NotFound');
     }
 
-    const membership = group.members[0] ?? null;
-    const isOwner = group.ownerId === user.sub;
-    const isAdmin = user.role === 'admin';
-    const isMember = Boolean(membership);
-
-    return {
-      group,
-      membership,
-      canRead: isOwner || isAdmin || isMember,
-      canWrite:
-        isOwner ||
-        isAdmin ||
-        membership?.access === GroupAccessLevel.admin ||
-        membership?.access === GroupAccessLevel.edit,
-    };
-  }
-
-  private async ensureWritableGroup(groupId: string, user: TokenPayload) {
-    const access = await this.getGroupAccess(groupId, user);
-
-    if (!access.canWrite) {
+    if (!this.canWrite(user, group)) {
       throw Err.Forbidden('api.notes.groupWriteDenied');
     }
-
-    return access;
   }
 
   private async getNoteAccess(noteId: string, user: TokenPayload): Promise<NoteAccessRecord> {
@@ -118,11 +105,7 @@ export class NotesService {
       throw Err.NotFound('api.notes.Err.NotFound');
     }
 
-    const isAdmin = user.role === 'admin';
-    const isGroupOwner = note.group.ownerId === user.sub;
-    const membership = note.group.members[0] ?? null;
-    const canRead = isAdmin || isGroupOwner || Boolean(membership);
-
+    const canRead = user.role === 'admin' || note.group.ownerId === user.sub || note.group.members.length > 0;
     if (!canRead) {
       throw Err.Unauthorized('api.notes.noteAccessDenied');
     }
@@ -131,18 +114,7 @@ export class NotesService {
   }
 
   private ensureCanModifyNote(note: NoteAccessRecord, user: TokenPayload) {
-    const isAdmin = user.role === 'admin';
-    const isGroupOwner = note.group.ownerId === user.sub;
-    const isNoteOwner = note.ownerId === user.sub;
-    const memberAccess = note.group.members[0]?.access;
-    const canWrite =
-      isAdmin ||
-      isGroupOwner ||
-      isNoteOwner ||
-      memberAccess === GroupAccessLevel.admin ||
-      memberAccess === GroupAccessLevel.edit;
-
-    if (!canWrite) {
+    if (note.ownerId !== user.sub && !this.canWrite(user, note.group)) {
       throw Err.Forbidden('api.notes.noteWriteDenied');
     }
   }
@@ -162,7 +134,7 @@ export class NotesService {
   }
 
   async findAll(user: TokenPayload): Promise<NoteResponse[]> {
-    const notes = await this.prisma.note.findMany({
+    return this.prisma.note.findMany({
       where: {
         OR: [
           { group: { ownerId: user.sub } },
@@ -173,8 +145,6 @@ export class NotesService {
       orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
       select: NOTE_RESPONSE_SELECT,
     });
-
-    return notes;
   }
 
   async findOne(id: string, user: TokenPayload): Promise<NoteResponse> {
@@ -225,16 +195,7 @@ export class NotesService {
     });
   }
 
-  private toNoteResponse(note: NoteRecord): NoteResponse {
-    return {
-      id: note.id,
-      groupId: note.groupId,
-      ownerId: note.ownerId,
-      title: note.title,
-      content: note.content,
-      createdAt: note.createdAt,
-      updatedAt: note.updatedAt,
-      deletedAt: note.deletedAt,
-    };
+  private toNoteResponse({ group: _group, ...note }: NoteAccessRecord): NoteResponse {
+    return note;
   }
 }

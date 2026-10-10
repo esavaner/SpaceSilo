@@ -7,6 +7,7 @@ import {
   RemoveGroupMemberRequest,
   UpdateGroupRequest,
   UpdateGroupMemberRequest,
+  type Prisma,
 } from '@repo/shared';
 import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
@@ -106,20 +107,6 @@ export class GroupsService {
     return group;
   }
 
-  async findGroupMember(groupId: string, user: TokenPayload) {
-    const member = await this.prisma.groupMember.findFirst({
-      // find a group by id where the user is a member or the owner
-      where: {
-        groupId,
-        OR: [{ group: { members: { some: { userId: user.sub } } } }, { group: { ownerId: user.sub } }],
-      },
-      include: {
-        group: true,
-      },
-    });
-    return member;
-  }
-
   async create(dto: CreateGroupRequest, userId: string): Promise<GroupResponse> {
     const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
 
@@ -139,10 +126,7 @@ export class GroupsService {
       ...this.options,
     });
 
-    const groupPath = path.join(environment.filesPath, dto.id);
-    if (!fs.existsSync(groupPath)) {
-      fs.mkdirSync(groupPath, { recursive: true });
-    }
+    fs.mkdirSync(path.join(environment.filesPath, dto.id), { recursive: true });
 
     return res;
   }
@@ -184,72 +168,37 @@ export class GroupsService {
     });
   }
 
-  async addMember(id: string, dto: AddGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
+  private async updateAsOwner(id: string, user: TokenPayload, data: Prisma.GroupUpdateInput): Promise<GroupResponse> {
     await this.assertGroupOwner(id, user);
+    return this.prisma.group.update({ where: { id }, data, ...this.options });
+  }
 
-    return await this.prisma.group.update({
-      where: { id },
-      data: {
-        members: {
-          create: { ...dto },
-        },
-      },
-      ...this.options,
+  addMember(id: string, dto: AddGroupMemberRequest, user: TokenPayload) {
+    return this.updateAsOwner(id, user, { members: { create: { ...dto } } });
+  }
+
+  addMembers(id: string, dto: AddGroupMembersRequest, user: TokenPayload) {
+    return this.updateAsOwner(id, user, { members: { createMany: { data: dto.members } } });
+  }
+
+  removeMember(id: string, dto: RemoveGroupMemberRequest, user: TokenPayload) {
+    return this.updateAsOwner(id, user, {
+      members: { delete: { groupId_userId: { groupId: id, userId: dto.userId } } },
     });
   }
 
-  async addMembers(id: string, dto: AddGroupMembersRequest, user: TokenPayload): Promise<GroupResponse> {
-    await this.assertGroupOwner(id, user);
-
-    return await this.prisma.group.update({
-      where: { id },
-      data: {
-        members: {
-          createMany: { data: dto.members },
-        },
-      },
-      ...this.options,
-    });
+  update(id: string, dto: UpdateGroupRequest, user: TokenPayload) {
+    return this.updateAsOwner(id, user, dto);
   }
 
-  async removeMember(id: string, dto: RemoveGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
-    await this.assertGroupOwner(id, user);
-
-    return await this.prisma.group.update({
-      where: { id },
-      data: {
-        members: {
-          delete: { groupId_userId: { groupId: id, userId: dto.userId } },
+  updateMember(id: string, dto: UpdateGroupMemberRequest, user: TokenPayload) {
+    return this.updateAsOwner(id, user, {
+      members: {
+        update: {
+          where: { groupId_userId: { groupId: id, userId: dto.userId } },
+          data: { access: dto.access },
         },
       },
-      ...this.options,
-    });
-  }
-
-  async update(id: string, dto: UpdateGroupRequest, user: TokenPayload): Promise<GroupResponse> {
-    await this.assertGroupOwner(id, user);
-
-    return await this.prisma.group.update({
-      where: { id },
-      data: dto,
-      ...this.options,
-    });
-  }
-
-  async updateMember(id: string, dto: UpdateGroupMemberRequest, user: TokenPayload): Promise<GroupResponse> {
-    await this.assertGroupOwner(id, user);
-
-    return await this.prisma.group.update({
-      where: { id },
-      data: {
-        members: {
-          update: {
-            where: { groupId_userId: { groupId: id, userId: dto.userId } },
-            data: { access: dto.access },
-          },
-        },
-      },
-      ...this.options,
     });
   }
 

@@ -14,6 +14,9 @@ import {
   type UpdateAlbumRequest,
 } from '@repo/shared';
 import { Err } from '@/common/api-message';
+import { compareNewest, uniqueIds } from '@/common/utils';
+
+const connectIds = (ids: string[]) => ids.map((id) => ({ id }));
 
 const MEDIA_ORDER_BY: Prisma.MediaOrderByWithRelationInput[] = [
   { capturedAt: 'desc' },
@@ -83,26 +86,9 @@ type AlbumSearchRecord = Prisma.AlbumGetPayload<{
   select: typeof ALBUM_SEARCH_SELECT;
 }>;
 
-const compareAlbumRecords = (
-  left: Pick<GalleryAlbumRecord, 'id' | 'capturedAt' | 'createdAt'>,
-  right: Pick<GalleryAlbumRecord, 'id' | 'capturedAt' | 'createdAt'>
-) => {
-  const dateDifference = +(right.capturedAt ?? right.createdAt) - +(left.capturedAt ?? left.createdAt);
-
-  if (dateDifference !== 0) {
-    return dateDifference;
-  }
-
-  return right.id.localeCompare(left.id);
-};
-
 @Injectable()
 export class AlbumService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private normalizeIds(ids?: string[]) {
-    return Array.from(new Set((ids ?? []).filter(Boolean)));
-  }
 
   private mapAlbumResponse(album: AlbumResponseRecord): AlbumResponse {
     return {
@@ -226,20 +212,6 @@ export class AlbumService {
     }
   }
 
-  private pickNewestDate(...dates: Array<Date | null | undefined>) {
-    return dates.reduce<Date | null>((latest, current) => {
-      if (!current) {
-        return latest;
-      }
-
-      if (!latest || current.getTime() > latest.getTime()) {
-        return current;
-      }
-
-      return latest;
-    }, null);
-  }
-
   async refreshAlbumCapturedAtCascade(startAlbumId?: string | null) {
     let currentAlbumId = startAlbumId;
 
@@ -270,7 +242,8 @@ export class AlbumService {
         }),
       ]);
 
-      const nextCapturedAt = this.pickNewestDate(latestPhoto?.capturedAt, latestSubalbum._max.capturedAt);
+      const dates = [latestPhoto?.capturedAt, latestSubalbum._max.capturedAt].filter((date): date is Date => !!date);
+      const nextCapturedAt = dates.length ? new Date(Math.max(...dates.map(Number))) : null;
       const currentTime = currentAlbum.capturedAt?.getTime() ?? null;
       const nextTime = nextCapturedAt?.getTime() ?? null;
 
@@ -285,26 +258,28 @@ export class AlbumService {
     }
   }
 
-  async refreshCapturedAtForMedia(mediaIds: string[]) {
-    const normalizedIds = this.normalizeIds(mediaIds);
-    if (!normalizedIds.length) {
-      return;
+  async findIdsForMedia(mediaIds: string[]) {
+    const ids = uniqueIds(mediaIds);
+    if (!ids.length) {
+      return [];
     }
 
     const albums = await this.prisma.album.findMany({
-      where: {
-        media: {
-          some: {
-            id: { in: normalizedIds },
-          },
-        },
-      },
+      where: { media: { some: { id: { in: ids } } } },
       select: { id: true },
     });
 
-    for (const album of albums) {
-      await this.refreshAlbumCapturedAtCascade(album.id);
+    return albums.map((album) => album.id);
+  }
+
+  async refreshAlbums(albumIds: string[]) {
+    for (const albumId of uniqueIds(albumIds)) {
+      await this.refreshAlbumCapturedAtCascade(albumId);
     }
+  }
+
+  async refreshCapturedAtForMedia(mediaIds: string[]) {
+    await this.refreshAlbums(await this.findIdsForMedia(mediaIds));
   }
 
   async findDescendantIds(albumId: string, ownerId: string) {
@@ -343,12 +318,12 @@ export class AlbumService {
       select: GALLERY_ALBUM_SELECT,
     });
 
-    return albums.sort(compareAlbumRecords).slice(0, take);
+    return albums.sort(compareNewest).slice(0, take);
   }
 
   async create(createAlbumDto: CreateAlbumRequest, user: TokenPayload) {
-    const photoIds = this.normalizeIds(createAlbumDto.photoIds);
-    const groupIds = this.normalizeIds(createAlbumDto.groupIds);
+    const photoIds = uniqueIds(createAlbumDto.photoIds);
+    const groupIds = uniqueIds(createAlbumDto.groupIds);
     const parentId = createAlbumDto.parentId ?? null;
 
     if (parentId) {
@@ -362,8 +337,8 @@ export class AlbumService {
         name: createAlbumDto.name,
         ownerId: user.sub,
         parentId,
-        media: photoIds.length ? { connect: photoIds.map((id) => ({ id })) } : undefined,
-        group: groupIds.length ? { connect: groupIds.map((id) => ({ id })) } : undefined,
+        media: photoIds.length ? { connect: connectIds(photoIds) } : undefined,
+        group: groupIds.length ? { connect: connectIds(groupIds) } : undefined,
       },
       select: { id: true },
     });
@@ -374,17 +349,13 @@ export class AlbumService {
 
   async addPhotos(id: string, dto: AddPhotosToAlbumRequest, user: TokenPayload) {
     const album = await this.findOwnedAlbumOrThrow(id, user.sub);
-    const photoIds = this.normalizeIds(dto.photoIds);
+    const photoIds = uniqueIds(dto.photoIds);
     await this.ensureOwnedPhotos(photoIds, user.sub);
 
     if (photoIds.length) {
       await this.prisma.album.update({
         where: { id: album.id },
-        data: {
-          media: {
-            connect: photoIds.map((photoId) => ({ id: photoId })),
-          },
-        },
+        data: { media: { connect: connectIds(photoIds) } },
       });
 
       await this.refreshAlbumCapturedAtCascade(album.id);
@@ -429,9 +400,9 @@ export class AlbumService {
     });
 
     const albumsById = new Map<string, AlbumSearchRecord>(matchingAlbums.map((album) => [album.id, album]));
-    let parentIds = matchingAlbums.flatMap((album) =>
-      album.parentId && !albumsById.has(album.parentId) ? [album.parentId] : []
-    );
+    const unseenParentIds = (albums: AlbumSearchRecord[]) =>
+      albums.flatMap((album) => (album.parentId && !albumsById.has(album.parentId) ? [album.parentId] : []));
+    let parentIds = unseenParentIds(matchingAlbums);
 
     while (parentIds.length > 0) {
       const parentAlbums = await this.prisma.album.findMany({
@@ -448,9 +419,7 @@ export class AlbumService {
       }
 
       parentAlbums.forEach((album) => albumsById.set(album.id, album));
-      parentIds = parentAlbums.flatMap((album) =>
-        album.parentId && !albumsById.has(album.parentId) ? [album.parentId] : []
-      );
+      parentIds = unseenParentIds(parentAlbums);
     }
 
     return matchingAlbums.map((album) => {
@@ -488,8 +457,8 @@ export class AlbumService {
 
   async update(id: string, updateAlbumDto: UpdateAlbumRequest, user: TokenPayload) {
     const existingAlbum = await this.findOwnedAlbumOrThrow(id, user.sub);
-    const photoIds = updateAlbumDto.photoIds !== undefined ? this.normalizeIds(updateAlbumDto.photoIds) : undefined;
-    const groupIds = updateAlbumDto.groupIds !== undefined ? this.normalizeIds(updateAlbumDto.groupIds) : undefined;
+    const photoIds = updateAlbumDto.photoIds !== undefined ? uniqueIds(updateAlbumDto.photoIds) : undefined;
+    const groupIds = updateAlbumDto.groupIds !== undefined ? uniqueIds(updateAlbumDto.groupIds) : undefined;
     const nextParentId =
       updateAlbumDto.parentId === undefined ? existingAlbum.parentId : (updateAlbumDto.parentId ?? null);
 
@@ -511,20 +480,8 @@ export class AlbumService {
       data: {
         ...(updateAlbumDto.name !== undefined ? { name: updateAlbumDto.name } : {}),
         ...(updateAlbumDto.parentId !== undefined ? { parentId: nextParentId } : {}),
-        ...(photoIds !== undefined
-          ? {
-              media: {
-                set: photoIds.map((photoId) => ({ id: photoId })),
-              },
-            }
-          : {}),
-        ...(groupIds !== undefined
-          ? {
-              group: {
-                set: groupIds.map((groupId) => ({ id: groupId })),
-              },
-            }
-          : {}),
+        ...(photoIds !== undefined ? { media: { set: connectIds(photoIds) } } : {}),
+        ...(groupIds !== undefined ? { group: { set: connectIds(groupIds) } } : {}),
       },
     });
 
