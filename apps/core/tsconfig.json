@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./*"],
-      "@repo/shared": ["../../shared/src"],
-      "@repo/shared/*": ["../../shared/src/*"]
+      "@/*": ["./src/*"],
+      "@repo/shared": ["../shared/src"],
+      "@repo/shared/*": ["../shared/src/*"]
     },
     "module": "esnext",
     "moduleResolution": "bundler",

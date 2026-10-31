@@ -54,7 +54,7 @@ export const FileInfoModal = ({ file }: FileInfoModalProps) => {
       </DialogHeader>
       {isLoading && <Text className="text-muted-foreground">{t('files.infoModal.loading')}</Text>}
       {(isError || !server) && <Text className="text-destructive">{t('files.infoModal.unavailable')}</Text>}
-      {fileInfo && (
+      {fileInfo && server && (
         <ScrollView className="max-h-120" contentContainerClassName="gap-3 pr-2">
           <DetailRow label={t('files.infoModal.labels.name')} value={fileInfo.name} />
           <DetailRow label={t('files.infoModal.labels.type')} value={type} />
