@@ -4,7 +4,7 @@ import { TextClassContext } from '@/components/general/text';
 import { cn } from '@/utils/cn';
 import * as DropdownMenuPrimitive from '@rn-primitives/dropdown-menu';
 import * as React from 'react';
-import { Platform, type StyleProp, StyleSheet, Text, type TextProps, View, type ViewStyle } from 'react-native';
+import { Platform, type StyleProp, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { FadeIn } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -251,7 +251,7 @@ function DropdownMenuSeparator({
   return <DropdownMenuPrimitive.Separator className={cn('bg-border -mx-1 my-1 h-px', className)} {...props} />;
 }
 
-function DropdownMenuShortcut({ className, ...props }: TextProps & React.RefAttributes<Text>) {
+function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<typeof Text>) {
   return <Text className={cn('text-muted-foreground ml-auto text-xs tracking-widest', className)} {...props} />;
 }
 

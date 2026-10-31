@@ -356,7 +356,7 @@ export type BackupGroupByOutputType = {
   _max: BackupMaxAggregateOutputType | null
 }
 
-type GetBackupGroupByPayload<T extends BackupGroupByArgs> = Prisma.PrismaPromise<
+export type GetBackupGroupByPayload<T extends BackupGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BackupGroupByOutputType, T['by']> &
       {
@@ -2016,6 +2016,11 @@ export type BackupFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Backups.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Backups.
+   */
   distinct?: Prisma.BackupScalarFieldEnum | Prisma.BackupScalarFieldEnum[]
 }
 

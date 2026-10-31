@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
+import { DrawerContentComponentProps, DrawerContentScrollView } from 'expo-router/drawer';
 import { router } from 'expo-router';
 import { Text } from './general/text';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';

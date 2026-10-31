@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "..",
+    "types": ["node", "multer"],
+    "strict": false,
     "paths": {
       "@/*": ["./src/*"],
       "@repo/shared": ["../shared/src"],

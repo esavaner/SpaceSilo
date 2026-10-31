@@ -9,7 +9,7 @@ type Props = React.ComponentProps<typeof TextInput> & {
 };
 
 export const Search = ({ options, className, ...rest }: Props) => {
-  const ref = useRef<View>(null);
+  const ref = useRef<React.ComponentRef<typeof View>>(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
