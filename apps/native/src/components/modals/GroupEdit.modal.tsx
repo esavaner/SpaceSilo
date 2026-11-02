@@ -27,6 +27,7 @@ export const GroupEditModal = ({ group }: Props) => {
     handleSubmit,
     formState: { errors },
   } = useForm<GroupEditForm>({
+    // @ts-expect-error yup resolver typing
     resolver: yupResolver(schema),
     defaultValues: {
       name: group.name,
@@ -71,6 +72,7 @@ export const GroupEditModal = ({ group }: Props) => {
         )}
       />
 
+      {/* @ts-expect-error dialog footer handler typing */}
       <DialogFooter okText="Save" onOk={handleSubmit(handleSave)} loading={isPending} />
     </DialogContent>
   );

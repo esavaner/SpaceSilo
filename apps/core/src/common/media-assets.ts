@@ -1,4 +1,4 @@
-import sharp, { type Metadata } from 'sharp';
+import sharp from 'sharp';
 import * as fs from 'fs';
 import * as path from 'path';
 import { environment } from '@/common/env.validation';
@@ -94,7 +94,7 @@ export const getThumbnailOutputPath = (imagePath: string) => derivedPath(getStor
 
 const getPreviewOutputPath = (imagePath: string) => derivedPath(getStoragePaths().previewsPath, imagePath);
 
-export function getNormalizedDimensions(metadata: Metadata) {
+export function getNormalizedDimensions(metadata: sharp.Metadata) {
   const isRotated = metadata.orientation !== undefined && [5, 6, 7, 8].includes(metadata.orientation);
   const width = isRotated ? metadata.height : metadata.width;
   const height = isRotated ? metadata.width : metadata.height;

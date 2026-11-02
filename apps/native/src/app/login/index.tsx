@@ -68,7 +68,7 @@ export default function LoginPage() {
           error={errors.password?.message}
           secureTextEntry
         />
-        <Button onPress={() => handleSubmit(onSubmit)()} loading={isPending}>
+        <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
           {t('auth.login.actions.submit')}
         </Button>
       </View>

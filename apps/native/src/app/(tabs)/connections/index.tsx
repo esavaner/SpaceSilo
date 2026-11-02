@@ -165,7 +165,7 @@ export default function ConnectionsPage() {
           <Button variant="secondary" onPress={() => setSelectedProvider(null)}>
             {t('connections.actions.chooseOther')}
           </Button>
-          <Button onPress={() => handleSubmit(onConnectCoreNas)()} loading={isSavingCoreNas}>
+          <Button onPress={handleSubmit(onConnectCoreNas)} loading={isSavingCoreNas}>
             {t('connections.actions.addCoreNas')}
           </Button>
         </View>
