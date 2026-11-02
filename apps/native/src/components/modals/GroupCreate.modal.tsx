@@ -29,7 +29,6 @@ export const GroupCreateModal = () => {
     control,
     formState: { errors },
   } = useForm<CreateGroupForm>({
-    // @ts-expect-error schema
     resolver: yupResolver(schema),
   });
 
@@ -59,7 +58,6 @@ export const GroupCreateModal = () => {
           </View>
         )}
       />
-      {/* @ts-expect-error sada sdsa */}
       <DialogFooter okText={t('common.actions.create')} onOk={handleSubmit(onSubmit)} loading={isPending} />
     </DialogContent>
   );
