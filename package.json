@@ -1,16 +1,16 @@
 {
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "build:core": "turbo run build --filter=@repo/shared --filter=@repo/core",
-    "reset": "turbo run reset",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "build": "pnpm -r --if-present build",
+    "build:core": "pnpm --filter @repo/shared --filter @repo/core build",
+    "reset": "pnpm --filter @repo/shared reset",
     "start:core": "pnpm build:core && pnpm --filter @repo/core start",
-    "clean": "turbo run clean && rm -rf node_modules",
+    "clean": "pnpm -r --if-present clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "check": "turbo run check"
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm --filter @repo/shared build && pnpm -r --if-present typecheck",
+    "check": "pnpm -r --if-present check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -19,7 +19,6 @@
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.0.0",
     "prettier": "^3.8.1",
-    "turbo": "^2.7.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
   },

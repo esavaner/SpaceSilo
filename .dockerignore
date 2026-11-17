@@ -1,11 +1,9 @@
 .git
 .github
-.turbo
 .vscode
 node_modules
 apps/*/node_modules
 apps/*/.expo
-apps/*/.turbo
 apps/*/build
 apps/*/dist
 apps/*/dist-web

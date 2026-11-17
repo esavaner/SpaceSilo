@@ -4,14 +4,14 @@ Trust this file first. Only search the repo when the task touches an area not co
 
 ## Repository Summary
 
-SpaceSilo is a pnpm/Turborepo monorepo for a personal or shared media storage product. It contains:
+SpaceSilo is a pnpm monorepo for a personal or shared media storage product. It contains:
 
 - `apps/core`: NestJS 11 backend API on Node.js
 - `apps/shared`: shared DTOs, Prisma schema/client, and shared exports consumed by other apps
 - `apps/docs`: Next.js 16 app-router web app
 - `apps/native`: Expo 54 / React Native Web client
 
-Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, Turbo 2, SWC for backend builds, ESLint 9 flat config, React 19, Next.js 16, Expo Router.
+Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, SWC for backend builds, ESLint 9 flat config, React 19, Next.js 16, Expo Router.
 
 Observed locally on Windows: Node `v24.13.0`. The repo pins `pnpm@10.28.1` in the root `package.json`.
 
@@ -19,7 +19,7 @@ Important: the root README and app READMEs are still starter-template docs and a
 
 ## Layout And Architecture
 
-- Root files: `compose.yml`, `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `README.md`, `apps/`, `.vscode/`
+- Root files: `compose.yml`, `package.json`, `pnpm-workspace.yaml`, `README.md`, `apps/`, `.vscode/`
 - `apps/core/src/main.ts`: Nest bootstrap, global validation pipe, CORS, listens on port `3100`
 - `apps/core/src/app.module.ts`: registers controllers/services and `ConfigModule`
 - `apps/core/src/common/env.validation.ts`: backend requires `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH`
@@ -66,7 +66,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
   - `email: t@t.com`
   - `password: 123456`
   - `groupId: testcom`
-- This root command runs `turbo run reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
+- This root command runs `pnpm --filter @repo/shared reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
 - If you only need schema sync without a reset, `pnpm.cmd --filter @repo/shared db:push` still works
 - After DB work, run `docker compose down` if you want to stop local services
 
@@ -90,7 +90,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
   - Practical workaround: use `pnpm.cmd --filter @repo/core dev` instead
 
 - `pnpm.cmd clean` is not portable on Windows
-  - Validated failure: Turbo reports no package `clean` tasks, then the script fails on `rm -rf node_modules`
+  - Validated failure: the script fails on `rm -rf node_modules`
 
 - `pnpm.cmd --filter @repo/core test`
   - Validated failure: exits with `No tests found`
