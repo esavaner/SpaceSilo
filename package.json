@@ -7,7 +7,6 @@
     "reset": "pnpm --filter @repo/shared reset",
     "start:core": "pnpm build:core && pnpm --filter @repo/core start",
     "clean": "pnpm -r --if-present clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm --filter @repo/shared build && pnpm -r --if-present typecheck",
     "check": "pnpm -r --if-present check"
