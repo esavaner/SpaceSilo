@@ -1,0 +1,4 @@
+{
+  "files": [],
+  "references": [{ "path": "apps/core" }, { "path": "apps/docs" }, { "path": "apps/native" }, { "path": "apps/shared" }]
+}

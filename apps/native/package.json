@@ -10,10 +10,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "export:web": "expo export --platform web --output-dir dist",
-    "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
+    "lint": "pnpm -w exec eslint apps/native/src",
     "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
-    "check": "pnpm lint && pnpm typecheck",
-    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix"
+    "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.17",

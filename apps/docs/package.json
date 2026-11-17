@@ -6,10 +6,9 @@
     "dev": "next dev -p 4000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
+    "lint": "pnpm -w exec eslint apps/docs/src",
     "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
-    "check": "pnpm lint && pnpm typecheck",
-    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix"
+    "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",

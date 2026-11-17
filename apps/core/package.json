@@ -9,10 +9,9 @@
     "start": "node build/main.js",
     "dev": "pnpm build && concurrently -k \"swc src -d build --strip-leading-paths --watch\" \"node --watch --watch-path=build build/main.js\"",
     "debug": "pnpm build && concurrently -k \"swc src -d build --strip-leading-paths --watch\" \"node --inspect --watch --watch-path=build build/main.js\"",
-    "lint": "eslint \"src/**/*.{ts,js,tsx,jsx}\"",
+    "lint": "pnpm -w exec eslint apps/core/src",
     "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
-    "check": "pnpm lint && pnpm typecheck",
-    "lint:fix": "eslint \"src/**/*.{ts,js,tsx,jsx}\" --fix"
+    "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
     "@nestjs/common": "^12.3.2",
