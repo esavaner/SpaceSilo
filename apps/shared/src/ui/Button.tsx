@@ -8,7 +8,7 @@ const ButtonRoot = styled(Pressable)`
   justify-content: center;
   padding: 8px 16px;
   border-radius: 8px;
-  background-color: #0070f3;
+  background-color: #ffc14f;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 
   &:active {

@@ -17,7 +17,6 @@ import { Text } from '@/components/general/text';
 import { Search } from '@/components/search';
 import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
-import { Button as SharedButton } from '@repo/shared/ui';
 
 const componentCatalog = [
   { name: 'Text', kind: 'Primitive', note: 'Typography scale and readable content blocks.' },
@@ -112,10 +111,6 @@ export default function RnpPage() {
         >
           <Surface className="gap-4">
             <View className="flex-row flex-wrap gap-3">
-              <SharedButton onPress={() => setButtonCount((count) => count + 1)}>Shared styled button</SharedButton>
-              <SharedButton disabled onPress={() => setButtonCount((count) => count + 1)}>
-                Disabled
-              </SharedButton>
               <Button variant="secondary" onPress={() => setButtonCount(0)}>
                 Reset count
               </Button>
