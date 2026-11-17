@@ -13,8 +13,7 @@
       "default": "./dist/constants/api.js",
       "types": "./dist/constants/api.d.ts"
     },
-    "./eslint": "./eslint.shared.mjs",
-    "./tailwind": "./tailwind.config.ts"
+    "./eslint": "./eslint.shared.mjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --emitDeclarationOnly && swc src -d dist --strip-leading-paths",
