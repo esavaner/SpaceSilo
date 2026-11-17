@@ -22,12 +22,12 @@ export default defineConfig([
     ],
   },
   {
-    files: [`apps/${projects}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
+    files: [`apps/{${projects}}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
     plugins: { js },
     extends: ['js/recommended'],
   },
   {
-    files: [`apps/${projects}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
+    files: [`apps/{${projects}}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
     },
@@ -40,7 +40,7 @@ export default defineConfig([
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   {
-    files: [`apps/${projects}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
+    files: [`apps/{${projects}}/src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
