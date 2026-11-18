@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { css } from 'styled-components';
 import { theme } from '../config/theme';
 import { Text } from './text';
-import { InfoIcon } from '../assets/icons';
+import { Info } from '../assets/icons';
 import { forwardRef, JSX, useId } from 'react';
 
 export type InputInfoProps = {
@@ -218,13 +218,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
           {hasInfo && (
             <InputInfo id={infoMessageId} role="status" aria-live="polite">
-              <InfoIcon />
+              <Info />
               {info}
             </InputInfo>
           )}
           {hasError && (
             <InputInfo id={errorMessageId} $isError role="alert" aria-live="assertive">
-              <InfoIcon />
+              <Info />
               {error}
             </InputInfo>
           )}

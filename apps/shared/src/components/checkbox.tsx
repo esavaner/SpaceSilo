@@ -1,7 +1,7 @@
 import { forwardRef, InputHTMLAttributes, ReactNode, useEffect, useId, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '../config/theme';
-import { CheckmarkIcon, InfoIcon } from '../assets/icons';
+import { Check, Info } from '../assets/icons';
 import { InputInfo as InputInfoBase } from './input';
 
 type StyledProps = {
@@ -83,7 +83,7 @@ const CheckboxVisual = styled.span<StyledProps>`
           }
         `}
 `;
-const Checkmark = styled(CheckmarkIcon)`
+const Checkmark = styled(Check)`
   width: 1.25rem;
   height: 1.25rem;
 `;
@@ -184,13 +184,13 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>(
         </Label>
         {hasInfo && (
           <InputInfo id={infoMessageId} role="status" aria-live="polite" $isError={false}>
-            <InfoIcon />
+            <Info />
             {info}
           </InputInfo>
         )}
         {hasError && (
           <InputInfo id={errorMessageId} role="alert" aria-live="assertive" $isError>
-            <InfoIcon />
+            <Info />
             {error}
           </InputInfo>
         )}

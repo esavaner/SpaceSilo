@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { CloseIcon } from '../assets/icons';
+import { X } from '../assets/icons';
 import styled, { css, keyframes } from 'styled-components';
 import { MODAL_ANIMATION_MS, useModal } from '../context/modal-provider';
 import { theme } from '../config/theme';
@@ -211,7 +211,7 @@ export const Modal = ({
           {...(onSubmit ? { as: 'form', onSubmit } : {})}
         >
           <CloseButton aria-label="Close modal" onClick={() => handleClose?.()}>
-            <CloseIcon />
+            <X />
           </CloseButton>
           {children}
         </ModalCard>

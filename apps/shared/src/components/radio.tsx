@@ -1,7 +1,7 @@
 import { forwardRef, InputHTMLAttributes, ReactNode, useId } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '../config/theme';
-import { CircleCheckIcon } from '../assets/icons';
+import { CircleCheck } from '../assets/icons';
 
 type Variant = 'horizontal' | 'vertical';
 
@@ -73,7 +73,7 @@ const Label = styled.label<StyledProps>`
           }
         `}
 `;
-const Checkmark = styled(CircleCheckIcon)`
+const Checkmark = styled(CircleCheck)`
   color: var(--fill-controls-primary-default);
   position: absolute;
   top: 8px;

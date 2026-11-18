@@ -4,7 +4,7 @@ import { theme } from '../config/theme';
 import { Text } from './text';
 import { Input, InputIconButton, InputProps } from './input';
 import { Modal } from './modal';
-import { CheckmarkIcon, ChevronIcon, CloseIcon } from '../assets/icons';
+import { Check, ChevronDown, X } from '../assets/icons';
 import { OverflowFade } from './overflow-fade';
 const BREAKPOINT = theme.breakpointNumbers.sm;
 
@@ -38,7 +38,7 @@ const SelectedValues = styled.span`
   align-items: center;
   gap: var(--spacing-100);
 `;
-const ChipRemoveButton = styled(CloseIcon)`
+const ChipRemoveButton = styled(X)`
   width: 22px;
   height: 22px;
   padding: var(--spacing-100);
@@ -96,7 +96,7 @@ const OptionButton = styled.button<{ $selected?: boolean }>`
     cursor: not-allowed;
   }
 `;
-const Checkmark = styled(CheckmarkIcon)`
+const Checkmark = styled(Check)`
   position: absolute;
   right: var(--spacing-200);
   top: 50%;
@@ -107,7 +107,7 @@ const EmptyState = styled(Text.FormMessage)`
   padding: var(--spacing-400);
   color: var(--text-secondary-default);
 `;
-const Chevron = styled(ChevronIcon)<{ $open?: boolean }>`
+const Chevron = styled(ChevronDown)<{ $open?: boolean }>`
   display: block;
   transition: transform 160ms ease;
   transform: rotate(${({ $open }) => ($open ? '180deg' : '0deg')});
@@ -184,7 +184,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
     const hiddenInputRef = useRef<HTMLInputElement>(null);
 
     const [dropdownOpened, setDropdownOpened] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < BREAKPOINT);
+    const [isMobile, setIsMobile] = useState(false);
     const [search, setSearch] = useState('');
 
     const [internalValues, setInternalValues] = useState(
@@ -288,6 +288,8 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       const handleResize = () => {
         setIsMobile(window.innerWidth < BREAKPOINT);
       };
+      // measured after mount so SSR (Next) doesn't touch window
+      handleResize();
       window.addEventListener('resize', handleResize);
       return () => {
         window.removeEventListener('resize', handleResize);

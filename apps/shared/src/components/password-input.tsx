@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { Input, InputIconButton, type InputProps } from './input';
-import { PasswordHiddenIcon, PasswordVisibleIcon } from '../assets/icons';
+import { EyeOff, Eye } from '../assets/icons';
 
 type PasswordInputProps = Omit<InputProps, 'type' | 'icon'>;
 
@@ -23,7 +23,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             aria-pressed={isVisible}
             disabled={disabled}
           >
-            {isVisible ? <PasswordVisibleIcon /> : <PasswordHiddenIcon />}
+            {isVisible ? <Eye /> : <EyeOff />}
           </InputIconButton>
         }
         {...inputProps}

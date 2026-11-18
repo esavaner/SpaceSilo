@@ -1,5 +1,4 @@
 import styled, { css } from 'styled-components';
-import { Link, LinkProps } from 'react-router';
 import { theme } from '../config/theme';
 import { Loader } from './loader';
 
@@ -242,26 +241,18 @@ type CommonProps = {
 type ButtonProps = CommonProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
     href?: undefined;
-    to?: undefined;
   };
 
 type AnchorProps = CommonProps &
   React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     href: string;
-    to?: undefined;
   };
 
-type RouterLinkProps = CommonProps &
-  Omit<LinkProps, 'to'> & {
-    to: LinkProps['to'];
-    href?: undefined;
-  };
-
-type Props = ButtonProps | AnchorProps | RouterLinkProps;
+type Props = ButtonProps | AnchorProps;
 
 export const Button = ({ variant = 'primary', loading, size = 'medium', children, center, style, ...props }: Props) => {
-  const { href, to, disabled } = props as AnchorProps & RouterLinkProps & ButtonProps;
-  const component = to != null ? Link : href != null ? 'a' : undefined;
+  const { href, disabled } = props as AnchorProps & ButtonProps;
+  const component = href != null ? 'a' : undefined;
 
   return (
     <StyledButton

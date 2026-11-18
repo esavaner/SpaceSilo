@@ -1,6 +1,6 @@
 import { forwardRef, useId } from 'react';
 import styled from 'styled-components';
-import { InfoIcon } from '../assets/icons';
+import { Info } from '../assets/icons';
 import {
   commonInputStyles,
   InputInfo,
@@ -65,13 +65,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           />
           {hasInfo && (
             <InputInfo id={infoMessageId} role="status" aria-live="polite">
-              <InfoIcon />
+              <Info />
               {info}
             </InputInfo>
           )}
           {hasError && (
             <InputInfo id={errorMessageId} role="alert" aria-live="assertive" $isError>
-              <InfoIcon />
+              <Info />
               {error}
             </InputInfo>
           )}

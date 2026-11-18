@@ -1,19 +1,20 @@
 import { createGlobalStyle, css } from 'styled-components';
 
-import LatoBlack from '../assets/fonts/Lato/Lato-Black.woff2';
-import LatoBlackItalic from '../assets/fonts/Lato/Lato-BlackItalic.woff2';
-import LatoBold from '../assets/fonts/Lato/Lato-Bold.woff2';
-import LatoBoldItalic from '../assets/fonts/Lato/Lato-BoldItalic.woff2';
-import LatoItalic from '../assets/fonts/Lato/Lato-Italic.woff2';
-import LatoLight from '../assets/fonts/Lato/Lato-Light.woff2';
-import LatoLightItalic from '../assets/fonts/Lato/Lato-LightItalic.woff2';
-import LatoRegular from '../assets/fonts/Lato/Lato-Regular.woff2';
-import LatoThin from '../assets/fonts/Lato/Lato-Thin.woff2';
-import LatoThinItalic from '../assets/fonts/Lato/Lato-ThinItalic.woff2';
-import LoraVariable from '../assets/fonts/Lora/Lora-VariableFont_wght.woff2';
-import LoraVariableItalic from '../assets/fonts/Lora/Lora-Italic-VariableFont_wght.woff2';
 import { theme } from './theme';
-import NoiseImage from '../assets/images/noise.webp';
+import { NoiseImage } from '../assets/images';
+
+const LatoBlack = new URL('../assets/fonts/Lato/Lato-Black.woff2', import.meta.url).href;
+const LatoBlackItalic = new URL('../assets/fonts/Lato/Lato-BlackItalic.woff2', import.meta.url).href;
+const LatoBold = new URL('../assets/fonts/Lato/Lato-Bold.woff2', import.meta.url).href;
+const LatoBoldItalic = new URL('../assets/fonts/Lato/Lato-BoldItalic.woff2', import.meta.url).href;
+const LatoItalic = new URL('../assets/fonts/Lato/Lato-Italic.woff2', import.meta.url).href;
+const LatoLight = new URL('../assets/fonts/Lato/Lato-Light.woff2', import.meta.url).href;
+const LatoLightItalic = new URL('../assets/fonts/Lato/Lato-LightItalic.woff2', import.meta.url).href;
+const LatoRegular = new URL('../assets/fonts/Lato/Lato-Regular.woff2', import.meta.url).href;
+const LatoThin = new URL('../assets/fonts/Lato/Lato-Thin.woff2', import.meta.url).href;
+const LatoThinItalic = new URL('../assets/fonts/Lato/Lato-ThinItalic.woff2', import.meta.url).href;
+const LoraVariable = new URL('../assets/fonts/Lora/Lora-VariableFont_wght.woff2', import.meta.url).href;
+const LoraVariableItalic = new URL('../assets/fonts/Lora/Lora-Italic-VariableFont_wght.woff2', import.meta.url).href;
 
 const size = css`
   --spacing-50: 2px;
@@ -460,8 +461,9 @@ const fonts = [
 ].join('\n');
 
 export const globalStyleBase = css`
+  ${fonts}
+
   :root {
-    ${fonts ?? ''}
     ${fontSize ?? ''}
     ${size ?? ''}
     ${colors ?? ''}

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button as ButtonBase } from './button';
 import { Input } from './input';
-import { ArrowForwardIcon } from '../assets/icons';
+import { ArrowRight } from '../assets/icons';
 
 const Container = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const Button = styled(ButtonBase)`
 const ArrowButton = styled(Button)`
   background: transparent;
 `;
-const LeftArrow = styled(ArrowForwardIcon)`
+const LeftArrow = styled(ArrowRight)`
   transform: rotate(180deg);
 `;
 
@@ -108,7 +108,7 @@ export const Pagination = ({
           disabled={currentPage >= totalPages - 1}
           onClick={() => paginate(currentPage + 1)}
         >
-          <ArrowForwardIcon />
+          <ArrowRight />
         </ArrowButton>
       </Container>
     );
@@ -176,7 +176,7 @@ export const Pagination = ({
         disabled={currentPage >= totalPages - 1}
         onClick={() => paginate(currentPage + 1)}
       >
-        Next <ArrowForwardIcon />
+        Next <ArrowRight />
       </ArrowButton>
       {jumper && (
         <>

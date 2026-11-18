@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import styled from 'styled-components';
-import { CheckmarkIcon, DotIcon } from '../assets/icons';
+import { Check, Dot } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
 import { type InputProps } from './input';
 import { PasswordInput } from './password-input';
@@ -48,7 +48,7 @@ export const SetPasswordInput = forwardRef<HTMLInputElement, Props>(
         <RequirementList aria-label="Password requirements">
           {requirementStatuses.map((requirement) => (
             <Item key={requirement.id} $isMet={requirement.isMet} $isError={!!error}>
-              {requirement.isMet ? <CheckmarkIcon width={16} height={16} aria-hidden /> : <DotIcon aria-hidden />}
+              {requirement.isMet ? <Check width={16} height={16} aria-hidden /> : <Dot aria-hidden />}
               <Text.Caption color="inherit">{requirement.label}</Text.Caption>
             </Item>
           ))}

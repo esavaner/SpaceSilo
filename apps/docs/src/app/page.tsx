@@ -1,65 +1,155 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useSyncExternalStore } from 'react';
+import {
+  Button,
+  Checkbox,
+  Dropdown,
+  GlobalStyle,
+  Input,
+  Loader,
+  Modal,
+  ModalButtons,
+  ModalProvider,
+  ModalTitle,
+  OverflowFade,
+  Pagination,
+  PasswordInput,
+  PhoneInput,
+  Radio,
+  RadioGroup,
+  Select,
+  SetPasswordInput,
+  Text,
+  Textarea,
+  useModal,
+  usePagination,
+} from '@repo/shared/components';
+
+const options = ['Photos', 'Videos', 'Documents', 'Music', 'Archives'].map((label) => ({ label, value: label }));
+const rows = Array.from({ length: 95 }, (_, i) => i);
+const subscribeNoop = () => () => {};
+
+const DemoModal = () => {
+  const { closeModal } = useModal();
+  return (
+    <Modal>
+      <ModalTitle>Modal title</ModalTitle>
+      <Text.M>Modal content from the shared package.</Text.M>
+      <ModalButtons>
+        <Button variant="secondary" onClick={closeModal}>
+          Cancel
+        </Button>
+        <Button onClick={closeModal}>Confirm</Button>
+      </ModalButtons>
+    </Modal>
+  );
+};
+
+const Showcase = () => {
+  const { openModal } = useModal();
+  const [radio, setRadio] = useState('a');
+  const [password, setPassword] = useState('');
+  const [fullPageLoader, setFullPageLoader] = useState(false);
+  const { currentPage, paginate, totalCount, itemsPerPage } = usePagination(rows);
+
+  const showFullPageLoader = () => {
+    setFullPageLoader(true);
+    setTimeout(() => setFullPageLoader(false), 2000);
+  };
+
+  return (
+    <main style={{ display: 'grid', gap: 24, width: '100%', maxWidth: 720, margin: '0 auto', padding: 32 }}>
+      <Text.H1>
+        Shared <Text em="underline">components</Text>
+      </Text.H1>
+      <Text.H3>
+        Text <Text em="primary">em</Text> <Text em="circle">variants</Text>
+      </Text.H3>
+      <Text.M em="divider">divider</Text.M>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="tertiary">Tertiary</Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="link" href="#">
+          Link
+        </Button>
+        <Button size="small">Small</Button>
+        <Button size="large">Large</Button>
+        <Button loading>Loading</Button>
+        <Button disabled>Disabled</Button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <Button onClick={() => openModal(<DemoModal />)}>Open modal</Button>
+        <Button variant="secondary" onClick={showFullPageLoader}>
+          Full page loader
+        </Button>
+        <Dropdown
+          items={[
+            { label: 'Edit', onClick: () => {} },
+            { label: 'Delete', onClick: () => {}, color: 'var(--text-status-danger-default)' },
+          ]}
+        />
+      </div>
+
+      <Input label="Input" info="Helper info" />
+      <Input label="Input with error" error="Something went wrong" required />
+      <Input label="Disabled input" disabled />
+      <PasswordInput label="Password" />
+      <SetPasswordInput label="New password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <PhoneInput label="Phone" />
+      <Textarea label="Textarea" />
+      <Select label="Select" placeholder="Pick one" options={options} />
+      <Select label="Searchable select" options={options} searchable />
+      <Select label="Multi select" options={options} multiple searchable />
+      <Checkbox label="Checkbox" />
+      <Checkbox label="Checkbox with error" error="Required" />
+      <RadioGroup name="radio" legend="Radio group">
+        <Radio value="a" checked={radio === 'a'} onChange={() => setRadio('a')}>
+          Option A
+        </Radio>
+        <Radio value="b" checked={radio === 'b'} onChange={() => setRadio('b')} variant="vertical">
+          Option B
+        </Radio>
+        <Radio value="c" disabled>
+          Disabled
+        </Radio>
+      </RadioGroup>
+
+      <OverflowFade maxHeight={160}>
+        {rows.slice(0, 20).map((row) => (
+          <Text.M key={row}>Scrollable row {row + 1}</Text.M>
+        ))}
+      </OverflowFade>
+
+      <Pagination perPage={itemsPerPage} totalCount={totalCount} currentPage={currentPage} paginate={paginate} />
+      <Pagination
+        perPage={itemsPerPage}
+        totalCount={totalCount}
+        currentPage={currentPage}
+        paginate={paginate}
+        variant="simple"
+        jumper
+      />
+
+      <Loader block />
+      {fullPageLoader && <Loader fullPage />}
+    </main>
+  );
+};
 
 export default function Home() {
+  // shortcut: client-only because sc v7 prerelease nests styled elements differently on server vs client, shifting useId (hydration mismatch); drop once sc SSR output matches
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  if (!mounted) return null;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <ModalProvider>
+      <GlobalStyle />
+      <Showcase />
+    </ModalProvider>
   );
 }

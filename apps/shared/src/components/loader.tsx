@@ -1,8 +1,7 @@
 import styled, { keyframes } from 'styled-components';
-import { LogoInvertedIcon, SpinIcon } from '../assets/icons';
+import { Orbit, LoaderCircle } from '../assets/icons';
 import { theme } from '../config/theme';
 import { useEffect } from 'react';
-import { usePartnerBranding } from '../context/partner-branding';
 import { NoiseImage, ShapesAnimationImage } from '../assets/images';
 
 const spin = keyframes`
@@ -15,7 +14,7 @@ const resize = keyframes`
   100% { transform: scale(1) }
 `;
 
-const Spinner = styled(SpinIcon)<{ $size: number; $color: string }>`
+const Spinner = styled(LoaderCircle)<{ $size: number; $color: string }>`
   width: ${({ $size }) => `calc(${$size}rem/16)`};
   height: ${({ $size }) => `calc(${$size}rem/16)`};
   stroke: ${({ $color }) => $color};
@@ -91,7 +90,7 @@ const LogoContainer = styled.div`
     height: auto;
   }
 `;
-const DefaultLogo = styled(LogoInvertedIcon)`
+const DefaultLogo = styled(Orbit)`
   animation: ${resize} 2s ease-in-out infinite;
   margin: auto;
 `;
@@ -125,8 +124,6 @@ export const Loader = ({ block, fullPage, size, color = 'var(--text-brand)', ...
     ...rest,
   } as const;
 
-  const { logo } = usePartnerBranding();
-
   useEffect(() => {
     if (fullPage) {
       document.body.style.overflow = 'hidden';
@@ -139,14 +136,9 @@ export const Loader = ({ block, fullPage, size, color = 'var(--text-brand)', ...
   if (fullPage) {
     return (
       <FullPageWrapper {...props}>
-        {logo ? (
-          <>
-            <LogoContainer>{logo}</LogoContainer>
-            <LogoInvertedIcon />
-          </>
-        ) : (
+        <LogoContainer>
           <DefaultLogo />
-        )}
+        </LogoContainer>
       </FullPageWrapper>
     );
   }

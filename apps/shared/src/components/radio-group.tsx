@@ -1,6 +1,6 @@
 import { Children, ReactElement, ReactNode, cloneElement, useId } from 'react';
 import styled from 'styled-components';
-import { InfoIcon } from '../assets/icons';
+import { Info } from '../assets/icons';
 import { theme } from '../config/theme';
 import { RadioProps } from './radio';
 import { InputInfo } from './input';
@@ -51,7 +51,7 @@ export const RadioGroup = ({ id, name, legend, children, error, ...rest }: Radio
       })}
       {isError && (
         <InputInfo id={messageId} $isError role="alert" aria-live="assertive" style={{ paddingTop: 2 }}>
-          <InfoIcon />
+          <Info />
           {error}
         </InputInfo>
       )}
