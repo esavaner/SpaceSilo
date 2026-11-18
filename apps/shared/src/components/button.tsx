@@ -2,14 +2,7 @@ import styled, { css } from 'styled-components';
 import { theme } from '../config/theme';
 import { Loader } from './loader';
 
-type Variant =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'destructive'
-  | 'link'
-  // @TODO remove text
-  | 'text';
+type Variant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'link';
 type Size = 'small' | 'medium' | 'large';
 
 type StyleProps = {
@@ -114,25 +107,6 @@ const styles: Record<Variant, StyleProps> = {
       text-decoration: underline;
     `,
   },
-  // @TODO remove text
-  text: {
-    default: css`
-      color: var(--text-primary-default);
-      background: transparent;
-      border: 1px solid transparent;
-    `,
-    hover: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-tertiary-hover);
-      border: 1px solid transparent;
-    `,
-    clicked: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-tertiary-active);
-      border: 1px solid transparent;
-      outline-offset: 4px;
-    `,
-  },
 };
 
 type StyledProps = {
@@ -184,7 +158,7 @@ const StyledButton = styled.button<StyledProps>`
 
   ${({ $disabled, $variant }) =>
     $disabled
-      ? $variant === 'tertiary' || $variant === 'link' || $variant === 'text'
+      ? $variant === 'tertiary' || $variant === 'link'
         ? css`
             color: var(--text-disabled-disabled);
             background: transparent;
