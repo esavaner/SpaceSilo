@@ -28,32 +28,7 @@ Done and tested on a real device by the user:
 - `button`,
 - `pagination`,
 - `modal.tsx`, including the context lifecycle, fixed title/buttons, and synchronized web backdrop blur/dimming
-
-Still using the web version (`styled-components` and DOM elements):
-`dropdown` and `select`
-
-### Modal and loader handoff
-
-The user confirmed the final behavior works as expected. Modal conversion and full-page loader encapsulation are complete; continue with select and dropdown.
-
-- `modal.tsx`: React Native Modal with a centered desktop-web dialog and a bottom drawer below `theme.breakpointNumbers.sm` (768px) or on any native screen. Keeps scrollable content, keyboard avoidance, safe-area padding, close/backdrop/Escape/Android Back handling, and enter/exit animations.
-- No variant prop or full-screen mobile option. Modal does not render a form or accept `onSubmit`; place forms inside the body when needed.
-- Put `ModalTitle` and `ModalButtons` directly inside `Modal`: they stay outside the scrolling body and are always visible. Other children scroll between them.
-- Animations use the app's existing Reanimated/Worklets libraries. Raw animated layers keep animated styles outside styled-components. Native animation waits until shown/measured and translates by the drawer's height.
-- The user confirmed the Reanimated animation is smooth on native. On web, backdrop blur and tint share the same animated opacity layer; putting blur inside a fading parent isolates its backdrop and delays blur until opacity reaches 1.
-- Prefer `useModal().openModal(<Modal>...</Modal>)` and `useModal().closeModal()` from anywhere under the shared provider. `apps/native/src/app/_layout.tsx` now installs `ModalProvider` at app scope. The older `UiProvider` remains for existing native dialogs; it is a separate API.
-- The provider owns open/closing state, not animation timing. Modal calls `completeClose` after the exit animation finishes. Replacements are keyed and completion callbacks are scoped to the modal instance, so an old animation cannot dismiss a replacement.
-- `closeOverride` remains for existing locally controlled callers such as Select. Set an accessible dialog name and pass a translated `closeLabel`, e.g. `t('common.actions.close')`. The legacy English close label remains the default.
-- Direct imports: `@repo/shared/components/modal` and `@repo/shared/context/modal-provider`. Native callers need `SafeAreaProvider` (already present in the app root).
-- The test page keeps context-opened standard, long-content, backdrop-disabled, and replacement-while-closing examples inline in `IndexPage`. Stateful dialog content should own its own state instead of capturing changing page state in the node passed to `openModal`.
-- `Loader fullPage` encapsulates its own React Native Modal on web and native. Render it conditionally without an external modal. Optional `onRequestClose` handles Escape/Android Back; without it the loader blocks dismissal until unmounted.
-- Shared/native typechecks, targeted ESLint/Prettier, and Android/iOS bundle exports pass. Browser checks cover context opening/closing, replacement during closing, fixed title/footer positions, dismissal, absence of an implicit form, and backdrop blur during intermediate animation frames (including a rendered-pixel contrast check). Earlier checks also covered full-page loader coverage/scroll restoration. Final behavior was accepted by the user after these refinements.
-
-Next: select and dropdown.
-
-- Both must reuse this Modal on mobile web and native.
-- Select has an input-like trigger; dropdown accepts any trigger. Keep their menu behavior aligned; share implementation only where it is simpler than separate components.
-- `select.tsx` already uses `Input`, `InputIconButton`, and a locally controlled Modal on mobile web.
+  `dropdown` and `select`
 
 ## Workflow for each component
 
@@ -88,6 +63,9 @@ These are gotchas found while converting components:
 - **Icons:** export all icons from `apps/shared/src/assets/icons.ts`, using their original Lucide names and no `as` aliases. Native components need `lucide-react-native`. Don't pass `accessible={false}` to an SVG icon, because it causes a DOM warning on web. `aria-hidden` is fine.
 - **Accessibility props:** use `role`, `aria-*`, and `accessibilityLabel`/`accessibilityState`. react-native-web maps them to the DOM.
 - **Modal backdrop hit testing:** use a plain React Native `View` with `pointerEvents="box-none"` for the positioning layer. The styled View dropped that prop on web, blocking backdrop presses.
+- **Taps inside an inline Modal while the keyboard is open:** RN Modal touches still bubble through the React ancestors. A page `ScrollView` with the default `keyboardShouldPersistTaps="never"` takes the first tap just to close the keyboard. `BaseLayout` now defaults it to `"handled"`. Other page-level ScrollViews hosting Select need the same setting.
+- **Pressable style functions on web:** styled-components/native drops `style={({ pressed }) => ...}` on react-native-web. Put persistent state (selected, disabled) in transient props in the CSS. Keep the style function only for native pressed feedback, and return `null` when not pressed; an `undefined` value overrides the CSS.
+- **Lucide icons on web use `currentColor`,** which is white in this app. Wrap caller-supplied icons in a View with CSS `color` (as Input's `Icon` and Dropdown's `ItemIcon` do), or pass `color` explicitly.
 - **Theme tokens:** spacing, radius, border, and font size tokens are CSS strings that already include units. Use them directly.
 - **Line heights:** theme typography presets resolve their ratios against their font-size tokens into `rem`. Native percentage line heights use the inherited font size, so `120%` can resolve against 16px even when the preset sets 32px. H1 uses `2.4rem` to keep its intended 38.4px line height on both platforms.
 - **Localization:** user-facing strings in components and the app should go through i18n, with English keys in `apps/native/src/i18n/locales/en.json`. The test page is the one exception.

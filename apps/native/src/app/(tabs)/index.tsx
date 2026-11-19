@@ -15,6 +15,8 @@ import { OverflowFade } from '@repo/shared/components/overflow-fade';
 import { Button } from '@repo/shared/components/button';
 import { Pagination } from '@repo/shared/components/pagination';
 import { Modal, ModalButtons, ModalError, ModalTitle } from '@repo/shared/components/modal';
+import { Select } from '@repo/shared/components/select';
+import { Dropdown } from '@repo/shared/components/dropdown';
 import { useModal } from '@repo/shared/context/modal-provider';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
@@ -46,6 +48,18 @@ export default function IndexPage() {
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState('blue');
+  const [selectedColors, setSelectedColors] = useState<string[]>(['green']);
+  const [lastAction, setLastAction] = useState('');
+  const colorOptions = [
+    { label: 'Blue', value: 'blue' },
+    { label: 'Green', value: 'green' },
+    { label: 'Red', value: 'red' },
+    ...Array.from({ length: 20 }, (_, index) => ({
+      label: `Color ${index + 1}`,
+      value: `color-${index + 1}`,
+    })),
+  ];
 
   const openExample = (example: 'standard' | 'long' | 'locked') =>
     openModal(
@@ -91,6 +105,64 @@ export default function IndexPage() {
   return (
     <>
       <BaseLayout className="bg-white">
+        <Section>
+          <SectionHeader>Select and dropdown</SectionHeader>
+          <Select
+            label="Favorite color"
+            options={colorOptions}
+            value={selectedColor}
+            onValueChange={setSelectedColor}
+            searchable
+            closeLabel="Close colors"
+          />
+          <Text.S>Selected color: {selectedColor}</Text.S>
+          <Select
+            label="Multiple colors"
+            options={colorOptions}
+            value={selectedColors}
+            onValuesChange={setSelectedColors}
+            multiple
+            searchable
+            closeLabel="Close multiple colors"
+            removeLabel={(label) => `Remove ${label}`}
+          />
+          <Text.S>Selected colors: {selectedColors.join(', ')}</Text.S>
+          <Select label="Uncontrolled color" options={colorOptions} defaultValue="red" />
+          <Select label="Required color" options={colorOptions} error="Please choose a color." required />
+          <Select label="Disabled color" options={colorOptions} defaultValue="green" disabled />
+          <Select label="Empty colors" options={[]} noOptionsLabel="No colors available" />
+          <Dropdown
+            label="Color actions"
+            closeLabel="Close actions"
+            trigger={<Text.M>Custom action trigger</Text.M>}
+            items={[
+              { label: 'Use blue', icon: <Eye size={20} />, onClick: () => setLastAction('blue') },
+              undefined,
+              { label: 'Unavailable action', disabled: true, onClick: () => setLastAction('disabled') },
+              { label: 'Use red', color: '#b42318', onClick: () => setLastAction('red') },
+            ]}
+          />
+          <Dropdown
+            label="Default actions"
+            items={[{ label: 'Reset color', onClick: () => setSelectedColor('blue') }]}
+          />
+          <Dropdown
+            label="Button actions"
+            trigger={(props) => (
+              <Button {...props} variant="secondary">
+                Button trigger
+              </Button>
+            )}
+            items={[{ label: 'Use green', onClick: () => setLastAction('green') }]}
+          />
+          <Dropdown
+            label="Disabled actions"
+            disabled
+            trigger={<Text.M>Disabled trigger</Text.M>}
+            items={[{ label: 'Unavailable', onClick: () => setLastAction('disabled') }]}
+          />
+          <Text.S>Last action: {lastAction || 'none'}</Text.S>
+        </Section>
         <Section>
           <SectionHeader>Shared text</SectionHeader>
           <Text.S center italic weight={700} color="#307467">

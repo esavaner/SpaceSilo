@@ -33,6 +33,14 @@
       "types": "./dist/components/modal.d.ts",
       "default": "./dist/components/modal.js"
     },
+    "./components/select": {
+      "types": "./dist/components/select.d.ts",
+      "default": "./dist/components/select.js"
+    },
+    "./components/dropdown": {
+      "types": "./dist/components/dropdown.d.ts",
+      "default": "./dist/components/dropdown.js"
+    },
     "./context/modal-provider": {
       "types": "./dist/context/modal-provider.d.ts",
       "default": "./dist/context/modal-provider.js"

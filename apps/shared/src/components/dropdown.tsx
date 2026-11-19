@@ -1,183 +1,255 @@
-import { useEffect, useRef, useState } from 'react';
-import type { KeyboardEvent, ReactNode } from 'react';
-import styled from 'styled-components';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
+import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Text } from './text';
+import { Modal, ModalTitle } from './modal';
 
 export type DropdownItem =
   | {
-      label: React.ReactNode;
+      label: ReactNode;
       onClick: () => void;
       icon?: ReactNode;
       color?: string;
+      disabled?: boolean;
     }
   | undefined;
 
-const Root = styled.div`
+const Root = styled.View`
   position: relative;
-  display: inline-block;
 `;
 
-const Trigger = styled.div`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const Menu = styled.div`
+const Menu = styled.View`
   position: absolute;
-  top: calc(100% + 10px);
+  top: 100%;
   right: 0;
-  z-index: ${theme.zIndex.dropdown};
   min-width: 150px;
-  padding: 0;
-  border-radius: ${theme.radius[400]};
-  background: ${theme.colors.surface.weak};
+  margin-top: ${theme.spacing[200]};
+  padding: ${theme.spacing[300]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.weak};
   box-shadow: 0 4px 24px rgba(162, 174, 169, 0.46);
-  overflow: hidden;
 `;
 
-const ItemButton = styled.button`
-  display: grid;
-  grid-template-columns: 22px 1fr;
+const Trigger = styled.Pressable`
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+`;
+
+// Pressed feedback lives in the native-only style function; react-native-web drops Pressable style functions here.
+export const DropdownOption = styled.Pressable<{ $selected?: boolean; $disabled?: boolean }>`
+  flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};
-  width: 100%;
-  padding: ${theme.spacing[400]} ${theme.spacing[800]} ${theme.spacing[300]};
-  border: 0;
-  border-bottom: 1px solid ${theme.colors.border.default};
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.1s ease-in-out;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover,
-  &:focus-visible {
-    background: ${theme.colors.surface.medium};
-    outline: none;
-  }
-
-  svg {
-    width: 22px;
-    height: 22px;
-    color: inherit;
-    flex-shrink: 0;
+  min-height: 44px;
+  padding: ${theme.spacing[300]} ${theme.spacing[200]};
+  border-radius: ${theme.radius[200]};
+  background-color: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : 'transparent')};
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      &:hover:not(:disabled),
+      &:focus-visible {
+        background-color: ${theme.colors.surface.medium};
+        outline: none;
+      }
+    `
   }
 `;
 
-const Label = styled(Text)`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing[200]};
-  white-space: nowrap;
-  color: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  padding-bottom: 2px;
+// Web lucide icons use currentColor; native callers still pass `color` explicitly.
+const ItemIcon = styled.View<{ $color?: string }>`
+  color: ${({ $color }) => $color ?? theme.colors.text.default};
 `;
 
-const MoreOptions = styled.span`
-  font-size: 26px;
-  line-height: 1;
-  cursor: pointer;
-`;
-
-type Props = {
-  items: DropdownItem[];
-  onSelect?: (data: React.ReactNode) => void;
-  trigger?: ReactNode;
+type MenuState = {
+  isOpen: boolean;
+  isMobile: boolean;
+  toggle: () => void;
+  close: () => void;
+  menuId: string;
 };
 
-export const Dropdown = ({ items, onSelect, trigger }: Props) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+/** Shared presentation; the viewport is sampled only when opening. */
+export const DropdownMenu = ({
+  trigger,
+  children,
+  label,
+  closeLabel,
+  onClose,
+  style,
+  matchTriggerWidth,
+}: {
+  trigger: (state: MenuState) => ReactNode;
+  children: (state: MenuState) => ReactNode;
+  label?: string;
+  closeLabel?: string;
+  onClose?: () => void;
+  style?: ViewProps['style'];
+  matchTriggerWidth?: boolean;
+}) => {
+  const rootId = `dropdown-${useId().replace(/:/g, '')}`;
+  const menuId = `${rootId}-menu`;
+  const [presentation, setPresentation] = useState<{ isMobile: boolean; closing?: boolean } | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const isOpen = presentation !== null;
+
+  const finishClose = () => {
+    setPresentation(null);
+    onCloseRef.current?.();
+    if (Platform.OS === 'web' && presentation && !presentation.isMobile) {
+      document.getElementById(rootId)?.querySelector<HTMLElement>('[aria-haspopup]')?.focus();
+    }
+  };
+  // Mobile lets Modal play its exit animation; Modal calls finishClose when done.
+  const close = () => {
+    if (presentation?.isMobile) setPresentation({ isMobile: true, closing: true });
+    else finishClose();
+  };
+  const toggle = () => {
+    if (isOpen) close();
+    else {
+      setPresentation({
+        isMobile: Platform.OS !== 'web' || window.innerWidth <= theme.breakpointNumbers.sm,
+      });
+    }
+  };
 
   useEffect(() => {
-    if (!isVisible) {
-      return;
-    }
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (menuRef.current?.contains(target) || triggerRef.current?.contains(target)) {
+    if (Platform.OS !== 'web' || !presentation || presentation.isMobile) return;
+    const root = document.getElementById(rootId);
+    const dismiss = () => {
+      setPresentation(null);
+      onCloseRef.current?.();
+    };
+    const onOutsidePress = (event: PointerEvent) => {
+      if (event.target instanceof Node && !root?.contains(event.target)) dismiss();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        dismiss();
+        root?.querySelector<HTMLElement>('[aria-haspopup]')?.focus();
         return;
       }
-
-      setIsVisible(false);
-    };
-
-    const handleEscape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsVisible(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown, true);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown, true);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isVisible]);
-
-  const toggle = () => {
-    setIsVisible((prevState) => !prevState);
-  };
-
-  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+      if (!root?.contains(document.activeElement)) return;
+      const options = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '[role="option"]:not([aria-disabled="true"]), [role="menuitem"]:not([aria-disabled="true"])'
+        )
+      );
+      if (!options.length) return;
+      const index = options.findIndex((option) => option === document.activeElement);
+      let nextIndex: number;
+      if (event.key === 'ArrowDown') nextIndex = (index + 1) % options.length;
+      else if (event.key === 'ArrowUp') nextIndex = index <= 0 ? options.length - 1 : index - 1;
+      else if (index >= 0 && event.key === 'Home') nextIndex = 0;
+      else if (index >= 0 && event.key === 'End') nextIndex = options.length - 1;
+      else return;
       event.preventDefault();
-      toggle();
-    }
+      options[nextIndex]?.focus();
+    };
+    document.addEventListener('pointerdown', onOutsidePress, true);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', onOutsidePress, true);
+      document.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [presentation, rootId]);
 
-    if (event.key === 'Escape') {
-      setIsVisible(false);
-    }
-  };
-
-  const handleItemClick = (item: DropdownItem) => () => {
-    item!.onClick();
-    setIsVisible(false);
-    onSelect?.(item!.label);
-  };
+  const state = { isOpen, isMobile: presentation?.isMobile ?? Platform.OS !== 'web', toggle, close, menuId };
 
   return (
-    <Root>
-      <Trigger
-        ref={triggerRef}
-        role="button"
-        tabIndex={0}
-        aria-haspopup="menu"
-        aria-expanded={isVisible}
-        onClick={toggle}
-        onKeyDown={handleTriggerKeyDown}
-      >
-        {trigger ?? <MoreOptions>&#x22EE;</MoreOptions>}
-      </Trigger>
-      {isVisible ? (
-        <Menu ref={menuRef} role="menu">
-          {items.filter(Boolean).map((item, index) => (
-            <ItemButton
-              key={index}
-              type="button"
-              role="menuitem"
-              onClick={handleItemClick(item!)}
-              style={{ color: item!.color ?? theme.colors.text.default }}
-            >
-              {item!.icon}
-              <Label as="span">{item!.label}</Label>
-            </ItemButton>
-          ))}
-        </Menu>
-      ) : null}
+    <Root nativeID={rootId} style={[style, isOpen && !state.isMobile && { zIndex: theme.zIndex.dropdown }]}>
+      {trigger(state)}
+      {isOpen &&
+        (state.isMobile ? (
+          <Modal
+            closeOverride={finishClose}
+            closing={presentation.closing}
+            accessibilityLabel={label}
+            closeLabel={closeLabel}
+          >
+            {label && <ModalTitle>{label}</ModalTitle>}
+            {children(state)}
+          </Modal>
+        ) : (
+          <Menu style={matchTriggerWidth ? { left: 0 } : undefined}>{children(state)}</Menu>
+        ))}
     </Root>
   );
 };
+
+export type DropdownTriggerProps = PressableProps & {
+  'aria-haspopup': 'menu';
+  'aria-controls'?: string;
+};
+
+export type DropdownProps = {
+  items: DropdownItem[];
+  onSelect?: (data: ReactNode) => void;
+  trigger?: ReactNode | ((props: DropdownTriggerProps) => ReactNode);
+  label?: string;
+  closeLabel?: string;
+  disabled?: boolean;
+  style?: ViewProps['style'];
+};
+
+export const Dropdown = ({ items, onSelect, trigger, label, closeLabel, disabled, style }: DropdownProps) => (
+  <DropdownMenu
+    label={label}
+    closeLabel={closeLabel}
+    style={[{ alignSelf: 'flex-start' }, style]}
+    trigger={({ isOpen, toggle, menuId }) => {
+      const triggerProps: DropdownTriggerProps = {
+        role: 'button',
+        accessibilityLabel: label,
+        accessibilityState: { expanded: isOpen, disabled },
+        'aria-haspopup': 'menu',
+        'aria-expanded': isOpen,
+        'aria-controls': isOpen ? menuId : undefined,
+        disabled,
+        onPress: toggle,
+        style: { opacity: disabled ? 0.5 : 1 },
+      };
+      return typeof trigger === 'function' ? (
+        trigger(triggerProps)
+      ) : (
+        <Trigger {...triggerProps}>{trigger ?? <Text.H3>{'\u22EE'}</Text.H3>}</Trigger>
+      );
+    }}
+  >
+    {({ close, menuId }) => (
+      <View nativeID={menuId} role="menu" accessibilityLabel={label}>
+        {items.map(
+          (item, index) =>
+            item && (
+              <DropdownOption
+                key={index}
+                role="menuitem"
+                disabled={item.disabled}
+                $disabled={item.disabled}
+                accessibilityState={{ disabled: item.disabled }}
+                style={({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.medium } : null)}
+                onPress={() => {
+                  close();
+                  item.onClick();
+                  onSelect?.(item.label);
+                }}
+              >
+                {item.icon && <ItemIcon $color={item.color}>{item.icon}</ItemIcon>}
+                <Text.S color={item.color ?? theme.colors.text.default}>{item.label}</Text.S>
+              </DropdownOption>
+            )
+        )}
+      </View>
+    )}
+  </DropdownMenu>
+);

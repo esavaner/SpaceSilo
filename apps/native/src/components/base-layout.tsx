@@ -22,8 +22,9 @@ export const BaseLayout = ({ children, className, header, headerClassName, scrol
         </View>
       ) : null}
 
+      {/* RN Modal touches bubble through React ancestors; "never" would eat the first tap while typing in one. */}
       {scrollable ? (
-        <ScrollView {...props} className="relative flex-1 bg-background">
+        <ScrollView keyboardShouldPersistTaps="handled" {...props} className="relative flex-1 bg-background">
           {content}
         </ScrollView>
       ) : (

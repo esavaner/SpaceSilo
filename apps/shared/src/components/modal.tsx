@@ -79,6 +79,8 @@ const CloseButton = styled.Pressable`
 export type ModalProps = ViewProps & {
   className?: string;
   closeOverride?: () => void;
+  /** With closeOverride: start the exit animation from outside; closeOverride runs when it ends. */
+  closing?: boolean;
   /** Pass a translated label, e.g. t('common.actions.close'). */
   closeLabel?: string;
   disableClickOutside?: boolean;
@@ -91,6 +93,7 @@ export const Modal = ({
   children,
   style,
   closeOverride,
+  closing,
   closeLabel = 'Close modal',
   disableClickOutside,
   accessibilityLabel,
@@ -106,8 +109,8 @@ export const Modal = ({
   const [isShown, setIsShown] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
   const [locallyClosing, setLocallyClosing] = useState(false);
-  const isClosing = closeOverride ? locallyClosing : !!context?.isClosing;
-  const drawer = Platform.OS !== 'web' || width < theme.breakpointNumbers.sm;
+  const isClosing = closeOverride ? locallyClosing || !!closing : !!context?.isClosing;
+  const drawer = Platform.OS !== 'web' || width <= theme.breakpointNumbers.sm;
   const maxWidth = drawer ? width : Math.min(840, Math.max(0, width - insets.left - insets.right - 32));
   const childArray = Children.toArray(children);
   const titles = childArray.filter((child) => isValidElement(child) && child.type === ModalTitle);
