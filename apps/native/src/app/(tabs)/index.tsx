@@ -1,7 +1,6 @@
 // Test page: keep example text here; do not add translations for this file.
 import { useRootNavigationState } from 'expo-router';
 import { BaseLayout } from '@/components/base-layout';
-import { Button } from '@/components/general/button';
 import { useEffect, useState } from 'react';
 import { Modal } from 'react-native';
 import { Text } from '@repo/shared/components/text';
@@ -14,6 +13,8 @@ import { PhoneInput } from '@repo/shared/components/phone-input';
 import { Radio } from '@repo/shared/components/radio';
 import { RadioGroup } from '@repo/shared/components/radio-group';
 import { OverflowFade } from '@repo/shared/components/overflow-fade';
+import { Button } from '@repo/shared/components/button';
+import { Pagination } from '@repo/shared/components/pagination';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
@@ -42,6 +43,7 @@ export default function IndexPage() {
   const [storagePlan, setStoragePlan] = useState('personal');
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     if (!showFullPageLoader) return;
@@ -71,6 +73,36 @@ export default function IndexPage() {
           <Loader />
           <Loader block />
           <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
+        </Section>
+
+        <Section>
+          <SectionHeader>Button</SectionHeader>
+          <Button onPress={() => setUpdatesEnabled((enabled) => !enabled)}>Primary</Button>
+          <Button variant="secondary" onPress={() => setUpdatesEnabled((enabled) => !enabled)}>
+            Secondary
+          </Button>
+          <Button variant="tertiary">Tertiary</Button>
+          <Button variant="destructive">Destructive</Button>
+          <Button variant="link" href="#">
+            Link
+          </Button>
+          <Button size="small">Small</Button>
+          <Button size="large">Large</Button>
+          <Button loading>Loading</Button>
+          <Button disabled>Disabled</Button>
+        </Section>
+
+        <Section>
+          <SectionHeader>Pagination</SectionHeader>
+          <Pagination perPage={10} totalCount={80} currentPage={currentPage} paginate={setCurrentPage} />
+          <Pagination
+            perPage={10}
+            totalCount={80}
+            currentPage={currentPage}
+            paginate={setCurrentPage}
+            variant="simple"
+            jumper
+          />
         </Section>
 
         <Section>

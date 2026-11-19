@@ -21,6 +21,14 @@
       "types": "./dist/components/text.d.ts",
       "default": "./dist/components/text.js"
     },
+    "./components/button": {
+      "types": "./dist/components/button.d.ts",
+      "default": "./dist/components/button.js"
+    },
+    "./components/pagination": {
+      "types": "./dist/components/pagination.d.ts",
+      "default": "./dist/components/pagination.js"
+    },
     "./components/input": {
       "types": "./dist/components/input.d.ts",
       "default": "./dist/components/input.js"
@@ -77,7 +85,6 @@
     "@prisma/client": "7.3.0",
     "date-fns": "^4.4.0",
     "dotenv": "17.2.3",
-    "lucide-react": "^1.74.0",
     "lucide-react-native": "^1.66.0",
     "pg": "8.17.2",
     "styled-components": "7.0.0-prerelease-20261110053101",

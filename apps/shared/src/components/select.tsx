@@ -38,7 +38,9 @@ const SelectedValues = styled.span`
   align-items: center;
   gap: ${theme.spacing[100]};
 `;
-const ChipRemoveButton = styled(X)`
+const ChipRemoveButton = styled.span`
+  display: inline-flex;
+  box-sizing: border-box;
   width: 22px;
   height: 22px;
   padding: ${theme.spacing[100]};
@@ -442,7 +444,9 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
                                   selectOption(option);
                                 }
                               }}
-                            />
+                            >
+                              <X size={14} aria-hidden />
+                            </ChipRemoveButton>
                           )}
                         </SelectedValueChip>
                       ))

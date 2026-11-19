@@ -1,12 +1,14 @@
-import styled from 'styled-components';
-import { theme } from '../config/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ViewProps } from 'react-native';
+import styled from 'styled-components/native';
+import { theme } from '../config/theme';
 import { Button as ButtonBase } from './button';
 import { Input } from './input';
-import { ArrowRight } from '../assets/icons';
+import { ArrowLeft, ArrowRight } from '../assets/icons';
+import { Text } from './text';
 
-const Container = styled.div`
-  display: flex;
+const Container = styled.View`
+  flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[200]};
 `;
@@ -18,10 +20,6 @@ const Button = styled(ButtonBase)`
 const ArrowButton = styled(Button)`
   background: transparent;
 `;
-const LeftArrow = styled(ArrowRight)`
-  transform: rotate(180deg);
-`;
-
 const PageJumpInput = ({
   totalPages,
   defaultPage,
@@ -54,8 +52,8 @@ const PageJumpInput = ({
       style={{ textAlign: 'center', width: 64 }}
       onBlur={jump}
       onChangeText={(text) => setValue(text.replace(/\D/g, ''))}
-      onKeyPress={(e) => {
-        if (e.nativeEvent.key === 'Enter') {
+      onKeyPress={(event) => {
+        if (event.nativeEvent.key === 'Enter') {
           jump();
         }
       }}
@@ -63,7 +61,8 @@ const PageJumpInput = ({
   );
 };
 
-type Props = React.HTMLAttributes<HTMLDivElement> & {
+type Props = ViewProps & {
+  className?: string;
   perPage: number;
   currentPage: number;
   totalCount: number;
@@ -81,9 +80,8 @@ export const Pagination = ({
   jumper,
   ...rest
 }: Props) => {
-  // if there is only one page, don't show pagination
   if (totalCount <= perPage) {
-    return <></>;
+    return null;
   }
 
   const totalPages = Math.ceil(totalCount / perPage);
@@ -91,22 +89,22 @@ export const Pagination = ({
   if (variant === 'simple') {
     return (
       <Container {...rest}>
-        <ArrowButton variant="tertiary" disabled={currentPage <= 0} onClick={() => paginate(currentPage - 1)}>
-          <LeftArrow />
+        <ArrowButton variant="tertiary" disabled={currentPage <= 0} onPress={() => paginate(currentPage - 1)}>
+          <ArrowLeft />
         </ArrowButton>
         {jumper ? (
           <PageJumpInput key={currentPage} totalPages={totalPages} defaultPage={currentPage + 1} onJump={paginate} />
         ) : (
           <Button>{currentPage + 1}</Button>
         )}
-        /
+        <Text.M>/</Text.M>
         <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
           {totalPages}
         </Button>
         <ArrowButton
           variant="tertiary"
           disabled={currentPage >= totalPages - 1}
-          onClick={() => paginate(currentPage + 1)}
+          onPress={() => paginate(currentPage + 1)}
         >
           <ArrowRight />
         </ArrowButton>
@@ -117,23 +115,20 @@ export const Pagination = ({
   const leftDistance = currentPage;
   const rightDistance = totalPages - currentPage - 1;
 
-  // always show current item in the middle,
-  // if left / right distance are more than or equal to 4 -> show ...
-  // if left / right distance are less than 4 -> show all items from that side
   return (
     <Container {...rest}>
-      <ArrowButton variant="tertiary" disabled={currentPage <= 0} onClick={() => paginate(currentPage - 1)}>
-        <LeftArrow /> Previous
+      <ArrowButton variant="tertiary" disabled={currentPage <= 0} onPress={() => paginate(currentPage - 1)}>
+        <ArrowLeft /> Previous
       </ArrowButton>
       {leftDistance >= 4 && (
         <>
-          <Button onClick={() => paginate(0)} variant="tertiary">
+          <Button onPress={() => paginate(0)} variant="tertiary">
             1
           </Button>
           <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
             ...
           </Button>
-          <Button onClick={() => paginate(currentPage - 1)} variant="tertiary">
+          <Button onPress={() => paginate(currentPage - 1)} variant="tertiary">
             {currentPage}
           </Button>
         </>
@@ -142,9 +137,9 @@ export const Pagination = ({
         leftDistance < 4 &&
         Array(leftDistance)
           .fill(0)
-          .map((_, i) => (
-            <Button key={i} onClick={() => paginate(currentPage - i - 1)} variant="tertiary">
-              {currentPage - i}
+          .map((_, index) => (
+            <Button key={index} onPress={() => paginate(currentPage - index - 1)} variant="tertiary">
+              {currentPage - index}
             </Button>
           ))
           .reverse()}
@@ -153,20 +148,20 @@ export const Pagination = ({
         rightDistance < 4 &&
         Array(rightDistance)
           .fill(0)
-          .map((_, i) => (
-            <Button key={i} onClick={() => paginate(currentPage + i + 1)} variant="tertiary">
-              {currentPage + i + 2}
+          .map((_, index) => (
+            <Button key={index} onPress={() => paginate(currentPage + index + 1)} variant="tertiary">
+              {currentPage + index + 2}
             </Button>
           ))}
       {rightDistance >= 4 && (
         <>
-          <Button onClick={() => paginate(currentPage + 1)} variant="tertiary">
+          <Button onPress={() => paginate(currentPage + 1)} variant="tertiary">
             {currentPage + 2}
           </Button>
           <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
             ...
           </Button>
-          <Button onClick={() => paginate(totalPages - 1)} variant="tertiary">
+          <Button onPress={() => paginate(totalPages - 1)} variant="tertiary">
             {totalPages}
           </Button>
         </>
@@ -174,15 +169,15 @@ export const Pagination = ({
       <ArrowButton
         variant="tertiary"
         disabled={currentPage >= totalPages - 1}
-        onClick={() => paginate(currentPage + 1)}
+        onPress={() => paginate(currentPage + 1)}
       >
         Next <ArrowRight />
       </ArrowButton>
       {jumper && (
         <>
-          Go to{' '}
+          <Text.M>Go to</Text.M>
           <PageJumpInput key={currentPage} totalPages={totalPages} defaultPage={currentPage + 1} onJump={paginate} />
-          page
+          <Text.M>page</Text.M>
         </>
       )}
     </Container>
