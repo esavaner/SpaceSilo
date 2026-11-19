@@ -1,5 +1,6 @@
-import { forwardRef, InputHTMLAttributes, ReactNode, useId } from 'react';
-import styled, { css } from 'styled-components';
+import { Children, forwardRef, useId, useState, type AriaAttributes, type KeyboardEvent, type ReactNode } from 'react';
+import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
+import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
 import { CircleCheck } from '../assets/icons';
 
@@ -9,19 +10,18 @@ type StyledProps = {
   $disabled?: boolean;
   $isError?: boolean;
   $variant?: Variant;
+  $isActive?: boolean;
 };
 
-const HiddenInput = styled.input<StyledProps>`
-  position: absolute;
-  height: 1px;
-  width: 1px;
-  outline: none;
+const activeStyles = css`
+  background: ${theme.colors.surface.medium};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.active};
+  box-shadow: 0 0 0 1px ${theme.colors.border.input.active};
 `;
-const Label = styled.label<StyledProps>`
-  ${theme.text.button}
+
+const Label = styled.Pressable<StyledProps & { className?: string }>`
   position: relative;
   overflow: hidden;
-  display: flex;
   justify-content: center;
   align-items: center;
   transition:
@@ -42,46 +42,51 @@ const Label = styled.label<StyledProps>`
           gap: ${theme.spacing[200]};
         `
       : css`
+          flex-direction: row;
           padding: ${theme.spacing[200]} ${theme.spacing[400]};
           gap: ${theme.spacing[400]};
         `}
 
-  ${({ $disabled }) =>
+  ${({ $disabled, $isActive }) =>
     $disabled
       ? css`
-          color: ${theme.colors.text.disabled};
           background-color: ${theme.colors.disabled};
           box-shadow: none;
           cursor: not-allowed;
         `
       : css`
-          color: ${theme.colors.text.default};
           cursor: pointer;
 
-          &:hover {
-            background: ${theme.colors.surface.default};
-            border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.hover};
-            box-shadow: 0 0 0 4px #f7f3f0;
+          ${
+            Platform.OS === 'web' &&
+            css`
+              &:hover:not([aria-checked='true']) {
+                background: ${theme.colors.surface.default};
+                border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.hover};
+                box-shadow: 0 0 0 4px #f7f3f0;
+              }
+
+              &:active,
+              &:focus-visible {
+                ${activeStyles}
+              }
+            `
           }
 
-          &:active,
-          &:focus-within,
-          &:has(${HiddenInput}:checked) {
-            background: ${theme.colors.surface.medium};
-            border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.active};
-            box-shadow: 0 0 0 1px ${theme.colors.border.input.active};
-          }
+          ${$isActive && activeStyles}
         `}
 `;
+const LabelText = styled.Text<{ $disabled?: boolean }>`
+  ${theme.text.button}
+  color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
+  flex-shrink: 1;
+`;
 const Checkmark = styled(CircleCheck)`
-  color: ${theme.colors.primary.default};
   position: absolute;
   top: 8px;
   right: 12px;
-  width: 24px;
-  height: 24px;
 `;
-const Circle = styled.div`
+const Circle = styled.View`
   position: absolute;
   border-radius: ${theme.radius.full};
   border: ${theme.borderWeight[25]} solid ${theme.colors.border.primary.default};
@@ -91,40 +96,117 @@ const Circle = styled.div`
   height: 20px;
 `;
 
-export type RadioProps = InputHTMLAttributes<HTMLInputElement> & {
-  children?: ReactNode;
-  error?: string;
-  variant?: Variant;
-};
+export type RadioProps = Omit<PressableProps, 'children' | 'style'> &
+  Pick<AriaAttributes, 'aria-describedby' | 'aria-invalid'> & {
+    children?: ReactNode;
+    className?: string;
+    checked?: boolean;
+    defaultChecked?: boolean;
+    name?: string;
+    onValueChange?: (checked: boolean) => void;
+    required?: boolean;
+    error?: string;
+    variant?: Variant;
+    style?: ViewProps['style'];
+  };
 
-export const Radio = forwardRef<HTMLInputElement, RadioProps>(
-  ({ id, children, error, disabled, checked, className, style, variant = 'horizontal', ...rest }, ref) => {
-    const inputId = id || `radio-${useId().replace(/:/g, '')}`;
-    const labelId = `${inputId}-label`;
+export const Radio = forwardRef<View, RadioProps>(
+  (
+    {
+      id,
+      nativeID,
+      name,
+      children,
+      error,
+      disabled,
+      checked,
+      defaultChecked,
+      onValueChange,
+      onPress,
+      onFocus,
+      onBlur,
+      onPressIn,
+      onPressOut,
+      required,
+      accessibilityState,
+      accessibilityHint,
+      className,
+      style,
+      variant = 'horizontal',
+      ...rest
+    },
+    ref
+  ) => {
+    const generatedId = useId();
+    const inputId = id || nativeID || `${name || 'radio'}-${generatedId.replace(/:/g, '')}`;
+    const [internalChecked, setInternalChecked] = useState(!!defaultChecked);
+    const [isFocused, setIsFocused] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
+    const isControlled = checked !== undefined;
+    const isChecked = isControlled ? checked : internalChecked;
     const isError = !!error;
 
     return (
       <Label
-        id={labelId}
-        htmlFor={inputId}
-        $disabled={disabled}
+        {...rest}
+        ref={ref}
+        nativeID={inputId}
+        role="radio"
+        disabled={disabled}
+        accessibilityState={{ ...accessibilityState, checked: isChecked, disabled: !!disabled }}
+        accessibilityHint={accessibilityHint || error}
+        aria-checked={isChecked}
+        aria-invalid={isError || rest['aria-invalid']}
+        aria-required={required || undefined}
+        $disabled={!!disabled}
         $isError={isError}
         $variant={variant}
+        $isActive={isChecked || (Platform.OS !== 'web' && (isFocused || isPressed))}
         className={className}
         style={style}
+        onFocus={(event) => {
+          if (Platform.OS !== 'web') setIsFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          if (Platform.OS !== 'web') setIsFocused(false);
+          onBlur?.(event);
+        }}
+        onPressIn={(event) => {
+          if (Platform.OS !== 'web') setIsPressed(true);
+          onPressIn?.(event);
+        }}
+        onPressOut={(event) => {
+          if (Platform.OS !== 'web') setIsPressed(false);
+          onPressOut?.(event);
+        }}
+        onPress={(event) => {
+          if (!isChecked) {
+            if (!isControlled) setInternalChecked(true);
+            onValueChange?.(true);
+          }
+          onPress?.(event);
+        }}
+        {...(Platform.OS === 'web'
+          ? {
+              // React Native Web only handles Space automatically for button roles.
+              onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+                if (event.target === event.currentTarget && (event.key === ' ' || event.key === 'Spacebar')) {
+                  event.preventDefault();
+                  if (!disabled && !event.repeat) event.currentTarget.click();
+                }
+              },
+            }
+          : {})}
       >
-        <HiddenInput
-          ref={ref}
-          id={inputId}
-          type="radio"
-          disabled={disabled}
-          checked={checked}
-          $disabled={disabled}
-          aria-invalid={isError || undefined}
-          {...rest}
-        />
-        {children}
-        {checked ? <Checkmark /> : <Circle />}
+        {Children.map(children, (child) =>
+          typeof child === 'string' || typeof child === 'number' ? (
+            <LabelText $disabled={!!disabled}>{child}</LabelText>
+          ) : (
+            child
+          )
+        )}
+        {isChecked ? <Checkmark size={24} color={theme.colors.primary.default} aria-hidden /> : <Circle aria-hidden />}
       </Label>
     );
   }

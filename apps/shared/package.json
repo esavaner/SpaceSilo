@@ -40,6 +40,18 @@
     "./components/checkbox": {
       "types": "./dist/components/checkbox.d.ts",
       "default": "./dist/components/checkbox.js"
+    },
+    "./components/phone-input": {
+      "types": "./dist/components/phone-input.d.ts",
+      "default": "./dist/components/phone-input.js"
+    },
+    "./components/radio": {
+      "types": "./dist/components/radio.d.ts",
+      "default": "./dist/components/radio.js"
+    },
+    "./components/radio-group": {
+      "types": "./dist/components/radio-group.d.ts",
+      "default": "./dist/components/radio-group.js"
     }
   },
   "scripts": {

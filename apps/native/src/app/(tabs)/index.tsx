@@ -10,6 +10,9 @@ import { Textarea } from '@repo/shared/components/textarea';
 import { SetPasswordInput } from '@repo/shared/components/set-password-input';
 import { Loader } from '@repo/shared/components/loader';
 import { Checkbox } from '@repo/shared/components/checkbox';
+import { PhoneInput } from '@repo/shared/components/phone-input';
+import { Radio } from '@repo/shared/components/radio';
+import { RadioGroup } from '@repo/shared/components/radio-group';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
@@ -34,6 +37,8 @@ export default function IndexPage() {
   const [invalidValue, setInvalidValue] = useState('Invalid value');
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [storagePlan, setStoragePlan] = useState('personal');
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
 
@@ -77,6 +82,50 @@ export default function IndexPage() {
           />
           <Checkbox label="Agreement" error="Please confirm this choice." />
           <Checkbox label="Disabled checkbox" disabled defaultChecked />
+        </Section>
+
+        <Section>
+          <SectionHeader>Radio</SectionHeader>
+          <RadioGroup name="storage-plan" legend="Storage plan">
+            <Radio checked={storagePlan === 'personal'} onValueChange={() => setStoragePlan('personal')}>
+              Personal
+            </Radio>
+            <Radio checked={storagePlan === 'shared'} onValueChange={() => setStoragePlan('shared')}>
+              Shared
+            </Radio>
+            <Radio disabled>Unavailable</Radio>
+          </RadioGroup>
+          <Text.S>Selected plan: {storagePlan}</Text.S>
+          <RadioGroup name="upload-quality" legend="Upload quality" error="Choose an available quality.">
+            <Radio variant="vertical" defaultChecked>
+              Original
+              <Text.S>Keep full resolution</Text.S>
+            </Radio>
+            <Radio variant="vertical" disabled>
+              Ultra
+            </Radio>
+            <Radio variant="vertical">Compressed</Radio>
+          </RadioGroup>
+          <Radio error="This choice is invalid.">Radio with error</Radio>
+          <Radio disabled defaultChecked>
+            Disabled selected radio
+          </Radio>
+        </Section>
+
+        <Section>
+          <SectionHeader>Phone input</SectionHeader>
+          <PhoneInput
+            label="Phone number"
+            value={phone}
+            onValueChange={setPhone}
+            info="Enter a 10-digit phone number."
+          />
+          <PhoneInput
+            label="Phone number with error"
+            defaultValue="1234567890"
+            error="Please enter a valid phone number."
+          />
+          <PhoneInput label="Disabled phone number" defaultValue="1234567890" disabled />
         </Section>
 
         <Section>
