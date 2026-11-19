@@ -1,16 +1,10 @@
 import { Breadcrumb, type BreadcrumbItem } from '@/components/breadcrumb';
 import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/dropdowns/dropdown';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
 import { Search } from '@/components/search';
+import { Button, Dropdown, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Check, ChevronDown, Folder, Plus, Trash2, X } from 'lucide-react-native';
 import { type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 type LabelledOption<T extends string> = {
@@ -62,33 +56,33 @@ type GalleryBrowserHeaderProps<GroupBy extends string, ViewMode extends string, 
 };
 
 function OptionMenu<T extends string>({
+  label,
   options,
   value,
-  fallbackLabel,
   onChange,
 }: {
+  label: string;
   options: LabelledOption<T>[];
   value: T;
-  fallbackLabel: string;
   onChange: (value: T) => void;
 }) {
+  const colors = useThemeColors();
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">
-          <Text>{options.find((option) => option.value === value)?.label ?? fallbackLabel}</Text>
-          <Icon.ChevronDown className="text-foreground" />
+    <Dropdown
+      label={label}
+      trigger={(props) => (
+        <Button {...props} variant="secondary">
+          {options.find((option) => option.value === value)?.label}
+          <ChevronDown size={18} color={colors.text.default} aria-hidden />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {options.map((option) => (
-          <DropdownMenuItem key={option.value} onPress={() => onChange(option.value)}>
-            <Text className="flex-1">{option.label}</Text>
-            {value === option.value ? <Icon.Check className="text-foreground" /> : null}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+      items={options.map((option) => ({
+        label: option.label,
+        icon: option.value === value ? <Check size={18} color={colors.text.default} aria-hidden /> : undefined,
+        onClick: () => onChange(option.value),
+      }))}
+    />
   );
 }
 
@@ -120,11 +114,15 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
   onRestoreAll,
   onDeleteAll,
 }: GalleryBrowserHeaderProps<GroupBy, ViewMode, PendingAction>) {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const noServers = serverCount === 0;
+
   return (
     <View className="gap-4">
       <View className="flex-row flex-wrap items-start justify-between gap-3">
         <View className="gap-2">
-          <Text variant="h1">{title}</Text>
+          <Text.H1>{title}</Text.H1>
           {albumSearch ? (
             <Search
               className="w-full md:w-80"
@@ -143,43 +141,48 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
           {isTrashMode ? (
             <>
               <Button
-                variant="outline"
+                variant="secondary"
                 onPress={onRestoreAll}
-                disabled={serverCount === 0}
+                disabled={noServers}
                 loading={pendingAction === 'restore-all'}
               >
-                <Icon.Check className="text-foreground" />
-                <Text>Restore all</Text>
+                <Check size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
+                {t('gallery.actions.restoreAll')}
               </Button>
               <Button
                 variant="destructive"
                 onPress={onDeleteAll}
-                disabled={serverCount === 0}
+                disabled={noServers}
                 loading={pendingAction === 'delete-all'}
               >
-                <Icon.Trash className="text-white" />
-                <Text>Delete everything permanently</Text>
+                <Trash2 size={18} color={noServers ? colors.text.disabled : colors.text.inverted} aria-hidden />
+                {t('gallery.actions.deleteAll')}
               </Button>
             </>
           ) : (
             <>
               <OptionMenu
+                label={t('gallery.viewModes.label')}
                 options={viewModeOptions}
                 value={viewMode}
-                fallbackLabel="Photos only"
                 onChange={onViewModeChange}
               />
 
-              <OptionMenu options={groupByOptions} value={groupBy} fallbackLabel="Day" onChange={onGroupByChange} />
+              <OptionMenu
+                label={t('gallery.groupBy.label')}
+                options={groupByOptions}
+                value={groupBy}
+                onChange={onGroupByChange}
+              />
 
-              <Button variant="outline" onPress={onCreateAlbum} disabled={serverCount === 0}>
-                <Icon.Folder className="text-foreground" />
-                <Text>{breadcrumbItems.length > 0 ? 'New subalbum' : 'New album'}</Text>
+              <Button variant="secondary" onPress={onCreateAlbum} disabled={noServers}>
+                <Folder size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
+                {breadcrumbItems.length > 0 ? t('gallery.actions.newSubalbum') : t('gallery.actions.newAlbum')}
               </Button>
 
               <Button onPress={onUpload} loading={isUploading}>
-                <Icon.Add className="text-primary-foreground" />
-                <Text>Upload</Text>
+                <Plus size={18} color={colors.text.inverted} aria-hidden />
+                {t('gallery.actions.upload')}
               </Button>
             </>
           )}
@@ -187,48 +190,64 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
       </View>
 
       {isSelectionMode ? (
-        <View className="gap-2 rounded-lg border border-border bg-background p-3">
+        <View
+          className="gap-2 rounded-lg border p-3"
+          style={{ backgroundColor: colors.surface.default, borderColor: colors.border.default }}
+        >
           <View className="flex-row flex-wrap items-center gap-2">
-            <Button variant="ghost" size="icon" onPress={onClearSelection}>
-              <Icon.Close />
+            <Button
+              variant="tertiary"
+              size="small"
+              onPress={onClearSelection}
+              accessibilityLabel={t('gallery.actions.clearSelection')}
+            >
+              <X size={18} color={colors.text.default} aria-hidden />
             </Button>
-            <Text className="mr-auto">{selectedPhotoCountLabel}</Text>
+            <Text style={{ marginRight: 'auto' }}>{selectedPhotoCountLabel}</Text>
 
             {isTrashMode ? (
               <>
-                <Button variant="outline" onPress={onRestoreSelected} loading={pendingAction === 'restore'}>
-                  <Icon.Check className="text-foreground" />
-                  <Text>Restore selected</Text>
+                <Button variant="secondary" onPress={onRestoreSelected} loading={pendingAction === 'restore'}>
+                  <Check size={18} color={colors.text.default} aria-hidden />
+                  {t('gallery.actions.restoreSelected')}
                 </Button>
                 <Button
                   variant="destructive"
                   onPress={onDeleteSelectedPermanently}
                   loading={pendingAction === 'delete-permanently'}
                 >
-                  <Icon.Trash className="text-white" />
-                  <Text>Delete permanently</Text>
+                  <Trash2 size={18} color={colors.text.inverted} aria-hidden />
+                  {t('gallery.actions.deletePermanently')}
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="outline" onPress={onCreateAlbum} disabled={!hasSelectedServer}>
-                  <Icon.Folder className="text-foreground" />
-                  <Text>New album</Text>
+                <Button variant="secondary" onPress={onCreateAlbum} disabled={!hasSelectedServer}>
+                  <Folder
+                    size={18}
+                    color={hasSelectedServer ? colors.text.default : colors.text.disabled}
+                    aria-hidden
+                  />
+                  {t('gallery.actions.newAlbum')}
                 </Button>
-                <Button variant="outline" onPress={onAddToAlbum} disabled={!hasSelectedServer}>
-                  <Icon.Folder className="text-foreground" />
-                  <Text>Add to album</Text>
+                <Button variant="secondary" onPress={onAddToAlbum} disabled={!hasSelectedServer}>
+                  <Folder
+                    size={18}
+                    color={hasSelectedServer ? colors.text.default : colors.text.disabled}
+                    aria-hidden
+                  />
+                  {t('gallery.actions.addToAlbum')}
                 </Button>
-                <Button variant="outline" onPress={onTrashSelected} loading={pendingAction === 'trash'}>
-                  <Icon.Trash className="text-foreground" />
-                  <Text>Trash</Text>
+                <Button variant="secondary" onPress={onTrashSelected} loading={pendingAction === 'trash'}>
+                  <Trash2 size={18} color={colors.text.default} aria-hidden />
+                  {t('gallery.actions.trash')}
                 </Button>
               </>
             )}
           </View>
 
           {!isTrashMode && !hasSelectedServer ? (
-            <Text className="text-sm text-muted-foreground">Album actions require photos from a single server.</Text>
+            <Text.S color={theme.colors.text.secondary}>{t('gallery.singleServerRequired')}</Text.S>
           ) : null}
         </View>
       ) : null}

@@ -1,6 +1,5 @@
 import { BaseLayout } from '@/components/base-layout';
 import { GalleryBrowserHeader } from '@/components/gallery/GalleryBrowserHeader';
-import { Icon } from '@/components/general/icon';
 import {
   GalleryGrid,
   type GalleryAlbumItem,
@@ -8,7 +7,6 @@ import {
   type GalleryItem,
   type GalleryPhotoItem,
 } from '@/components/gallery/GalleryBrowserGrid';
-import { Text } from '@/components/general/text';
 import { GalleryAddToAlbumModal, GalleryCreateAlbumModal } from '@/components/modals/GalleryAlbum.modal';
 import { toast } from '@/lib/toast';
 import { resolveAppLanguage } from '@/i18n';
@@ -16,6 +14,8 @@ import { useServerContext, type ServerConnectionWithClient } from '@/providers/S
 import { useUi } from '@/providers/UiProvider';
 import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
+import { Text, theme, useThemeColors } from '@repo/shared/components';
+import { Folder } from 'lucide-react-native';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, pl } from 'date-fns/locale';
@@ -255,6 +255,7 @@ const groupGalleryItems = (
 export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode }) {
   const isTrashMode = mode === 'trash';
   const { i18n, t } = useTranslation();
+  const colors = useThemeColors();
   const { servers } = useServerContext();
   const { openModal } = useUi();
   const { clearSearch, query: albumSearchQuery, results: albumSearchResults, searchAlbums } = useAlbumSearch();
@@ -557,14 +558,18 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
     <Pressable
       key={`${album.serverId}:${album.id}`}
       onPress={() => handleSearchAlbumSelect(album)}
-      className="flex-row items-center gap-2 px-3 py-2 hover:bg-accent active:bg-accent"
+      className="flex-row items-center gap-2 px-3 py-2"
+      // react-native-web also passes `hovered`
+      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) =>
+        pressed || hovered ? { backgroundColor: colors.surface.stronger } : null
+      }
     >
-      <Icon.Folder className="text-primary" size={18} />
+      <Folder color={colors.text.brand} size={18} aria-hidden />
       <View className="flex-1 gap-0.5">
         <Text numberOfLines={1}>{album.name}</Text>
-        <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+        <Text.Caption color={theme.colors.text.secondary} numberOfLines={1}>
           {album.path.map((pathItem) => pathItem.name).join(' / ')}
-        </Text>
+        </Text.Caption>
       </View>
     </Pressable>
   ));
@@ -839,9 +844,9 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         <input ref={uploadInputRef} type="file" multiple onChange={handleFileInputChange} style={{ display: 'none' }} />
       ) : null}
 
-      {isPending ? <Text className="text-muted-foreground">{t('gallery.loading')}</Text> : null}
+      {isPending ? <Text color={theme.colors.text.secondary}>{t('gallery.loading')}</Text> : null}
       {!isPending && galleryItems.length === 0 ? (
-        <Text className="text-muted-foreground">
+        <Text color={theme.colors.text.secondary}>
           {isTrashMode
             ? t('gallery.empty.trash')
             : currentAlbum
@@ -862,10 +867,14 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       />
 
       {!isPending && hasMorePhotos && !isFetchingNextPage ? (
-        <Text className="pt-4 text-center text-muted-foreground">{t('gallery.scrollToLoadMore')}</Text>
+        <Text center color={theme.colors.text.secondary} style={{ paddingTop: 16 }}>
+          {t('gallery.scrollToLoadMore')}
+        </Text>
       ) : null}
       {isFetchingNextPage ? (
-        <Text className="pt-4 text-center text-muted-foreground">{t('gallery.loadingMore')}</Text>
+        <Text center color={theme.colors.text.secondary} style={{ paddingTop: 16 }}>
+          {t('gallery.loadingMore')}
+        </Text>
       ) : null}
 
       <GalleryLightbox

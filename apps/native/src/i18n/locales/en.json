@@ -392,14 +392,29 @@
     "scrollToLoadMore": "Scroll to load more items",
     "searchAlbumsPlaceholder": "Search albums",
     "selectionCount": "{{photoCount}} selected",
+    "selected": "Selected",
+    "singleServerRequired": "Album actions require photos from a single server.",
     "title": "Gallery",
     "trash": "Trash",
+    "actions": {
+      "addToAlbum": "Add to album",
+      "clearSelection": "Clear selection",
+      "deleteAll": "Delete everything permanently",
+      "deletePermanently": "Delete permanently",
+      "newAlbum": "New album",
+      "newSubalbum": "New subalbum",
+      "restoreAll": "Restore all",
+      "restoreSelected": "Restore selected",
+      "trash": "Trash",
+      "upload": "Upload"
+    },
     "empty": {
       "album": "This album is empty",
       "library": "No photos or albums yet",
       "trash": "Trash is empty"
     },
     "groupBy": {
+      "label": "Group by",
       "day": "Day",
       "month": "Month",
       "none": "None",
@@ -412,6 +427,7 @@
       "title": "Groups"
     },
     "viewModes": {
+      "label": "View",
       "albumsOnly": "Albums only",
       "photosAndAlbums": "Photos + albums",
       "photosNotInAlbumsOnly": "Photos not in albums only",
