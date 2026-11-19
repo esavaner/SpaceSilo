@@ -1,13 +1,4 @@
 {
-  "sharedText": {
-    "heading": "Shared text",
-    "body": "The same typography definition on web and native.",
-    "styled": "Centered, italic, bold, and colored.",
-    "emphasis": "Primary emphasis",
-    "underline": "Underline emphasis",
-    "circle": "Circle emphasis",
-    "divider": "Divider emphasis"
-  },
   "common": {
     "actions": {
       "add": "Add",

@@ -2,6 +2,7 @@ import { forwardRef, useId } from 'react';
 import styled from 'styled-components';
 import { theme } from '../config/theme';
 import { Info } from '../assets/icons';
+import { type ViewProps } from 'react-native';
 import {
   commonInputStyles,
   InputInfo,
@@ -25,7 +26,7 @@ export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & 
   hideLabel?: boolean;
   info?: string;
   error?: string;
-  wrapperStyle?: React.CSSProperties;
+  wrapperStyle?: ViewProps['style'];
 };
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -43,7 +44,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <InputWrapper style={wrapperStyle}>
         {!hideLabel && (
-          <InputLabel id={labelId} htmlFor={inputId}>
+          <InputLabel id={labelId} onPress={() => document.getElementById(inputId)?.focus()}>
             {label}
             {required && <span style={{ color: theme.colors.text.danger }}>*</span>}
           </InputLabel>

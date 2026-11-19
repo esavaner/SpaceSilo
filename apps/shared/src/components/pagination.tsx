@@ -49,14 +49,13 @@ const PageJumpInput = ({
     <Input
       hideLabel
       label="Jump to page"
-      type="text"
       inputMode="numeric"
       value={value}
       style={{ textAlign: 'center', width: 64 }}
       onBlur={jump}
-      onChange={(e) => setValue(e.target.value.replace(/\D/g, ''))}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
+      onChangeText={(text) => setValue(text.replace(/\D/g, ''))}
+      onKeyPress={(e) => {
+        if (e.nativeEvent.key === 'Enter') {
           jump();
         }
       }}

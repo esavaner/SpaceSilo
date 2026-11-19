@@ -1,9 +1,16 @@
-import styled from 'styled-components';
-import { css } from 'styled-components';
+import styled, { css } from 'styled-components/native';
+import {
+  Pressable,
+  TextInput,
+  type GestureResponderEvent,
+  type TextInputProps,
+  type ViewProps,
+  type PressableProps,
+} from 'react-native';
 import { theme } from '../config/theme';
 import { Text } from './text';
 import { Info } from '../assets/icons';
-import { forwardRef, JSX, useId } from 'react';
+import { forwardRef, JSX, useId, useRef } from 'react';
 
 export type InputInfoProps = {
   $isError?: boolean;
@@ -13,10 +20,10 @@ export type InputInfoProps = {
   $customInputDefaultStyle?: boolean;
 };
 
-export const InputWrapper = styled.div`
-  display: grid;
+export const InputWrapper = styled.Pressable.attrs({ accessible: false })`
+  display: flex;
 `;
-export const InputLabel = styled.label`
+export const InputLabel = styled(Text.FormLabel)`
   ${theme.text.formLabel}
   color: ${theme.colors.text.default};
   display: flex;
@@ -25,17 +32,17 @@ export const InputLabel = styled.label`
   padding-left: ${theme.spacing[150]};
   width: fit-content;
 `;
-export const InputContainer = styled.div`
+export const InputContainer = styled.View`
   position: relative;
   border-radius: ${theme.radius[300]};
   background: ${theme.colors.surface.weak};
 `;
-const Icon = styled.div<{ $left?: boolean }>`
+const Icon = styled.View.attrs({ pointerEvents: 'none' })<{ $left?: boolean }>`
   position: absolute;
+  z-index: ${theme.zIndex.raised};
   top: 25px;
   transform: translateY(-50%);
   color: ${theme.colors.text.secondary};
-  pointer-events: none;
 
   ${({ $left }) =>
     $left
@@ -58,7 +65,14 @@ export const commonInputStyles = css<InputInfoProps>`
   padding-left: ${({ $hasIconLeft }) => ($hasIconLeft ? `${theme.spacing[1200]}` : `${theme.spacing[400]}`)};
   border-radius: ${theme.radius[300]};
   background-color: ${({ $disabled }) => ($disabled ? theme.colors.disabled : theme.colors.surface.weak)};
-  border: 1px solid ${({ $isError }) => ($isError ? theme.colors.text.danger : theme.colors.border.input.default)};
+  border: 1px solid
+    ${({ $isError, $disabled }) =>
+      $disabled
+        ? theme.colors.border.disabled
+        : $isError
+          ? theme.colors.text.danger
+          : theme.colors.border.input.default};
+  color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
   cursor: pointer;
 `;
 export const inputStateStyles = css`
@@ -78,11 +92,11 @@ export const inputStateStyles = css`
     cursor: not-allowed;
   }
 `;
-const StyledInput = styled.input<InputInfoProps>`
+const StyledInput = styled.TextInput<InputInfoProps>`
   ${commonInputStyles}
   ${inputStateStyles}
 `;
-const CustomInputWrapper = styled.div<InputInfoProps>`
+const CustomInputWrapper = styled.View<InputInfoProps>`
   ${({ $customInputDefaultStyle, $disabled }) =>
     $customInputDefaultStyle
       ? ''
@@ -118,7 +132,10 @@ export const InputInfo = styled(Text.FormMessage)<InputInfoProps>`
   }
 `;
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+/** Uses TextInput props and refs on native and React Native Web. */
+export type InputProps = TextInputProps & {
+  disabled?: boolean;
+  required?: boolean;
   label?: string;
   hideLabel?: boolean;
   info?: string;
@@ -129,11 +146,11 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   leftIconComponent?: JSX.Element;
   customInput?: JSX.Element;
   customInputDefaultStyle?: boolean;
-  wrapperStyle?: React.CSSProperties;
-  wrapperOnClick?: React.MouseEventHandler<HTMLDivElement>;
+  wrapperStyle?: ViewProps['style'];
+  wrapperOnPress?: PressableProps['onPress'];
 };
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const Input = forwardRef<TextInput, InputProps>(
   (
     {
       hideLabel,
@@ -146,20 +163,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       customInput,
       customInputDefaultStyle = false,
       wrapperStyle,
-      wrapperOnClick,
-      // Input HTML attributes
+      wrapperOnPress,
       id,
-      name,
+      nativeID,
       label,
       placeholder,
       required,
       disabled,
-      onClick,
+      editable,
+      onPress,
+      accessibilityState,
       ...props
     },
     ref
   ) => {
-    const inputId = id || name || `input-${useId().replace(/:/g, '')}`;
+    const generatedId = useId();
+    const inputRef = useRef<TextInput>(null);
+    const inputId = id || nativeID || `input-${generatedId.replace(/:/g, '')}`;
     const labelId = `${inputId}-label`;
     const infoMessageId = `${inputId}-info`;
     const errorMessageId = `${inputId}-error`;
@@ -174,57 +194,86 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const inputProps = {
       id: inputId,
-      ref,
-      name,
-      required,
-      disabled,
-      onClick: (e: React.MouseEvent<HTMLInputElement>) => {
+      ref: (node: TextInput | null) => {
+        inputRef.current = node;
+        if (typeof ref === 'function') {
+          return ref(node);
+        }
+        if (ref) {
+          ref.current = node;
+        }
+      },
+      editable: !disabled && editable !== false,
+      accessibilityState: { ...accessibilityState, disabled: disabled || editable === false },
+      onPress: (e: GestureResponderEvent) => {
         e.stopPropagation();
-        onClick?.(e);
+        onPress?.(e);
       },
       placeholder: placeholder || label,
+      placeholderTextColor: disabled ? theme.colors.text.disabled : theme.colors.text.secondary,
+      accessibilityLabel: label,
+      accessibilityHint: [hasInfo && info, hasError && error].filter(Boolean).join(' ') || undefined,
       'aria-labelledby': !hideLabel ? labelId : undefined,
       'aria-label': hideLabel ? label : undefined,
       'aria-describedby': describedBy || undefined,
       'aria-invalid': isError || undefined,
+      'aria-required': required || undefined,
       $isError: isError,
       $hasIcon: hasIcon,
       $hasIconLeft: hasLeftIcon,
+      $disabled: disabled || editable === false,
       ...props,
     };
 
     return (
-      <InputWrapper style={wrapperStyle} onClick={wrapperOnClick || onClick}>
+      <InputWrapper style={wrapperStyle} onPress={wrapperOnPress || onPress} disabled={disabled}>
         {!hideLabel && (
-          <InputLabel id={labelId} htmlFor={customInput ? undefined : inputId}>
+          <InputLabel
+            nativeID={labelId}
+            onPress={customInput || disabled ? undefined : () => inputRef.current?.focus()}
+          >
             {label}
-            {required && <span style={{ color: theme.colors.text.danger }}>*</span>}
+            {required && <Text.FormLabel color={theme.colors.text.danger}>*</Text.FormLabel>}
           </InputLabel>
         )}
         <InputContainer>
           {leftIconComponent ? leftIconComponent : leftIcon && <Icon $left>{leftIcon}</Icon>}
           {customInput ? (
             <CustomInputWrapper
-              {...inputProps}
+              id={inputId}
               role="group"
+              aria-labelledby={!hideLabel ? labelId : undefined}
+              aria-label={hideLabel ? label : undefined}
+              aria-describedby={describedBy || undefined}
+              aria-invalid={isError || undefined}
+              accessibilityState={{ disabled }}
+              accessibilityLabel={label}
+              accessibilityHint={inputProps.accessibilityHint}
+              style={props.style}
+              $isError={isError}
+              $hasIcon={hasIcon}
+              $hasIconLeft={hasLeftIcon}
               $disabled={disabled}
               $customInputDefaultStyle={customInputDefaultStyle}
             >
               {customInput}
             </CustomInputWrapper>
           ) : (
-            <StyledInput {...inputProps} />
+            // React Native Web's TextInput does not dispatch onPress.
+            <Pressable accessible={false} disabled={disabled} onPress={inputProps.onPress}>
+              <StyledInput {...inputProps} />
+            </Pressable>
           )}
           {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
           {hasInfo && (
             <InputInfo id={infoMessageId} role="status" aria-live="polite">
-              <Info />
+              <Info color={theme.colors.text.secondary} />
               {info}
             </InputInfo>
           )}
           {hasError && (
             <InputInfo id={errorMessageId} $isError role="alert" aria-live="assertive">
-              <Info />
+              <Info color={theme.colors.text.danger} />
               {error}
             </InputInfo>
           )}
@@ -236,7 +285,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = 'Input';
 
-export const InputIconButton = styled.button`
+export const InputIconButton = styled.Pressable.attrs({
+  role: 'button',
+  onPressIn: (event: GestureResponderEvent) => event.preventDefault(),
+})`
   position: absolute;
   height: fit-content;
   top: 25px;

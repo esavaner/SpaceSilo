@@ -6,6 +6,7 @@ import { defaultPasswordRequirements, type PasswordRequirement } from '../config
 import { type InputProps } from './input';
 import { PasswordInput } from './password-input';
 import { Text } from './text';
+import { TextInput, View } from 'react-native';
 
 type StyledProps = {
   $isMet: boolean;
@@ -27,12 +28,12 @@ const Item = styled.li<StyledProps>`
     $isMet ? theme.colors.text.success : $isError ? theme.colors.text.danger : theme.colors.text.secondary};
 `;
 
-type Props = Omit<InputProps, 'type' | 'icon'> & {
+type Props = Omit<InputProps, 'secureTextEntry' | 'icon'> & {
   requirements?: PasswordRequirement[];
 };
 
-export const SetPasswordInput = forwardRef<HTMLInputElement, Props>(
-  ({ requirements = defaultPasswordRequirements, value, error, style, className, ...inputProps }, ref) => {
+export const SetPasswordInput = forwardRef<TextInput, Props>(
+  ({ requirements = defaultPasswordRequirements, value, error, style, ...inputProps }, ref) => {
     const passwordValue = typeof value === 'string' ? value : '';
     const requirementStatuses = requirements.map((requirement) => ({
       ...requirement,
@@ -40,7 +41,7 @@ export const SetPasswordInput = forwardRef<HTMLInputElement, Props>(
     }));
 
     return (
-      <div style={style} className={className}>
+      <View style={style}>
         <PasswordInput ref={ref} value={value} error={error} {...inputProps} />
         <RequirementList aria-label="Password requirements">
           {requirementStatuses.map((requirement) => (
@@ -50,7 +51,7 @@ export const SetPasswordInput = forwardRef<HTMLInputElement, Props>(
             </Item>
           ))}
         </RequirementList>
-      </div>
+      </View>
     );
   }
 );

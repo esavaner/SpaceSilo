@@ -1,27 +1,46 @@
+// Test page: keep example text here; do not add translations for this file.
 import { useRootNavigationState } from 'expo-router';
-import { Text } from '@/components/general/text';
 import { BaseLayout } from '@/components/base-layout';
-import { useTranslation } from 'react-i18next';
-import { Text as SharedText } from '@repo/shared/components/text';
+import { useState } from 'react';
+import { Text } from '@repo/shared/components/text';
+import { Input } from '@repo/shared/components/input';
 
 export default function IndexPage() {
-  const { t } = useTranslation();
   const rootNavigationState = useRootNavigationState();
+  const [name, setName] = useState('');
+  const [invalidValue, setInvalidValue] = useState('Invalid value');
 
   if (!rootNavigationState?.key) return null;
 
   return (
     <BaseLayout>
-      <Text variant="h1">{t('navigation.dashboard')}</Text>
-      <SharedText.H1>{t('sharedText.heading')}</SharedText.H1>
-      <SharedText.M>{t('sharedText.body')}</SharedText.M>
-      <SharedText.S center italic weight={700} color="#307467">
-        {t('sharedText.styled')}
-      </SharedText.S>
-      <SharedText.M em="primary">{t('sharedText.emphasis')}</SharedText.M>
-      <SharedText.M em="underline">{t('sharedText.underline')}</SharedText.M>
-      <SharedText.M em="circle">{t('sharedText.circle')}</SharedText.M>
-      <SharedText.M em="divider">{t('sharedText.divider')}</SharedText.M>
+      <Text.H1>Shared text</Text.H1>
+      <Text.M>The same typography definition on web and native.</Text.M>
+      <Text.S center italic weight={700} color="#307467">
+        Centered, italic, bold, and colored.
+      </Text.S>
+      <Text.M em="primary">Primary emphasis</Text.M>
+      <Text.M em="underline">Underline emphasis</Text.M>
+      <Text.M em="circle">Circle emphasis</Text.M>
+      <Text.M em="divider">Divider emphasis</Text.M>
+
+      <Text.H1>Shared input</Text.H1>
+      <Text.M>The same input component works on native and web.</Text.M>
+      <Input
+        label="Display name"
+        placeholder="Enter a display name"
+        info="This is how your name appears to others."
+        value={name}
+        onChangeText={setName}
+        required
+      />
+      <Input
+        label="Invalid input"
+        error="This value is invalid."
+        value={invalidValue}
+        onChangeText={setInvalidValue}
+      />
+      <Input label="Disabled input" disabled />
     </BaseLayout>
   );
 }

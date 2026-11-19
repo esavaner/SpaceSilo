@@ -136,7 +136,10 @@ export type SelectOption = {
   value: string;
 };
 
-export type SelectProps = Omit<InputProps, 'onChange'> & {
+export type SelectProps = Omit<InputProps, 'onChange' | 'onBlur' | 'value' | 'defaultValue'> & {
+  name?: string;
+  value?: React.InputHTMLAttributes<HTMLInputElement>['value'];
+  defaultValue?: React.InputHTMLAttributes<HTMLInputElement>['defaultValue'];
   options: SelectOption[];
   multiple?: boolean;
   searchable?: boolean;
@@ -267,9 +270,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       }
     };
 
-    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearch(event.target.value);
-    };
+    const handleSearchChange = (text: string) => setSearch(text);
 
     // keep internal state in sync with form libraries that set initial values via ref.
     useEffect(() => {
@@ -326,11 +327,12 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             hideLabel
             placeholder={searchPlaceholder}
             value={search}
-            onChange={handleSearchChange}
+            onChangeText={handleSearchChange}
             wrapperStyle={{
-              margin: `0 ${theme.spacing[300]} ${theme.spacing[200]} 0`,
+              marginRight: 12,
+              marginBottom: 8,
             }}
-            type="search"
+            inputMode="search"
           />
         ) : (
           <></>
@@ -387,16 +389,13 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
           {...rest}
           id={selectId}
           label={label}
-          name={name}
           error={error}
           disabled={disabled}
-          onClick={useCustomInput ? toggleDropdown : open}
-          wrapperOnClick={toggleDropdown}
+          onPress={useCustomInput ? toggleDropdown : open}
+          wrapperOnPress={toggleDropdown}
           iconComponent={
             <InputIconButton
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={toggleDropdown}
+              onPress={toggleDropdown}
               aria-label={dropdownOpened ? 'Close options' : 'Open options'}
               aria-expanded={dropdownOpened}
               aria-controls={dropdownOpened ? listId : undefined}
@@ -407,7 +406,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             </InputIconButton>
           }
           value={useCustomInput ? undefined : dropdownOpened ? search : selectedOptions[0]?.label || ''}
-          onChange={useCustomInput ? undefined : handleSearchChange}
+          onChangeText={useCustomInput ? undefined : handleSearchChange}
           placeholder={useCustomInput ? placeholder : dropdownOpened ? searchPlaceholder : placeholder}
           customInput={
             useCustomInput ? (

@@ -20,6 +20,10 @@
     "./components/text": {
       "types": "./dist/components/text.d.ts",
       "default": "./dist/components/text.js"
+    },
+    "./components/input": {
+      "types": "./dist/components/input.d.ts",
+      "default": "./dist/components/input.js"
     }
   },
   "scripts": {
@@ -42,6 +46,7 @@
     "date-fns": "^4.4.0",
     "dotenv": "17.2.3",
     "lucide-react": "^1.74.0",
+    "lucide-react-native": "^1.66.0",
     "pg": "8.17.2",
     "styled-components": "7.0.0-prerelease-20261110053101",
     "zod": "^3.25.76"
@@ -51,7 +56,8 @@
     "class-validator": "^0.14.3",
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0",
-    "react-native": ">=0.85.0"
+    "react-native": ">=0.85.0",
+    "react-native-svg": ">=15.15.4"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -61,6 +67,9 @@
       "optional": true
     },
     "react-native": {
+      "optional": true
+    },
+    "react-native-svg": {
       "optional": true
     }
   },
@@ -75,6 +84,7 @@
     "prisma": "7.3.0",
     "react": "19.2.3",
     "react-native": "0.86.3",
+    "react-native-svg": "^15.15.4",
     "tailwindcss": "^4.1.18"
   }
 }
