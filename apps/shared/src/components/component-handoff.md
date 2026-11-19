@@ -20,9 +20,6 @@ Done and tested on a real device by the user:
 - `password-input.tsx`
 - `textarea.tsx`, a multiline wrapper around `Input`
 - `set-password-input.tsx`, which supports both controlled and uncontrolled values
-
-Converted and verified with web and bundle builds; pending real-device testing:
-
 - `loader.tsx`
 - `checkbox.tsx`
 
