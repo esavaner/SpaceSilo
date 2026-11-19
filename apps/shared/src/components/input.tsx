@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import {
+  Platform,
   Pressable,
   TextInput,
   type GestureResponderEvent,
@@ -10,13 +11,14 @@ import {
 import { theme } from '../config/theme';
 import { Text } from './text';
 import { Info } from '../assets/icons';
-import { forwardRef, JSX, useId, useRef } from 'react';
+import { forwardRef, JSX, useId, useRef, useState } from 'react';
 
 export type InputInfoProps = {
   $isError?: boolean;
   $hasIcon?: boolean;
   $hasIconLeft?: boolean;
   $disabled?: boolean;
+  $isActive?: boolean;
   $customInputDefaultStyle?: boolean;
 };
 
@@ -66,12 +68,14 @@ export const commonInputStyles = css<InputInfoProps>`
   border-radius: ${theme.radius[300]};
   background-color: ${({ $disabled }) => ($disabled ? theme.colors.disabled : theme.colors.surface.weak)};
   border: 1px solid
-    ${({ $isError, $disabled }) =>
+    ${({ $isError, $disabled, $isActive }) =>
       $disabled
         ? theme.colors.border.disabled
-        : $isError
-          ? theme.colors.text.danger
-          : theme.colors.border.input.default};
+        : $isActive
+          ? theme.colors.border.input.active
+          : $isError
+            ? theme.colors.text.danger
+            : theme.colors.border.input.default};
   color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
   cursor: pointer;
 `;
@@ -172,6 +176,10 @@ export const Input = forwardRef<TextInput, InputProps>(
       disabled,
       editable,
       onPress,
+      onFocus,
+      onBlur,
+      onPressIn,
+      onPressOut,
       accessibilityState,
       ...props
     },
@@ -179,6 +187,8 @@ export const Input = forwardRef<TextInput, InputProps>(
   ) => {
     const generatedId = useId();
     const inputRef = useRef<TextInput>(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
     const inputId = id || nativeID || `input-${generatedId.replace(/:/g, '')}`;
     const labelId = `${inputId}-label`;
     const infoMessageId = `${inputId}-info`;
@@ -209,6 +219,22 @@ export const Input = forwardRef<TextInput, InputProps>(
         e.stopPropagation();
         onPress?.(e);
       },
+      onFocus: (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
+        setIsFocused(true);
+        onFocus?.(e);
+      },
+      onBlur: (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
+        setIsFocused(false);
+        onBlur?.(e);
+      },
+      onPressIn: (e: GestureResponderEvent) => {
+        setIsPressed(true);
+        onPressIn?.(e);
+      },
+      onPressOut: (e: GestureResponderEvent) => {
+        setIsPressed(false);
+        onPressOut?.(e);
+      },
       placeholder: placeholder || label,
       placeholderTextColor: disabled ? theme.colors.text.disabled : theme.colors.text.secondary,
       accessibilityLabel: label,
@@ -222,6 +248,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       $hasIcon: hasIcon,
       $hasIconLeft: hasLeftIcon,
       $disabled: disabled || editable === false,
+      $isActive: Platform.OS !== 'web' && (isFocused || isPressed),
       ...props,
     };
 
