@@ -8,7 +8,7 @@ import {
   type ViewProps,
   type PressableProps,
 } from 'react-native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
 import { Info } from '../assets/icons';
 import { forwardRef, type JSX, type ReactNode, useId, useRef } from 'react';
@@ -166,7 +166,8 @@ export const InputInfo = ({
   children: ReactNode;
   style?: ViewProps['style'];
 }) => {
-  const color = error ? theme.colors.text.danger : theme.colors.text.secondary;
+  const colors = useThemeColors();
+  const color = error ? colors.text.danger : colors.text.secondary;
 
   return (
     <InputInfoRow
@@ -252,6 +253,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     ref
   ) => {
     const generatedId = useId();
+    const colors = useThemeColors();
     const inputRef = useRef<TextInput>(null);
     const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
     const inputId = id || nativeID || `input-${generatedId.replace(/:/g, '')}`;
@@ -289,7 +291,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       onPress: handleInputPress,
       ...interactionHandlers,
       placeholder: placeholder || label,
-      placeholderTextColor: isDisabled ? theme.colors.text.disabled : theme.colors.text.secondary,
+      placeholderTextColor: isDisabled ? colors.text.disabled : colors.text.secondary,
       accessibilityLabel: label,
       accessibilityHint,
       'aria-labelledby': !hideLabel ? labelId : undefined,

@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react';
 import styled from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { Check, Dot } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
 import { PasswordInput, type PasswordInputProps } from './password-input';
@@ -27,6 +27,7 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
     ref
   ) => {
     const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+    const colors = useThemeColors();
     const passwordValue = value ?? internalValue;
     const requirementStatuses = requirements.map((requirement) => ({
       ...requirement,
@@ -49,11 +50,7 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
         />
         <RequirementList role="list" accessibilityLabel="Password requirements">
           {requirementStatuses.map((requirement) => {
-            const color = requirement.isMet
-              ? theme.colors.text.success
-              : error
-                ? theme.colors.text.danger
-                : theme.colors.text.secondary;
+            const color = requirement.isMet ? colors.text.success : error ? colors.text.danger : colors.text.secondary;
 
             return (
               <Item key={requirement.id} role="listitem">

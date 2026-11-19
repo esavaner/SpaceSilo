@@ -5,7 +5,6 @@ import {
   Button,
   Checkbox,
   Dropdown,
-  GlobalStyle,
   Input,
   Loader,
   Modal,
@@ -26,6 +25,8 @@ import {
   useModal,
   usePagination,
 } from '@repo/shared/components';
+// Web-only: createGlobalStyle doesn't exist in styled-components' native build.
+import { GlobalStyle } from '@repo/shared/style';
 
 const options = ['Photos', 'Videos', 'Documents', 'Music', 'Archives'].map((label) => ({ label, value: label }));
 const rows = Array.from({ length: 95 }, (_, i) => i);

@@ -16,6 +16,10 @@
     "./components": {
       "types": "./dist/components/index.d.ts",
       "default": "./dist/components/index.js"
+    },
+    "./style": {
+      "types": "./dist/config/style.d.ts",
+      "default": "./dist/config/style.js"
     }
   },
   "scripts": {

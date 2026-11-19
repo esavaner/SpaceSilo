@@ -48,10 +48,10 @@ const Trigger = styled.Pressable<{ $disabled?: boolean }>`
 `;
 
 // Pressed feedback lives in the native-only style function; react-native-web drops Pressable style functions here.
-export const DropdownOption = styled.Pressable.attrs({
+export const DropdownOption = styled.Pressable.attrs(({ theme: { colors } }) => ({
   ...webSpaceActivation,
-  style: ({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.medium } : null),
-})<{ $selected?: boolean; $disabled?: boolean }>`
+  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
+}))<{ $selected?: boolean; $disabled?: boolean }>`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};

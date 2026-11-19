@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewProps } from 'react-native';
 import styled from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { Button as ButtonBase } from './button';
 import { Input } from './input';
 import { ArrowLeft, ArrowRight } from '../assets/icons';
@@ -86,6 +86,7 @@ export const Pagination = ({
   jumper,
   ...rest
 }: Props) => {
+  const colors = useThemeColors();
   if (totalCount <= perPage) {
     return null;
   }
@@ -93,8 +94,8 @@ export const Pagination = ({
   const totalPages = Math.ceil(totalCount / perPage);
   const prevDisabled = currentPage <= 0;
   const nextDisabled = currentPage >= totalPages - 1;
-  const prevIconColor = prevDisabled ? theme.colors.text.disabled : theme.colors.text.brand;
-  const nextIconColor = nextDisabled ? theme.colors.text.disabled : theme.colors.text.brand;
+  const prevIconColor = prevDisabled ? colors.text.disabled : colors.text.brand;
+  const nextIconColor = nextDisabled ? colors.text.disabled : colors.text.brand;
 
   if (variant === 'simple') {
     return (

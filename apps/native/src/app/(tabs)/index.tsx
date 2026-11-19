@@ -23,6 +23,8 @@ import {
   Select,
   Dropdown,
   useModal,
+  useThemeMode,
+  type ThemeMode,
 } from '@repo/shared/components';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
@@ -45,6 +47,7 @@ const SectionHeader = styled.Text`
 export default function IndexPage() {
   const rootNavigationState = useRootNavigationState();
   const { openModal, closeModal } = useModal();
+  const { mode: themeMode, setMode: setThemeMode, colors } = useThemeMode();
   const [name, setName] = useState('');
   const [invalidValue, setInvalidValue] = useState('Invalid value');
   const [description, setDescription] = useState('');
@@ -119,7 +122,7 @@ export default function IndexPage() {
 
   return (
     <>
-      <BaseLayout className="bg-white">
+      <BaseLayout style={{ backgroundColor: colors.surface.medium }}>
         <Section>
           <SectionHeader>Select and dropdown</SectionHeader>
           <Select
@@ -142,7 +145,16 @@ export default function IndexPage() {
             removeLabel={(label) => `Remove ${label}`}
           />
           <Text.S>Selected colors: {selectedColors.join(', ')}</Text.S>
-          <Select label="Uncontrolled color" options={colorOptions} defaultValue="red" />
+          <Select
+            label="Theme"
+            options={[
+              { label: 'Light', value: 'light' },
+              { label: 'Dark', value: 'dark' },
+              { label: 'Follow device', value: 'system' },
+            ]}
+            value={themeMode}
+            onValueChange={(value) => setThemeMode(value as ThemeMode)}
+          />
           <Select label="Required color" options={colorOptions} error="Please choose a color." required />
           <Select label="Disabled color" options={colorOptions} defaultValue="green" disabled />
           <Select label="Empty colors" options={[]} noOptionsLabel="No colors available" />

@@ -2,7 +2,7 @@ import { ActivityIndicator, Modal, Platform, type ViewProps } from 'react-native
 import styled, { css } from 'styled-components/native';
 import { Orbit } from '../assets/icons';
 import { NoiseImage, ShapesAnimationImage } from '../assets/images';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { useWebScrollLock } from './component-utils';
 
 const InlineWrapper = styled.View`
@@ -101,7 +101,9 @@ type Props = ViewProps & {
       }
   );
 
-export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand, onRequestClose, ...rest }: Props) => {
+export const Loader = ({ block, fullPage, size, color: colorProp, onRequestClose, ...rest }: Props) => {
+  const colors = useThemeColors();
+  const color = colorProp ?? colors.text.brand;
   useWebScrollLock(!!fullPage);
 
   const props = {
@@ -117,7 +119,7 @@ export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand,
       <Modal transparent statusBarTranslucent navigationBarTranslucent onRequestClose={onRequestClose ?? (() => {})}>
         <FullPageWrapper {...props}>
           <LogoContainer>
-            <Orbit size={24} color={theme.colors.text.brand} />
+            <Orbit size={24} color={colors.text.brand} />
           </LogoContainer>
         </FullPageWrapper>
       </Modal>

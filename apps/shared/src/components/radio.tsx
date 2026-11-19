@@ -1,7 +1,7 @@
 import { Children, forwardRef, useId, useState, type AriaAttributes, type ReactNode } from 'react';
 import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { CircleCheck } from '../assets/icons';
 import { useNativeInteraction, webSpaceActivation } from './component-utils';
 
@@ -158,6 +158,7 @@ export const Radio = forwardRef<View, RadioProps>(
     const generatedId = useId();
     const inputId = id || nativeID || `${name || 'radio'}-${generatedId.replace(/:/g, '')}`;
     const [internalChecked, setInternalChecked] = useState(!!defaultChecked);
+    const colors = useThemeColors();
     const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
     const isControlled = checked !== undefined;
     const isChecked = isControlled ? checked : internalChecked;
@@ -199,11 +200,7 @@ export const Radio = forwardRef<View, RadioProps>(
           )
         )}
         {isChecked ? (
-          <Checkmark
-            size={24}
-            color={disabled ? theme.colors.text.disabled : theme.colors.primary.default}
-            aria-hidden
-          />
+          <Checkmark size={24} color={disabled ? colors.text.disabled : colors.primary.default} aria-hidden />
         ) : (
           <Circle $disabled={!!disabled} aria-hidden />
         )}

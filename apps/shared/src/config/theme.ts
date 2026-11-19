@@ -1,5 +1,9 @@
-import { css } from 'styled-components/native';
-import { colors } from './colors';
+import { createContext, useContext } from 'react';
+import { createTheme, css } from 'styled-components/native';
+import { lightColors, type ThemeColors } from './colors';
+
+// Leaves are placeholders resolved against the nearest ThemeProvider at render time, so styles follow live theme changes.
+export const themeTokens = createTheme({ colors: lightColors });
 
 const LANDSCAPE_BREAKPOINT = 450;
 
@@ -166,7 +170,28 @@ export const theme = {
     below: -10,
     bg: -1000,
   },
-  colors,
+  colors: themeTokens.colors,
   breakpointNumbers,
   breakpoints,
 } as const;
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+type ThemeModeContextType = {
+  mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
+  scheme: 'light' | 'dark';
+  colors: ThemeColors;
+};
+
+export const ThemeModeContext = createContext<ThemeModeContextType>({
+  mode: 'system',
+  setMode: () => {},
+  scheme: 'light',
+  colors: lightColors,
+});
+
+export const useThemeMode = () => useContext(ThemeModeContext);
+
+// Real color values for props that bypass styled templates (icon colors, placeholderTextColor, inline styles).
+export const useThemeColors = () => useContext(ThemeModeContext).colors;

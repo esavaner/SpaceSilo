@@ -1,14 +1,14 @@
 import { Children, type KeyboardEventHandler, type MouseEventHandler, type ReactNode } from 'react';
 import { ActivityIndicator, Platform, type GestureResponderEvent, type PressableProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { useNativeInteraction } from './component-utils';
 
 type Variant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'link';
 type Size = 'small' | 'medium' | 'large';
 
 type StyleProps = {
-  textColor: string;
+  textColor: 'inverted' | 'default' | 'brand';
   default: ReturnType<typeof css>;
   hover: ReturnType<typeof css>;
   clicked: ReturnType<typeof css>;
@@ -25,7 +25,7 @@ const webOutline = (color: string) =>
 
 const styles: Record<Variant, StyleProps> = {
   primary: {
-    textColor: theme.colors.text.inverted,
+    textColor: 'inverted',
     default: css`
       color: ${theme.colors.text.inverted};
       background: ${theme.colors.primary.default};
@@ -45,7 +45,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   secondary: {
-    textColor: theme.colors.text.default,
+    textColor: 'default',
     default: css`
       color: ${theme.colors.text.default};
       background: ${theme.colors.secondary.default};
@@ -64,7 +64,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   tertiary: {
-    textColor: theme.colors.text.brand,
+    textColor: 'brand',
     default: css`
       color: ${theme.colors.text.brand};
       background: ${theme.colors.tertiary.default};
@@ -82,7 +82,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   destructive: {
-    textColor: theme.colors.text.inverted,
+    textColor: 'inverted',
     default: css`
       color: ${theme.colors.text.inverted};
       background: ${theme.colors.destructive.default};
@@ -101,7 +101,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   link: {
-    textColor: theme.colors.text.default,
+    textColor: 'default',
     default: css`
       color: ${theme.colors.text.default};
       background: transparent;
@@ -303,7 +303,8 @@ export const Button = ({
   ...props
 }: Props) => {
   const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
-  const textColor = disabled ? theme.colors.text.disabled : styles[variant].textColor;
+  const colors = useThemeColors();
+  const textColor = colors.text[disabled ? 'disabled' : styles[variant].textColor];
   const handlePress =
     onPress || (Platform.OS === 'web' && onClick)
       ? (event: GestureResponderEvent) => {

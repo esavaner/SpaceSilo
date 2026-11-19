@@ -1,7 +1,7 @@
 import { forwardRef, useId, useState } from 'react';
 import { Platform, View, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
 import { getFieldA11y, Input, type InputProps } from './input';
 import { Check, ChevronDown, X } from '../assets/icons';
@@ -120,6 +120,7 @@ export const Select = forwardRef<View, SelectProps>(
     ref
   ) => {
     const generatedId = useId();
+    const colors = useThemeColors();
     const selectId = id || rest.nativeID || name || `select-${generatedId.replace(/:/g, '')}`;
     const { describedBy, accessibilityHint } = getFieldA11y(selectId, { info: rest.info, error, disabled });
     const [search, setSearch] = useState('');
@@ -167,7 +168,7 @@ export const Select = forwardRef<View, SelectProps>(
             disabled={disabled}
             icon={
               <ChevronDown
-                color={disabled ? theme.colors.text.disabled : theme.colors.text.secondary}
+                color={disabled ? colors.text.disabled : colors.text.secondary}
                 style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
                 aria-hidden
               />
@@ -209,9 +210,9 @@ export const Select = forwardRef<View, SelectProps>(
                               event.stopPropagation();
                               selectOption(option);
                             }}
-                            style={({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.darker } : null)}
+                            style={({ pressed }) => (pressed ? { backgroundColor: colors.surface.darker } : null)}
                           >
-                            <X size={16} color={theme.colors.text.secondary} aria-hidden />
+                            <X size={16} color={colors.text.secondary} aria-hidden />
                           </ChipRemove>
                         )}
                       </SelectedValueChip>
@@ -261,7 +262,7 @@ export const Select = forwardRef<View, SelectProps>(
                     }}
                   >
                     <Text.S style={{ flex: 1 }}>{option.label}</Text.S>
-                    {isSelected && <Check size={20} color={theme.colors.text.default} aria-hidden />}
+                    {isSelected && <Check size={20} color={colors.text.default} aria-hidden />}
                   </DropdownOption>
                 );
               })}

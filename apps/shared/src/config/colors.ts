@@ -3,6 +3,7 @@ export const baseColors = {
     white: '#ffffff',
     white20: '#ffffff33',
     black: '#000000',
+    black80: '#000000cc',
   },
   teal: {
     50: '#f4fbfa',
@@ -28,6 +29,7 @@ export const baseColors = {
     700: '#6b5d55',
     800: '#3f2c26',
     900: '#2f2520',
+    950: '#1a1512',
     '900-80': '#2f2520cc',
   },
   blush: {
@@ -116,7 +118,7 @@ export const baseColors = {
   },
 } as const;
 
-export const colors = {
+export const lightColors = {
   surface: {
     default: baseColors.brown[50],
     weak: baseColors.base.white,
@@ -262,5 +264,158 @@ export const colors = {
     warningDarker: baseColors.yellow[700],
     danger: baseColors.red[500],
     dangerDarker: baseColors.red[700],
+  },
+};
+
+type Palette<T> = { [K in keyof T]: T[K] extends string ? string : Palette<T[K]> };
+export type ThemeColors = Palette<typeof lightColors>;
+
+export const darkColors: ThemeColors = {
+  surface: {
+    default: baseColors.brown[900],
+    weak: baseColors.brown[900],
+    medium: baseColors.brown[950],
+    stronger: baseColors.brown[800],
+    darker: baseColors.brown[700],
+    brandPrimary: baseColors.teal[600],
+    brandSecondary: '#f1786c',
+    gradient: {
+      start: baseColors.teal[700],
+      end: baseColors.teal[600],
+    },
+  },
+  overlay: baseColors.base.black80,
+  primary: {
+    default: baseColors.teal[600],
+    hover: baseColors.teal[500],
+    active: baseColors.teal[400],
+  },
+  secondary: {
+    default: baseColors.brown[900],
+    hover: baseColors.blush[800],
+    active: baseColors.blush[700],
+  },
+  tertiary: {
+    default: baseColors.brown[900],
+    hover: baseColors.brown[800],
+    active: baseColors.brown[700],
+  },
+  destructive: {
+    default: baseColors.red[500],
+    hover: baseColors.red[400],
+    active: baseColors.red[300],
+  },
+  disabled: baseColors.slate[800],
+  neutral: {
+    default: baseColors.brown[900],
+    stronger: baseColors.brown[800],
+    inverted: baseColors.brown[400],
+  },
+  success: {
+    default: baseColors.green[900],
+    stronger: baseColors.green[800],
+    inverted: baseColors.green[400],
+  },
+  info: {
+    default: baseColors.blue[900],
+    stronger: baseColors.blue[800],
+    inverted: baseColors.blue[400],
+  },
+  warning: {
+    default: baseColors.yellow[900],
+    stronger: baseColors.yellow[800],
+    inverted: baseColors.yellow[400],
+  },
+  error: {
+    default: baseColors.red[900],
+    stronger: baseColors.red[800],
+    inverted: baseColors.red[400],
+  },
+  border: {
+    default: baseColors.brown[700],
+    input: {
+      default: baseColors.brown[700],
+      hover: baseColors.brown[400],
+      active: baseColors.brown[400],
+    },
+    primary: {
+      default: baseColors.teal[600],
+      hover: baseColors.teal[500],
+      active: baseColors.teal[400],
+    },
+    secondary: {
+      default: baseColors.blush[600],
+      hover: baseColors.blush[600],
+      active: baseColors.blush[500],
+    },
+    destructive: {
+      default: baseColors.red[500],
+      hover: baseColors.red[400],
+      active: baseColors.red[300],
+    },
+    disabled: baseColors.slate[700],
+    neutral: {
+      default: baseColors.brown[500],
+      muted: baseColors.brown[700],
+      inverted: baseColors.brown[800],
+    },
+    loader: {
+      indicator: baseColors.base.white,
+      indicatorBrand: baseColors.teal[400],
+      indicatorInverse: baseColors.brown[100],
+      background: baseColors.base.white20,
+      backgroundBrand: baseColors.teal[800],
+      backgroundInverse: baseColors.brown[800],
+    },
+    success: {
+      default: baseColors.green[400],
+      muted: baseColors.green[700],
+      inverted: baseColors.green[900],
+    },
+    info: {
+      default: baseColors.blue[400],
+      muted: baseColors.blue[700],
+      inverted: baseColors.blue[900],
+    },
+    warning: {
+      default: baseColors.yellow[400],
+      muted: baseColors.yellow[700],
+      inverted: baseColors.yellow[900],
+    },
+    error: {
+      default: baseColors.red[400],
+      muted: baseColors.red[700],
+      inverted: baseColors.red[900],
+    },
+  },
+  text: {
+    brand: baseColors.teal[400],
+    brandHover: baseColors.teal[300],
+    brandActive: baseColors.teal[200],
+    brandSecondary: '#f1786c',
+    default: baseColors.brown[50],
+    // Only used on colored fills (primary/destructive), so it stays white.
+    inverted: baseColors.base.white,
+    secondary: baseColors.brown[300],
+    assistive: baseColors.brown[400],
+    disabled: baseColors.slate[500],
+    muted: baseColors.slate[400],
+    link: {
+      default: baseColors.teal[400],
+      hover: baseColors.teal[300],
+      active: baseColors.teal[200],
+    },
+    neutral: {
+      default: baseColors.brown[400],
+      darker: baseColors.brown[300],
+    },
+    success: baseColors.green[400],
+    successDarker: baseColors.green[300],
+    info: baseColors.blue[400],
+    infoDarker: baseColors.blue[300],
+    warning: baseColors.yellow[400],
+    warningDarker: baseColors.yellow[300],
+    danger: baseColors.red[400],
+    dangerDarker: baseColors.red[300],
   },
 };

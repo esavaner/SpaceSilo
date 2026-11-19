@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import { Platform, type NativeScrollEvent, type NativeSyntheticEvent, type ViewProps } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import styled, { css } from 'styled-components/native';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 
 const BUFFER = 15;
 const RIGHT_PADDING = 12;
@@ -98,13 +98,14 @@ export const OverflowFade = ({
   ...rest
 }: Props) => {
   const gradientId = useId().replace(/:/g, '');
+  const colors = useThemeColors();
   const [scrollTop, setScrollTop] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const canScroll = contentHeight > containerHeight + BUFFER;
   const atTop = !canScroll || scrollTop <= BUFFER;
   const atBottom = !canScroll || scrollTop + containerHeight >= contentHeight - BUFFER;
-  const fadeColor = dark ? theme.colors.surface.darker : theme.colors.surface.weak;
+  const fadeColor = dark ? colors.surface.darker : colors.surface.weak;
   // React Native Web consumes these DOM props even though React Native's types omit them.
   const wrapperProps = { ...rest, className, role } as ViewProps;
 

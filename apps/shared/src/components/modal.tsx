@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled, { css } from 'styled-components/native';
 import { X } from '../assets/icons';
 import { ModalContext } from '../context/modal-provider';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
 import { useWebScrollLock } from './component-utils';
 
@@ -124,6 +124,7 @@ export const Modal = ({
   ...props
 }: ModalProps) => {
   const context = useContext(ModalContext);
+  const colors = useThemeColors();
   useWebScrollLock();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -208,7 +209,7 @@ export const Modal = ({
         $right={12 + (drawer ? insets.right : 0)}
         style={({ pressed }) => (pressed ? { opacity: 1 } : null)}
       >
-        <X color={theme.colors.text.default} aria-hidden />
+        <X color={colors.text.default} aria-hidden />
       </CloseButton>
     </>
   );

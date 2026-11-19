@@ -2,7 +2,7 @@ import { forwardRef, useId, useState, type ReactNode } from 'react';
 import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { Check } from '../assets/icons';
-import { theme } from '../config/theme';
+import { theme, useThemeColors } from '../config/theme';
 import { getFieldA11y, InputInfo } from './input';
 import { useNativeInteraction, webSpaceActivation } from './component-utils';
 
@@ -109,6 +109,7 @@ export const Checkbox = forwardRef<View, Props>(
     ref
   ) => {
     const generatedId = useId();
+    const colors = useThemeColors();
     const inputId = id || nativeID || name || `checkbox-${generatedId.replace(/:/g, '')}`;
     const labelId = `${inputId}-label`;
     const [internalChecked, setInternalChecked] = useState(() => !!defaultChecked);
@@ -150,7 +151,7 @@ export const Checkbox = forwardRef<View, Props>(
         >
           <CheckboxVisual $checked={isChecked} $disabled={disabled} $error={!!error} $isActive={isActive}>
             {isChecked && (
-              <Check size={16} color={disabled ? theme.colors.text.disabled : theme.colors.text.inverted} aria-hidden />
+              <Check size={16} color={disabled ? colors.text.disabled : colors.text.inverted} aria-hidden />
             )}
           </CheckboxVisual>
           <LabelText nativeID={labelId}>{children || label}</LabelText>

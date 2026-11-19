@@ -12,14 +12,29 @@ import { UiProvider } from '@/providers/UiProvider';
 import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
-import { Platform, Appearance, ColorSchemeName } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import { PortalHost } from '@rn-primitives/portal';
 import { ServerProvider } from '@/providers/ServerProvider';
 import { Toaster } from '@/lib/toast';
-import { ModalProvider } from '@repo/shared/components';
+import { ModalProvider, ThemeModeProvider, useThemeMode, type ThemeMode } from '@repo/shared/components';
+import { storage } from '@/utils/storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const THEME_MODE_KEY = 'themeMode';
+const savedThemeMode = storage.getSync(THEME_MODE_KEY);
+const initialThemeMode: ThemeMode = savedThemeMode === 'light' || savedThemeMode === 'dark' ? savedThemeMode : 'system';
+
+// nativewind reads Appearance on native and the `dark` class on <html> on web.
+const NativewindThemeSync = () => {
+  const { mode, scheme } = useThemeMode();
+  useEffect(() => {
+    if (Platform.OS === 'web') document.documentElement.classList.toggle('dark', scheme === 'dark');
+    else Appearance.setColorScheme(mode === 'system' ? 'unspecified' : mode);
+  }, [mode, scheme]);
+  return null;
+};
 
 const commonOptions: React.ComponentProps<typeof Stack.Screen>['options'] = {
   headerTintColor: 'var(--color-text)',
@@ -39,54 +54,6 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
     }
-    if (Platform.OS === 'web') {
-      console.log('Setting up Appearance listeners for web');
-      Appearance.setColorScheme = (scheme) => {
-        document.documentElement.setAttribute('data-theme', scheme);
-        document.documentElement.className = scheme || '';
-      };
-
-      Appearance.getColorScheme = () => {
-        const userValue = document.documentElement.getAttribute('data-theme');
-        return (userValue && userValue !== 'null' ? userValue : 'dark') as ColorSchemeName;
-      };
-
-      Appearance.addChangeListener = (listener) => {
-        // Listen for changes of system value
-        const systemValueListener = (_e: MediaQueryListEvent) => {
-          const userValue = document.documentElement.getAttribute('data-theme');
-          listener({
-            colorScheme: (userValue && userValue !== 'null' ? userValue : 'dark') as ColorSchemeName,
-          });
-        };
-        const systemValue = window.matchMedia('(prefers-color-scheme: dark)');
-        systemValue.addEventListener('change', systemValueListener);
-
-        // Listen for changes of user set value
-        const observer = new MutationObserver((mutationsList) => {
-          for (const mutation of mutationsList) {
-            if (mutation.attributeName === 'data-theme') {
-              listener({ colorScheme: Appearance.getColorScheme() || 'dark' });
-            }
-          }
-        });
-        observer.observe(document.documentElement, { attributes: true });
-
-        function remove() {
-          systemValue.removeEventListener('change', systemValueListener);
-          observer.disconnect();
-        }
-
-        return { remove };
-      };
-
-      const userValue = document.documentElement.getAttribute('data-theme');
-      if (!userValue || userValue === 'null') {
-        Appearance.setColorScheme('dark');
-      }
-    } else {
-      Appearance.setColorScheme('dark');
-    }
   }, [loaded]);
 
   if (!loaded) {
@@ -94,37 +61,40 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryProvider>
-      <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'var(--color-background)' }}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <UserProvider>
-              <ServerProvider>
-                <FilesProvider>
-                  <UiProvider>
-                    <ModalProvider>
-                      <PortalHost />
-                      <Stack
-                        screenOptions={{
-                          contentStyle: {
-                            backgroundColor: 'var(--color-background)',
-                          },
-                        }}
-                      >
-                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                        <Stack.Screen name="view/index" options={commonOptions} />
-                        <Stack.Screen name="login/index" options={commonOptions} />
-                        <Stack.Screen name="+not-found" />
-                      </Stack>
-                      <Toaster />
-                    </ModalProvider>
-                  </UiProvider>
-                </FilesProvider>
-              </ServerProvider>
-            </UserProvider>
-          </GestureHandlerRootView>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </QueryProvider>
+    <ThemeModeProvider initialMode={initialThemeMode} onModeChange={(mode) => storage.set(THEME_MODE_KEY, mode)}>
+      <NativewindThemeSync />
+      <QueryProvider>
+        <SafeAreaProvider>
+          <SafeAreaView style={{ flex: 1, backgroundColor: 'var(--color-background)' }}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <UserProvider>
+                <ServerProvider>
+                  <FilesProvider>
+                    <UiProvider>
+                      <ModalProvider>
+                        <PortalHost />
+                        <Stack
+                          screenOptions={{
+                            contentStyle: {
+                              backgroundColor: 'var(--color-background)',
+                            },
+                          }}
+                        >
+                          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                          <Stack.Screen name="view/index" options={commonOptions} />
+                          <Stack.Screen name="login/index" options={commonOptions} />
+                          <Stack.Screen name="+not-found" />
+                        </Stack>
+                        <Toaster />
+                      </ModalProvider>
+                    </UiProvider>
+                  </FilesProvider>
+                </ServerProvider>
+              </UserProvider>
+            </GestureHandlerRootView>
+          </SafeAreaView>
+        </SafeAreaProvider>
+      </QueryProvider>
+    </ThemeModeProvider>
   );
 }

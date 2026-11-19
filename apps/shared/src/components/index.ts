@@ -14,7 +14,7 @@ export * from './select';
 export * from './set-password-input';
 export * from './text';
 export * from './textarea';
-export * from '../config/style';
 export * from '../config/theme';
 export * from '../config/validators';
 export * from '../context/modal-provider';
+export * from '../context/theme-provider';
