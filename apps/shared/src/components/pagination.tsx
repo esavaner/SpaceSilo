@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../config/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button as ButtonBase } from './button';
 import { Input } from './input';
@@ -7,10 +8,10 @@ import { ArrowRight } from '../assets/icons';
 const Container = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--spacing-200);
+  gap: ${theme.spacing[200]};
 `;
 const Button = styled(ButtonBase)`
-  padding: var(--spacing-100) var(--spacing-200);
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
   min-width: 38px;
   min-height: 40px;
 `;

@@ -26,7 +26,7 @@ type TextComponent<T extends React.ElementType> = <E extends React.ElementType =
 
 const emStyles: Record<EmVariant, RuleSet<object>> = {
   primary: css`
-    color: var(--text-brand);
+    color: ${theme.colors.text.brand};
     font-style: italic;
   `,
   underline: css`
@@ -77,14 +77,14 @@ const emStyles: Record<EmVariant, RuleSet<object>> = {
     &::after {
       content: '';
       flex: 1;
-      border-bottom: 1px solid var(--border-neutral-default);
+      border-bottom: 1px solid ${theme.colors.border.default};
     }
     &:not(:empty)::before {
-      margin-right: var(--spacing-300);
+      margin-right: ${theme.spacing[300]};
     }
 
     &:not(:empty)::after {
-      margin-left: var(--spacing-300);
+      margin-left: ${theme.spacing[300]};
     }
   `,
 };
@@ -92,7 +92,7 @@ const emStyles: Record<EmVariant, RuleSet<object>> = {
 const create = <T extends React.ElementType>(defaultAs: T, style: RuleSet<object>) => {
   const Component = styled.span<StyledProps>`
     ${style}
-    color: ${({ $color }) => $color ?? 'var(--text-primary-default)'};
+    color: ${({ $color }) => $color ?? theme.colors.text.default};
     ${({ $italic }) =>
       $italic &&
       css`

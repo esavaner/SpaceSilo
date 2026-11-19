@@ -8,12 +8,12 @@ import { InputInfo } from './input';
 const Group = styled.fieldset`
   border: 0;
   display: grid;
-  gap: var(--spacing-400);
+  gap: ${theme.spacing[400]};
 `;
 
 const Legend = styled.legend`
   ${theme.text.L}
-  margin-bottom: var(--spacing-400);
+  margin-bottom: ${theme.spacing[400]};
   width: 100%;
 `;
 

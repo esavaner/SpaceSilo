@@ -17,7 +17,7 @@ const Label = styled.label<StyledProps>`
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
-  gap: var(--spacing-300);
+  gap: ${theme.spacing[300]};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
 `;
 const CheckboxControl = styled.span`
@@ -39,29 +39,29 @@ const HiddenInput = styled.input<StyledProps>`
 const CheckboxVisual = styled.span<StyledProps>`
   position: absolute;
   inset: 0;
-  border-radius: var(--border-radius-150);
-  border: 1px solid var(--border-controls-primary-default);
-  background-color: var(--fill-controls-tertiary-default);
-  color: var(--icon-primary-inverted);
+  border-radius: ${theme.radius[150]};
+  border: 1px solid ${theme.colors.border.primary.default};
+  background-color: ${theme.colors.tertiary.default};
+  color: ${theme.colors.text.inverted};
   pointer-events: none;
   transition: all 0.15s ease;
 
   ${HiddenInput}:focus-visible + & {
-    outline: 2px solid var(--text-brand);
+    outline: 2px solid ${theme.colors.text.brand};
     outline-offset: 2px;
   }
 
   ${({ $error }) =>
     $error &&
     css`
-      border-color: var(--border-status-error-default);
+      border-color: ${theme.colors.border.error.default};
     `}
 
   ${({ $checked }) =>
     $checked
       ? css`
-          background-color: var(--fill-controls-primary-default);
-          color: var(--icon-primary-inverted);
+          background-color: ${theme.colors.primary.default};
+          color: ${theme.colors.text.inverted};
         `
       : css`
           * {
@@ -72,13 +72,13 @@ const CheckboxVisual = styled.span<StyledProps>`
   ${({ $disabled }) =>
     $disabled
       ? css`
-          background-color: var(--fill-controls-disabled-disabled);
-          color: var(--icon-disabled-disabled);
-          border-color: var(--border-controls-disabled-disabled);
+          background-color: ${theme.colors.disabled};
+          color: ${theme.colors.text.disabled};
+          border-color: ${theme.colors.border.disabled};
         `
       : css`
           ${Label}:hover & {
-            border-color: var(--border-controls-primary-hover);
+            border-color: ${theme.colors.border.primary.hover};
             box-shadow: 0 0 0 4px #e7f1e9;
           }
         `}
@@ -92,12 +92,12 @@ const LabelText = styled.span`
 
   a {
     color: inherit;
-    border-bottom: 1px solid var(--text-primary-default);
+    border-bottom: 1px solid ${theme.colors.text.default};
     text-decoration: none;
 
     &:hover {
-      color: var(--text-brand);
-      border-bottom-color: var(--text-brand);
+      color: ${theme.colors.text.brand};
+      border-bottom-color: ${theme.colors.text.brand};
     }
   }
 `;

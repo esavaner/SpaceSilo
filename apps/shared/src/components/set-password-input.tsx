@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import styled from 'styled-components';
+import { theme } from '../config/theme';
 import { Check, Dot } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
 import { type InputProps } from './input';
@@ -13,21 +14,17 @@ type StyledProps = {
 
 const RequirementList = styled.ul`
   display: grid;
-  gap: var(--spacing-100);
-  padding: var(--spacing-150);
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[150]};
   margin: 0;
   list-style: none;
 `;
 const Item = styled.li<StyledProps>`
   display: flex;
   align-items: center;
-  gap: var(--spacing-100);
+  gap: ${theme.spacing[100]};
   color: ${({ $isMet, $isError }) =>
-    $isMet
-      ? 'var(--text-status-success-default)'
-      : $isError
-        ? 'var(--text-status-danger-default)'
-        : 'var(--text-secondary-default)'};
+    $isMet ? theme.colors.text.success : $isError ? theme.colors.text.danger : theme.colors.text.secondary};
 `;
 
 type Props = Omit<InputProps, 'type' | 'icon'> & {

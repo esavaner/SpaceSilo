@@ -1,5 +1,6 @@
 import { forwardRef, useId } from 'react';
 import styled from 'styled-components';
+import { theme } from '../config/theme';
 import { Info } from '../assets/icons';
 import {
   commonInputStyles,
@@ -44,7 +45,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {!hideLabel && (
           <InputLabel id={labelId} htmlFor={inputId}>
             {label}
-            {required && <span style={{ color: 'var(--text-status-danger-default)' }}>*</span>}
+            {required && <span style={{ color: theme.colors.text.danger }}>*</span>}
           </InputLabel>
         )}
         <InputContainer>

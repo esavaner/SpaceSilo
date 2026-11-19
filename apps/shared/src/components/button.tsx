@@ -14,95 +14,95 @@ type StyleProps = {
 const styles: Record<Variant, StyleProps> = {
   primary: {
     default: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-primary-default);
-      border: 1px solid var(--border-controls-primary-default);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.primary.default};
+      border: 1px solid ${theme.colors.border.primary.default};
     `,
     hover: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-primary-hover);
-      border: 1px solid var(--border-controls-primary-hover);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.primary.hover};
+      border: 1px solid ${theme.colors.border.primary.hover};
       box-shadow: 0 0 0 4px #e7f1e9;
     `,
     clicked: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-primary-active);
-      border: 1px solid var(--border-controls-primary-active);
-      outline: 1px solid var(--border-controls-primary-active);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.primary.active};
+      border: 1px solid ${theme.colors.border.primary.active};
+      outline: 1px solid ${theme.colors.border.primary.active};
       outline-offset: 4px;
     `,
   },
   secondary: {
     default: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-secondary-default);
-      border: 1px solid var(--border-controls-secondary-default);
+      color: ${theme.colors.text.default};
+      background: ${theme.colors.secondary.default};
+      border: 1px solid ${theme.colors.border.secondary.default};
     `,
     hover: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-secondary-hover);
-      border: 1px solid var(--border-controls-secondary-hover);
+      color: ${theme.colors.text.default};
+      background: ${theme.colors.secondary.hover};
+      border: 1px solid ${theme.colors.border.secondary.hover};
     `,
     clicked: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-secondary-active);
-      border: 1px solid var(--border-controls-secondary-active);
-      outline: 1px solid var(--border-controls-secondary-active);
+      color: ${theme.colors.text.default};
+      background: ${theme.colors.secondary.active};
+      border: 1px solid ${theme.colors.border.secondary.active};
+      outline: 1px solid ${theme.colors.border.secondary.active};
       outline-offset: 4px;
     `,
   },
   tertiary: {
     default: css`
-      color: var(--text-brand);
-      background: var(--fill-controls-tertiary-default);
+      color: ${theme.colors.text.brand};
+      background: ${theme.colors.tertiary.default};
       border: 1px solid transparent;
     `,
     hover: css`
-      color: var(--text-brand);
-      background: var(--fill-controls-tertiary-hover);
+      color: ${theme.colors.text.brand};
+      background: ${theme.colors.tertiary.hover};
       border: 1px solid transparent;
     `,
     clicked: css`
-      color: var(--text-brand);
-      background: var(--fill-controls-tertiary-active);
+      color: ${theme.colors.text.brand};
+      background: ${theme.colors.tertiary.active};
       border: 1px solid transparent;
     `,
   },
   destructive: {
     default: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-destructive-default);
-      border: 1px solid var(--border-controls-destructive-default);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.destructive.default};
+      border: 1px solid ${theme.colors.border.destructive.default};
     `,
     hover: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-destructive-hover);
-      border: 1px solid var(--border-controls-destructive-hover);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.destructive.hover};
+      border: 1px solid ${theme.colors.border.destructive.hover};
     `,
     clicked: css`
-      color: var(--text-primary-inverted);
-      background: var(--fill-controls-destructive-active);
-      border: 1px solid var(--border-controls-destructive-active);
-      outline: 1px solid var(--border-controls-destructive-active);
+      color: ${theme.colors.text.inverted};
+      background: ${theme.colors.destructive.active};
+      border: 1px solid ${theme.colors.border.destructive.active};
+      outline: 1px solid ${theme.colors.border.destructive.active};
       outline-offset: 4px;
     `,
   },
   link: {
     default: css`
-      color: var(--text-primary-default);
+      color: ${theme.colors.text.default};
       background: transparent;
       border: 1px solid transparent;
       text-decoration: underline;
     `,
     hover: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-tertiary-hover);
+      color: ${theme.colors.text.default};
+      background: ${theme.colors.tertiary.hover};
       border: 1px solid transparent;
       text-decoration: underline;
     `,
     clicked: css`
-      color: var(--text-primary-default);
-      background: var(--fill-controls-tertiary-active);
+      color: ${theme.colors.text.default};
+      background: ${theme.colors.tertiary.active};
       border: 1px solid transparent;
       text-decoration: underline;
     `,
@@ -120,7 +120,7 @@ const StyledButton = styled.button<StyledProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-200);
+  gap: ${theme.spacing[200]};
   font-weight: bold;
   cursor: pointer;
   position: relative;
@@ -140,34 +140,34 @@ const StyledButton = styled.button<StyledProps>`
   ${({ $size }) =>
     $size === 'large'
       ? css`
-          padding: var(--spacing-300) var(--spacing-600);
-          border-radius: var(--border-radius-300);
+          padding: ${theme.spacing[300]} ${theme.spacing[600]};
+          border-radius: ${theme.radius[300]};
         `
       : $size === 'small'
         ? css`
-            padding: var(--spacing-150) var(--spacing-300);
-            border-radius: var(--border-radius-200);
-            font-size: var(--font-size-sm);
+            padding: ${theme.spacing[150]} ${theme.spacing[300]};
+            border-radius: ${theme.radius[200]};
+            font-size: ${theme.fontSize.sm};
             line-height: 145%;
             letter-spacing: 0.01875rem;
           `
         : css`
-            padding: var(--spacing-200) var(--spacing-400);
-            border-radius: var(--border-radius-300);
+            padding: ${theme.spacing[200]} ${theme.spacing[400]};
+            border-radius: ${theme.radius[300]};
           `}
 
   ${({ $disabled, $variant }) =>
     $disabled
       ? $variant === 'tertiary' || $variant === 'link'
         ? css`
-            color: var(--text-disabled-disabled);
+            color: ${theme.colors.text.disabled};
             background: transparent;
             border: 1px solid transparent;
           `
         : css`
-            color: var(--text-disabled-disabled);
-            background: var(--fill-controls-disabled-disabled);
-            border: 1px solid var(--fill-controls-disabled-disabled);
+            color: ${theme.colors.text.disabled};
+            background: ${theme.colors.disabled};
+            border: 1px solid ${theme.colors.disabled};
           `
       : ''} 
 

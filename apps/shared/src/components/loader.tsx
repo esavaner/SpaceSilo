@@ -46,10 +46,10 @@ const FullPageWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: var(--spacing-600);
-  gap: var(--spacing-400);
+  padding: ${theme.spacing[600]};
+  gap: ${theme.spacing[400]};
   background-blend-mode: normal, overlay, normal;
-  background: var(--fill-surface-brand-brand_primary);
+  background: ${theme.colors.surface.brandPrimary};
   background: radial-gradient(85.49% 39.87% at 50% 50%, #5eb0a1 0%, #448b7e 100%) #fbf8f3;
 
   &::before {
@@ -77,10 +77,10 @@ const FullPageWrapper = styled.div`
 `;
 const LogoContainer = styled.div`
   display: flex;
-  padding: var(--spacing-300);
-  border-radius: var(--border-radius-200);
-  border: 1px solid var(--border-neutral-default);
-  background: var(--fill-surface-weak);
+  padding: ${theme.spacing[300]};
+  border-radius: ${theme.radius[200]};
+  border: 1px solid ${theme.colors.border.default};
+  background: ${theme.colors.surface.weak};
   margin: auto;
   max-width: min(360px, 80%);
   animation: ${resize} 2s ease-in-out infinite;
@@ -116,7 +116,7 @@ type Props = React.HTMLAttributes<HTMLDivElement> & {
       }
   );
 
-export const Loader = ({ block, fullPage, size, color = 'var(--text-brand)', ...rest }: Props) => {
+export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand, ...rest }: Props) => {
   const props = {
     role: 'status',
     'aria-live': 'polite',

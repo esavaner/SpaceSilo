@@ -32,8 +32,8 @@ const Menu = styled.div`
   z-index: ${theme.zIndex.dropdown};
   min-width: 150px;
   padding: 0;
-  border-radius: var(--border-radius-400);
-  background: var(--fill-surface-weak);
+  border-radius: ${theme.radius[400]};
+  background: ${theme.colors.surface.weak};
   box-shadow: 0 4px 24px rgba(162, 174, 169, 0.46);
   overflow: hidden;
 `;
@@ -42,11 +42,11 @@ const ItemButton = styled.button`
   display: grid;
   grid-template-columns: 22px 1fr;
   align-items: center;
-  gap: var(--spacing-400);
+  gap: ${theme.spacing[400]};
   width: 100%;
-  padding: var(--spacing-400) var(--spacing-800) var(--spacing-300);
+  padding: ${theme.spacing[400]} ${theme.spacing[800]} ${theme.spacing[300]};
   border: 0;
-  border-bottom: 1px solid var(--border-neutral-default);
+  border-bottom: 1px solid ${theme.colors.border.default};
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -58,7 +58,7 @@ const ItemButton = styled.button`
 
   &:hover,
   &:focus-visible {
-    background: var(--fill-surface-medium);
+    background: ${theme.colors.surface.medium};
     outline: none;
   }
 
@@ -73,7 +73,7 @@ const ItemButton = styled.button`
 const Label = styled(Text)`
   display: flex;
   align-items: center;
-  gap: var(--spacing-200);
+  gap: ${theme.spacing[200]};
   white-space: nowrap;
   color: inherit;
   font-size: 14px;

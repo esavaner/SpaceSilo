@@ -18,30 +18,30 @@ export const InputWrapper = styled.div`
 `;
 export const InputLabel = styled(Text.FormLabel)`
   display: flex;
-  gap: var(--spacing-50);
-  padding-bottom: var(--spacing-100);
-  padding-left: var(--spacing-150);
+  gap: ${theme.spacing[50]};
+  padding-bottom: ${theme.spacing[100]};
+  padding-left: ${theme.spacing[150]};
   width: fit-content;
 `;
 export const InputContainer = styled.div`
   position: relative;
-  border-radius: var(--border-radius-300);
-  background: var(--fill-surface-weak);
+  border-radius: ${theme.radius[300]};
+  background: ${theme.colors.surface.weak};
 `;
 const Icon = styled.div<{ $left?: boolean }>`
   position: absolute;
   top: 25px;
   transform: translateY(-50%);
-  color: var(--icon-secondary-default);
+  color: ${theme.colors.text.secondary};
   pointer-events: none;
 
   ${({ $left }) =>
     $left
       ? css`
-          left: var(--spacing-400);
+          left: ${theme.spacing[400]};
         `
       : css`
-          right: var(--spacing-400);
+          right: ${theme.spacing[400]};
         `}
 
   & > svg {
@@ -51,30 +51,28 @@ const Icon = styled.div<{ $left?: boolean }>`
 export const commonInputStyles = css<InputInfoProps>`
   ${theme.text.formPlaceholder}
   width: 100%;
-  padding: var(--spacing-300) var(--spacing-400);
-  padding-right: ${({ $hasIcon }) => ($hasIcon ? 'var(--spacing-1200)' : 'var(--spacing-400)')};
-  padding-left: ${({ $hasIconLeft }) => ($hasIconLeft ? 'var(--spacing-1200)' : 'var(--spacing-400)')};
-  border-radius: var(--border-radius-300);
-  background-color: ${({ $disabled }) =>
-    $disabled ? 'var(--fill-controls-disabled-disabled)' : 'var(--fill-surface-weak)'};
-  border: 1px solid
-    ${({ $isError }) => ($isError ? 'var(--text-status-danger-default)' : 'var(--border-input-default)')};
+  padding: ${theme.spacing[300]} ${theme.spacing[400]};
+  padding-right: ${({ $hasIcon }) => ($hasIcon ? `${theme.spacing[1200]}` : `${theme.spacing[400]}`)};
+  padding-left: ${({ $hasIconLeft }) => ($hasIconLeft ? `${theme.spacing[1200]}` : `${theme.spacing[400]}`)};
+  border-radius: ${theme.radius[300]};
+  background-color: ${({ $disabled }) => ($disabled ? theme.colors.disabled : theme.colors.surface.weak)};
+  border: 1px solid ${({ $isError }) => ($isError ? theme.colors.text.danger : theme.colors.border.input.default)};
   cursor: pointer;
 `;
 export const inputStateStyles = css`
   &:hover:not(:disabled) {
-    border: 1px solid var(--border-input-hover);
+    border: 1px solid ${theme.colors.border.input.hover};
     box-shadow: 0 0 0 4px #f5f2ef;
   }
   &:active:not(:disabled),
   &:focus:not(:disabled) {
-    border: 1px solid var(--border-input-active);
+    border: 1px solid ${theme.colors.border.input.active};
     outline: none;
   }
   &:disabled {
-    background-color: var(--fill-controls-disabled-disabled);
-    border: 1px solid var(--border-controls-disabled-disabled);
-    color: var(--text-disabled-disabled);
+    background-color: ${theme.colors.disabled};
+    border: 1px solid ${theme.colors.border.disabled};
+    color: ${theme.colors.text.disabled};
     cursor: not-allowed;
   }
 `;
@@ -88,17 +86,17 @@ const CustomInputWrapper = styled.div<InputInfoProps>`
       ? ''
       : css`
           ${commonInputStyles}
-          padding-top: var(--spacing-100);
+          padding-top: ${theme.spacing[100]};
           padding-bottom: 0;
           ${
             !$disabled &&
             css`
               &:hover {
-                border: 1px solid var(--border-input-hover);
+                border: 1px solid ${theme.colors.border.input.hover};
                 box-shadow: 0 0 0 4px #f5f2ef;
               }
               &:focus-within {
-                border: 1px solid var(--border-input-active);
+                border: 1px solid ${theme.colors.border.input.active};
               }
             `
           }
@@ -106,15 +104,15 @@ const CustomInputWrapper = styled.div<InputInfoProps>`
 `;
 export const InputInfo = styled(Text.FormMessage)<InputInfoProps>`
   display: flex;
-  gap: var(--spacing-100);
-  padding: var(--spacing-150);
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[150]};
   padding-bottom: 0;
-  color: ${({ $isError }) => ($isError ? 'var(--text-status-danger-default)' : 'var(--text-secondary-default)')};
+  color: ${({ $isError }) => ($isError ? theme.colors.text.danger : theme.colors.text.secondary)};
   * {
     flex-shrink: 0;
   }
   &:last-child {
-    padding-bottom: var(--spacing-150);
+    padding-bottom: ${theme.spacing[150]};
   }
 `;
 
@@ -198,7 +196,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {!hideLabel && (
           <InputLabel id={labelId} htmlFor={customInput ? undefined : inputId}>
             {label}
-            {required && <span style={{ color: 'var(--text-status-danger-default)' }}>*</span>}
+            {required && <span style={{ color: theme.colors.text.danger }}>*</span>}
           </InputLabel>
         )}
         <InputContainer>
@@ -241,10 +239,10 @@ export const InputIconButton = styled.button`
   height: fit-content;
   top: 25px;
   transform: translateY(-50%);
-  border-radius: var(--border-radius-100);
-  right: var(--spacing-400);
+  border-radius: ${theme.radius[100]};
+  right: ${theme.spacing[400]};
   display: inline-flex;
-  color: var(--icon-secondary-default);
+  color: ${theme.colors.text.secondary};
   padding: 0;
   & > svg {
     display: block;
@@ -253,12 +251,12 @@ export const InputIconButton = styled.button`
     background-color: rgba(0, 0, 0, 0.05);
   }
   &:disabled {
-    color: var(--text-disabled-disabled);
+    color: ${theme.colors.text.disabled};
     cursor: not-allowed;
   }
   &:focus,
   &:focus-visible {
-    outline: 2px solid var(--border-input-active);
-    border-radius: var(--border-radius-100);
+    outline: 2px solid ${theme.colors.border.input.active};
+    border-radius: ${theme.radius[100]};
   }
 `;

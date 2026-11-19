@@ -22,6 +22,7 @@ import {
   SetPasswordInput,
   Text,
   Textarea,
+  theme,
   useModal,
   usePagination,
 } from '@repo/shared/components';
@@ -90,7 +91,7 @@ const Showcase = () => {
         <Dropdown
           items={[
             { label: 'Edit', onClick: () => {} },
-            { label: 'Delete', onClick: () => {}, color: 'var(--text-status-danger-default)' },
+            { label: 'Delete', onClick: () => {}, color: theme.colors.text.danger },
           ]}
         />
       </div>
@@ -143,7 +144,11 @@ const Showcase = () => {
 
 export default function Home() {
   // shortcut: client-only because sc v7 prerelease nests styled elements differently on server vs client, shifting useId (hydration mismatch); drop once sc SSR output matches
-  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  );
   if (!mounted) return null;
 
   return (

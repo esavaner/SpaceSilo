@@ -22,57 +22,57 @@ const TriggerButton = styled.button<TriggerProps>`
   border: 0;
   background: transparent;
   text-align: left;
-  padding: var(--spacing-100) 0 var(--spacing-200);
+  padding: ${theme.spacing[100]} 0 ${theme.spacing[200]};
   min-height: 44px;
   &:disabled {
     cursor: not-allowed;
-    color: var(--text-disabled-disabled);
+    color: ${theme.colors.text.disabled};
   }
 `;
 const ValueText = styled.span<{ $isPlaceholder?: boolean }>`
-  color: ${({ $isPlaceholder }) => ($isPlaceholder ? 'var(--text-secondary-default)' : 'var(--text-primary-default)')};
+  color: ${({ $isPlaceholder }) => ($isPlaceholder ? theme.colors.text.secondary : theme.colors.text.default)};
 `;
 const SelectedValues = styled.span`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-100);
+  gap: ${theme.spacing[100]};
 `;
 const ChipRemoveButton = styled(X)`
   width: 22px;
   height: 22px;
-  padding: var(--spacing-100);
+  padding: ${theme.spacing[100]};
   cursor: pointer;
   &:hover,
   &:focus,
   &:focus-visible {
-    outline: 2px solid var(--border-input-hover);
-    border-radius: var(--border-radius-100);
+    outline: 2px solid ${theme.colors.border.input.hover};
+    border-radius: ${theme.radius[100]};
   }
 `;
 const SelectedValueChip = styled(Text.Label)`
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-200);
-  padding: var(--spacing-100) var(--spacing-200);
-  border-radius: var(--border-radius-200);
-  border: 1px solid var(--border-neutral-default);
-  background: var(--fill-surface-stronger);
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
+  border-radius: ${theme.radius[200]};
+  border: 1px solid ${theme.colors.border.default};
+  background: ${theme.colors.surface.stronger};
   min-height: 32px;
   &:has(${ChipRemoveButton}:is(:hover, :focus, :focus-visible)) {
-    background: var(--fill-surface-darker);
+    background: ${theme.colors.surface.darker};
   }
 `;
 const Dropdown = styled.div`
   position: absolute;
   z-index: ${theme.zIndex.dropdown};
   width: 100%;
-  padding: var(--spacing-300);
+  padding: ${theme.spacing[300]};
   padding-right: 0;
-  margin-top: var(--spacing-100);
-  border-radius: var(--border-radius-300);
-  border: 1px solid var(--border-neutral-default);
-  background-color: var(--fill-surface-weak);
+  margin-top: ${theme.spacing[100]};
+  border-radius: ${theme.radius[300]};
+  border: 1px solid ${theme.colors.border.default};
+  background-color: ${theme.colors.surface.weak};
   box-shadow: 0 18px 30px rgba(63, 44, 38, 0.14);
   overflow: hidden;
 `;
@@ -82,30 +82,30 @@ const OptionButton = styled.button<{ $selected?: boolean }>`
   width: 100%;
   border: 0;
   text-align: left;
-  padding: var(--spacing-300) var(--spacing-200);
-  margin-bottom: var(--spacing-200);
-  border-radius: var(--border-radius-200);
-  background: ${({ $selected }) => ($selected ? 'var(--fill-surface-stronger)' : 'var(--fill-surface-weak)')};
+  padding: ${theme.spacing[300]} ${theme.spacing[200]};
+  margin-bottom: ${theme.spacing[200]};
+  border-radius: ${theme.radius[200]};
+  background: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : theme.colors.surface.weak)};
   &:hover,
   &:focus-visible {
-    background: var(--fill-surface-medium);
+    background: ${theme.colors.surface.medium};
     outline: none;
   }
   &:disabled {
-    color: var(--text-disabled-disabled);
+    color: ${theme.colors.text.disabled};
     cursor: not-allowed;
   }
 `;
 const Checkmark = styled(Check)`
   position: absolute;
-  right: var(--spacing-200);
+  right: ${theme.spacing[200]};
   top: 50%;
   transform: translateY(-50%);
 `;
 const EmptyState = styled(Text.FormMessage)`
   display: block;
-  padding: var(--spacing-400);
-  color: var(--text-secondary-default);
+  padding: ${theme.spacing[400]};
+  color: ${theme.colors.text.secondary};
 `;
 const Chevron = styled(ChevronDown)<{ $open?: boolean }>`
   display: block;
@@ -328,7 +328,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             value={search}
             onChange={handleSearchChange}
             wrapperStyle={{
-              margin: `0 var(--spacing-300) var(--spacing-200) 0`,
+              margin: `0 ${theme.spacing[300]} ${theme.spacing[200]} 0`,
             }}
             type="search"
           />
@@ -341,7 +341,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
           aria-label={label}
           aria-multiselectable={multiple || undefined}
           maxHeight={isMobile ? 560 : 260}
-          rightPadding="var(--spacing-200)"
+          rightPadding={`${theme.spacing[200]}`}
         >
           {filteredOptions.length === 0 && <EmptyState>{noOptionsLabel}</EmptyState>}
           {filteredOptions.map((option, index) => {

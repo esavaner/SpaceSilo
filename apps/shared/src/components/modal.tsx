@@ -50,14 +50,14 @@ const ScrollContainer = styled.div<SyledProps>`
   justify-content: center;
   min-height: 100%;
   min-width: 100%;
-  padding: var(--spacing-1200) var(--spacing-400);
+  padding: ${theme.spacing[1200]} ${theme.spacing[400]};
 
   ${({ $variant }) =>
     $variant !== 'desktopOnly' &&
     css`
       @media (max-width: 575px) {
         justify-content: flex-end;
-        padding: var(--spacing-1200) 0 0;
+        padding: ${theme.spacing[1200]} 0 0;
         overflow-y: hidden;
       }
     `}
@@ -75,10 +75,10 @@ const ModalCard = styled.div<SyledProps>`
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-400);
-  background-color: var(--fill-surface-weak);
-  border-radius: var(--border-radius-600);
-  padding: var(--spacing-600);
+  gap: ${theme.spacing[400]};
+  background-color: ${theme.colors.surface.weak};
+  border-radius: ${theme.radius[600]};
+  padding: ${theme.spacing[600]};
   min-width: 300px;
   width: fit-content;
   max-width: 840px;
@@ -95,7 +95,7 @@ const ModalCard = styled.div<SyledProps>`
       @media (max-width: 575px) {
         padding-bottom: 100px;
         width: 100%;
-        border-radius: var(--border-radius-800) var(--border-radius-800) 0 0;
+        border-radius: ${theme.radius[800]} ${theme.radius[800]} 0 0;
         animation: ${$isClosing ? slideOut : slideIn} ${MODAL_ANIMATION_MS}ms ease forwards;
       }
     `}
@@ -104,9 +104,9 @@ const ModalCard = styled.div<SyledProps>`
     $mobileFullScreen &&
     css`
       @media (max-width: 575px) {
-        gap: var(--spacing-400);
+        gap: ${theme.spacing[400]};
         flex: 1;
-        padding: var(--spacing-400);
+        padding: ${theme.spacing[400]};
         padding-bottom: 100px;
         border-radius: 0;
       }
@@ -227,17 +227,17 @@ export const Modal = ({
 };
 
 export const ModalTitle = styled(Text.H2)`
-  margin-right: var(--spacing-800);
+  margin-right: ${theme.spacing[800]};
 `;
 
 export const ModalError = styled(Text.M)`
-  color: var(--text-status-danger-default);
-  margin: var(--spacing-200) auto var(--spacing-400);
+  color: ${theme.colors.text.danger};
+  margin: ${theme.spacing[200]} auto ${theme.spacing[400]};
 `;
 
 export const ModalButtons = styled.div`
   display: flex;
-  gap: var(--spacing-400);
-  margin-top: var(--spacing-400);
+  gap: ${theme.spacing[400]};
+  margin-top: ${theme.spacing[400]};
   justify-content: center;
 `;

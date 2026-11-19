@@ -29,52 +29,52 @@ const Label = styled.label<StyledProps>`
     border 0.15s ease,
     color 0.15s ease;
   margin: 1px;
-  border-radius: var(--border-radius-400);
-  background: var(--fill-surface-weak);
-  border: var(--border-weight-25) solid
-    ${({ $isError }) => ($isError ? 'var(--border-status-error-default)' : 'var(--border-input-default)')};
+  border-radius: ${theme.radius[400]};
+  background: ${theme.colors.surface.weak};
+  border: ${theme.borderWeight[25]} solid
+    ${({ $isError }) => ($isError ? theme.colors.border.error.default : theme.colors.border.input.default)};
 
   ${({ $variant }) =>
     $variant === 'vertical'
       ? css`
           flex-direction: column;
-          padding: var(--spacing-400);
-          gap: var(--spacing-200);
+          padding: ${theme.spacing[400]};
+          gap: ${theme.spacing[200]};
         `
       : css`
-          padding: var(--spacing-200) var(--spacing-400);
-          gap: var(--spacing-400);
+          padding: ${theme.spacing[200]} ${theme.spacing[400]};
+          gap: ${theme.spacing[400]};
         `}
 
   ${({ $disabled }) =>
     $disabled
       ? css`
-          color: var(--text-disabled-disabled);
-          background-color: var(--fill-controls-disabled-disabled);
+          color: ${theme.colors.text.disabled};
+          background-color: ${theme.colors.disabled};
           box-shadow: none;
           cursor: not-allowed;
         `
       : css`
-          color: var(--text-primary-default);
+          color: ${theme.colors.text.default};
           cursor: pointer;
 
           &:hover {
-            background: var(--fill-surface-default);
-            border: var(--border-weight-25) solid var(--border-input-hover);
+            background: ${theme.colors.surface.default};
+            border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.hover};
             box-shadow: 0 0 0 4px #f7f3f0;
           }
 
           &:active,
           &:focus-within,
           &:has(${HiddenInput}:checked) {
-            background: var(--fill-surface-medium);
-            border: var(--border-weight-25) solid var(--border-input-active);
-            box-shadow: 0 0 0 1px var(--border-input-active);
+            background: ${theme.colors.surface.medium};
+            border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.active};
+            box-shadow: 0 0 0 1px ${theme.colors.border.input.active};
           }
         `}
 `;
 const Checkmark = styled(CircleCheck)`
-  color: var(--fill-controls-primary-default);
+  color: ${theme.colors.primary.default};
   position: absolute;
   top: 8px;
   right: 12px;
@@ -83,8 +83,8 @@ const Checkmark = styled(CircleCheck)`
 `;
 const Circle = styled.div`
   position: absolute;
-  border-radius: var(--border-radius-full);
-  border: var(--border-weight-25) solid var(--border-controls-primary-default);
+  border-radius: ${theme.radius.full};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.primary.default};
   top: 10px;
   right: 14px;
   width: 20px;

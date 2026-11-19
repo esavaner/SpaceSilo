@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { theme } from '../config/theme';
 
 // buffer to determine how near the top/bottom the fade should disappear
 const BUFFER = 15;
@@ -38,22 +39,22 @@ const Wrapper = styled.div<FadeProps>`
   }
 
   &::before {
-    border-radius: var(--border-radius-300) var(--border-radius-300) 0 0;
+    border-radius: ${theme.radius[300]} ${theme.radius[300]} 0 0;
     top: 0;
     ${({ $topVisible, $fadeHeight, $dark }) => css`
       height: ${$fadeHeight}px;
       opacity: ${$topVisible ? 1 : 0};
-      background: linear-gradient(to bottom, ${$dark ? 'var(--fill-surface-darker)' : 'white'} 0%, transparent 100%);
+      background: linear-gradient(to bottom, ${$dark ? theme.colors.surface.darker : 'white'} 0%, transparent 100%);
     `}
   }
 
   &::after {
     bottom: 0;
-    border-radius: 0 0 var(--border-radius-300) var(--border-radius-300);
+    border-radius: 0 0 ${theme.radius[300]} ${theme.radius[300]};
     ${({ $bottomVisible, $fadeHeight, $dark }) => css`
       height: ${$fadeHeight}px;
       opacity: ${$bottomVisible ? 1 : 0};
-      background: linear-gradient(to top, ${$dark ? 'var(--fill-surface-darker)' : 'white'} 0%, transparent 100%);
+      background: linear-gradient(to top, ${$dark ? theme.colors.surface.darker : 'white'} 0%, transparent 100%);
     `}
   }
 `;
