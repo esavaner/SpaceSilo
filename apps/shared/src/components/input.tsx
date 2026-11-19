@@ -16,7 +16,9 @@ export type InputInfoProps = {
 export const InputWrapper = styled.div`
   display: grid;
 `;
-export const InputLabel = styled(Text.FormLabel)`
+export const InputLabel = styled.label`
+  ${theme.text.formLabel}
+  color: ${theme.colors.text.default};
   display: flex;
   gap: ${theme.spacing[50]};
   padding-bottom: ${theme.spacing[100]};

@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
-import styled, { css, RuleSet } from 'styled-components';
+import { Text as NativeText } from 'react-native';
+import styled, { css, RuleSet } from 'styled-components/native';
 import { theme } from '../config/theme';
 import { CircleImage, UnderlineImage } from '../assets/images';
 
@@ -15,14 +16,7 @@ type ComponentProps = {
 type StyledProps = {
   [key in keyof ComponentProps as `$${key}`]: ComponentProps[key];
 };
-type TextProps<E extends React.ElementType> = Omit<React.ComponentPropsWithoutRef<E>, 'as' | 'color'> &
-  ComponentProps & {
-    as?: E;
-  };
-
-type TextComponent<T extends React.ElementType> = <E extends React.ElementType = T>(
-  props: TextProps<E> & { ref?: React.ComponentPropsWithRef<E>['ref'] }
-) => React.ReactElement | null;
+type TextProps = Omit<React.ComponentPropsWithoutRef<typeof NativeText>, 'color'> & ComponentProps;
 
 const emStyles: Record<EmVariant, RuleSet<object>> = {
   primary: css`
@@ -89,8 +83,8 @@ const emStyles: Record<EmVariant, RuleSet<object>> = {
   `,
 };
 
-const create = <T extends React.ElementType>(defaultAs: T, style: RuleSet<object>) => {
-  const Component = styled.span<StyledProps>`
+const create = (style: RuleSet<object>) => {
+  const Component = styled.Text<StyledProps>`
     ${style}
     color: ${({ $color }) => $color ?? theme.colors.text.default};
     ${({ $italic }) =>
@@ -111,13 +105,12 @@ const create = <T extends React.ElementType>(defaultAs: T, style: RuleSet<object
     ${({ $em }) => $em && emStyles[$em]}
   `;
 
-  const ForwardedTextComponent = forwardRef<HTMLElement, TextProps<T>>((props, ref) => {
-    const { as, color, italic, weight, center, em, ...rest } = props as TextProps<T>;
+  const ForwardedTextComponent = forwardRef<NativeText, TextProps>((props, ref) => {
+    const { color, italic, weight, center, em, ...rest } = props;
 
     return (
       <Component
         ref={ref}
-        as={as ?? defaultAs}
         $color={color}
         $italic={italic}
         $weight={weight}
@@ -128,27 +121,24 @@ const create = <T extends React.ElementType>(defaultAs: T, style: RuleSet<object
     );
   });
 
-  ForwardedTextComponent.displayName = typeof defaultAs === 'string' ? `Text(${defaultAs})` : 'Text';
-
-  const TextComponent = ForwardedTextComponent as unknown as TextComponent<T>;
-
-  return TextComponent;
+  ForwardedTextComponent.displayName = 'Text';
+  return ForwardedTextComponent;
 };
 
-export const Text = Object.assign(create('span', theme.text.M), {
-  DisplayXL: create('h1', theme.text.displayXL),
-  DisplayL: create('h1', theme.text.displayL),
-  H1: create('h1', theme.text.H1),
-  H2: create('h2', theme.text.H2),
-  H3: create('h3', theme.text.H3),
-  L: create('p', theme.text.L),
-  M: create('p', theme.text.M),
-  S: create('p', theme.text.S),
-  Button: create('span', theme.text.button),
-  Label: create('label', theme.text.label),
-  Caption: create('span', theme.text.caption),
-  FormLabel: create('label', theme.text.formLabel),
-  FormPlaceholder: create('span', theme.text.formPlaceholder),
-  FormMessage: create('span', theme.text.formMessage),
-  Em: create('i', theme.text.displayL),
+export const Text = Object.assign(create(theme.text.M), {
+  DisplayXL: create(theme.text.displayXL),
+  DisplayL: create(theme.text.displayL),
+  H1: create(theme.text.H1),
+  H2: create(theme.text.H2),
+  H3: create(theme.text.H3),
+  L: create(theme.text.L),
+  M: create(theme.text.M),
+  S: create(theme.text.S),
+  Button: create(theme.text.button),
+  Label: create(theme.text.label),
+  Caption: create(theme.text.caption),
+  FormLabel: create(theme.text.formLabel),
+  FormPlaceholder: create(theme.text.formPlaceholder),
+  FormMessage: create(theme.text.formMessage),
+  Em: create(theme.text.displayL),
 });
