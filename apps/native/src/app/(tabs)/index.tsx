@@ -9,6 +9,7 @@ import { Input } from '@repo/shared/components/input';
 import { Textarea } from '@repo/shared/components/textarea';
 import { SetPasswordInput } from '@repo/shared/components/set-password-input';
 import { Loader } from '@repo/shared/components/loader';
+import { Checkbox } from '@repo/shared/components/checkbox';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
@@ -33,6 +34,7 @@ export default function IndexPage() {
   const [invalidValue, setInvalidValue] = useState('Invalid value');
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
+  const [updatesEnabled, setUpdatesEnabled] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
 
   useEffect(() => {
@@ -63,6 +65,18 @@ export default function IndexPage() {
           <Loader />
           <Loader block />
           <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
+        </Section>
+
+        <Section>
+          <SectionHeader>Checkbox</SectionHeader>
+          <Checkbox
+            label="Email me updates"
+            checked={updatesEnabled}
+            onValueChange={setUpdatesEnabled}
+            info="You can change this preference later."
+          />
+          <Checkbox label="Agreement" error="Please confirm this choice." />
+          <Checkbox label="Disabled checkbox" disabled defaultChecked />
         </Section>
 
         <Section>

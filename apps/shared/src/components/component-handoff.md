@@ -21,9 +21,14 @@ Done and tested on a real device by the user:
 - `textarea.tsx`, a multiline wrapper around `Input`
 - `set-password-input.tsx`, which supports both controlled and uncontrolled values
 
+Converted and verified with web and bundle builds; pending real-device testing:
+
+- `loader.tsx`
+- `checkbox.tsx`
+
 Still using the web version (`styled-components` and DOM elements):
 
-- `loader`, `overflow-fade`, `checkbox`, `radio`, `radio-group`, `button`, `pagination`, `dropdown`, `select`, `modal`, and `phone-input`
+- `overflow-fade`, `radio`, `radio-group`, `button`, `pagination`, `dropdown`, `select`, `modal`, and `phone-input`
 - Convert the easiest ones first. `select.tsx` and `phone-input.tsx` already use `Input` and `InputIconButton`.
 
 ## Workflow for each component
