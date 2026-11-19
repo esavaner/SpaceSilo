@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, Platform, type ViewProps } from 'react-native';
+import { ActivityIndicator, Modal, Platform, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { Orbit } from '../assets/icons';
 import { NoiseImage, ShapesAnimationImage } from '../assets/images';
@@ -79,6 +79,7 @@ type Props = ViewProps & {
   className?: string;
   size?: number;
   color?: string;
+  onRequestClose?: () => void;
 } & (
     | {
         block?: false;
@@ -94,7 +95,7 @@ type Props = ViewProps & {
       }
   );
 
-export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand, ...rest }: Props) => {
+export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand, onRequestClose, ...rest }: Props) => {
   useEffect(() => {
     if (!fullPage || Platform.OS !== 'web') {
       return;
@@ -116,11 +117,14 @@ export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand,
 
   if (fullPage) {
     return (
-      <FullPageWrapper {...props}>
-        <LogoContainer>
-          <Orbit size={24} color={theme.colors.text.brand} />
-        </LogoContainer>
-      </FullPageWrapper>
+      // Loading remains blocking unless the caller explicitly allows dismissal.
+      <Modal transparent statusBarTranslucent navigationBarTranslucent onRequestClose={onRequestClose ?? (() => {})}>
+        <FullPageWrapper {...props}>
+          <LogoContainer>
+            <Orbit size={24} color={theme.colors.text.brand} />
+          </LogoContainer>
+        </FullPageWrapper>
+      </Modal>
     );
   }
 

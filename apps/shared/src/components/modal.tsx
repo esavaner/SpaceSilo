@@ -1,229 +1,263 @@
-import React, { useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { Children, isValidElement, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Modal as NativeModal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import styled, { css } from 'styled-components/native';
 import { X } from '../assets/icons';
-import styled, { css, keyframes } from 'styled-components';
-import { MODAL_ANIMATION_MS, useModal } from '../context/modal-provider';
+import { ModalContext } from '../context/modal-provider';
 import { theme } from '../config/theme';
 import { Text } from './text';
 
-type Variant = 'default' | 'desktopOnly';
-
-type SyledProps = {
-  $isClosing?: boolean;
-  $variant?: Variant;
-  $mobileFullScreen?: boolean;
+type StyledProps = {
+  $drawer: boolean;
 };
 
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
-const fadeOut = keyframes`
-  from { opacity: 1; }
-  to { opacity: 0; }
-`;
-const slideIn = keyframes`
-  from { transform: translateY(max(120%, 1000px)); }
-  to { transform: translateY(0); }
-`;
-const slideOut = keyframes`
-  from { transform: translateY(0); }
-  to { transform: translateY(max(120%, 1000px)); }
+const Wrapper = styled(KeyboardAvoidingView)`
+  flex: 1;
 `;
 
-const Wrapper = styled.div<SyledProps>`
-  position: fixed;
-  inset: 0;
-  z-index: ${theme.zIndex.modal};
-  height: 100svh;
-  width: 100dvw;
-  overflow-y: auto;
-  background: rgba(63, 44, 38, 0.4);
-  backdrop-filter: blur(10px);
-  animation: ${({ $isClosing }) => ($isClosing ? fadeOut : fadeIn)} ${MODAL_ANIMATION_MS}ms ease forwards;
-`;
+// Blur must share the opacity layer; an opacity ancestor isolates the backdrop until it reaches 1.
+const backdropBaseStyle: ViewStyle & Pick<React.CSSProperties, 'backdropFilter'> = {
+  backgroundColor: 'rgba(63, 44, 38, 0.4)',
+  ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}),
+};
 
-const ScrollContainer = styled.div<SyledProps>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-  min-width: 100%;
-  padding: ${theme.spacing[1200]} ${theme.spacing[400]};
-
-  ${({ $variant }) =>
-    $variant !== 'desktopOnly' &&
-    css`
-      @media (max-width: 575px) {
-        justify-content: flex-end;
-        padding: ${theme.spacing[1200]} 0 0;
-        overflow-y: hidden;
-      }
-    `}
-
-  ${({ $mobileFullScreen }) =>
-    $mobileFullScreen &&
-    css`
-      @media (max-width: 575px) {
-        padding-top: 0;
-      }
-    `}
-`;
-
-const ModalCard = styled.div<SyledProps>`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing[400]};
+const ModalCard = styled.View<StyledProps>`
+  flex-shrink: 1;
+  max-height: 100%;
   background-color: ${theme.colors.surface.weak};
   border-radius: ${theme.radius[600]};
-  padding: ${theme.spacing[600]};
-  min-width: 300px;
-  width: fit-content;
-  max-width: 840px;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  overflow: hidden;
 
-  animation: ${({ $isClosing }) => ($isClosing ? fadeOut : fadeIn)} ${MODAL_ANIMATION_MS}ms ease forwards;
-
-  ${({ $variant, $isClosing }) =>
-    $variant !== 'desktopOnly' &&
-    css`
-      @media (max-width: 575px) {
-        padding-bottom: 100px;
-        width: 100%;
-        border-radius: ${theme.radius[800]} ${theme.radius[800]} 0 0;
-        animation: ${$isClosing ? slideOut : slideIn} ${MODAL_ANIMATION_MS}ms ease forwards;
-      }
-    `}
-
-  ${({ $mobileFullScreen }) =>
-    $mobileFullScreen &&
-    css`
-      @media (max-width: 575px) {
-        gap: ${theme.spacing[400]};
-        flex: 1;
-        padding: ${theme.spacing[400]};
-        padding-bottom: 100px;
-        border-radius: 0;
-      }
-    `}
+  ${({ $drawer }) =>
+    $drawer
+      ? css`
+          width: 100%;
+          border-radius: ${theme.radius[800]} ${theme.radius[800]} 0 0;
+        `
+      : css`
+          width: auto;
+        `}
 `;
 
-const CloseButton = styled.div`
+const CloseButton = styled.Pressable`
   position: absolute;
-  top: 30px;
-  right: 30px;
+  top: ${theme.spacing[300]};
+  right: ${theme.spacing[300]};
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${theme.radius.full};
   z-index: ${theme.zIndex.raised};
-  opacity: 0.7;
-  cursor: pointer;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+    `
+  }
 `;
 
-type Props = Omit<React.HTMLAttributes<HTMLDivElement>, 'onSubmit'> & {
-  onSubmit?: React.FormHTMLAttributes<HTMLFormElement>['onSubmit'];
+export type ModalProps = ViewProps & {
+  className?: string;
   closeOverride?: () => void;
+  /** Pass a translated label, e.g. t('common.actions.close'). */
+  closeLabel?: string;
   disableClickOutside?: boolean;
-  variant?: Variant;
-  mobileFullScreen?: boolean;
 };
+
+let openWebModals = 0;
+let previousBodyOverflow = '';
 
 export const Modal = ({
   children,
   style,
-  className,
-  onSubmit,
   closeOverride,
-  mobileFullScreen,
+  closeLabel = 'Close modal',
   disableClickOutside,
-  variant = 'default',
-}: Props) => {
-  const { isClosing, closeModal } = useModal();
-  const cardRef = useRef<HTMLDivElement | HTMLFormElement | null>(null);
-  const backgroundRef = useRef<HTMLDivElement>(null);
-
-  const handleClose = closeOverride || closeModal;
-
-  // detect if click was on scrollbar
-  const isScrollbarClick = (e: MouseEvent) => {
-    const el = backgroundRef.current;
-    if (!el) return false;
-    const verticalScrollbar = el.offsetWidth - el.clientWidth;
-    const horizontalScrollbar = el.offsetHeight - el.clientHeight;
-    if (verticalScrollbar <= 0 && horizontalScrollbar <= 0) return false;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (verticalScrollbar > 0 && x >= el.clientWidth) return true;
-    if (horizontalScrollbar > 0 && y >= el.clientHeight) return true;
-    return false;
+  accessibilityLabel,
+  'aria-label': ariaLabel,
+  'aria-labelledby': labelledBy,
+  ...props
+}: ModalProps) => {
+  const context = useContext(ModalContext);
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const progress = useSharedValue(0);
+  const onClosedRef = useRef(closeOverride ?? context?.completeClose);
+  const [isShown, setIsShown] = useState(false);
+  const [cardHeight, setCardHeight] = useState(0);
+  const [locallyClosing, setLocallyClosing] = useState(false);
+  const isClosing = closeOverride ? locallyClosing : !!context?.isClosing;
+  const drawer = Platform.OS !== 'web' || width < theme.breakpointNumbers.sm;
+  const maxWidth = drawer ? width : Math.min(840, Math.max(0, width - insets.left - insets.right - 32));
+  const childArray = Children.toArray(children);
+  const titles = childArray.filter((child) => isValidElement(child) && child.type === ModalTitle);
+  const buttons = childArray.filter((child) => isValidElement(child) && child.type === ModalButtons);
+  const body = childArray.filter(
+    (child) => !isValidElement(child) || (child.type !== ModalTitle && child.type !== ModalButtons)
+  );
+  const horizontalPadding = {
+    paddingLeft: 24 + (drawer ? insets.left : 0),
+    paddingRight: 24 + (drawer ? insets.right : 0),
   };
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
+  const cardStyle = useAnimatedStyle(() =>
+    drawer
+      ? { transform: [{ translateY: (1 - progress.value) * cardHeight }], opacity: cardHeight === 0 ? 0 : 1 }
+      : { opacity: progress.value }
+  );
+  const onClosed = useCallback(() => onClosedRef.current?.(), []);
 
-  const handleBackdropMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    const targetNode = e.target as Node;
-    if (!e.currentTarget.contains(targetNode)) {
-      return;
-    }
-    if (cardRef.current?.contains(targetNode)) {
-      return;
-    }
-    if (isScrollbarClick(e.nativeEvent)) {
-      return;
-    }
-    if (!disableClickOutside) {
-      handleClose();
-    }
-  };
-
-  // prevent background scrolling
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    onClosedRef.current = closeOverride ?? context?.completeClose;
+  }, [closeOverride, context?.completeClose]);
+
+  useEffect(() => {
+    if (!isShown || cardHeight === 0) return;
+    progress.value = withTiming(isClosing ? 0 : 1, { duration: 300, easing: Easing.out(Easing.cubic) }, (finished) => {
+      if (finished && isClosing) scheduleOnRN(onClosed);
+    });
+    return () => cancelAnimation(progress);
+  }, [progress, isClosing, isShown, cardHeight, onClosed]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    if (openWebModals++ === 0) {
+      previousBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }
     return () => {
-      document.body.style.overflow = prev;
+      if (--openWebModals === 0) document.body.style.overflow = previousBodyOverflow;
     };
   }, []);
 
-  // close on ESC key press
-  useEffect(() => {
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleClose?.();
-      }
-    };
-    document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
-  }, [handleClose]);
-
-  const modalContent = (
-    <Wrapper ref={backgroundRef} $isClosing={isClosing} onMouseDown={handleBackdropMouseDown}>
-      <ScrollContainer $variant={variant} $mobileFullScreen={mobileFullScreen}>
-        <ModalCard
-          // @ts-expect-error TypeScript doesn't know that this can be a form
-          ref={cardRef}
-          style={style}
-          className={className}
-          $variant={variant}
-          $isClosing={isClosing}
-          $mobileFullScreen={mobileFullScreen}
-          {...(onSubmit ? { as: 'form', onSubmit } : {})}
-        >
-          <CloseButton aria-label="Close modal" onClick={() => handleClose?.()}>
-            <X />
-          </CloseButton>
-          {children}
-        </ModalCard>
-      </ScrollContainer>
-    </Wrapper>
-  );
-
-  if (typeof document === 'undefined') {
-    return modalContent;
+  if (!closeOverride && !context) {
+    throw new Error('Modal requires a ModalProvider or closeOverride.');
   }
 
-  return createPortal(modalContent, document.body);
+  const handleClose = () => {
+    if (isClosing) return;
+    if (closeOverride) setLocallyClosing(true);
+    else context?.closeModal();
+  };
+
+  const content = (
+    <>
+      {titles.length > 0 && (
+        <View style={{ ...horizontalPadding, paddingTop: 24, paddingBottom: 16, flexShrink: 0 }}>{titles}</View>
+      )}
+      <ScrollView
+        style={{ flexGrow: 0 }}
+        contentContainerStyle={{
+          ...horizontalPadding,
+          paddingTop: titles.length ? 0 : 24,
+          paddingBottom: buttons.length ? 16 : 24 + (drawer ? insets.bottom : 0),
+          gap: 16,
+        }}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+      >
+        {body}
+      </ScrollView>
+      {buttons.length > 0 && (
+        <View style={{ ...horizontalPadding, paddingBottom: 24 + (drawer ? insets.bottom : 0), flexShrink: 0 }}>
+          {buttons}
+        </View>
+      )}
+      <CloseButton
+        role="button"
+        accessibilityLabel={closeLabel}
+        onPress={handleClose}
+        disabled={isClosing}
+        style={({ pressed }) => ({ opacity: pressed ? 1 : 0.7, right: 12 + (drawer ? insets.right : 0) })}
+      >
+        <X color={theme.colors.text.default} aria-hidden />
+      </CloseButton>
+    </>
+  );
+
+  return (
+    <NativeModal
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      navigationBarTranslucent
+      hardwareAccelerated
+      onShow={() => setIsShown(true)}
+      onRequestClose={handleClose}
+      accessibilityLabel={accessibilityLabel || ariaLabel}
+      aria-labelledby={labelledBy}
+    >
+      <Wrapper behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}>
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, backdropBaseStyle, backdropStyle]} />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={disableClickOutside ? undefined : handleClose}
+          accessible={false}
+          aria-hidden
+          tabIndex={-1}
+        />
+        <View
+          pointerEvents="box-none"
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: drawer ? 'flex-end' : 'center',
+            paddingTop: insets.top + 48,
+            paddingBottom: drawer ? 0 : insets.bottom + 48,
+            paddingLeft: drawer ? 0 : insets.left + 16,
+            paddingRight: drawer ? 0 : insets.right + 16,
+          }}
+        >
+          <Animated.View
+            style={[
+              {
+                flexShrink: 1,
+                maxHeight: '100%',
+                width: drawer ? '100%' : undefined,
+                maxWidth,
+                minWidth: drawer ? undefined : Math.min(300, maxWidth),
+              },
+              cardStyle,
+            ]}
+          >
+            <ModalCard
+              {...props}
+              $drawer={drawer}
+              onLayout={(event) => {
+                setCardHeight(event.nativeEvent.layout.height);
+                props.onLayout?.(event);
+              }}
+              accessibilityViewIsModal
+              onAccessibilityEscape={handleClose}
+              style={style}
+            >
+              {content}
+            </ModalCard>
+          </Animated.View>
+        </View>
+      </Wrapper>
+    </NativeModal>
+  );
 };
 
 export const ModalTitle = styled(Text.H2)`
@@ -235,8 +269,9 @@ export const ModalError = styled(Text.M)`
   margin: ${theme.spacing[200]} auto ${theme.spacing[400]};
 `;
 
-export const ModalButtons = styled.div`
-  display: flex;
+export const ModalButtons = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: ${theme.spacing[400]};
   margin-top: ${theme.spacing[400]};
   justify-content: center;

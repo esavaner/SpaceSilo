@@ -2,7 +2,6 @@
 import { useRootNavigationState } from 'expo-router';
 import { BaseLayout } from '@/components/base-layout';
 import { useEffect, useState } from 'react';
-import { Modal } from 'react-native';
 import { Text } from '@repo/shared/components/text';
 import { Input } from '@repo/shared/components/input';
 import { Textarea } from '@repo/shared/components/textarea';
@@ -15,6 +14,8 @@ import { RadioGroup } from '@repo/shared/components/radio-group';
 import { OverflowFade } from '@repo/shared/components/overflow-fade';
 import { Button } from '@repo/shared/components/button';
 import { Pagination } from '@repo/shared/components/pagination';
+import { Modal, ModalButtons, ModalError, ModalTitle } from '@repo/shared/components/modal';
+import { useModal } from '@repo/shared/context/modal-provider';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
@@ -35,6 +36,7 @@ const SectionHeader = styled.Text`
 
 export default function IndexPage() {
   const rootNavigationState = useRootNavigationState();
+  const { openModal, closeModal } = useModal();
   const [name, setName] = useState('');
   const [invalidValue, setInvalidValue] = useState('Invalid value');
   const [description, setDescription] = useState('');
@@ -44,6 +46,38 @@ export default function IndexPage() {
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+
+  const openExample = (example: 'standard' | 'long' | 'locked') =>
+    openModal(
+      <Modal accessibilityLabel="Example dialog" closeLabel="Close example" disableClickOutside={example === 'locked'}>
+        <ModalTitle>Example dialog</ModalTitle>
+        <Text.M>
+          {example === 'locked'
+            ? 'Backdrop taps are disabled. Close with the button, Escape, or Android Back.'
+            : 'Only this content scrolls. The title and buttons stay visible.'}
+        </Text.M>
+        <Input label="Modal value" placeholder="Check keyboard and focus" />
+        <ModalError>Example validation error.</ModalError>
+        {example === 'long' &&
+          Array.from({ length: 30 }, (_, index) => <Text.M key={index}>Modal row {index + 1}</Text.M>)}
+        <ModalButtons>
+          <Button variant="secondary" onPress={closeModal}>
+            Cancel
+          </Button>
+          <Button onPress={closeModal}>Done</Button>
+          {example === 'standard' && (
+            <Button
+              onPress={() => {
+                closeModal();
+                openExample('long');
+              }}
+            >
+              Replace while closing
+            </Button>
+          )}
+        </ModalButtons>
+      </Modal>
+    );
 
   useEffect(() => {
     if (!showFullPageLoader) return;
@@ -103,6 +137,13 @@ export default function IndexPage() {
             variant="simple"
             jumper
           />
+        </Section>
+
+        <Section>
+          <SectionHeader>Modal</SectionHeader>
+          <Button onPress={() => openExample('standard')}>Open modal</Button>
+          <Button onPress={() => openExample('long')}>Open long modal</Button>
+          <Button onPress={() => openExample('locked')}>Open modal with backdrop dismissal disabled</Button>
         </Section>
 
         <Section>
@@ -210,14 +251,7 @@ export default function IndexPage() {
           <SetPasswordInput label="Disabled password" disabled />
         </Section>
       </BaseLayout>
-      <Modal
-        visible={showFullPageLoader}
-        transparent
-        statusBarTranslucent
-        onRequestClose={() => setShowFullPageLoader(false)}
-      >
-        {showFullPageLoader && <Loader fullPage />}
-      </Modal>
+      {showFullPageLoader && <Loader fullPage onRequestClose={() => setShowFullPageLoader(false)} />}
     </>
   );
 }

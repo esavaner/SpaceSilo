@@ -29,6 +29,14 @@
       "types": "./dist/components/pagination.d.ts",
       "default": "./dist/components/pagination.js"
     },
+    "./components/modal": {
+      "types": "./dist/components/modal.d.ts",
+      "default": "./dist/components/modal.js"
+    },
+    "./context/modal-provider": {
+      "types": "./dist/context/modal-provider.d.ts",
+      "default": "./dist/context/modal-provider.js"
+    },
     "./components/input": {
       "types": "./dist/components/input.d.ts",
       "default": "./dist/components/input.js"
@@ -96,7 +104,10 @@
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0",
     "react-native": ">=0.85.0",
-    "react-native-svg": ">=15.15.4"
+    "react-native-reanimated": ">=4.0.0",
+    "react-native-safe-area-context": ">=5.7.0",
+    "react-native-svg": ">=15.15.4",
+    "react-native-worklets": ">=0.10.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -108,7 +119,16 @@
     "react-native": {
       "optional": true
     },
+    "react-native-reanimated": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    },
     "react-native-svg": {
+      "optional": true
+    },
+    "react-native-worklets": {
       "optional": true
     }
   },
@@ -123,7 +143,10 @@
     "prisma": "7.3.0",
     "react": "19.2.3",
     "react-native": "0.86.3",
+    "react-native-reanimated": "~4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "^15.15.4",
+    "react-native-worklets": "0.10.1",
     "tailwindcss": "^4.1.18"
   }
 }
