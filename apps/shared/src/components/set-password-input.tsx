@@ -3,24 +3,21 @@ import styled from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Check, Dot } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
-import { type InputProps } from './input';
-import { PasswordInput } from './password-input';
+import { PasswordInput, type PasswordInputProps } from './password-input';
 import { Text } from './text';
 import { TextInput, View } from 'react-native';
 
 const RequirementList = styled.View`
-  display: flex;
   gap: ${theme.spacing[100]};
   padding: ${theme.spacing[150]};
 `;
 const Item = styled.View`
-  display: flex;
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[100]};
 `;
 
-type Props = Omit<InputProps, 'secureTextEntry' | 'icon'> & {
+type Props = PasswordInputProps & {
   requirements?: PasswordRequirement[];
 };
 
@@ -40,6 +37,7 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
       <View style={style}>
         <PasswordInput
           ref={ref}
+          autoComplete="new-password"
           value={value}
           defaultValue={defaultValue}
           error={error}
@@ -59,11 +57,7 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
 
             return (
               <Item key={requirement.id} role="listitem">
-                {requirement.isMet ? (
-                  <Check width={16} height={16} color={color} aria-hidden />
-                ) : (
-                  <Dot color={color} aria-hidden />
-                )}
+                {requirement.isMet ? <Check size={16} color={color} aria-hidden /> : <Dot color={color} aria-hidden />}
                 <Text.Caption color={color} style={{ flexShrink: 1 }}>
                   {requirement.label}
                 </Text.Caption>

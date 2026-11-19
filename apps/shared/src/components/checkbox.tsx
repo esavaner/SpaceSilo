@@ -1,9 +1,10 @@
 import { forwardRef, useId, useState, type ReactNode } from 'react';
 import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { Check, Info } from '../assets/icons';
+import { Check } from '../assets/icons';
 import { theme } from '../config/theme';
-import { InputInfo as InputInfoBase } from './input';
+import { getFieldA11y, InputInfo } from './input';
+import { useNativeInteraction, webSpaceActivation } from './component-utils';
 
 type CheckboxVisualProps = {
   $isActive: boolean;
@@ -33,7 +34,7 @@ const CheckboxVisual = styled.View<CheckboxVisualProps>`
             : theme.colors.border.primary.default};
   background-color: ${({ $disabled, $checked }) =>
     $disabled ? theme.colors.disabled : $checked ? theme.colors.primary.default : theme.colors.tertiary.default};
-  box-shadow: ${({ $isActive, $disabled }) => ($isActive && !$disabled ? '0 0 0 4px #f5f2ef' : 'none')};
+  ${({ $isActive, $disabled }) => $isActive && !$disabled && 'box-shadow: 0 0 0 4px #f5f2ef;'}
 `;
 
 const Label = styled.Pressable<{ $disabled?: boolean }>`
@@ -63,10 +64,6 @@ const LabelText = styled.Text`
   flex: 1;
 `;
 
-const InputInfo = styled(InputInfoBase)`
-  padding-left: 0;
-`;
-
 type Props = Omit<PressableProps, 'children' | 'disabled' | 'onPress' | 'style'> & {
   children?: ReactNode;
   className?: string;
@@ -88,6 +85,7 @@ export const Checkbox = forwardRef<View, Props>(
   (
     {
       id,
+      nativeID,
       name,
       children,
       label,
@@ -105,24 +103,23 @@ export const Checkbox = forwardRef<View, Props>(
       onBlur,
       onPressIn,
       onPressOut,
+      accessibilityState,
       ...rest
     },
     ref
   ) => {
-    const inputId = id || name || `checkbox-${useId().replace(/:/g, '')}`;
+    const generatedId = useId();
+    const inputId = id || nativeID || name || `checkbox-${generatedId.replace(/:/g, '')}`;
     const labelId = `${inputId}-label`;
-    const infoMessageId = `${inputId}-info`;
-    const errorMessageId = `${inputId}-error`;
     const [internalChecked, setInternalChecked] = useState(() => !!defaultChecked);
-    const [isFocused, setIsFocused] = useState(false);
-    const [isPressed, setIsPressed] = useState(false);
+    const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
     const isControlled = checked !== undefined;
     const isChecked = isControlled ? checked : internalChecked;
-    const hasInfo = !!info && !disabled;
-    const hasError = !!error && !disabled;
-    const describedBy = [hasInfo ? infoMessageId : undefined, hasError ? errorMessageId : undefined]
-      .filter(Boolean)
-      .join(' ');
+    const { hasInfo, hasError, infoId, errorId, describedBy, accessibilityHint } = getFieldA11y(inputId, {
+      info,
+      error,
+      disabled,
+    });
 
     return (
       <Wrapper className={className} style={style}>
@@ -134,29 +131,15 @@ export const Checkbox = forwardRef<View, Props>(
           disabled={disabled}
           accessibilityRole="checkbox"
           accessibilityLabel={label}
-          accessibilityHint={hasError ? error : hasInfo ? info : undefined}
-          accessibilityState={{ checked: isChecked, disabled }}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={{ ...accessibilityState, checked: isChecked, disabled }}
           aria-labelledby={labelId}
           aria-checked={isChecked}
-          aria-describedby={describedBy || undefined}
+          aria-describedby={describedBy}
           aria-invalid={!!error || undefined}
           aria-required={required || undefined}
-          onFocus={(event) => {
-            if (Platform.OS !== 'web') setIsFocused(true);
-            onFocus?.(event);
-          }}
-          onBlur={(event) => {
-            if (Platform.OS !== 'web') setIsFocused(false);
-            onBlur?.(event);
-          }}
-          onPressIn={(event) => {
-            if (Platform.OS !== 'web') setIsPressed(true);
-            onPressIn?.(event);
-          }}
-          onPressOut={(event) => {
-            if (Platform.OS !== 'web') setIsPressed(false);
-            onPressOut?.(event);
-          }}
+          {...interactionHandlers}
+          {...webSpaceActivation}
           onPress={(event) => {
             if (!isControlled) {
               setInternalChecked(!isChecked);
@@ -165,27 +148,20 @@ export const Checkbox = forwardRef<View, Props>(
             onPress?.(event);
           }}
         >
-          <CheckboxVisual
-            $checked={isChecked}
-            $disabled={disabled}
-            $error={!!error}
-            $isActive={Platform.OS !== 'web' && (isFocused || isPressed)}
-          >
+          <CheckboxVisual $checked={isChecked} $disabled={disabled} $error={!!error} $isActive={isActive}>
             {isChecked && (
-              <Check size={16} color={disabled ? theme.colors.text.disabled : theme.colors.text.inverted} />
+              <Check size={16} color={disabled ? theme.colors.text.disabled : theme.colors.text.inverted} aria-hidden />
             )}
           </CheckboxVisual>
           <LabelText nativeID={labelId}>{children || label}</LabelText>
         </Label>
         {hasInfo && (
-          <InputInfo nativeID={infoMessageId} role="status" aria-live="polite" $isError={false}>
-            <Info color={theme.colors.text.secondary} />
+          <InputInfo id={infoId} style={{ paddingLeft: 0 }}>
             {info}
           </InputInfo>
         )}
         {hasError && (
-          <InputInfo nativeID={errorMessageId} role="alert" aria-live="assertive" $isError>
-            <Info color={theme.colors.text.danger} />
+          <InputInfo id={errorId} error style={{ paddingLeft: 0 }}>
             {error}
           </InputInfo>
         )}

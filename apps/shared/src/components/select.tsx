@@ -3,10 +3,11 @@ import { Platform, View, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Text } from './text';
-import { Input, type InputProps } from './input';
+import { getFieldA11y, Input, type InputProps } from './input';
 import { Check, ChevronDown, X } from '../assets/icons';
 import { OverflowFade } from './overflow-fade';
 import { DropdownMenu, DropdownOption } from './dropdown';
+import { webSpaceActivation } from './component-utils';
 
 const Trigger = styled.Pressable`
   min-height: 44px;
@@ -119,7 +120,8 @@ export const Select = forwardRef<View, SelectProps>(
     ref
   ) => {
     const generatedId = useId();
-    const selectId = id || name || `select-${generatedId.replace(/:/g, '')}`;
+    const selectId = id || rest.nativeID || name || `select-${generatedId.replace(/:/g, '')}`;
+    const { describedBy, accessibilityHint } = getFieldA11y(selectId, { info: rest.info, error, disabled });
     const [search, setSearch] = useState('');
     const [internalValues, setInternalValues] = useState(() => parseValue(defaultValue, multiple));
     const selectedValues = value === undefined ? internalValues : parseValue(value, multiple);
@@ -165,8 +167,9 @@ export const Select = forwardRef<View, SelectProps>(
             disabled={disabled}
             icon={
               <ChevronDown
-                color={theme.colors.text.secondary}
+                color={disabled ? theme.colors.text.disabled : theme.colors.text.secondary}
                 style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
+                aria-hidden
               />
             }
             wrapperOnPress={toggle}
@@ -175,15 +178,16 @@ export const Select = forwardRef<View, SelectProps>(
                 ref={ref}
                 role="combobox"
                 accessibilityLabel={label}
-                accessibilityHint={error || rest.info}
+                accessibilityHint={accessibilityHint}
                 accessibilityState={{ expanded: isOpen, disabled }}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-controls={isOpen ? menuId : undefined}
                 aria-invalid={!!error || undefined}
                 aria-required={rest.required || undefined}
-                aria-describedby={error ? `${selectId}-error` : rest.info ? `${selectId}-info` : undefined}
+                aria-describedby={describedBy}
                 disabled={disabled}
+                {...webSpaceActivation}
                 onPress={(event) => {
                   event.stopPropagation();
                   toggle();
@@ -251,7 +255,6 @@ export const Select = forwardRef<View, SelectProps>(
                     accessibilityState={{ selected: isSelected }}
                     aria-selected={isSelected}
                     $selected={isSelected}
-                    style={({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.medium } : null)}
                     onPress={() => {
                       selectOption(option);
                       if (!multiple) close();

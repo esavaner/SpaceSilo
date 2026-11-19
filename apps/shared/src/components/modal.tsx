@@ -4,7 +4,6 @@ import {
   Modal as NativeModal,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -25,6 +24,7 @@ import { X } from '../assets/icons';
 import { ModalContext } from '../context/modal-provider';
 import { theme } from '../config/theme';
 import { Text } from './text';
+import { useWebScrollLock } from './component-utils';
 
 type StyledProps = {
   $drawer: boolean;
@@ -47,6 +47,13 @@ const ModalCard = styled.View<StyledProps>`
   border-radius: ${theme.radius[600]};
   overflow: hidden;
 
+  ${
+    Platform.OS === 'web' &&
+    css`
+      color-scheme: light;
+    `
+  }
+
   ${({ $drawer }) =>
     $drawer
       ? css`
@@ -58,20 +65,38 @@ const ModalCard = styled.View<StyledProps>`
         `}
 `;
 
-const CloseButton = styled.Pressable`
+const ModalBody = styled.ScrollView`
+  flex-grow: 0;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+    `
+  }
+`;
+
+const CloseButton = styled.Pressable<{ $right: number }>`
   position: absolute;
   top: ${theme.spacing[300]};
-  right: ${theme.spacing[300]};
+  right: ${({ $right }) => `${$right}px`};
   width: 44px;
   height: 44px;
   align-items: center;
   justify-content: center;
   border-radius: ${theme.radius.full};
   z-index: ${theme.zIndex.raised};
+  opacity: 0.7;
   ${
     Platform.OS === 'web' &&
     css`
       cursor: pointer;
+      &:hover:not([aria-disabled='true']),
+      &:focus-visible:not([aria-disabled='true']) {
+        opacity: 1;
+      }
     `
   }
 `;
@@ -86,9 +111,6 @@ export type ModalProps = ViewProps & {
   disableClickOutside?: boolean;
 };
 
-let openWebModals = 0;
-let previousBodyOverflow = '';
-
 export const Modal = ({
   children,
   style,
@@ -102,6 +124,7 @@ export const Modal = ({
   ...props
 }: ModalProps) => {
   const context = useContext(ModalContext);
+  useWebScrollLock();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const progress = useSharedValue(0);
@@ -135,23 +158,15 @@ export const Modal = ({
   }, [closeOverride, context?.completeClose]);
 
   useEffect(() => {
-    if (!isShown || cardHeight === 0) return;
+    if (!isShown || cardHeight === 0) {
+      if (isClosing) onClosed();
+      return;
+    }
     progress.value = withTiming(isClosing ? 0 : 1, { duration: 300, easing: Easing.out(Easing.cubic) }, (finished) => {
       if (finished && isClosing) scheduleOnRN(onClosed);
     });
     return () => cancelAnimation(progress);
   }, [progress, isClosing, isShown, cardHeight, onClosed]);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    if (openWebModals++ === 0) {
-      previousBodyOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      if (--openWebModals === 0) document.body.style.overflow = previousBodyOverflow;
-    };
-  }, []);
 
   if (!closeOverride && !context) {
     throw new Error('Modal requires a ModalProvider or closeOverride.');
@@ -168,8 +183,7 @@ export const Modal = ({
       {titles.length > 0 && (
         <View style={{ ...horizontalPadding, paddingTop: 24, paddingBottom: 16, flexShrink: 0 }}>{titles}</View>
       )}
-      <ScrollView
-        style={{ flexGrow: 0 }}
+      <ModalBody
         contentContainerStyle={{
           ...horizontalPadding,
           paddingTop: titles.length ? 0 : 24,
@@ -180,7 +194,7 @@ export const Modal = ({
         bounces={false}
       >
         {body}
-      </ScrollView>
+      </ModalBody>
       {buttons.length > 0 && (
         <View style={{ ...horizontalPadding, paddingBottom: 24 + (drawer ? insets.bottom : 0), flexShrink: 0 }}>
           {buttons}
@@ -191,7 +205,8 @@ export const Modal = ({
         accessibilityLabel={closeLabel}
         onPress={handleClose}
         disabled={isClosing}
-        style={({ pressed }) => ({ opacity: pressed ? 1 : 0.7, right: 12 + (drawer ? insets.right : 0) })}
+        $right={12 + (drawer ? insets.right : 0)}
+        style={({ pressed }) => (pressed ? { opacity: 1 } : null)}
       >
         <X color={theme.colors.text.default} aria-hidden />
       </CloseButton>

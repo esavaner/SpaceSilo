@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
 import { ActivityIndicator, Modal, Platform, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { Orbit } from '../assets/icons';
 import { NoiseImage, ShapesAnimationImage } from '../assets/images';
 import { theme } from '../config/theme';
+import { useWebScrollLock } from './component-utils';
 
 const InlineWrapper = styled.View`
-  display: inline-flex;
+  align-self: flex-start;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      display: inline-flex;
+    `
+  }
 `;
 
 const BlockWrapper = styled.View`
@@ -96,17 +102,7 @@ type Props = ViewProps & {
   );
 
 export const Loader = ({ block, fullPage, size, color = theme.colors.text.brand, onRequestClose, ...rest }: Props) => {
-  useEffect(() => {
-    if (!fullPage || Platform.OS !== 'web') {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [fullPage]);
+  useWebScrollLock(!!fullPage);
 
   const props = {
     accessibilityRole: 'progressbar' as const,

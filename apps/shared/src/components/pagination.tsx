@@ -20,6 +20,13 @@ const Button = styled(ButtonBase)`
 const ArrowButton = styled(Button)`
   background: transparent;
 `;
+const StaticPage = styled.View`
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
+  min-width: 38px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+`;
 const PageJumpInput = ({
   totalPages,
   defaultPage,
@@ -51,12 +58,11 @@ const PageJumpInput = ({
       value={value}
       style={{ textAlign: 'center', width: 64 }}
       onBlur={jump}
-      onChangeText={(text) => setValue(text.replace(/\D/g, ''))}
-      onKeyPress={(event) => {
-        if (event.nativeEvent.key === 'Enter') {
-          jump();
-        }
+      onChangeText={(text) => {
+        updatedRef.current = false;
+        setValue(text.replace(/\D/g, ''));
       }}
+      onSubmitEditing={jump}
     />
   );
 };
@@ -85,28 +91,38 @@ export const Pagination = ({
   }
 
   const totalPages = Math.ceil(totalCount / perPage);
+  const prevDisabled = currentPage <= 0;
+  const nextDisabled = currentPage >= totalPages - 1;
+  const prevIconColor = prevDisabled ? theme.colors.text.disabled : theme.colors.text.brand;
+  const nextIconColor = nextDisabled ? theme.colors.text.disabled : theme.colors.text.brand;
 
   if (variant === 'simple') {
     return (
       <Container {...rest}>
-        <ArrowButton variant="tertiary" disabled={currentPage <= 0} onPress={() => paginate(currentPage - 1)}>
-          <ArrowLeft />
+        <ArrowButton
+          variant="tertiary"
+          disabled={prevDisabled}
+          accessibilityLabel="Previous page"
+          onPress={() => paginate(currentPage - 1)}
+        >
+          <ArrowLeft color={prevIconColor} aria-hidden />
         </ArrowButton>
         {jumper ? (
           <PageJumpInput key={currentPage} totalPages={totalPages} defaultPage={currentPage + 1} onJump={paginate} />
         ) : (
-          <Button>{currentPage + 1}</Button>
+          <Button aria-current="page">{currentPage + 1}</Button>
         )}
         <Text.M>/</Text.M>
-        <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
-          {totalPages}
-        </Button>
+        <StaticPage>
+          <Text.Button color={theme.colors.text.brand}>{totalPages}</Text.Button>
+        </StaticPage>
         <ArrowButton
           variant="tertiary"
-          disabled={currentPage >= totalPages - 1}
+          disabled={nextDisabled}
+          accessibilityLabel="Next page"
           onPress={() => paginate(currentPage + 1)}
         >
-          <ArrowRight />
+          <ArrowRight color={nextIconColor} aria-hidden />
         </ArrowButton>
       </Container>
     );
@@ -117,17 +133,17 @@ export const Pagination = ({
 
   return (
     <Container {...rest}>
-      <ArrowButton variant="tertiary" disabled={currentPage <= 0} onPress={() => paginate(currentPage - 1)}>
-        <ArrowLeft /> Previous
+      <ArrowButton variant="tertiary" disabled={prevDisabled} onPress={() => paginate(currentPage - 1)}>
+        <ArrowLeft color={prevIconColor} aria-hidden /> Previous
       </ArrowButton>
       {leftDistance >= 4 && (
         <>
           <Button onPress={() => paginate(0)} variant="tertiary">
             1
           </Button>
-          <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
-            ...
-          </Button>
+          <StaticPage accessible={false} aria-hidden>
+            <Text.Button color={theme.colors.text.brand}>...</Text.Button>
+          </StaticPage>
           <Button onPress={() => paginate(currentPage - 1)} variant="tertiary">
             {currentPage}
           </Button>
@@ -135,43 +151,37 @@ export const Pagination = ({
       )}
       {leftDistance > 0 &&
         leftDistance < 4 &&
-        Array(leftDistance)
-          .fill(0)
-          .map((_, index) => (
-            <Button key={index} onPress={() => paginate(currentPage - index - 1)} variant="tertiary">
-              {currentPage - index}
-            </Button>
-          ))
-          .reverse()}
-      <Button>{currentPage + 1}</Button>
+        Array.from({ length: leftDistance }, (_, page) => (
+          <Button key={page} onPress={() => paginate(page)} variant="tertiary">
+            {page + 1}
+          </Button>
+        ))}
+      <Button aria-current="page">{currentPage + 1}</Button>
       {rightDistance > 0 &&
         rightDistance < 4 &&
-        Array(rightDistance)
-          .fill(0)
-          .map((_, index) => (
-            <Button key={index} onPress={() => paginate(currentPage + index + 1)} variant="tertiary">
-              {currentPage + index + 2}
+        Array.from({ length: rightDistance }, (_, index) => {
+          const page = currentPage + 1 + index;
+          return (
+            <Button key={page} onPress={() => paginate(page)} variant="tertiary">
+              {page + 1}
             </Button>
-          ))}
+          );
+        })}
       {rightDistance >= 4 && (
         <>
           <Button onPress={() => paginate(currentPage + 1)} variant="tertiary">
             {currentPage + 2}
           </Button>
-          <Button variant="tertiary" style={{ pointerEvents: 'none' }} tabIndex={-1}>
-            ...
-          </Button>
+          <StaticPage accessible={false} aria-hidden>
+            <Text.Button color={theme.colors.text.brand}>...</Text.Button>
+          </StaticPage>
           <Button onPress={() => paginate(totalPages - 1)} variant="tertiary">
             {totalPages}
           </Button>
         </>
       )}
-      <ArrowButton
-        variant="tertiary"
-        disabled={currentPage >= totalPages - 1}
-        onPress={() => paginate(currentPage + 1)}
-      >
-        Next <ArrowRight />
+      <ArrowButton variant="tertiary" disabled={nextDisabled} onPress={() => paginate(currentPage + 1)}>
+        Next <ArrowRight color={nextIconColor} aria-hidden />
       </ArrowButton>
       {jumper && (
         <>

@@ -45,11 +45,11 @@ const Scroller = styled.ScrollView<ScrollerProps>`
     Platform.OS === 'web' &&
     css`
       transition: all 0.5s ease;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
     `
-  }
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-  ::-webkit-scrollbar-track {
-    background: transparent;
   }
 `;
 
@@ -101,9 +101,10 @@ export const OverflowFade = ({
   const [scrollTop, setScrollTop] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
-  const atTop = scrollTop <= BUFFER;
-  const atBottom = scrollTop + containerHeight >= contentHeight - BUFFER;
-  const fadeColor = dark ? theme.colors.surface.darker : 'white';
+  const canScroll = contentHeight > containerHeight + BUFFER;
+  const atTop = !canScroll || scrollTop <= BUFFER;
+  const atBottom = !canScroll || scrollTop + containerHeight >= contentHeight - BUFFER;
+  const fadeColor = dark ? theme.colors.surface.darker : theme.colors.surface.weak;
   // React Native Web consumes these DOM props even though React Native's types omit them.
   const wrapperProps = { ...rest, className, role } as ViewProps;
 
@@ -120,37 +121,36 @@ export const OverflowFade = ({
         onContentSizeChange={(_, height) => setContentHeight(height)}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
       >
         {children}
       </Scroller>
-      <FadeOverlay $fadeHeight={fadeHeight} $rightPadding={rightPadding} $visible={!atTop} pointerEvents="none">
-        <Svg width="100%" height="100%">
-          <Defs>
-            <LinearGradient id={`${gradientId}-top`} x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor={fadeColor} />
-              <Stop offset="100%" stopColor={fadeColor} stopOpacity="0" />
-            </LinearGradient>
-          </Defs>
-          <Rect width="100%" height="100%" fill={`url(#${gradientId}-top)`} />
-        </Svg>
-      </FadeOverlay>
-      <FadeOverlay
-        $fadeHeight={fadeHeight}
-        $rightPadding={rightPadding}
-        $bottom
-        $visible={!atBottom}
-        pointerEvents="none"
-      >
-        <Svg width="100%" height="100%">
-          <Defs>
-            <LinearGradient id={`${gradientId}-bottom`} x1="0%" y1="100%" x2="0%" y2="0%">
-              <Stop offset="0%" stopColor={fadeColor} />
-              <Stop offset="100%" stopColor={fadeColor} stopOpacity="0" />
-            </LinearGradient>
-          </Defs>
-          <Rect width="100%" height="100%" fill={`url(#${gradientId}-bottom)`} />
-        </Svg>
-      </FadeOverlay>
+      {(['top', 'bottom'] as const).map((edge) => (
+        <FadeOverlay
+          key={edge}
+          $fadeHeight={fadeHeight}
+          $rightPadding={rightPadding}
+          $bottom={edge === 'bottom'}
+          $visible={edge === 'top' ? !atTop : !atBottom}
+          pointerEvents="none"
+        >
+          <Svg width="100%" height="100%">
+            <Defs>
+              <LinearGradient
+                id={`${gradientId}-${edge}`}
+                x1="0%"
+                y1={edge === 'top' ? '0%' : '100%'}
+                x2="0%"
+                y2={edge === 'top' ? '100%' : '0%'}
+              >
+                <Stop offset="0%" stopColor={fadeColor} />
+                <Stop offset="100%" stopColor={fadeColor} stopOpacity="0" />
+              </LinearGradient>
+            </Defs>
+            <Rect width="100%" height="100%" fill={`url(#${gradientId}-${edge})`} />
+          </Svg>
+        </FadeOverlay>
+      ))}
     </Wrapper>
   );
 };

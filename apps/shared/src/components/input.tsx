@@ -11,9 +11,10 @@ import {
 import { theme } from '../config/theme';
 import { Text } from './text';
 import { Info } from '../assets/icons';
-import { forwardRef, JSX, useId, useRef, useState } from 'react';
+import { forwardRef, type JSX, type ReactNode, useId, useRef } from 'react';
+import { useNativeInteraction } from './component-utils';
 
-export type InputInfoProps = {
+type InputInfoProps = {
   $isError?: boolean;
   $hasIcon?: boolean;
   $hasIconLeft?: boolean;
@@ -22,19 +23,20 @@ export type InputInfoProps = {
   $customInputDefaultStyle?: boolean;
 };
 
-export const InputWrapper = styled.Pressable.attrs({ accessible: false })`
-  display: flex;
-`;
-export const InputLabel = styled(Text.FormLabel)`
-  ${theme.text.formLabel}
-  color: ${theme.colors.text.default};
-  display: flex;
-  gap: ${theme.spacing[50]};
+const InputWrapper = styled.Pressable.attrs({ accessible: false })``;
+const InputLabel = styled(Text.FormLabel)`
   padding-bottom: ${theme.spacing[100]};
   padding-left: ${theme.spacing[150]};
-  width: fit-content;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      display: flex;
+      gap: ${theme.spacing[50]};
+      width: fit-content;
+    `
+  }
 `;
-export const InputContainer = styled.View`
+const InputContainer = styled.View`
   position: relative;
   border-radius: ${theme.radius[300]};
   background: ${theme.colors.surface.weak};
@@ -58,11 +60,16 @@ const Icon = styled.View.attrs({ pointerEvents: 'none' })<{ $left?: boolean }>`
           right: ${theme.spacing[400]};
         `}
 
-  & > svg {
-    display: block;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      & > svg {
+        display: block;
+      }
+    `
   }
 `;
-export const commonInputStyles = css<InputInfoProps>`
+const commonInputStyles = css<InputInfoProps>`
   ${theme.text.formPlaceholder}
   width: 100%;
   padding: ${theme.spacing[300]} ${theme.spacing[400]};
@@ -77,28 +84,36 @@ export const commonInputStyles = css<InputInfoProps>`
         : $isActive
           ? theme.colors.border.input.active
           : $isError
-            ? theme.colors.text.danger
+            ? theme.colors.border.error.default
             : theme.colors.border.input.default};
   color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
-  cursor: pointer;
-`;
-export const inputStateStyles = css`
-  &:hover:not(:disabled) {
-    border: 1px solid ${theme.colors.border.input.hover};
-    box-shadow: 0 0 0 4px #f5f2ef;
-  }
-  &:active:not(:disabled),
-  &:focus:not(:disabled) {
-    border: 1px solid ${theme.colors.border.input.active};
-    outline: none;
-  }
-  &:disabled {
-    background-color: ${theme.colors.disabled};
-    border: 1px solid ${theme.colors.border.disabled};
-    color: ${theme.colors.text.disabled};
-    cursor: not-allowed;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+    `
   }
 `;
+const inputStateStyles =
+  Platform.OS === 'web'
+    ? css`
+        &:hover:not(:disabled) {
+          border: 1px solid ${theme.colors.border.input.hover};
+          box-shadow: 0 0 0 4px #f5f2ef;
+        }
+        &:active:not(:disabled),
+        &:focus:not(:disabled) {
+          border: 1px solid ${theme.colors.border.input.active};
+          outline: none;
+        }
+        &:disabled {
+          background-color: ${theme.colors.disabled};
+          border: 1px solid ${theme.colors.border.disabled};
+          color: ${theme.colors.text.disabled};
+          cursor: not-allowed;
+        }
+      `
+    : '';
 const StyledInput = styled.TextInput<InputInfoProps>`
   ${commonInputStyles}
   ${inputStateStyles}
@@ -112,6 +127,7 @@ const CustomInputWrapper = styled.View<InputInfoProps>`
           padding-top: ${theme.spacing[100]};
           padding-bottom: 0;
           ${
+            Platform.OS === 'web' &&
             !$disabled &&
             css`
               &:hover {
@@ -123,21 +139,68 @@ const CustomInputWrapper = styled.View<InputInfoProps>`
               }
             `
           }
+          ${
+            Platform.OS === 'web' &&
+            $disabled &&
+            css`
+              cursor: not-allowed;
+            `
+          }
         `}
 `;
-export const InputInfo = styled(Text.FormMessage)<InputInfoProps>`
-  display: flex;
+const InputInfoRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
   gap: ${theme.spacing[100]};
   padding: ${theme.spacing[150]};
-  padding-bottom: 0;
-  color: ${({ $isError }) => ($isError ? theme.colors.text.danger : theme.colors.text.secondary)};
-  * {
-    flex-shrink: 0;
-  }
-  &:last-child {
-    padding-bottom: ${theme.spacing[150]};
-  }
 `;
+
+export const InputInfo = ({
+  id,
+  error,
+  children,
+  style,
+}: {
+  id?: string;
+  error?: boolean;
+  children: ReactNode;
+  style?: ViewProps['style'];
+}) => {
+  const color = error ? theme.colors.text.danger : theme.colors.text.secondary;
+
+  return (
+    <InputInfoRow
+      nativeID={id}
+      role={error ? 'alert' : 'status'}
+      aria-live={error ? 'assertive' : 'polite'}
+      style={style}
+    >
+      <Info size={18} color={color} style={{ marginTop: 1 }} aria-hidden />
+      <Text.FormMessage color={color} style={{ flex: 1 }}>
+        {children}
+      </Text.FormMessage>
+    </InputInfoRow>
+  );
+};
+
+export const getFieldA11y = (
+  id: string,
+  { info, error, disabled }: { info?: string; error?: string; disabled?: boolean }
+) => {
+  const hasInfo = !!info && !disabled;
+  const hasError = !!error && !disabled;
+  const infoId = `${id}-info`;
+  const errorId = `${id}-error`;
+
+  return {
+    hasInfo,
+    hasError,
+    infoId,
+    errorId,
+    describedBy: [hasInfo && infoId, hasError && errorId].filter(Boolean).join(' ') || undefined,
+    accessibilityHint: [hasInfo && info, hasError && error].filter(Boolean).join(' ') || undefined,
+  };
+};
 
 /** Uses TextInput props and refs on native and React Native Web. */
 export type InputProps = TextInputProps & {
@@ -190,23 +253,27 @@ export const Input = forwardRef<TextInput, InputProps>(
   ) => {
     const generatedId = useId();
     const inputRef = useRef<TextInput>(null);
-    const [isFocused, setIsFocused] = useState(false);
-    const [isPressed, setIsPressed] = useState(false);
+    const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
     const inputId = id || nativeID || `input-${generatedId.replace(/:/g, '')}`;
     const labelId = `${inputId}-label`;
-    const infoMessageId = `${inputId}-info`;
-    const errorMessageId = `${inputId}-error`;
-    const hasInfo = !!info && !disabled;
-    const hasError = !!error && !disabled;
-    const describedBy = [hasInfo ? infoMessageId : undefined, hasError ? errorMessageId : undefined]
-      .filter(Boolean)
-      .join(' ');
+    const isDisabled = !!disabled || editable === false;
+    const { hasInfo, hasError, infoId, errorId, describedBy, accessibilityHint } = getFieldA11y(inputId, {
+      info,
+      error,
+      disabled: isDisabled,
+    });
     const isError = !!error;
     const hasIcon = !!icon || !!iconComponent;
     const hasLeftIcon = !!leftIcon || !!leftIconComponent;
+    const handleInputPress = onPress
+      ? (e: GestureResponderEvent) => {
+          e.stopPropagation();
+          onPress(e);
+        }
+      : undefined;
 
     const inputProps = {
-      id: inputId,
+      nativeID: inputId,
       ref: (node: TextInput | null) => {
         inputRef.current = node;
         if (typeof ref === 'function') {
@@ -216,52 +283,34 @@ export const Input = forwardRef<TextInput, InputProps>(
           ref.current = node;
         }
       },
-      editable: !disabled && editable !== false,
-      ...(Platform.OS === 'web' ? { disabled } : {}),
-      accessibilityState: { ...accessibilityState, disabled: disabled || editable === false },
-      onPress: (e: GestureResponderEvent) => {
-        e.stopPropagation();
-        onPress?.(e);
-      },
-      onFocus: (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
-        setIsFocused(true);
-        onFocus?.(e);
-      },
-      onBlur: (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
-        setIsFocused(false);
-        onBlur?.(e);
-      },
-      onPressIn: (e: GestureResponderEvent) => {
-        setIsPressed(true);
-        onPressIn?.(e);
-      },
-      onPressOut: (e: GestureResponderEvent) => {
-        setIsPressed(false);
-        onPressOut?.(e);
-      },
+      editable: !isDisabled,
+      ...(Platform.OS === 'web' ? { disabled: isDisabled } : {}),
+      accessibilityState: { ...accessibilityState, disabled: isDisabled },
+      onPress: handleInputPress,
+      ...interactionHandlers,
       placeholder: placeholder || label,
-      placeholderTextColor: disabled ? theme.colors.text.disabled : theme.colors.text.secondary,
+      placeholderTextColor: isDisabled ? theme.colors.text.disabled : theme.colors.text.secondary,
       accessibilityLabel: label,
-      accessibilityHint: [hasInfo && info, hasError && error].filter(Boolean).join(' ') || undefined,
+      accessibilityHint,
       'aria-labelledby': !hideLabel ? labelId : undefined,
       'aria-label': hideLabel ? label : undefined,
-      'aria-describedby': describedBy || undefined,
+      'aria-describedby': describedBy,
       'aria-invalid': isError || undefined,
       'aria-required': required || undefined,
       $isError: isError,
       $hasIcon: hasIcon,
       $hasIconLeft: hasLeftIcon,
-      $disabled: disabled || editable === false,
-      $isActive: Platform.OS !== 'web' && (isFocused || isPressed),
+      $disabled: isDisabled,
+      $isActive: isActive,
       ...props,
     };
 
     return (
-      <InputWrapper style={wrapperStyle} onPress={wrapperOnPress || onPress} disabled={disabled}>
+      <InputWrapper style={wrapperStyle} onPress={wrapperOnPress || onPress} disabled={isDisabled}>
         {!hideLabel && (
           <InputLabel
             nativeID={labelId}
-            onPress={customInput || disabled ? undefined : () => inputRef.current?.focus()}
+            onPress={customInput || isDisabled ? undefined : () => inputRef.current?.focus()}
           >
             {label}
             {required && <Text.FormLabel color={theme.colors.text.danger}>*</Text.FormLabel>}
@@ -272,41 +321,35 @@ export const Input = forwardRef<TextInput, InputProps>(
             {leftIconComponent ? leftIconComponent : leftIcon && <Icon $left>{leftIcon}</Icon>}
             {customInput ? (
               <CustomInputWrapper
-                id={inputId}
+                nativeID={inputId}
                 role="group"
                 aria-labelledby={!hideLabel ? labelId : undefined}
                 aria-label={hideLabel ? label : undefined}
-                aria-describedby={describedBy || undefined}
+                aria-describedby={describedBy}
                 aria-invalid={isError || undefined}
-                accessibilityState={{ disabled }}
+                accessibilityState={{ disabled: isDisabled }}
                 accessibilityLabel={label}
-                accessibilityHint={inputProps.accessibilityHint}
+                accessibilityHint={accessibilityHint}
                 style={props.style}
                 $isError={isError}
                 $hasIcon={hasIcon}
                 $hasIconLeft={hasLeftIcon}
-                $disabled={disabled}
+                $disabled={isDisabled}
                 $customInputDefaultStyle={customInputDefaultStyle}
               >
                 {customInput}
               </CustomInputWrapper>
             ) : (
               // React Native Web's TextInput does not dispatch onPress.
-              <Pressable accessible={false} disabled={disabled} onPress={inputProps.onPress}>
+              <Pressable accessible={false} disabled={isDisabled} onPress={handleInputPress}>
                 <StyledInput {...inputProps} />
               </Pressable>
             )}
             {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
           </InputField>
-          {hasInfo && (
-            <InputInfo id={infoMessageId} role="status" aria-live="polite">
-              <Info color={theme.colors.text.secondary} />
-              {info}
-            </InputInfo>
-          )}
+          {hasInfo && <InputInfo id={infoId}>{info}</InputInfo>}
           {hasError && (
-            <InputInfo id={errorMessageId} $isError role="alert" aria-live="assertive">
-              <Info color={theme.colors.text.danger} />
+            <InputInfo id={errorId} error>
               {error}
             </InputInfo>
           )}
@@ -323,25 +366,30 @@ export const InputIconButton = styled.Pressable.attrs({
   onPressIn: (event: GestureResponderEvent) => event.preventDefault(),
 })`
   position: absolute;
-  height: fit-content;
+  z-index: ${theme.zIndex.raised};
   border-radius: ${theme.radius[100]};
   right: ${theme.spacing[400]};
-  display: inline-flex;
   color: ${theme.colors.text.secondary};
   padding: 0;
-  & > svg {
-    display: block;
-  }
-  &:hover:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  &:disabled {
-    color: ${theme.colors.text.disabled};
-    cursor: not-allowed;
-  }
-  &:focus,
-  &:focus-visible {
-    outline: 2px solid ${theme.colors.border.input.active};
-    border-radius: ${theme.radius[100]};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      & > svg {
+        display: block;
+      }
+      &:hover:not([aria-disabled='true']) {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      &[aria-disabled='true'] {
+        color: ${theme.colors.text.disabled};
+        cursor: not-allowed;
+      }
+      &:focus,
+      &:focus-visible {
+        outline: 2px solid ${theme.colors.border.input.active};
+        border-radius: ${theme.radius[100]};
+      }
+    `
   }
 `;

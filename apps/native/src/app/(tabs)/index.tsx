@@ -6,6 +6,7 @@ import { Text } from '@repo/shared/components/text';
 import { Input } from '@repo/shared/components/input';
 import { Textarea } from '@repo/shared/components/textarea';
 import { SetPasswordInput } from '@repo/shared/components/set-password-input';
+import { PasswordInput } from '@repo/shared/components/password-input';
 import { Loader } from '@repo/shared/components/loader';
 import { Checkbox } from '@repo/shared/components/checkbox';
 import { PhoneInput } from '@repo/shared/components/phone-input';
@@ -46,6 +47,7 @@ export default function IndexPage() {
   const [phone, setPhone] = useState('');
   const [storagePlan, setStoragePlan] = useState('personal');
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
+  const [explicitCheckboxId, setExplicitCheckboxId] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('blue');
@@ -79,6 +81,14 @@ export default function IndexPage() {
             Cancel
           </Button>
           <Button onPress={closeModal}>Done</Button>
+          <Button
+            onPress={() => {
+              setShowFullPageLoader(true);
+              closeModal();
+            }}
+          >
+            Close dialog while loading
+          </Button>
           {example === 'standard' && (
             <Button
               onPress={() => {
@@ -196,6 +206,7 @@ export default function IndexPage() {
           <Button size="large">Large</Button>
           <Button loading>Loading</Button>
           <Button disabled>Disabled</Button>
+          <Button center>Centered button</Button>
         </Section>
 
         <Section>
@@ -230,6 +241,7 @@ export default function IndexPage() {
         <Section>
           <SectionHeader>Checkbox</SectionHeader>
           <Checkbox
+            id={explicitCheckboxId ? 'updates-checkbox' : undefined}
             label="Email me updates"
             checked={updatesEnabled}
             onValueChange={setUpdatesEnabled}
@@ -237,11 +249,13 @@ export default function IndexPage() {
           />
           <Checkbox label="Agreement" error="Please confirm this choice." />
           <Checkbox label="Disabled checkbox" disabled defaultChecked />
+          <Button onPress={() => setExplicitCheckboxId((explicit) => !explicit)}>Toggle checkbox ID</Button>
         </Section>
 
         <Section>
           <SectionHeader>Radio</SectionHeader>
           <RadioGroup name="storage-plan" legend="Storage plan">
+            <Text.S>Choose one plan. This description must not become a radio tab stop.</Text.S>
             <Radio checked={storagePlan === 'personal'} onValueChange={() => setStoragePlan('personal')}>
               Personal
             </Radio>
@@ -318,6 +332,7 @@ export default function IndexPage() {
 
         <Section>
           <SectionHeader>Set password</SectionHeader>
+          <PasswordInput label="Current password" />
           <SetPasswordInput label="New password" value={password} onChangeText={setPassword} />
           <SetPasswordInput label="Uncontrolled password" defaultValue="Example1" error="Example error." />
           <SetPasswordInput label="Disabled password" disabled />

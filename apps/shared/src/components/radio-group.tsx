@@ -10,9 +10,8 @@ import {
 } from 'react';
 import { Platform, type ViewProps } from 'react-native';
 import styled from 'styled-components/native';
-import { Info } from '../assets/icons';
 import { theme } from '../config/theme';
-import { type RadioProps } from './radio';
+import { Radio, type RadioProps } from './radio';
 import { InputInfo } from './input';
 
 const Group = styled.View<{ className?: string }>`
@@ -40,7 +39,9 @@ export const RadioGroup = ({ id, nativeID, name, legend, children, error, ...res
   const messageId = `${groupId}-message`;
   const isError = !!error;
   const items = Children.toArray(children);
-  const radios = items.filter((child): child is ReactElement<RadioProps> => isValidElement<RadioProps>(child));
+  const radios = items.filter(
+    (child): child is ReactElement<RadioProps> => isValidElement<RadioProps>(child) && child.type === Radio
+  );
   const [selectedKey, setSelectedKey] = useState(() => radios.find((child) => child.props.defaultChecked)?.key ?? null);
   const isChecked = (child: ReactElement<RadioProps>) => child.props.checked ?? child.key === selectedKey;
   const tabStop =
@@ -83,7 +84,7 @@ export const RadioGroup = ({ id, nativeID, name, legend, children, error, ...res
     >
       {legend != null && <Legend nativeID={legendId}>{legend}</Legend>}
       {items.map((child) => {
-        if (!isValidElement<RadioProps>(child)) return child;
+        if (!isValidElement<RadioProps>(child) || child.type !== Radio) return child;
         const describedBy = child.props['aria-describedby'];
 
         return cloneElement(child, {
@@ -100,8 +101,7 @@ export const RadioGroup = ({ id, nativeID, name, legend, children, error, ...res
         });
       })}
       {isError && (
-        <InputInfo nativeID={messageId} $isError role="alert" aria-live="assertive" style={{ paddingTop: 2 }}>
-          <Info color={theme.colors.text.danger} />
+        <InputInfo id={messageId} error style={{ paddingTop: 2 }}>
           {error}
         </InputInfo>
       )}

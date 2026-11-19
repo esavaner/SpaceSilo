@@ -1,12 +1,14 @@
-import { Children, useState, type KeyboardEventHandler, type MouseEventHandler, type ReactNode } from 'react';
+import { Children, type KeyboardEventHandler, type MouseEventHandler, type ReactNode } from 'react';
 import { ActivityIndicator, Platform, type GestureResponderEvent, type PressableProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
+import { useNativeInteraction } from './component-utils';
 
 type Variant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'link';
 type Size = 'small' | 'medium' | 'large';
 
 type StyleProps = {
+  textColor: string;
   default: ReturnType<typeof css>;
   hover: ReturnType<typeof css>;
   clicked: ReturnType<typeof css>;
@@ -23,6 +25,7 @@ const webOutline = (color: string) =>
 
 const styles: Record<Variant, StyleProps> = {
   primary: {
+    textColor: theme.colors.text.inverted,
     default: css`
       color: ${theme.colors.text.inverted};
       background: ${theme.colors.primary.default};
@@ -42,6 +45,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   secondary: {
+    textColor: theme.colors.text.default,
     default: css`
       color: ${theme.colors.text.default};
       background: ${theme.colors.secondary.default};
@@ -60,6 +64,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   tertiary: {
+    textColor: theme.colors.text.brand,
     default: css`
       color: ${theme.colors.text.brand};
       background: ${theme.colors.tertiary.default};
@@ -77,6 +82,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   destructive: {
+    textColor: theme.colors.text.inverted,
     default: css`
       color: ${theme.colors.text.inverted};
       background: ${theme.colors.destructive.default};
@@ -95,6 +101,7 @@ const styles: Record<Variant, StyleProps> = {
     `,
   },
   link: {
+    textColor: theme.colors.text.default,
     default: css`
       color: ${theme.colors.text.default};
       background: transparent;
@@ -150,6 +157,7 @@ type StyledProps = {
   $size: Size;
   $disabled?: boolean;
   $isActive?: boolean;
+  $center?: boolean;
   children?: ReactNode;
   style?: PressableProps['style'];
   className?: string;
@@ -167,14 +175,18 @@ type StyledProps = {
     tabIndex?: number;
   };
 
+const smallTextStyles = css`
+  ${theme.text.S}
+  letter-spacing: 0.01875rem;
+`;
+
 const StyledButton = styled.Pressable<StyledProps>`
   ${theme.text.button}
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
+  align-self: ${({ $center }) => ($center ? 'center' : 'flex-start')};
   gap: ${theme.spacing[200]};
-  font-weight: bold;
   position: relative;
   border-width: 1px;
   ${webOutline('transparent')}
@@ -190,9 +202,7 @@ const StyledButton = styled.Pressable<StyledProps>`
         ? css`
             padding: ${theme.spacing[150]} ${theme.spacing[300]};
             border-radius: ${theme.radius[200]};
-            font-size: ${theme.fontSize.sm};
-            line-height: 145%;
-            letter-spacing: 0.01875rem;
+            ${smallTextStyles}
           `
         : css`
             padding: ${theme.spacing[200]} ${theme.spacing[400]};
@@ -225,16 +235,16 @@ const StyledButton = styled.Pressable<StyledProps>`
         box-shadow 0.15s ease,
         outline-color 0.01s ease 0.1s;
 
-      &:disabled {
+      &[aria-disabled='true'] {
         cursor: not-allowed;
       }
 
-      &:hover:not(:disabled):not(:active):not(:focus-visible) {
+      &:hover:not([aria-disabled='true']):not(:active):not(:focus-visible) {
         ${styles[$variant].hover}
       }
 
-      &:active:not(:disabled),
-      &:focus-visible:not(:disabled) {
+      &:active:not([aria-disabled='true']),
+      &:focus-visible:not([aria-disabled='true']) {
         ${styles[$variant].clicked}
       }
     `}
@@ -243,16 +253,11 @@ const StyledButton = styled.Pressable<StyledProps>`
     !$disabled && Platform.OS !== 'web' && $isActive ? styles[$variant].clicked : ''}
 `;
 
-const ButtonText = styled.Text<{ $color: string; $size: Size }>`
+const ButtonText = styled.Text<{ $color: string; $size: Size; $underline?: boolean }>`
   ${theme.text.button}
   color: ${({ $color }) => $color};
-  ${({ $size }) =>
-    $size === 'small' &&
-    css`
-      font-size: ${theme.fontSize.sm};
-      line-height: 145%;
-      letter-spacing: 0.01875rem;
-    `}
+  ${({ $size }) => $size === 'small' && smallTextStyles}
+  ${({ $underline }) => $underline && 'text-decoration-line: underline;'}
 `;
 
 const SpinnerWrapper = styled.View<{ $active: boolean }>`
@@ -260,7 +265,12 @@ const SpinnerWrapper = styled.View<{ $active: boolean }>`
   height: 1.125rem;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  ${
+    Platform.OS === 'web' &&
+    css`
+      transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+    `
+  }
   ${({ $active }) =>
     $active
       ? css`
@@ -289,27 +299,20 @@ export const Button = ({
   onPress,
   onClick,
   onKeyDown,
+  accessibilityState,
   ...props
 }: Props) => {
-  const [isFocused, setIsFocused] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
-  const textColor = disabled
-    ? theme.colors.text.disabled
-    : variant === 'primary' || variant === 'destructive'
-      ? theme.colors.text.inverted
-      : variant === 'tertiary'
-        ? theme.colors.text.brand
-        : theme.colors.text.default;
-  const buttonStyle: PressableProps['style'] =
-    center || typeof style === 'function'
-      ? (state) => [typeof style === 'function' ? style(state) : style, center ? { alignSelf: 'center' } : undefined]
-      : style;
-  const handlePress = (event: GestureResponderEvent) => {
-    onPress?.(event);
-    if (Platform.OS === 'web') {
-      onClick?.(event as unknown as React.MouseEvent<HTMLElement>);
-    }
-  };
+  const { isActive, ...interactionHandlers } = useNativeInteraction({ onFocus, onBlur, onPressIn, onPressOut });
+  const textColor = disabled ? theme.colors.text.disabled : styles[variant].textColor;
+  const handlePress =
+    onPress || (Platform.OS === 'web' && onClick)
+      ? (event: GestureResponderEvent) => {
+          onPress?.(event);
+          if (Platform.OS === 'web') {
+            onClick?.(event as unknown as React.MouseEvent<HTMLElement>);
+          }
+        }
+      : undefined;
 
   return (
     <StyledButton
@@ -327,36 +330,26 @@ export const Button = ({
       $variant={variant}
       $size={size}
       $disabled={!!disabled}
-      $isActive={isFocused || isPressed}
+      $isActive={isActive}
+      $center={center}
       disabled={href === undefined ? !!disabled || !!loading : !!disabled}
       onPress={handlePress}
       onKeyDown={Platform.OS === 'web' ? onKeyDown : undefined}
       accessibilityRole={href ? 'link' : 'button'}
-      accessibilityState={{ disabled: !!disabled || (!!loading && href === undefined), busy: !!loading }}
-      style={buttonStyle}
-      onFocus={(event) => {
-        if (Platform.OS !== 'web') setIsFocused(true);
-        onFocus?.(event);
+      accessibilityState={{
+        ...accessibilityState,
+        disabled: !!disabled || (!!loading && href === undefined),
+        busy: !!loading,
       }}
-      onBlur={(event) => {
-        if (Platform.OS !== 'web') setIsFocused(false);
-        onBlur?.(event);
-      }}
-      onPressIn={(event) => {
-        if (Platform.OS !== 'web') setIsPressed(true);
-        onPressIn?.(event);
-      }}
-      onPressOut={(event) => {
-        if (Platform.OS !== 'web') setIsPressed(false);
-        onPressOut?.(event);
-      }}
+      style={style}
+      {...interactionHandlers}
     >
       <SpinnerWrapper $active={!!loading} accessibilityElementsHidden={!loading} aria-hidden={!loading}>
         {loading && <ActivityIndicator size={18} color={textColor} />}
       </SpinnerWrapper>
       {Children.map(children, (child) =>
         typeof child === 'string' || typeof child === 'number' ? (
-          <ButtonText $color={textColor} $size={size}>
+          <ButtonText $color={textColor} $size={size} $underline={variant === 'link'}>
             {child}
           </ButtonText>
         ) : (

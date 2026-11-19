@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
+import { Dimensions, Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Text } from './text';
 import { Modal, ModalTitle } from './modal';
+import { webSpaceActivation } from './component-utils';
 
 export type DropdownItem =
   | {
@@ -32,16 +33,25 @@ const Menu = styled.View`
   box-shadow: 0 4px 24px rgba(162, 174, 169, 0.46);
 `;
 
-const Trigger = styled.Pressable`
+const Trigger = styled.Pressable<{ $disabled?: boolean }>`
   align-self: flex-start;
   align-items: center;
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+  ${({ $disabled }) =>
+    Platform.OS === 'web' &&
+    css`
+      cursor: ${$disabled ? 'not-allowed' : 'pointer'};
+    `}
 `;
 
 // Pressed feedback lives in the native-only style function; react-native-web drops Pressable style functions here.
-export const DropdownOption = styled.Pressable<{ $selected?: boolean; $disabled?: boolean }>`
+export const DropdownOption = styled.Pressable.attrs({
+  ...webSpaceActivation,
+  style: ({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.medium } : null),
+})<{ $selected?: boolean; $disabled?: boolean }>`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};
@@ -50,17 +60,16 @@ export const DropdownOption = styled.Pressable<{ $selected?: boolean; $disabled?
   border-radius: ${theme.radius[200]};
   background-color: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : 'transparent')};
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  ${
+  ${({ $disabled }) =>
     Platform.OS === 'web' &&
     css`
-      cursor: pointer;
-      &:hover:not(:disabled),
-      &:focus-visible {
+      cursor: ${$disabled ? 'not-allowed' : 'pointer'};
+      &:hover:not([aria-disabled='true']),
+      &:focus-visible:not([aria-disabled='true']) {
         background-color: ${theme.colors.surface.medium};
         outline: none;
       }
-    `
-  }
+    `}
 `;
 
 // Web lucide icons use currentColor; native callers still pass `color` explicitly.
@@ -98,8 +107,11 @@ export const DropdownMenu = ({
   const menuId = `${rootId}-menu`;
   const [presentation, setPresentation] = useState<{ isMobile: boolean; closing?: boolean } | null>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
   const isOpen = presentation !== null;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   const finishClose = () => {
     setPresentation(null);
@@ -117,7 +129,7 @@ export const DropdownMenu = ({
     if (isOpen) close();
     else {
       setPresentation({
-        isMobile: Platform.OS !== 'web' || window.innerWidth <= theme.breakpointNumbers.sm,
+        isMobile: Platform.OS !== 'web' || Dimensions.get('window').width <= theme.breakpointNumbers.sm,
       });
     }
   };
@@ -217,12 +229,13 @@ export const Dropdown = ({ items, onSelect, trigger, label, closeLabel, disabled
         'aria-controls': isOpen ? menuId : undefined,
         disabled,
         onPress: toggle,
-        style: { opacity: disabled ? 0.5 : 1 },
       };
       return typeof trigger === 'function' ? (
         trigger(triggerProps)
       ) : (
-        <Trigger {...triggerProps}>{trigger ?? <Text.H3>{'\u22EE'}</Text.H3>}</Trigger>
+        <Trigger {...triggerProps} $disabled={disabled}>
+          {trigger ?? <Text.H3>{'\u22EE'}</Text.H3>}
+        </Trigger>
       );
     }}
   >
@@ -237,7 +250,6 @@ export const Dropdown = ({ items, onSelect, trigger, label, closeLabel, disabled
                 disabled={item.disabled}
                 $disabled={item.disabled}
                 accessibilityState={{ disabled: item.disabled }}
-                style={({ pressed }) => (pressed ? { backgroundColor: theme.colors.surface.medium } : null)}
                 onPress={() => {
                   close();
                   item.onClick();

@@ -1,4 +1,4 @@
-import { css } from 'styled-components';
+import { css } from 'styled-components/native';
 import { colors } from './colors';
 
 const LANDSCAPE_BREAKPOINT = 450;

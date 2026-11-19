@@ -49,6 +49,10 @@
       "types": "./dist/components/input.d.ts",
       "default": "./dist/components/input.js"
     },
+    "./components/password-input": {
+      "types": "./dist/components/password-input.d.ts",
+      "default": "./dist/components/password-input.js"
+    },
     "./components/textarea": {
       "types": "./dist/components/textarea.d.ts",
       "default": "./dist/components/textarea.js"

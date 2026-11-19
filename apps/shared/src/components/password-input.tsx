@@ -4,33 +4,31 @@ import { EyeOff, Eye } from '../assets/icons';
 import { TextInput } from 'react-native';
 import { theme } from '../config/theme';
 
-type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'icon'>;
+export type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'icon' | 'iconComponent'>;
 
 export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
   ({ disabled, autoComplete = 'current-password', ...inputProps }, ref) => {
     const [isVisible, setIsVisible] = useState(false);
+    const VisibilityIcon = isVisible ? Eye : EyeOff;
+    const iconColor = disabled ? theme.colors.text.disabled : theme.colors.text.secondary;
 
     return (
       <Input
         ref={ref}
+        autoComplete={autoComplete}
+        {...inputProps}
         disabled={disabled}
         secureTextEntry={!isVisible}
-        autoComplete={autoComplete}
         iconComponent={
           <InputIconButton
             onPress={() => setIsVisible((prev) => !prev)}
-            aria-label={isVisible ? 'Hide password' : 'Show password'}
+            accessibilityLabel={isVisible ? 'Hide password' : 'Show password'}
             aria-pressed={isVisible}
             disabled={disabled}
           >
-            {isVisible ? (
-              <Eye color={disabled ? theme.colors.text.disabled : theme.colors.text.secondary} />
-            ) : (
-              <EyeOff color={disabled ? theme.colors.text.disabled : theme.colors.text.secondary} />
-            )}
+            <VisibilityIcon color={iconColor} aria-hidden />
           </InputIconButton>
         }
-        {...inputProps}
       />
     );
   }
