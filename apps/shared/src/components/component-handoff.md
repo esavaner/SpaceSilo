@@ -29,7 +29,7 @@ Done and tested on a real device by the user:
 - `pagination`,
 
 Still using the web version (`styled-components` and DOM elements):
-`select`, and `modal`
+`dropdown`, `select`, and `modal`
 
 - Convert the easiest ones first. `select.tsx` already uses `Input` and `InputIconButton`.
 
