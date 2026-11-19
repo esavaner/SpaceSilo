@@ -16,7 +16,7 @@ import { Platform, Appearance, ColorSchemeName } from 'react-native';
 import { PortalHost } from '@rn-primitives/portal';
 import { ServerProvider } from '@/providers/ServerProvider';
 import { Toaster } from '@/lib/toast';
-import { ModalProvider } from '@repo/shared/context/modal-provider';
+import { ModalProvider } from '@repo/shared/components';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

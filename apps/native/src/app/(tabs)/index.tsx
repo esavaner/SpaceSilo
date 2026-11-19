@@ -2,23 +2,28 @@
 import { useRootNavigationState } from 'expo-router';
 import { BaseLayout } from '@/components/base-layout';
 import { useEffect, useState } from 'react';
-import { Text } from '@repo/shared/components/text';
-import { Input } from '@repo/shared/components/input';
-import { Textarea } from '@repo/shared/components/textarea';
-import { SetPasswordInput } from '@repo/shared/components/set-password-input';
-import { PasswordInput } from '@repo/shared/components/password-input';
-import { Loader } from '@repo/shared/components/loader';
-import { Checkbox } from '@repo/shared/components/checkbox';
-import { PhoneInput } from '@repo/shared/components/phone-input';
-import { Radio } from '@repo/shared/components/radio';
-import { RadioGroup } from '@repo/shared/components/radio-group';
-import { OverflowFade } from '@repo/shared/components/overflow-fade';
-import { Button } from '@repo/shared/components/button';
-import { Pagination } from '@repo/shared/components/pagination';
-import { Modal, ModalButtons, ModalError, ModalTitle } from '@repo/shared/components/modal';
-import { Select } from '@repo/shared/components/select';
-import { Dropdown } from '@repo/shared/components/dropdown';
-import { useModal } from '@repo/shared/context/modal-provider';
+import {
+  Text,
+  Input,
+  Textarea,
+  SetPasswordInput,
+  PasswordInput,
+  Loader,
+  Checkbox,
+  PhoneInput,
+  Radio,
+  RadioGroup,
+  OverflowFade,
+  Button,
+  Pagination,
+  Modal,
+  ModalButtons,
+  ModalError,
+  ModalTitle,
+  Select,
+  Dropdown,
+  useModal,
+} from '@repo/shared/components';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
