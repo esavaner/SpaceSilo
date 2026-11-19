@@ -1,78 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
+import { useId, useState } from 'react';
+import { Platform, type NativeScrollEvent, type NativeSyntheticEvent, type ViewProps } from 'react-native';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
 
-// buffer to determine how near the top/bottom the fade should disappear
 const BUFFER = 15;
-// padding on the right side to add some distance to the scrollbar
 const RIGHT_PADDING = 12;
 
-type FadeProps = {
-  $topVisible: boolean;
-  $bottomVisible: boolean;
-  $fadeHeight: number;
-  $rightPadding: string;
-  $dark: boolean;
-  $fill: boolean;
-};
-
-const Wrapper = styled.div<FadeProps>`
-  position: relative;
-  transition: all 0.5s ease;
-
-  ${({ $fill }) =>
-    $fill &&
-    css`
-      flex: 1 1 auto;
-      min-height: 0;
-    `}
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    pointer-events: none;
-    transition: all 0.5s ease;
-    width: 100%;
-    left: 0;
-    right: ${({ $rightPadding }) => $rightPadding};
-  }
-
-  &::before {
-    border-radius: ${theme.radius[300]} ${theme.radius[300]} 0 0;
-    top: 0;
-    ${({ $topVisible, $fadeHeight, $dark }) => css`
-      height: ${$fadeHeight}px;
-      opacity: ${$topVisible ? 1 : 0};
-      background: linear-gradient(to bottom, ${$dark ? theme.colors.surface.darker : 'white'} 0%, transparent 100%);
-    `}
-  }
-
-  &::after {
-    bottom: 0;
-    border-radius: 0 0 ${theme.radius[300]} ${theme.radius[300]};
-    ${({ $bottomVisible, $fadeHeight, $dark }) => css`
-      height: ${$fadeHeight}px;
-      opacity: ${$bottomVisible ? 1 : 0};
-      background: linear-gradient(to top, ${$dark ? theme.colors.surface.darker : 'white'} 0%, transparent 100%);
-    `}
-  }
-`;
-
-const Content = styled.div<{ $maxHeight?: number; $rightPadding: string }>`
-  overflow-y: auto;
-  padding-right: ${({ $rightPadding }) => $rightPadding};
-  transition: all 0.5s ease;
-  height: 100%;
-  max-height: ${({ $maxHeight }) => ($maxHeight ? `${$maxHeight}px` : '100%')};
-
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-`;
-
-type Props = React.HTMLAttributes<HTMLDivElement> & {
+type Props = Omit<ViewProps, 'role'> & {
+  className?: string;
+  role?: string;
   fadeHeight?: number;
   maxHeight?: number;
   rightPadding?: string;
@@ -80,74 +17,140 @@ type Props = React.HTMLAttributes<HTMLDivElement> & {
   fill?: boolean;
 };
 
+const Wrapper = styled.View<{ $fill: boolean }>`
+  position: relative;
+  ${({ $fill }) =>
+    $fill &&
+    css`
+      flex: 1 1 auto;
+      min-height: 0;
+    `}
+  ${
+    Platform.OS === 'web' &&
+    css`
+      transition: all 0.5s ease;
+    `
+  }
+`;
+
+type ScrollerProps = {
+  $maxHeight?: number;
+  $rightPadding: string;
+};
+const Scroller = styled.ScrollView<ScrollerProps>`
+  flex-grow: 0;
+  max-height: ${({ $maxHeight }) => ($maxHeight ? `${$maxHeight}px` : '100%')};
+  padding-right: ${({ $rightPadding }) => $rightPadding};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      transition: all 0.5s ease;
+    `
+  }
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+`;
+
+type FadeOverlayProps = {
+  $fadeHeight: number;
+  $rightPadding: string;
+  $bottom?: boolean;
+  $visible: boolean;
+};
+const FadeOverlay = styled.View<FadeOverlayProps>`
+  position: absolute;
+  left: 0;
+  right: ${({ $rightPadding }) => $rightPadding};
+  height: ${({ $fadeHeight }) => `${$fadeHeight}px`};
+  ${({ $bottom }) => ($bottom ? 'bottom: 0;' : 'top: 0;')}
+  ${({ $bottom }) =>
+    $bottom
+      ? css`
+          border-bottom-left-radius: ${theme.radius[300]};
+          border-bottom-right-radius: ${theme.radius[300]};
+        `
+      : css`
+          border-top-left-radius: ${theme.radius[300]};
+          border-top-right-radius: ${theme.radius[300]};
+        `}
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  pointer-events: none;
+  ${
+    Platform.OS === 'web' &&
+    css`
+      transition: all 0.5s ease;
+    `
+  }
+`;
+
 export const OverflowFade = ({
   children,
   className,
+  role,
   style,
   fadeHeight = 64,
   maxHeight,
   rightPadding = `${RIGHT_PADDING}px`,
   dark = false,
   fill = false,
+  ...rest
 }: Props) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [atTop, setAtTop] = useState(true);
-  const [atBottom, setAtBottom] = useState(true);
+  const gradientId = useId().replace(/:/g, '');
+  const [scrollTop, setScrollTop] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const atTop = scrollTop <= BUFFER;
+  const atBottom = scrollTop + containerHeight >= contentHeight - BUFFER;
+  const fadeColor = dark ? theme.colors.surface.darker : 'white';
+  // React Native Web consumes these DOM props even though React Native's types omit them.
+  const wrapperProps = { ...rest, className, role } as ViewProps;
 
-  const handleScroll = useCallback(() => {
-    if (ref.current) {
-      const { scrollTop, scrollHeight, clientHeight } = ref.current;
-      setAtTop(scrollTop <= BUFFER);
-      setAtBottom(scrollTop + clientHeight >= scrollHeight - BUFFER);
-    }
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    handleScroll();
-    el.addEventListener('scroll', handleScroll);
-    let resizeObserver: ResizeObserver | undefined;
-    let mutationObserver: MutationObserver | undefined;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(handleScroll);
-      resizeObserver.observe(el);
-    }
-    if (typeof MutationObserver !== 'undefined') {
-      mutationObserver = new MutationObserver(handleScroll);
-      mutationObserver.observe(el, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-      });
-    }
-    return () => {
-      el.removeEventListener('scroll', handleScroll);
-      resizeObserver?.disconnect();
-      mutationObserver?.disconnect();
-    };
-  }, [handleScroll]);
-
-  useEffect(() => {
-    handleScroll();
-  }, [handleScroll, maxHeight]);
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setScrollTop(event.nativeEvent.contentOffset.y);
+  };
 
   return (
-    <Wrapper
-      className={className}
-      style={style}
-      $fadeHeight={fadeHeight}
-      $topVisible={!atTop}
-      $bottomVisible={!atBottom}
-      $rightPadding={rightPadding}
-      $dark={dark}
-      $fill={fill}
-    >
-      <Content ref={ref} $maxHeight={maxHeight} $rightPadding={rightPadding}>
+    <Wrapper style={style} $fill={fill} {...wrapperProps}>
+      <Scroller
+        $maxHeight={maxHeight}
+        $rightPadding={rightPadding}
+        onLayout={(event) => setContainerHeight(event.nativeEvent.layout.height)}
+        onContentSizeChange={(_, height) => setContentHeight(height)}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         {children}
-      </Content>
+      </Scroller>
+      <FadeOverlay $fadeHeight={fadeHeight} $rightPadding={rightPadding} $visible={!atTop} pointerEvents="none">
+        <Svg width="100%" height="100%">
+          <Defs>
+            <LinearGradient id={`${gradientId}-top`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor={fadeColor} />
+              <Stop offset="100%" stopColor={fadeColor} stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill={`url(#${gradientId}-top)`} />
+        </Svg>
+      </FadeOverlay>
+      <FadeOverlay
+        $fadeHeight={fadeHeight}
+        $rightPadding={rightPadding}
+        $bottom
+        $visible={!atBottom}
+        pointerEvents="none"
+      >
+        <Svg width="100%" height="100%">
+          <Defs>
+            <LinearGradient id={`${gradientId}-bottom`} x1="0%" y1="100%" x2="0%" y2="0%">
+              <Stop offset="0%" stopColor={fadeColor} />
+              <Stop offset="100%" stopColor={fadeColor} stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill={`url(#${gradientId}-bottom)`} />
+        </Svg>
+      </FadeOverlay>
     </Wrapper>
   );
 };

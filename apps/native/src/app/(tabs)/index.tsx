@@ -13,6 +13,7 @@ import { Checkbox } from '@repo/shared/components/checkbox';
 import { PhoneInput } from '@repo/shared/components/phone-input';
 import { Radio } from '@repo/shared/components/radio';
 import { RadioGroup } from '@repo/shared/components/radio-group';
+import { OverflowFade } from '@repo/shared/components/overflow-fade';
 import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
@@ -70,6 +71,15 @@ export default function IndexPage() {
           <Loader />
           <Loader block />
           <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
+        </Section>
+
+        <Section>
+          <SectionHeader>Overflow fade</SectionHeader>
+          <OverflowFade maxHeight={140}>
+            {Array.from({ length: 8 }, (_, index) => (
+              <Text.M key={index}>Scrollable item {index + 1}</Text.M>
+            ))}
+          </OverflowFade>
         </Section>
 
         <Section>

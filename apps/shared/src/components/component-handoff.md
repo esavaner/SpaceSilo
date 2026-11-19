@@ -24,10 +24,11 @@ Done and tested on a real device by the user:
 - `checkbox.tsx`
 - `phone-input.tsx`
 - `radio.tsx` and `radio-group.tsx`
+- `overflow-fade`,
 
 Still using the web version (`styled-components` and DOM elements):
 
-- `overflow-fade`, `button`, `pagination`, `dropdown`, `select`, and `modal`
+- `button`, `pagination`, `dropdown`, `select`, and `modal`
 - Convert the easiest ones first. `select.tsx` already uses `Input` and `InputIconButton`.
 
 ## Workflow for each component

@@ -52,6 +52,10 @@
     "./components/radio-group": {
       "types": "./dist/components/radio-group.d.ts",
       "default": "./dist/components/radio-group.js"
+    },
+    "./components/overflow-fade": {
+      "types": "./dist/components/overflow-fade.d.ts",
+      "default": "./dist/components/overflow-fade.js"
     }
   },
   "scripts": {
