@@ -24,6 +24,14 @@
     "./components/input": {
       "types": "./dist/components/input.d.ts",
       "default": "./dist/components/input.js"
+    },
+    "./components/textarea": {
+      "types": "./dist/components/textarea.d.ts",
+      "default": "./dist/components/textarea.js"
+    },
+    "./components/set-password-input": {
+      "types": "./dist/components/set-password-input.d.ts",
+      "default": "./dist/components/set-password-input.js"
     }
   },
   "scripts": {

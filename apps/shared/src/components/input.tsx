@@ -39,11 +39,14 @@ export const InputContainer = styled.View`
   border-radius: ${theme.radius[300]};
   background: ${theme.colors.surface.weak};
 `;
+// Absolute children without top/bottom are centered by justify-content on native and web.
+const InputField = styled.View`
+  position: relative;
+  justify-content: center;
+`;
 const Icon = styled.View.attrs({ pointerEvents: 'none' })<{ $left?: boolean }>`
   position: absolute;
   z-index: ${theme.zIndex.raised};
-  top: 25px;
-  transform: translateY(-50%);
   color: ${theme.colors.text.secondary};
 
   ${({ $left }) =>
@@ -214,6 +217,7 @@ export const Input = forwardRef<TextInput, InputProps>(
         }
       },
       editable: !disabled && editable !== false,
+      ...(Platform.OS === 'web' ? { disabled } : {}),
       accessibilityState: { ...accessibilityState, disabled: disabled || editable === false },
       onPress: (e: GestureResponderEvent) => {
         e.stopPropagation();
@@ -264,34 +268,36 @@ export const Input = forwardRef<TextInput, InputProps>(
           </InputLabel>
         )}
         <InputContainer>
-          {leftIconComponent ? leftIconComponent : leftIcon && <Icon $left>{leftIcon}</Icon>}
-          {customInput ? (
-            <CustomInputWrapper
-              id={inputId}
-              role="group"
-              aria-labelledby={!hideLabel ? labelId : undefined}
-              aria-label={hideLabel ? label : undefined}
-              aria-describedby={describedBy || undefined}
-              aria-invalid={isError || undefined}
-              accessibilityState={{ disabled }}
-              accessibilityLabel={label}
-              accessibilityHint={inputProps.accessibilityHint}
-              style={props.style}
-              $isError={isError}
-              $hasIcon={hasIcon}
-              $hasIconLeft={hasLeftIcon}
-              $disabled={disabled}
-              $customInputDefaultStyle={customInputDefaultStyle}
-            >
-              {customInput}
-            </CustomInputWrapper>
-          ) : (
-            // React Native Web's TextInput does not dispatch onPress.
-            <Pressable accessible={false} disabled={disabled} onPress={inputProps.onPress}>
-              <StyledInput {...inputProps} />
-            </Pressable>
-          )}
-          {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
+          <InputField>
+            {leftIconComponent ? leftIconComponent : leftIcon && <Icon $left>{leftIcon}</Icon>}
+            {customInput ? (
+              <CustomInputWrapper
+                id={inputId}
+                role="group"
+                aria-labelledby={!hideLabel ? labelId : undefined}
+                aria-label={hideLabel ? label : undefined}
+                aria-describedby={describedBy || undefined}
+                aria-invalid={isError || undefined}
+                accessibilityState={{ disabled }}
+                accessibilityLabel={label}
+                accessibilityHint={inputProps.accessibilityHint}
+                style={props.style}
+                $isError={isError}
+                $hasIcon={hasIcon}
+                $hasIconLeft={hasLeftIcon}
+                $disabled={disabled}
+                $customInputDefaultStyle={customInputDefaultStyle}
+              >
+                {customInput}
+              </CustomInputWrapper>
+            ) : (
+              // React Native Web's TextInput does not dispatch onPress.
+              <Pressable accessible={false} disabled={disabled} onPress={inputProps.onPress}>
+                <StyledInput {...inputProps} />
+              </Pressable>
+            )}
+            {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
+          </InputField>
           {hasInfo && (
             <InputInfo id={infoMessageId} role="status" aria-live="polite">
               <Info color={theme.colors.text.secondary} />
@@ -318,8 +324,6 @@ export const InputIconButton = styled.Pressable.attrs({
 })`
   position: absolute;
   height: fit-content;
-  top: 25px;
-  transform: translateY(-50%);
   border-radius: ${theme.radius[100]};
   right: ${theme.spacing[400]};
   display: inline-flex;

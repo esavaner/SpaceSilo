@@ -1,2 +1,2 @@
-export { ArrowRight, Check, ChevronDown, CircleCheck, Dot, LoaderCircle, Orbit, X } from 'lucide-react';
-export { Eye, EyeOff, Info } from 'lucide-react-native';
+export { ArrowRight, ChevronDown, CircleCheck, LoaderCircle, Orbit, X } from 'lucide-react';
+export { Check, Dot, Eye, EyeOff, Info } from 'lucide-react-native';

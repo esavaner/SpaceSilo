@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
-import styled from 'styled-components';
+import { forwardRef, useState } from 'react';
+import styled from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Check, Dot } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
@@ -8,24 +8,16 @@ import { PasswordInput } from './password-input';
 import { Text } from './text';
 import { TextInput, View } from 'react-native';
 
-type StyledProps = {
-  $isMet: boolean;
-  $isError?: boolean;
-};
-
-const RequirementList = styled.ul`
-  display: grid;
+const RequirementList = styled.View`
+  display: flex;
   gap: ${theme.spacing[100]};
   padding: ${theme.spacing[150]};
-  margin: 0;
-  list-style: none;
 `;
-const Item = styled.li<StyledProps>`
+const Item = styled.View`
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[100]};
-  color: ${({ $isMet, $isError }) =>
-    $isMet ? theme.colors.text.success : $isError ? theme.colors.text.danger : theme.colors.text.secondary};
 `;
 
 type Props = Omit<InputProps, 'secureTextEntry' | 'icon'> & {
@@ -33,8 +25,12 @@ type Props = Omit<InputProps, 'secureTextEntry' | 'icon'> & {
 };
 
 export const SetPasswordInput = forwardRef<TextInput, Props>(
-  ({ requirements = defaultPasswordRequirements, value, error, style, ...inputProps }, ref) => {
-    const passwordValue = typeof value === 'string' ? value : '';
+  (
+    { requirements = defaultPasswordRequirements, value, defaultValue, onChangeText, error, style, ...inputProps },
+    ref
+  ) => {
+    const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+    const passwordValue = value ?? internalValue;
     const requirementStatuses = requirements.map((requirement) => ({
       ...requirement,
       isMet: requirement.validate(passwordValue),
@@ -42,14 +38,38 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
 
     return (
       <View style={style}>
-        <PasswordInput ref={ref} value={value} error={error} {...inputProps} />
-        <RequirementList aria-label="Password requirements">
-          {requirementStatuses.map((requirement) => (
-            <Item key={requirement.id} $isMet={requirement.isMet} $isError={!!error}>
-              {requirement.isMet ? <Check width={16} height={16} aria-hidden /> : <Dot aria-hidden />}
-              <Text.Caption color="inherit">{requirement.label}</Text.Caption>
-            </Item>
-          ))}
+        <PasswordInput
+          ref={ref}
+          value={value}
+          defaultValue={defaultValue}
+          error={error}
+          onChangeText={(text) => {
+            if (value === undefined) setInternalValue(text);
+            onChangeText?.(text);
+          }}
+          {...inputProps}
+        />
+        <RequirementList role="list" accessibilityLabel="Password requirements">
+          {requirementStatuses.map((requirement) => {
+            const color = requirement.isMet
+              ? theme.colors.text.success
+              : error
+                ? theme.colors.text.danger
+                : theme.colors.text.secondary;
+
+            return (
+              <Item key={requirement.id} role="listitem">
+                {requirement.isMet ? (
+                  <Check width={16} height={16} color={color} aria-hidden />
+                ) : (
+                  <Dot color={color} aria-hidden />
+                )}
+                <Text.Caption color={color} style={{ flexShrink: 1 }}>
+                  {requirement.label}
+                </Text.Caption>
+              </Item>
+            );
+          })}
         </RequirementList>
       </View>
     );
