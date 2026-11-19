@@ -32,6 +32,9 @@ const fontSize = {
   '4xl': '2.625rem',
 } as const;
 
+// Resolve against the font-size token; native percentages use the inherited font size.
+const lineHeight = (size: (typeof fontSize)[keyof typeof fontSize], ratio: number) => `${parseFloat(size) * ratio}rem`;
+
 export const theme = {
   family,
   fontSize,
@@ -69,46 +72,46 @@ export const theme = {
       font-family: ${family.title};
       font-size: ${fontSize['4xl']};
       font-weight: 600;
-      line-height: 115%;
+      line-height: ${lineHeight(fontSize['4xl'], 1.15)};
     `,
     displayL: css`
       font-family: ${family.title};
       font-size: ${fontSize['3xl']};
       font-weight: 600;
-      line-height: 115%;
+      line-height: ${lineHeight(fontSize['3xl'], 1.15)};
     `,
     H1: css`
       font-family: ${family.title};
       font-size: ${fontSize['2xl']};
       font-weight: 600;
-      line-height: 120%;
+      line-height: ${lineHeight(fontSize['2xl'], 1.2)};
     `,
     H2: css`
       font-family: ${family.title};
       font-size: ${fontSize.xl};
       font-weight: 600;
-      line-height: 125%;
+      line-height: ${lineHeight(fontSize.xl, 1.25)};
     `,
     H3: css`
       font-family: ${family.title};
       font-size: ${fontSize.lg};
       font-weight: 600;
-      line-height: 135%;
+      line-height: ${lineHeight(fontSize.lg, 1.35)};
     `,
     L: css`
       font-family: ${family.body};
       font-size: ${fontSize.md};
-      line-height: 160%;
+      line-height: ${lineHeight(fontSize.md, 1.6)};
     `,
     M: css`
       font-family: ${family.body};
       font-size: ${fontSize.base};
-      line-height: 160%;
+      line-height: ${lineHeight(fontSize.base, 1.6)};
     `,
     S: css`
       font-family: ${family.body};
       font-size: ${fontSize.sm};
-      line-height: 145%;
+      line-height: ${lineHeight(fontSize.sm, 1.45)};
     `,
 
     // expanded font sizes
@@ -116,39 +119,39 @@ export const theme = {
       font-family: ${family.body};
       font-size: ${fontSize.base};
       font-weight: 700;
-      line-height: 150%;
+      line-height: ${lineHeight(fontSize.base, 1.5)};
       letter-spacing: 0.3px;
     `,
     label: css`
       font-family: ${family.body};
       font-size: ${fontSize.sm};
       font-weight: 700;
-      line-height: 120%;
+      line-height: ${lineHeight(fontSize.sm, 1.2)};
       letter-spacing: 0.3px;
     `,
     caption: css`
       font-family: ${family.body};
       font-size: ${fontSize.xs};
-      line-height: 140%;
+      line-height: ${lineHeight(fontSize.xs, 1.4)};
       letter-spacing: 0.25px;
     `,
     formLabel: css`
       font-family: ${family.body};
       font-size: ${fontSize.xs};
       font-weight: 700;
-      line-height: 140%;
+      line-height: ${lineHeight(fontSize.xs, 1.4)};
       letter-spacing: 0.25px;
     `,
     formPlaceholder: css`
       font-family: ${family.body};
       font-size: ${fontSize.base};
-      line-height: 150%;
+      line-height: ${lineHeight(fontSize.base, 1.5)};
       letter-spacing: 0.3px;
     `,
     formMessage: css`
       font-family: ${family.body};
       font-size: ${fontSize.sm};
-      line-height: 140%;
+      line-height: ${lineHeight(fontSize.sm, 1.4)};
       letter-spacing: 0.25px;
     `,
   },
