@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 // Animate opacity on this same layer; an opacity ancestor isolates the blur.
 export const modalBackdropStyle: ViewStyle & { backdropFilter?: string } = {
-  backgroundColor: 'rgba(63, 44, 38, 0.4)',
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
   ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}),
 };
 
