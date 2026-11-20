@@ -100,26 +100,6 @@
     "notes": "Notes",
     "trash": "Trash"
   },
-  "auth": {
-    "login": {
-      "actions": {
-        "submit": "Login"
-      },
-      "fields": {
-        "email": "Email",
-        "password": "Password"
-      },
-      "placeholders": {
-        "email": "you@example.com",
-        "password": "••••••••"
-      },
-      "validation": {
-        "emailInvalid": "Enter a valid email",
-        "emailRequired": "Email is required",
-        "passwordRequired": "Password is required"
-      }
-    }
-  },
   "connections": {
     "title": "Connections",
     "subtitle": "Here you can manage your connections to external services",
