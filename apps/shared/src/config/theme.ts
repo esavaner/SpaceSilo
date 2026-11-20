@@ -20,8 +20,8 @@ const breakpoints = {
 } as const;
 
 const family = {
-  title: 'Lora',
-  body: 'Lato',
+  title: 'Lora, serif',
+  body: 'Lato, sans-serif',
 } as const;
 
 const fontSize = {
