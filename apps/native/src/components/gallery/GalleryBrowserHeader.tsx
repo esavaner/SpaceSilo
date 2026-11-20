@@ -120,7 +120,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
   return (
     <View className="gap-4">
       <View className="flex-row flex-wrap items-start justify-between gap-3">
-        <View className="gap-2">
+        <View className="gap-2" style={{ maxWidth: '100%' }}>
           <Text.H1>{title}</Text.H1>
           {albumSearch ? (
             <Search
@@ -134,7 +134,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
           {!isTrashMode && breadcrumbItems.length > 0 ? <Breadcrumb items={breadcrumbItems} /> : null}
         </View>
 
-        <View className="flex-row flex-wrap items-center gap-2">
+        <View className="flex-row flex-wrap items-center gap-2" style={{ maxWidth: '100%' }}>
           <IncludedGroupsDropdown {...groupFilter} />
 
           {isTrashMode ? (
@@ -153,9 +153,12 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                 onPress={onDeleteAll}
                 disabled={noServers}
                 loading={pendingAction === 'delete-all'}
+                style={{ maxWidth: '100%' }}
               >
                 <Icon.Trash size={18} color={noServers ? colors.text.disabled : colors.text.inverted} aria-hidden />
-                {t('gallery.actions.deleteAll')}
+                <Text.S color={noServers ? colors.text.disabled : colors.text.inverted} style={{ flexShrink: 1 }}>
+                  {t('gallery.actions.deleteAll')}
+                </Text.S>
               </Button>
             </>
           ) : (

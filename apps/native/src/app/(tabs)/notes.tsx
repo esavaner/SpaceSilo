@@ -17,12 +17,9 @@ const PageContent = styled.View`
   padding-bottom: ${theme.spacing[800]};
 `;
 
-const PageHeader = styled.View`
-  gap: ${theme.spacing[300]};
-`;
-
 const HeadingRow = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: ${theme.spacing[300]};
@@ -30,6 +27,7 @@ const HeadingRow = styled.View`
 
 const HeadingContent = styled.View`
   flex: 1;
+  min-width: 120px;
   gap: ${theme.spacing[50]};
 `;
 
@@ -216,51 +214,50 @@ export default function NotesPage() {
   };
 
   return (
-    <BaseLayout>
+    <BaseLayout
+      header={
+        <HeadingRow>
+          <HeadingContent>
+            <Text.H1>{t('navigation.notes')}</Text.H1>
+            <Text.S color={colors.text.secondary}>
+              {isNotesLoading || isGroupsLoading
+                ? t('notes.loading')
+                : `${visibleNotes.length} ${t('common.nouns.notes')} ${t('common.labels.inView')}`}
+            </Text.S>
+          </HeadingContent>
+          <Button onPress={openCreateModal} disabled={groups.length === 0}>
+            <Icon.Plus size={18} color={colors.text.inverted} />
+            <Text.S color={colors.text.inverted}>{t('notes.actions.create')}</Text.S>
+          </Button>
+        </HeadingRow>
+      }
+    >
       <PageContent>
-        <PageHeader>
-          <HeadingRow>
-            <HeadingContent>
-              <Text.H1>{t('navigation.notes')}</Text.H1>
-              <Text.S color={colors.text.secondary}>
-                {isNotesLoading || isGroupsLoading
-                  ? t('notes.loading')
-                  : `${visibleNotes.length} ${t('common.nouns.notes')} ${t('common.labels.inView')}`}
-              </Text.S>
-            </HeadingContent>
+        <FiltersPanel>
+          <Input
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('notes.searchPlaceholder')}
+            leftIcon={<Icon.Search size={16} color={colors.text.secondary} />}
+          />
 
-            <Button onPress={openCreateModal} disabled={groups.length === 0}>
-              <Icon.Plus size={18} color={colors.text.inverted} />
-              <Text.S color={colors.text.inverted}>{t('notes.actions.create')}</Text.S>
-            </Button>
-          </HeadingRow>
+          <FilterRow>
+            <IncludedGroupsDropdown
+              options={groupFilterOptions}
+              includedKeys={includedGroupKeys}
+              title={t('notes.groupFilter.title')}
+              includeLabel={t('notes.groupFilter.include')}
+              emptyLabel={t('notes.groupFilter.empty')}
+              onToggleIncluded={(key) => {
+                const group = groups.find((item) => getGroupLookupKey(item) === key);
 
-          <FiltersPanel>
-            <Input
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('notes.searchPlaceholder')}
-              leftIcon={<Icon.Search size={16} color={colors.text.secondary} />}
+                if (group) {
+                  handleToggleIncludedGroup(group);
+                }
+              }}
             />
-
-            <FilterRow>
-              <IncludedGroupsDropdown
-                options={groupFilterOptions}
-                includedKeys={includedGroupKeys}
-                title={t('notes.groupFilter.title')}
-                includeLabel={t('notes.groupFilter.include')}
-                emptyLabel={t('notes.groupFilter.empty')}
-                onToggleIncluded={(key) => {
-                  const group = groups.find((item) => getGroupLookupKey(item) === key);
-
-                  if (group) {
-                    handleToggleIncludedGroup(group);
-                  }
-                }}
-              />
-            </FilterRow>
-          </FiltersPanel>
-        </PageHeader>
+          </FilterRow>
+        </FiltersPanel>
 
         {servers.length === 0 ? (
           <EmptyState>

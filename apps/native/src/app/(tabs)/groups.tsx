@@ -14,13 +14,9 @@ const Page = styled.View`
   gap: ${theme.spacing[600]};
 `;
 
-const Header = styled.View`
-  gap: ${theme.spacing[300]};
-  z-index: ${theme.zIndex.raised};
-`;
-
 const HeadingRow = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: ${theme.spacing[300]};
@@ -28,6 +24,7 @@ const HeadingRow = styled.View`
 
 const Heading = styled.View`
   flex: 1;
+  min-width: 120px;
   gap: ${theme.spacing[100]};
 `;
 
@@ -87,38 +84,37 @@ export default function GroupsPage() {
   const visibleGroupCount = visibleGroups.length;
 
   return (
-    <BaseLayout>
+    <BaseLayout
+      header={
+        <HeadingRow>
+          <Heading>
+            <Text.H1>{t('navigation.groups')}</Text.H1>
+            <Text color={theme.colors.text.secondary}>
+              {isGroupsLoading
+                ? t('groups.loading')
+                : `${visibleGroupCount} ${t('common.nouns.groups')} ${t('common.labels.inView')}`}
+            </Text>
+          </Heading>
+          <Button onPress={() => openModal(<GroupCreateModal />)}>
+            <Icon.Plus color={colors.text.inverted} size={18} aria-hidden />
+            {t('groups.actions.create')}
+          </Button>
+        </HeadingRow>
+      }
+    >
       <Page>
-        <Header>
-          <HeadingRow>
-            <Heading>
-              <Text.H1>{t('navigation.groups')}</Text.H1>
-              <Text color={theme.colors.text.secondary}>
-                {isGroupsLoading
-                  ? t('groups.loading')
-                  : `${visibleGroupCount} ${t('common.nouns.groups')} ${t('common.labels.inView')}`}
-              </Text>
-            </Heading>
+        <Filters>
+          <Input
+            value={query}
+            onChangeText={setQuery}
+            label={t('groups.searchPlaceholder')}
+            hideLabel
+            placeholder={t('groups.searchPlaceholder')}
+            leftIcon={<Icon.Search color={colors.text.secondary} size={16} aria-hidden />}
+          />
 
-            <Button onPress={() => openModal(<GroupCreateModal />)}>
-              <Icon.Plus color={colors.text.inverted} size={18} aria-hidden />
-              {t('groups.actions.create')}
-            </Button>
-          </HeadingRow>
-
-          <Filters>
-              <Input
-                value={query}
-                onChangeText={setQuery}
-                label={t('groups.searchPlaceholder')}
-                hideLabel
-                placeholder={t('groups.searchPlaceholder')}
-                leftIcon={<Icon.Search color={colors.text.secondary} size={16} aria-hidden />}
-              />
-
-            <GroupFilterDropdown value={filter} onChange={setFilter} />
-          </Filters>
-        </Header>
+          <GroupFilterDropdown value={filter} onChange={setFilter} />
+        </Filters>
 
         <GroupList
           groups={visibleGroups}

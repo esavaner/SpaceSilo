@@ -6,6 +6,9 @@ import { routeIcons, routeLabels, routes } from '@/constants/routes';
 import { useServerContext } from '@/providers/ServerProvider';
 import { serverIcons } from '@/constants/server-icons';
 import { useTranslation } from 'react-i18next';
+import { createContext } from 'react';
+
+export const NavigationToggleContext = createContext<{ open: boolean; toggle: () => void } | null>(null);
 
 const AppTitle = styled(Text)`
   align-self: center;

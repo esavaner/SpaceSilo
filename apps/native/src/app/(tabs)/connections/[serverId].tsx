@@ -14,14 +14,15 @@ import { tApiErr } from '@/i18n/translate';
 
 const Header = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: ${theme.spacing[400]};
-  margin-bottom: ${theme.spacing[600]};
 `;
 
 const ServerInfo = styled.View`
   flex: 1;
+  min-width: 160px;
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};
@@ -142,8 +143,7 @@ export default function ConnectionDetailsPage() {
 
   if (!server) {
     return (
-      <BaseLayout>
-        <Text.H1>{t('navigation.connection')}</Text.H1>
+      <BaseLayout header={<Text.H1>{t('navigation.connection')}</Text.H1>}>
         <NotFoundMessage>
           {t('connections.details.messages.Err.NotFound')}
         </NotFoundMessage>
@@ -159,31 +159,32 @@ export default function ConnectionDetailsPage() {
   };
 
   return (
-    <BaseLayout>
-      <Header>
-        <ServerInfo>
-          <ServerIcon>{serverIcons[server.type]}</ServerIcon>
-          <ServerDetails>
-            <Text.H1>{server.label}</Text.H1>
-            <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
-            <Text.S>
-              {server.disabled
-                ? t('connections.details.state.disabled')
-                : server.client.status === 'logged_in'
-                  ? t('connections.details.state.connected')
-                  : t('connections.details.state.disconnected')}
-            </Text.S>
-            {server.client.account?.email && (
-              <Text.S color={theme.colors.text.secondary}>{server.client.account.email}</Text.S>
-            )}
-          </ServerDetails>
-        </ServerInfo>
-
-        <Button onPress={() => triggerScan(false)} loading={isScanning} disabled={!canQuery}>
-          {t('connections.details.actions.scanImages')}
-        </Button>
-      </Header>
-
+    <BaseLayout
+      header={
+        <Header>
+          <ServerInfo>
+            <ServerIcon>{serverIcons[server.type]}</ServerIcon>
+            <ServerDetails>
+              <Text.H1>{server.label}</Text.H1>
+              <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
+              <Text.S>
+                {server.disabled
+                  ? t('connections.details.state.disabled')
+                  : server.client.status === 'logged_in'
+                    ? t('connections.details.state.connected')
+                    : t('connections.details.state.disconnected')}
+              </Text.S>
+              {server.client.account?.email && (
+                <Text.S color={theme.colors.text.secondary}>{server.client.account.email}</Text.S>
+              )}
+            </ServerDetails>
+          </ServerInfo>
+          <Button onPress={() => triggerScan(false)} loading={isScanning} disabled={!canQuery}>
+            {t('connections.details.actions.scanImages')}
+          </Button>
+        </Header>
+      }
+    >
       {!canQuery && (
         <UnavailableMessage>{t('connections.details.messages.statsUnavailable')}</UnavailableMessage>
       )}

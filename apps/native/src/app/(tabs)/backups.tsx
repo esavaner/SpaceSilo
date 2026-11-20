@@ -610,13 +610,15 @@ export default function BackupsPage() {
     : t('backups.form.createDescription');
 
   return (
-    <BaseLayout>
-      <Page>
+    <BaseLayout
+      header={
         <Intro>
           <Text.H1>{t('navigation.backups')}</Text.H1>
           <MutedText>{t('backups.subtitle')}</MutedText>
         </Intro>
-
+      }
+    >
+      <Page>
         {nonAdminServers.length > 0 ? (
           <Notice>
             <OptionTitle>{t('backups.adminAccessRequired')}</OptionTitle>

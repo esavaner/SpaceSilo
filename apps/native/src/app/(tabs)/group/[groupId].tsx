@@ -245,13 +245,15 @@ export default function SingleGroupPage() {
   }
 
   return (
-    <BaseLayout>
-      <Page>
+    <BaseLayout
+      header={
         <Button variant="tertiary" onPress={() => router.replace('/groups')}>
           <Icon.ArrowLeft size={18} color={colors.text.brand} aria-hidden />
           {t('groups.details.backToGroups')}
         </Button>
-
+      }
+    >
+      <Page>
         <Card>
           <HeaderRow>
             <Avatar alt={group.name} size="lg" color={group.color ?? undefined} />

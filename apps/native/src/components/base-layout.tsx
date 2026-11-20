@@ -1,7 +1,9 @@
-import type { ComponentProps, ReactNode } from 'react';
+import { useContext, type ComponentProps, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import styled from 'styled-components/native';
-import { theme } from '@repo/shared/components';
+import { Button, Icon, theme, useThemeColors } from '@repo/shared/components';
+import { NavigationToggleContext } from '@/components/navigation';
 
 const Layout = styled.View`
   position: relative;
@@ -24,6 +26,17 @@ const Header = styled.View`
   background-color: ${theme.colors.surface.default};
 `;
 
+const HeaderRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  gap: ${theme.spacing[300]};
+`;
+
+const HeaderContent = styled.View`
+  flex: 1;
+  min-width: 0;
+`;
+
 const Scroller = styled.ScrollView`
   position: relative;
   flex: 1;
@@ -43,6 +56,9 @@ type Props = ComponentProps<typeof ScrollView> & {
 };
 
 export const BaseLayout = ({ children, className, header, headerClassName, scrollable = true, ...props }: Props) => {
+  const navigation = useContext(NavigationToggleContext);
+  const { t } = useTranslation();
+  const colors = useThemeColors();
   const content = (
     <Content $fill={!scrollable} className={className}>
       {children}
@@ -51,9 +67,24 @@ export const BaseLayout = ({ children, className, header, headerClassName, scrol
 
   return (
     <Layout>
-      {header ? (
+      {header || navigation ? (
         <Header>
-          <Content className={headerClassName}>{header}</Content>
+          <Content className={headerClassName}>
+            <HeaderRow>
+              {navigation ? (
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  accessibilityLabel={t('navigation.toggle')}
+                  accessibilityState={{ expanded: navigation.open }}
+                  onPress={navigation.toggle}
+                >
+                  <Icon.Menu color={colors.text.default} aria-hidden />
+                </Button>
+              ) : null}
+              {header ? <HeaderContent>{header}</HeaderContent> : null}
+            </HeaderRow>
+          </Content>
         </Header>
       ) : null}
 

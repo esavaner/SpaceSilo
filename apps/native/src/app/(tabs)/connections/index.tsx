@@ -307,10 +307,15 @@ export default function ConnectionsPage() {
   ) : null;
 
   return (
-    <BaseLayout>
+    <BaseLayout
+      header={
+        <>
+          <Text.H1>{t('connections.title')}</Text.H1>
+          <Subtitle>{t('connections.subtitle')}</Subtitle>
+        </>
+      }
+    >
       <PageContent>
-        <Text.H1>{t('connections.title')}</Text.H1>
-        <Subtitle>{t('connections.subtitle')}</Subtitle>
         <AddPanel>
           <PanelContent>
             <Text.H2>{t('connections.add')}</Text.H2>
