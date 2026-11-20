@@ -196,6 +196,19 @@
     "selectionCount_one": "{{count}} item",
     "selectionCount_other": "{{count}} items",
     "searchPlaceholder": "Search all files",
+    "sort": "Sort files",
+    "empty": "No files",
+    "selectAll": "Select all files",
+    "selectItem": "Select {{name}}",
+    "clearSelection": "Clear selection",
+    "moveCopy": {
+      "title": "Move or copy",
+      "selected": "selected",
+      "empty": "No folders",
+      "copyHere": "Copy here",
+      "moveHere": "Move here"
+    },
+    "renameRequired": "New file name is required",
     "actions": {
       "add": "Add",
       "file": "File",

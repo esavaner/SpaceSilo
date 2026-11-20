@@ -73,6 +73,7 @@ type Props = Omit<PressableProps, 'children' | 'disabled' | 'onPress' | 'style'>
   id?: string;
   info?: string;
   label?: string;
+  hideLabel?: boolean;
   name?: string;
   onPress?: PressableProps['onPress'];
   onValueChange?: (checked: boolean) => void;
@@ -89,6 +90,7 @@ export const Checkbox = forwardRef<View, Props>(
       name,
       children,
       label,
+      hideLabel,
       checked,
       defaultChecked,
       info,
@@ -134,7 +136,7 @@ export const Checkbox = forwardRef<View, Props>(
           accessibilityLabel={label}
           accessibilityHint={accessibilityHint}
           accessibilityState={{ ...accessibilityState, checked: isChecked, disabled }}
-          aria-labelledby={labelId}
+          aria-labelledby={hideLabel ? undefined : labelId}
           aria-checked={isChecked}
           aria-describedby={describedBy}
           aria-invalid={!!error || undefined}
@@ -154,7 +156,7 @@ export const Checkbox = forwardRef<View, Props>(
               <Check size={16} color={disabled ? colors.text.disabled : colors.text.inverted} aria-hidden />
             )}
           </CheckboxVisual>
-          <LabelText nativeID={labelId}>{children || label}</LabelText>
+          {!hideLabel && <LabelText nativeID={labelId}>{children || label}</LabelText>}
         </Label>
         {hasInfo && (
           <InputInfo id={infoId} style={{ paddingLeft: 0 }}>

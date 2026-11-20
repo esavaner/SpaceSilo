@@ -21,7 +21,7 @@ Done and tested on a real device by the user:
 - `textarea.tsx`, a multiline wrapper around `Input`
 - `set-password-input.tsx`, which supports both controlled and uncontrolled values
 - `loader.tsx`
-- `checkbox.tsx`
+- `checkbox.tsx`, including `hideLabel` for icon-only selection controls that retain an accessible label
 - `phone-input.tsx`
 - `radio.tsx` and `radio-group.tsx`
 - `overflow-fade`,

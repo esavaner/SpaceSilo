@@ -1,5 +1,5 @@
-import { Icon } from '@/components/general/icon';
+import { Code, type LucideIcon } from 'lucide-react-native';
 
-export const fileIcons = {
-  html: <Icon.Code />,
+export const fileIcons: Record<string, LucideIcon> = {
+  html: Code,
 };

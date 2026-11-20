@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import styled from 'styled-components/native';
 import { fileSize } from '@/utils/common';
 import { useServerContext } from '@/providers/ServerProvider';
-import { Text } from '../general/text';
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog';
+import { Modal, ModalTitle, Text, theme } from '@repo/shared/components';
 import { type FileListItem } from '@/hooks/useFileList';
 
 type FileInfoModalProps = {
@@ -16,13 +15,22 @@ type DetailRowProps = {
   value: string;
 };
 
+const Detail = styled.View`
+  gap: ${theme.spacing[100]};
+  border-bottom-width: ${theme.borderWeight[25]};
+  border-bottom-color: ${theme.colors.border.default};
+  padding-bottom: ${theme.spacing[300]};
+`;
+
+const Details = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+
 const DetailRow = ({ label, value }: DetailRowProps) => (
-  <View className="gap-1 border-b border-border pb-3">
-    <Text className="text-muted-foreground text-sm">{label}</Text>
-    <Text selectable className="text-foreground">
-      {value}
-    </Text>
-  </View>
+  <Detail>
+    <Text.S color={theme.colors.text.secondary}>{label}</Text.S>
+    <Text selectable>{value}</Text>
+  </Detail>
 );
 
 export const FileInfoModal = ({ file }: FileInfoModalProps) => {
@@ -47,15 +55,13 @@ export const FileInfoModal = ({ file }: FileInfoModalProps) => {
       : t('files.infoModal.unknown');
 
   return (
-    <DialogContent className="max-h-[80vh]">
-      <DialogHeader>
-        <DialogTitle>{t('files.infoModal.title')}</DialogTitle>
-        <DialogDescription>{file.name}</DialogDescription>
-      </DialogHeader>
-      {isLoading && <Text className="text-muted-foreground">{t('files.infoModal.loading')}</Text>}
-      {(isError || !server) && <Text className="text-destructive">{t('files.infoModal.unavailable')}</Text>}
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('files.infoModal.title')}>
+      <ModalTitle>{t('files.infoModal.title')}</ModalTitle>
+      <Text.S color={theme.colors.text.secondary}>{file.name}</Text.S>
+      {isLoading && <Text color={theme.colors.text.secondary}>{t('files.infoModal.loading')}</Text>}
+      {(isError || !server) && <Text color={theme.colors.text.danger}>{t('files.infoModal.unavailable')}</Text>}
       {fileInfo && server && (
-        <ScrollView className="max-h-120" contentContainerClassName="gap-3 pr-2">
+        <Details>
           <DetailRow label={t('files.infoModal.labels.name')} value={fileInfo.name} />
           <DetailRow label={t('files.infoModal.labels.type')} value={type} />
           {!fileInfo.isDirectory && (
@@ -81,8 +87,8 @@ export const FileInfoModal = ({ file }: FileInfoModalProps) => {
           )}
           <DetailRow label={t('files.infoModal.labels.server')} value={server.label} />
           <DetailRow label={t('files.infoModal.labels.serverAddress')} value={server.baseUrl} />
-        </ScrollView>
+        </Details>
       )}
-    </DialogContent>
+    </Modal>
   );
 };

@@ -1,42 +1,65 @@
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
-import { Button } from '../general/button';
-import { Text } from '../general/text';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown';
-import { Icon } from '../general/icon';
-import { useUi } from '@/providers/UiProvider';
+import { FileText, Folder, Plus } from 'lucide-react-native';
+import styled from 'styled-components/native';
+import { Button, DropdownMenu, DropdownOption, Text, useModal, useThemeColors } from '@repo/shared/components';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { View } from 'react-native';
 
 type FileAddDropdownProps = {
   currentPath: string;
-  className?: string;
 };
 
-export const FileAddDropdown = ({ currentPath, className }: FileAddDropdownProps) => {
+const AddMenu = styled(DropdownMenu)`
+  margin-left: auto;
+`;
+
+export const FileAddDropdown = ({ currentPath }: FileAddDropdownProps) => {
   const { t } = useTranslation();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
+  const colors = useThemeColors();
+  const pendingAction = useRef<(() => void) | null>(null);
 
   return (
-    <DropdownMenu className="ml-auto">
-      <DropdownMenuTrigger>
-        <Button className={className}>
-          <Icon.Add className="text-black" />
-          <Text>{t('files.actions.add')}</Text>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onPress={() => openModal(<FileCreateFolderModal currentPath={currentPath} />)}>
-          <Icon.Folder />
-          <Text>{t('files.actions.folder')}</Text>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onPress={() => {
-            // handle file creation here
-          }}
+    <AddMenu
+      label={t('files.actions.add')}
+      closeLabel={t('common.actions.close')}
+      onClose={() => {
+        const action = pendingAction.current;
+        pendingAction.current = null;
+        action?.();
+      }}
+      trigger={({ isOpen, toggle, menuId }) => (
+        <Button
+          size="small"
+          onPress={toggle}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
         >
-          <Icon.File />
-          <Text>{t('files.actions.file')}</Text>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <Plus size={18} color={colors.text.inverted} />
+          {t('files.actions.add')}
+        </Button>
+      )}
+    >
+      {({ close, menuId }) => (
+        <View nativeID={menuId} role="menu">
+          <DropdownOption
+            role="menuitem"
+            onPress={() => {
+              pendingAction.current = () => openModal(<FileCreateFolderModal currentPath={currentPath} />);
+              close();
+            }}
+          >
+            <Folder size={18} color={colors.text.default} />
+            <Text.S>{t('files.actions.folder')}</Text.S>
+          </DropdownOption>
+          <DropdownOption role="menuitem" onPress={close}>
+            <FileText size={18} color={colors.text.default} />
+            <Text.S>{t('files.actions.file')}</Text.S>
+          </DropdownOption>
+        </View>
+      )}
+    </AddMenu>
   );
 };

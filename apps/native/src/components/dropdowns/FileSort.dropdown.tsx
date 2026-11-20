@@ -1,55 +1,60 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
-import { t } from 'i18next';
-import { Text } from '../general/text';
-import { Button } from '../general/button';
-import { cn } from '../../utils/cn';
-import { Icon } from '../general/icon';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from './dropdown';
-import { useDropdown } from './useDropdown';
+import { useTranslation } from 'react-i18next';
+import { Button, DropdownMenu, DropdownOption, Text, useThemeColors } from '@repo/shared/components';
+import { ChevronDown } from 'lucide-react-native';
+import styled from 'styled-components/native';
+import { View } from 'react-native';
 
 type Props = {
   handleSort: (sortBy: SortBy) => void;
   comparator: Comparator;
 };
 
+const SortDirection = styled(ChevronDown)<{ $ascending: boolean }>`
+  transform: rotate(${({ $ascending }) => ($ascending ? '180deg' : '0deg')});
+`;
+
 export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
-  const { ref, closeDropdown } = useDropdown();
-
-  const sortOptions = [
-    { label: t('sort.name'), value: 'name' as SortBy },
-    { label: t('sort.size'), value: 'size' as SortBy },
-    { label: t('sort.date'), value: 'date' as SortBy },
-    { label: t('sort.type'), value: 'type' as SortBy },
-  ];
-
-  const onSort = (sortBy: SortBy) => {
-    handleSort(sortBy);
-    closeDropdown();
-  };
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const sortOptions: SortBy[] = ['name', 'size', 'date', 'type'];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger ref={ref}>
-        <Button variant="ghost">
-          <Text>{t(`sort.${comparator.sort}`)}</Text>
-          <Icon.ChevronDown className={cn('transition-all transform', comparator.order === 1 && 'rotate-180')} />
+    <DropdownMenu
+      label={t('files.sort')}
+      closeLabel={t('common.actions.close')}
+      trigger={({ isOpen, toggle, menuId }) => (
+        <Button
+          variant="tertiary"
+          size="small"
+          onPress={toggle}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
+        >
+          {t(`sort.${comparator.sort}`)}
+          <SortDirection size={18} color={colors.text.brand} $ascending={comparator.order === 1} />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuRadioGroup value={comparator.sort} onValueChange={(value) => onSort(value as SortBy)}>
+      )}
+    >
+      {({ close, menuId }) => (
+        <View nativeID={menuId} role="menu">
           {sortOptions.map((sort) => (
-            <DropdownMenuRadioItem key={sort.value} value={sort.value}>
-              <Text>{sort.label}</Text>
-            </DropdownMenuRadioItem>
+            <DropdownOption
+              key={sort}
+              role="menuitem"
+              $selected={sort === comparator.sort}
+              accessibilityState={{ selected: sort === comparator.sort }}
+              onPress={() => {
+                handleSort(sort);
+                close();
+              }}
+            >
+              <Text.S>{t(`sort.${sort}`)}</Text.S>
+            </DropdownOption>
           ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
+        </View>
+      )}
     </DropdownMenu>
   );
 };

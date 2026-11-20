@@ -1,12 +1,10 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useFileActions } from '@/hooks/useFileActions';
-import { InputController } from '../controllers/input.controller';
-import { DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
 import { useFilesContext } from '@/providers/FilesProvider';
+import { Button, Input, Modal, ModalButtons, ModalTitle, useModal } from '@repo/shared/components';
 
 type FileCreateFolderModalProps = {
   currentPath?: string;
@@ -19,6 +17,7 @@ type CreateFolderForm = {
 export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModalProps) => {
   const { t } = useTranslation();
   const { create, isPending } = useFileActions();
+  const { closeModal } = useModal();
   const { includedGroups } = useFilesContext();
   const schema = yup.object().shape({
     folder: yup.string().required(t('files.createFolder.validation.folderRequired')),
@@ -47,18 +46,30 @@ export const FileCreateFolderModal = ({ currentPath = '' }: FileCreateFolderModa
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t('files.createFolder.title')}</DialogTitle>
-      </DialogHeader>
-      <InputController
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('files.createFolder.title')}>
+      <ModalTitle>{t('files.createFolder.title')}</ModalTitle>
+      <Controller
         control={control}
         name="folder"
-        label={t('common.labels.folderName')}
-        error={errors.folder?.message}
-        onEnter={handleSubmit(onSubmit)}
+        render={({ field }) => (
+          <Input
+            label={t('common.labels.folderName')}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.folder?.message}
+            onSubmitEditing={handleSubmit(onSubmit)}
+          />
+        )}
       />
-      <DialogFooter okText={t('files.createFolder.submit')} onOk={handleSubmit(onSubmit)} loading={isPending} />
-    </DialogContent>
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
+          {t('files.createFolder.submit')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

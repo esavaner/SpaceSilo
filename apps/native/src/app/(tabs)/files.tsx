@@ -1,25 +1,83 @@
 import { Breadcrumb } from '@/components/breadcrumb';
-import { cn } from '@/utils/cn';
 import { FileList } from '@/components/FileList';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
+import styled, { css } from 'styled-components/native';
+import { Copy, FileText, Folder, Trash2, X } from 'lucide-react-native';
 import { BaseLayout } from '@/components/base-layout';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
 import { FileMoveCopyModal } from '@/components/modals/FileMoveCopy.modal';
 import { FileRemoveModal } from '@/components/modals/FileRemove.modal';
-import { useUi } from '@/providers/UiProvider';
 import { Search } from '@/components/search';
 import { useFileSearch, type FileSearchItem } from '@/hooks/useFileSearch';
+import { Button, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+
+const Header = styled.View`
+  gap: ${theme.spacing[400]};
+`;
+
+const HeadingRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[400]};
+  z-index: ${theme.zIndex.raised};
+`;
+
+const SearchField = styled.View<{ $wide: boolean }>`
+  width: ${({ $wide }) => ($wide ? '320px' : '100%')};
+`;
+
+const SearchResult = styled.Pressable.attrs(({ theme: { colors } }) => ({
+  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
+}))`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[200]} ${theme.spacing[300]};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      &:hover,
+      &:active {
+        background-color: ${theme.colors.surface.medium};
+      }
+    `
+  }
+`;
+
+const SearchResultDetails = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[50]};
+`;
+
+const SelectionBar = styled.View<{ $active: boolean }>`
+  flex-direction: row;
+  min-height: ${theme.spacing[1200]};
+  align-items: center;
+  background-color: ${({ $active }) => ($active ? theme.colors.surface.medium : theme.colors.surface.default)};
+`;
+
+const SelectionActions = styled.View`
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const SelectionCount = styled(Text)`
+  flex: 1;
+`;
 
 export default function FilesPage() {
   const { t } = useTranslation();
   const { path } = useLocalSearchParams<{ path?: string }>();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
+  const colors = useThemeColors();
+  const { width } = useWindowDimensions();
   const { clearSearch, query, results, searchFiles } = useFileSearch();
 
   const { currentPath, handlePathClick, handleClearSelection, hasSelectedItems, selectedItems, setInitialPath } =
@@ -38,57 +96,65 @@ export default function FilesPage() {
   };
 
   const searchOptions = results.map((file) => (
-    <Pressable
-      key={`${file.serverId}:${file.groupId}:${file.uri}`}
-      onPress={() => handleSearchSelect(file)}
-      className="flex-row items-center gap-2 px-3 py-2 hover:bg-accent active:bg-accent"
-    >
-      {file.isDirectory ? <Icon.Folder className="text-primary" size={18} /> : <Icon.File size={18} />}
-      <View className="flex-1 gap-0.5">
+    <SearchResult key={`${file.serverId}:${file.groupId}:${file.uri}`} onPress={() => handleSearchSelect(file)}>
+      {file.isDirectory ? (
+        <Folder color={colors.text.brand} size={18} />
+      ) : (
+        <FileText color={colors.text.default} size={18} />
+      )}
+      <SearchResultDetails>
         <Text numberOfLines={1}>{file.name}</Text>
-        <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+        <Text.S color={theme.colors.text.secondary} numberOfLines={1}>
           {file.uri}
-        </Text>
-      </View>
-    </Pressable>
+        </Text.S>
+      </SearchResultDetails>
+    </SearchResult>
   ));
 
   const header = (
-    <View className="gap-4">
-      <View className="flex-row flex-wrap items-center gap-4">
-        <Text variant="h1">{t('navigation.files')}</Text>
-        <Search
-          className="w-full md:w-80"
-          options={searchOptions}
-          value={query}
-          onChangeText={searchFiles}
-          placeholder={t('files.searchPlaceholder')}
-        />
-      </View>
-      <View className={cn('flex-row h-12 items-center', hasSelectedItems ? 'bg-accent' : 'bg-background')}>
+    <Header>
+      <HeadingRow>
+        <Text.H1>{t('navigation.files')}</Text.H1>
+        <SearchField $wide={width >= theme.breakpointNumbers.md}>
+          <Search
+            options={searchOptions}
+            value={query}
+            onChangeText={searchFiles}
+            placeholder={t('files.searchPlaceholder')}
+          />
+        </SearchField>
+      </HeadingRow>
+      <SelectionBar $active={hasSelectedItems}>
         {hasSelectedItems ? (
-          <View className="flex-row w-full items-center gap-2">
-            <Button variant="ghost" onPress={handleClearSelection} className="p-2">
-              <Icon.Close />
+          <SelectionActions>
+            <Button
+              variant="tertiary"
+              size="small"
+              onPress={handleClearSelection}
+              accessibilityLabel={t('files.clearSelection')}
+            >
+              <X size={18} color={colors.text.brand} />
             </Button>
-            <Text className="mr-auto">
+            <SelectionCount>
               {selectedItems.length} {t('common.nouns.items')}
-            </Text>
+            </SelectionCount>
             <Button
               onPress={() => openModal(<FileMoveCopyModal path={currentPath} selectedItems={selectedItems} />)}
-              variant="ghost"
-              className="p-2"
+              variant="tertiary"
+              size="small"
+              accessibilityLabel={t('files.moveCopy.title')}
             >
-              <Icon.Copy />
+              <Copy size={18} color={colors.text.brand} />
             </Button>
             <Button
               onPress={() => openModal(<FileRemoveModal files={selectedItems} />)}
-              variant="ghost"
-              className="p-2"
+              variant="tertiary"
+              size="small"
+              accessibilityLabel={t('common.actions.remove')}
             >
-              <Icon.Trash className="text-red-600" />
+              <Trash2 size={18} color={colors.text.danger} />
             </Button>
-          </View>
+          </SelectionActions>
         ) : (
           <Breadcrumb
             pathItems={currentPath.split(/\/|\\/)}
@@ -96,8 +162,8 @@ export default function FilesPage() {
             homeDirName={t('files.homeDir')}
           />
         )}
-      </View>
-    </View>
+      </SelectionBar>
+    </Header>
   );
 
   return (

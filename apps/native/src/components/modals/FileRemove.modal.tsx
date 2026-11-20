@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView } from 'react-native';
 import { useFileActions } from '@/hooks/useFileActions';
-import { Text } from '../general/text';
-import { DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
+import { Button, Modal, ModalButtons, ModalTitle, Text, useModal } from '@repo/shared/components';
 import { FileListItem } from '@/hooks/useFileList';
 
 type FileRemoveModalProps = {
@@ -13,22 +10,26 @@ type FileRemoveModalProps = {
 export const FileRemoveModal = ({ files }: FileRemoveModalProps) => {
   const { t } = useTranslation();
   const { remove, isPending } = useFileActions();
+  const { closeModal } = useModal();
 
   const handleRemove = () => {
     files.forEach((file) => remove({ fileUri: file.uri, groupId: file.groupId, serverId: file.serverId }));
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t('removeItem')}</DialogTitle>
-      </DialogHeader>
-      <ScrollView className="mb-4">
-        {files.map((file) => (
-          <Text key={file.uri}>{file.name}</Text>
-        ))}
-      </ScrollView>
-      <DialogFooter okText={t('remove')} onOk={handleRemove} loading={isPending} />
-    </DialogContent>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('removeItem')}>
+      <ModalTitle>{t('removeItem')}</ModalTitle>
+      {files.map((file) => (
+        <Text key={`${file.serverId}:${file.groupId}:${file.uri}`}>{file.name}</Text>
+      ))}
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button variant="destructive" onPress={handleRemove} loading={isPending}>
+          {t('remove')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

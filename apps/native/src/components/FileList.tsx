@@ -1,4 +1,6 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { Platform } from 'react-native';
+import styled, { css } from 'styled-components/native';
+import { FileText, Folder } from 'lucide-react-native';
 import { fileIcons } from '../utils/fileIcons';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -8,35 +10,131 @@ import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
-import { cn } from '../utils/cn';
-import { Icon } from './general/icon';
-import { Text } from './general/text';
-import { type GroupResponse } from '@repo/shared';
+import { Checkbox, Text, theme, useThemeColors } from '@repo/shared/components';
 import { type FileListItem } from '@/hooks/useFileList';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+
+const Toolbar = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[200]};
+  background-color: ${theme.colors.surface.default};
+  border-bottom-width: ${theme.borderWeight[25]};
+  border-bottom-color: ${theme.colors.border.default};
+  z-index: ${theme.zIndex.raised};
+`;
+
+const List = styled.ScrollView`
+  flex: 1;
+  width: 100%;
+  z-index: ${theme.zIndex.base};
+`;
+
+const ListContent = styled.View`
+  padding: ${theme.spacing[200]};
+  padding-bottom: 80px;
+`;
+
+const FileEntry = styled.View<{ $selected: boolean; $menuOpen: boolean }>`
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  padding: ${theme.spacing[400]};
+  margin-bottom: ${theme.spacing[200]};
+  border-radius: ${theme.radius[150]};
+  background-color: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : 'transparent')};
+  z-index: ${({ $menuOpen }) => ($menuOpen ? theme.zIndex.raised : theme.zIndex.base)};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      &:hover {
+        background-color: ${theme.colors.surface.medium};
+      }
+    `
+  }
+`;
+
+const FileTarget = styled.Pressable.attrs(({ theme: { colors } }) => ({
+  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
+}))`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  border-radius: ${theme.radius[150]};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      &:active {
+        background-color: ${theme.colors.surface.medium};
+      }
+    `
+  }
+`;
+
+const SelectionSlot = styled.View<{ $visible: boolean }>`
+  overflow: hidden;
+  width: ${({ $visible }) => ($visible ? theme.spacing[1200] : '0px')};
+  margin-right: ${({ $visible }) => ($visible ? theme.spacing[200] : '0px')};
+`;
+
+const SelectionPadding = styled.View`
+  padding: ${theme.spacing[300]};
+`;
+
+const FileIcon = styled.View`
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  margin-right: ${theme.spacing[400]};
+`;
+
+const FileDetails = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[100]};
+`;
+
+const Metadata = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[100]};
+`;
+
+const GroupMarker = styled.View<{ $color?: string | null }>`
+  position: absolute;
+  left: 0;
+  width: ${theme.spacing[100]};
+  height: 28px;
+  border-radius: ${theme.radius[150]};
+  background-color: ${({ $color }) => $color ?? 'transparent'};
+`;
 
 type SelectionToggleProps = {
   checked: boolean;
   onPress: () => void;
+  label: string;
 };
 
-const SelectionToggle = ({ checked, onPress }: SelectionToggleProps) => (
-  <Pressable onPress={onPress} className="p-2.5">
-    <View
-      className={cn(
-        'h-5 w-5 items-center justify-center rounded-md border',
-        checked ? 'border-foreground bg-white' : 'border-foreground'
-      )}
-    >
-      {checked ? <Icon.Check className="text-black" size={16} /> : null}
-    </View>
-  </Pressable>
+const SelectionToggle = ({ checked, onPress, label }: SelectionToggleProps) => (
+  <SelectionPadding>
+    <Checkbox
+      hitSlop={10}
+      label={label}
+      hideLabel
+      checked={checked}
+      onValueChange={onPress}
+      onPress={(event) => event.stopPropagation()}
+    />
+  </SelectionPadding>
 );
 
-type FileListProps = {
-  className?: string;
-};
-
-export const FileList = ({ className }: FileListProps) => {
+export const FileList = () => {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const {
     comparator,
     currentPath,
@@ -52,12 +150,16 @@ export const FileList = ({ className }: FileListProps) => {
     selectedItems,
   } = useFilesContext();
 
-  const getIcon = (item: FileListItem) =>
-    item.isDirectory ? (
-      <Icon.Folder size={28} className="text-primary" />
-    ) : (
-      (fileIcons[item?.name?.split('.').pop()?.toLowerCase() as keyof typeof fileIcons] ?? <Icon.File />)
+  const getIcon = (item: FileListItem) => {
+    const extension = item.name.split('.').pop()?.toLowerCase() ?? '';
+    const FileTypeIcon = item.isDirectory ? Folder : (fileIcons[extension] ?? FileText);
+    return (
+      <FileTypeIcon
+        size={item.isDirectory ? 28 : 18}
+        color={item.isDirectory ? colors.text.brand : colors.text.default}
+      />
     );
+  };
 
   const getItemTime = (time: string | Date) => {
     const date = new Date(time);
@@ -67,55 +169,56 @@ export const FileList = ({ className }: FileListProps) => {
 
   return (
     <>
-      <View className="flex-row gap-4 px-6 py-2 items-center bg-background border-b border-b-foreground">
+      <Toolbar>
         <SelectionToggle
           checked={hasSelectedAll}
+          label={t('files.selectAll')}
           onPress={() => (hasSelectedAll ? handleClearSelection() : handleSelectAll())}
         />
         <FileSortDropdown handleSort={handleSort} comparator={comparator} />
         <FileFilterDropdown />
         <FileAddDropdown currentPath={currentPath} />
-      </View>
-      <ScrollView className={cn('flex-1 w-full p-2 pb-20', className)}>
-        {items.length === 0 && <Text className="text-center">No files</Text>}
-        {items.map((item) => {
-          const isSelected = selectedItems.find((i) => i.uri === item.uri);
-          const color = groups?.find((group: GroupResponse) => group.id === item.groupId)?.color;
-          return (
-            <Pressable
-              key={item.name + item.groupId}
-              className={cn(
-                'relative flex-row p-4 md:py-3 mb-2 rounded-md items-center hover:bg-accent active:bg-accent transition-all',
-                isSelected && 'bg-muted'
-              )}
-              onPress={() => handleItemClick(item)}
-              onLongPress={() => handleSelectItem(item)}
-            >
-              <View
-                className={cn('transition-all transform overflow-hidden', hasSelectedItems ? 'w-10 mr-2' : 'w-0 mr-0')}
-              >
-                <SelectionToggle checked={!!isSelected} onPress={() => handleSelectItem(item)} />
-              </View>
+      </Toolbar>
+      <List keyboardShouldPersistTaps="handled">
+        <ListContent>
+          {items.length === 0 && <Text center>{t('files.empty')}</Text>}
+          {items.map((item) => {
+            const itemKey = `${item.serverId}:${item.groupId}:${item.uri}`;
+            const isSelected = selectedItems.find((i) => i.uri === item.uri);
+            const color = groups.find((group) => group.id === item.groupId)?.color;
+            return (
+              <FileEntry key={itemKey} $selected={!!isSelected} $menuOpen={openMenu === itemKey}>
+                <FileTarget onPress={() => handleItemClick(item)} onLongPress={() => handleSelectItem(item)}>
+                  <SelectionSlot $visible={hasSelectedItems}>
+                    {hasSelectedItems && (
+                      <SelectionToggle
+                        checked={!!isSelected}
+                        label={t('files.selectItem', { name: item.name })}
+                        onPress={() => handleSelectItem(item)}
+                      />
+                    )}
+                  </SelectionSlot>
 
-              <View className="w-7 items-center justify-center transition-all transform mr-4">{getIcon(item)}</View>
-              <View className="gap-1">
-                <Text className="text-lg leading-5">{item.name}</Text>
-                <View className="flex-row gap-1">
-                  {!item.isDirectory && <Text className="text-muted-foreground text-sm">{fileSize(item.size)},</Text>}
-                  <Text className="text-muted-foreground text-sm">{getItemTime(item.modificationTime)}</Text>
-                </View>
-              </View>
+                  <FileIcon>{getIcon(item)}</FileIcon>
+                  <FileDetails>
+                    <Text.L>{item.name}</Text.L>
+                    <Metadata>
+                      {!item.isDirectory && <Text.S color={theme.colors.text.secondary}>{fileSize(item.size)},</Text.S>}
+                      <Text.S color={theme.colors.text.secondary}>{getItemTime(item.modificationTime)}</Text.S>
+                    </Metadata>
+                  </FileDetails>
+                </FileTarget>
 
-              {!hasSelectedItems && <FileOptionsDropdown file={item} />}
+                {!hasSelectedItems && (
+                  <FileOptionsDropdown file={item} onOpenChange={(open) => setOpenMenu(open ? itemKey : null)} />
+                )}
 
-              <View
-                className={cn('absolute w-1 h-7 left-0 rounded-md')}
-                {...(color && { style: { backgroundColor: color } })}
-              />
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+                <GroupMarker $color={color} pointerEvents="none" />
+              </FileEntry>
+            );
+          })}
+        </ListContent>
+      </List>
     </>
   );
 };

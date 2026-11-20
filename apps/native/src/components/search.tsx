@@ -1,7 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, TextInput, View } from 'react-native';
-import { Input } from './form/input';
-import { cn } from '../utils/cn';
+import React, { useEffect, useState } from 'react';
+import { TextInput } from 'react-native';
+import styled from 'styled-components/native';
+import { Input, theme } from '@repo/shared/components';
+import { useTranslation } from 'react-i18next';
+
+const SearchContainer = styled.View<{ $open: boolean }>`
+  position: relative;
+  z-index: ${({ $open }) => ($open ? theme.zIndex.dropdown : theme.zIndex.base)};
+`;
+
+const Results = styled.ScrollView`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: ${theme.spacing[100]};
+  min-width: 96px;
+  max-height: 320px;
+  border-radius: ${theme.radius[200]};
+  background-color: ${theme.colors.surface.weak};
+  border-width: ${theme.borderWeight[25]};
+  border-color: ${theme.colors.border.default};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+`;
 
 type Props = React.ComponentProps<typeof TextInput> & {
   options: React.ReactNode[];
@@ -9,7 +30,7 @@ type Props = React.ComponentProps<typeof TextInput> & {
 };
 
 export const Search = ({ options, className, ...rest }: Props) => {
-  const ref = useRef<View>(null);
+  const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -17,15 +38,9 @@ export const Search = ({ options, className, ...rest }: Props) => {
   }, [options]);
 
   return (
-    <View ref={ref} className={cn('relative', className)}>
-      <Input {...rest} />
-      {isDropdownOpen && (
-        <ScrollView
-          className={cn(`absolute bg-layer-secondary rounded-md shadow-md min-w-24 left-0 right-0 top-12 max-h-80`)}
-        >
-          {options}
-        </ScrollView>
-      )}
-    </View>
+    <SearchContainer className={className} $open={isDropdownOpen}>
+      <Input {...rest} hideLabel label={rest.placeholder || t('common.labels.search')} />
+      {isDropdownOpen && <Results keyboardShouldPersistTaps="handled">{options}</Results>}
+    </SearchContainer>
   );
 };

@@ -1,9 +1,18 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import styled from 'styled-components/native';
+import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Text } from './general/text';
-import { Button } from './general/button';
-import { Icon } from './general/icon';
+import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
+
+const Trail = styled.ScrollView`
+  flex-grow: 0;
+`;
+
+const Segment = styled.View`
+  margin-right: ${theme.spacing[100]};
+  flex-direction: row;
+  align-items: center;
+`;
 
 export type BreadcrumbItem = {
   key: string;
@@ -46,6 +55,7 @@ const createPathBreadcrumbItems = ({
 
 export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: Props) => {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const breadcrumbItems =
     pathItems !== undefined
       ? createPathBreadcrumbItems({
@@ -56,21 +66,26 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: P
       : items;
 
   return (
-    <ScrollView horizontal className="items-center" showsHorizontalScrollIndicator={false}>
+    <Trail
+      horizontal
+      contentContainerStyle={{ alignItems: 'center' }}
+      showsHorizontalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
       {breadcrumbItems.map((item, index) => (
         <React.Fragment key={item.key}>
-          <View className="mr-1 flex-row items-center">
-            {index !== 0 && <Icon.NavigateNext className="mr-1 text-muted-foreground" size={14} />}
+          <Segment>
+            {index !== 0 && <ChevronRight color={colors.text.secondary} size={14} />}
             {item.onPress ? (
-              <Button variant="ghost" size="sm" onPress={item.onPress}>
-                <Text>{item.label === HOME_LABEL ? t(HOME_LABEL) : item.label}</Text>
+              <Button variant="tertiary" size="small" onPress={item.onPress}>
+                {item.label === HOME_LABEL ? t(HOME_LABEL) : item.label}
               </Button>
             ) : (
-              <Text className="text-muted-foreground">{item.label}</Text>
+              <Text color={theme.colors.text.secondary}>{item.label}</Text>
             )}
-          </View>
+          </Segment>
         </React.Fragment>
       ))}
-    </ScrollView>
+    </Trail>
   );
 };

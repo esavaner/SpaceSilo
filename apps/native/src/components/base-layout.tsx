@@ -1,6 +1,39 @@
-import { cn } from '@/utils/cn';
 import type { ComponentProps, ReactNode } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
+import styled from 'styled-components/native';
+import { theme } from '@repo/shared/components';
+
+const Layout = styled.View`
+  position: relative;
+  flex: 1;
+  background-color: ${theme.colors.surface.default};
+`;
+
+const Content = styled.View<{ $fill?: boolean }>`
+  align-self: center;
+  max-width: 1280px;
+  width: 100%;
+  padding: ${theme.spacing[400]};
+  flex: ${({ $fill }) => ($fill ? '1' : '0 0 auto')};
+`;
+
+const Header = styled.View`
+  z-index: ${theme.zIndex.raised};
+  border-bottom-width: ${theme.borderWeight[25]};
+  border-bottom-color: ${theme.colors.border.default};
+  background-color: ${theme.colors.surface.default};
+`;
+
+const Scroller = styled.ScrollView`
+  position: relative;
+  flex: 1;
+  background-color: ${theme.colors.surface.default};
+`;
+
+const Body = styled.View`
+  flex: 1;
+  z-index: ${theme.zIndex.base};
+`;
 
 type Props = ComponentProps<typeof ScrollView> & {
   children?: ReactNode;
@@ -11,25 +44,27 @@ type Props = ComponentProps<typeof ScrollView> & {
 
 export const BaseLayout = ({ children, className, header, headerClassName, scrollable = true, ...props }: Props) => {
   const content = (
-    <View className={cn('mx-auto max-w-7xl w-full p-4', !scrollable && 'flex-1', className)}>{children}</View>
+    <Content $fill={!scrollable} className={className}>
+      {children}
+    </Content>
   );
 
   return (
-    <View className="relative flex-1 bg-background">
+    <Layout>
       {header ? (
-        <View className="z-10 border-b border-border bg-background">
-          <View className={cn('mx-auto max-w-7xl w-full p-4', headerClassName)}>{header}</View>
-        </View>
+        <Header>
+          <Content className={headerClassName}>{header}</Content>
+        </Header>
       ) : null}
 
       {/* RN Modal touches bubble through React ancestors; "never" would eat the first tap while typing in one. */}
       {scrollable ? (
-        <ScrollView keyboardShouldPersistTaps="handled" {...props} className="relative flex-1 bg-background">
+        <Scroller keyboardShouldPersistTaps="handled" {...props}>
           {content}
-        </ScrollView>
+        </Scroller>
       ) : (
-        <View className="flex-1">{content}</View>
+        <Body>{content}</Body>
       )}
-    </View>
+    </Layout>
   );
 };

@@ -3,7 +3,7 @@
 import { toast } from '@/lib/toast';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
+import { useModal } from '@repo/shared/components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,7 +21,7 @@ type RequestWithServerId<T> = T & {
 export const useFileActions = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
   const { handleClearSelection } = useFilesContext();
   const { allServers } = useServerContext();
 

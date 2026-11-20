@@ -1,14 +1,20 @@
 import { useFileList } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Platform } from 'react-native';
+import styled, { css } from 'styled-components/native';
+import { Folder } from 'lucide-react-native';
 import { useFileActions } from '@/hooks/useFileActions';
-import { useUi } from '@/providers/UiProvider';
 import { Breadcrumb } from '../breadcrumb';
-import { Text } from '../general/text';
-import { Button } from '../general/button';
-import { Icon } from '../general/icon';
-import { cn } from '@/utils/cn';
-import { DialogContent, DialogHeader, DialogTitle } from './dialog';
+import {
+  Button,
+  Modal,
+  ModalButtons,
+  ModalTitle,
+  Text,
+  theme,
+  useModal,
+  useThemeColors,
+} from '@repo/shared/components';
 import { FileListItem } from '@/hooks/useFileList';
 
 type Props = {
@@ -16,11 +22,38 @@ type Props = {
   selectedItems: FileListItem[];
 };
 
+const Folders = styled.View`
+  width: 100%;
+  padding: ${theme.spacing[200]};
+`;
+
+const FolderTarget = styled.Pressable.attrs(({ theme: { colors } }) => ({
+  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
+}))`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[400]};
+  margin-bottom: ${theme.spacing[200]};
+  padding: ${theme.spacing[200]};
+  border-radius: ${theme.radius[150]};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      &:hover,
+      &:active {
+        background-color: ${theme.colors.surface.medium};
+      }
+    `
+  }
+`;
+
 export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
+  const colors = useThemeColors();
   const { currentPath, handleItemClick, handlePathClick, items } = useFileList({ path });
-  const { copy, move } = useFileActions();
+  const { copy, move, isPending } = useFileActions();
   const directoryItems = items.filter((item) => item.isDirectory);
 
   const handleMove = () => {
@@ -49,40 +82,36 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Move or copy</DialogTitle>
-      </DialogHeader>
-      <Text>{selectedItems.length} item(s) selected</Text>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('files.moveCopy.title')}>
+      <ModalTitle>{t('files.moveCopy.title')}</ModalTitle>
+      <Text>
+        {selectedItems.length} {t('common.nouns.items')} {t('files.moveCopy.selected')}
+      </Text>
       <Breadcrumb
         pathItems={currentPath.split(/\/|\\/)}
         handlePathClick={handlePathClick}
         homeDirName={t('files.homeDir')}
       />
-      <ScrollView className="flex-1 w-full p-2">
-        {directoryItems.length === 0 ? <Text>No folders</Text> : null}
+      <Folders>
+        {directoryItems.length === 0 ? <Text>{t('files.moveCopy.empty')}</Text> : null}
         {directoryItems.map((item) => (
-          <Pressable
-            key={item.name}
-            className={cn(
-              'mb-2 flex-row items-center gap-4 rounded-md hover:bg-layer-secondary active:bg-layer-secondary'
-            )}
-            onPress={() => handleItemClick(item)}
-          >
-            <Text>
-              <Icon.Folder className="text-primary" />
-            </Text>
-            <Text className="text-lg leading-5">{item.name}</Text>
-          </Pressable>
+          <FolderTarget key={item.name} onPress={() => handleItemClick(item)}>
+            <Folder size={18} color={colors.text.brand} />
+            <Text.L>{item.name}</Text.L>
+          </FolderTarget>
         ))}
-      </ScrollView>
-      <View className="flex-row gap-2 mt-2">
-        <Button onPress={closeModal} variant="secondary">
-          Cancel
+      </Folders>
+      <ModalButtons>
+        <Button onPress={closeModal} variant="secondary" disabled={isPending}>
+          {t('common.actions.cancel')}
         </Button>
-        <Button onPress={handleCopy}>Copy here</Button>
-        <Button onPress={handleMove}>Move here</Button>
-      </View>
-    </DialogContent>
+        <Button onPress={handleCopy} disabled={isPending}>
+          {t('files.moveCopy.copyHere')}
+        </Button>
+        <Button onPress={handleMove} disabled={isPending}>
+          {t('files.moveCopy.moveHere')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

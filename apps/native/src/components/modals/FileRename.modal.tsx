@@ -1,26 +1,24 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { useFileActions } from '@/hooks/useFileActions';
-import { DialogFooter } from './dialog-footer';
-import { DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { InputController } from '../controllers/input.controller';
 import { FileListItem } from '@/hooks/useFileList';
+import { Button, Input, Modal, ModalButtons, ModalTitle, useModal } from '@repo/shared/components';
 
 type FileRenameModalProps = {
   file: FileListItem;
 };
 
-const schema = yup.object().shape({
-  newName: yup.string().required('New file name is required'),
-});
-
-type RenameForm = yup.InferType<typeof schema>;
+type RenameForm = { newName: string };
 
 export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   const { t } = useTranslation();
   const { rename, isPending } = useFileActions();
+  const { closeModal } = useModal();
+  const schema = yup.object().shape({
+    newName: yup.string().required(t('files.renameRequired')),
+  });
 
   const {
     handleSubmit,
@@ -40,18 +38,30 @@ export const FileRenameModal = ({ file }: FileRenameModalProps) => {
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t('renameItem')}</DialogTitle>
-      </DialogHeader>
-      <InputController
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('renameItem')}>
+      <ModalTitle>{t('renameItem')}</ModalTitle>
+      <Controller
         control={control}
         name="newName"
-        label={t('newName')}
-        error={errors.newName?.message}
-        onEnter={handleSubmit(onSubmit)}
+        render={({ field }) => (
+          <Input
+            label={t('newName')}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.newName?.message}
+            onSubmitEditing={handleSubmit(onSubmit)}
+          />
+        )}
       />
-      <DialogFooter okText={t('rename')} onOk={handleSubmit(onSubmit)} loading={isPending} />
-    </DialogContent>
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
+          {t('rename')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };
