@@ -26,10 +26,9 @@ const Results = styled.ScrollView`
 
 type Props = React.ComponentProps<typeof TextInput> & {
   options: React.ReactNode[];
-  className?: string;
 };
 
-export const Search = ({ options, className, ...rest }: Props) => {
+export const Search = ({ options, ...rest }: Props) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -38,7 +37,7 @@ export const Search = ({ options, className, ...rest }: Props) => {
   }, [options]);
 
   return (
-    <SearchContainer className={className} $open={isDropdownOpen}>
+    <SearchContainer $open={isDropdownOpen}>
       <Input {...rest} hideLabel label={rest.placeholder || t('common.labels.search')} />
       {isDropdownOpen && <Results keyboardShouldPersistTaps="handled">{options}</Results>}
     </SearchContainer>

@@ -8,7 +8,6 @@ const BUFFER = 15;
 const RIGHT_PADDING = 12;
 
 type Props = Omit<ViewProps, 'role'> & {
-  className?: string;
   role?: string;
   fadeHeight?: number;
   maxHeight?: number;
@@ -87,7 +86,6 @@ const FadeOverlay = styled.View<FadeOverlayProps>`
 
 export const OverflowFade = ({
   children,
-  className,
   role,
   style,
   fadeHeight = 64,
@@ -106,8 +104,8 @@ export const OverflowFade = ({
   const atTop = !canScroll || scrollTop <= BUFFER;
   const atBottom = !canScroll || scrollTop + containerHeight >= contentHeight - BUFFER;
   const fadeColor = dark ? colors.surface.darker : colors.surface.weak;
-  // React Native Web consumes these DOM props even though React Native's types omit them.
-  const wrapperProps = { ...rest, className, role } as ViewProps;
+  // React Native Web accepts DOM roles that React Native's types omit.
+  const wrapperProps = { ...rest, role } as ViewProps;
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setScrollTop(event.nativeEvent.contentOffset.y);

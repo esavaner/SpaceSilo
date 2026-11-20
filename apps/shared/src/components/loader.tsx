@@ -82,7 +82,6 @@ const LogoContainer = styled.View`
 `;
 
 type Props = ViewProps & {
-  className?: string;
   size?: number;
   color?: string;
   onRequestClose?: () => void;

@@ -90,7 +90,6 @@ const CloseButton = styled.Pressable<{ $right: number }>`
 `;
 
 export type ModalProps = ViewProps & {
-  className?: string;
   closeOverride?: () => void;
   /** With closeOverride: start the exit animation from outside; closeOverride runs when it ends. */
   closing?: boolean;

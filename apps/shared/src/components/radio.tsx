@@ -20,7 +20,7 @@ const activeStyles = css`
   box-shadow: 0 0 0 1px ${theme.colors.border.input.active};
 `;
 
-const Label = styled.Pressable<StyledProps & { className?: string }>`
+const Label = styled.Pressable<StyledProps>`
   position: relative;
   overflow: hidden;
   justify-content: center;
@@ -117,7 +117,6 @@ const Circle = styled.View<{ $disabled?: boolean }>`
 export type RadioProps = Omit<PressableProps, 'children' | 'style'> &
   Pick<AriaAttributes, 'aria-describedby' | 'aria-invalid'> & {
     children?: ReactNode;
-    className?: string;
     checked?: boolean;
     defaultChecked?: boolean;
     name?: string;
@@ -148,7 +147,6 @@ export const Radio = forwardRef<View, RadioProps>(
       required,
       accessibilityState,
       accessibilityHint,
-      className,
       style,
       variant = 'horizontal',
       ...rest
@@ -180,7 +178,6 @@ export const Radio = forwardRef<View, RadioProps>(
         $isError={isError}
         $variant={variant}
         $isActive={isChecked || isActive}
-        className={className}
         style={style}
         {...interactionHandlers}
         onPress={(event) => {

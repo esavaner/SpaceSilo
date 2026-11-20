@@ -13,7 +13,7 @@ type CheckboxVisualProps = {
   $error?: boolean;
 };
 
-const Wrapper = styled.View<{ className?: string }>`
+const Wrapper = styled.View`
   flex-direction: column;
 `;
 
@@ -66,7 +66,6 @@ const LabelText = styled.Text`
 
 type Props = Omit<PressableProps, 'children' | 'disabled' | 'onPress' | 'style'> & {
   children?: ReactNode;
-  className?: string;
   defaultChecked?: boolean;
   disabled?: boolean;
   error?: string;
@@ -96,7 +95,6 @@ export const Checkbox = forwardRef<View, Props>(
       info,
       error,
       disabled,
-      className,
       style,
       onPress,
       onValueChange,
@@ -125,7 +123,7 @@ export const Checkbox = forwardRef<View, Props>(
     });
 
     return (
-      <Wrapper className={className} style={style}>
+      <Wrapper style={style}>
         <Label
           {...rest}
           ref={ref}

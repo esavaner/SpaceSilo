@@ -142,7 +142,6 @@ type CommonProps = {
   children?: ReactNode;
   size?: Size;
   center?: boolean;
-  className?: string;
 } & Omit<PressableProps, 'children' | 'style'> &
   WebProps & {
     style?: PressableProps['style'];
@@ -160,7 +159,6 @@ type StyledProps = {
   $center?: boolean;
   children?: ReactNode;
   style?: PressableProps['style'];
-  className?: string;
 } & Omit<PressableProps, 'children' | 'style'> &
   WebProps & {
     href?: string;

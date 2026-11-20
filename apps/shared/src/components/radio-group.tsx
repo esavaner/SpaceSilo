@@ -14,7 +14,7 @@ import { theme } from '../config/theme';
 import { Radio, type RadioProps } from './radio';
 import { InputInfo } from './input';
 
-const Group = styled.View<{ className?: string }>`
+const Group = styled.View`
   gap: ${theme.spacing[400]};
 `;
 
@@ -26,7 +26,6 @@ const Legend = styled.Text`
 
 type RadioGroupProps = ViewProps &
   Pick<RadioProps, 'aria-describedby' | 'aria-invalid'> & {
-    className?: string;
     name: string;
     legend?: ReactNode;
     error?: string;

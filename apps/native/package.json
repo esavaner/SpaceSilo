@@ -19,7 +19,6 @@
     "@hookform/resolvers": "^7.0.1",
     "@repo/shared": "workspace:*",
     "@tanstack/react-query": "^5.105.3",
-    "class-variance-authority": "^0.7.1",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "expo": "~57.0.31",
@@ -34,13 +33,11 @@
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
     "i18next": "^26.7.1",
-    "nativewind": "^5.0.0-preview.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.91.0",
     "react-i18next": "^17.1.11",
     "react-native": "0.86.3",
-    "react-native-css": "^3.0.7",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-reanimated": "~4.5.1",
     "react-native-safe-area-context": "~5.7.0",
@@ -52,19 +49,10 @@
     "sonner": "^2.0.8",
     "sonner-native": "^0.27.0",
     "styled-components": "7.0.0-prerelease-20261110053101",
-    "tailwind-merge": "^3.7.0",
     "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.4",
     "@types/react": "~19.2.9",
-    "postcss": "^8.5.32",
-    "tailwindcss": "^4.3.4",
     "typescript": "^6.0.3"
-  },
-  "pnpm": {
-    "overrides": {
-      "lightningcss": "1.30.1"
-    }
   }
 }

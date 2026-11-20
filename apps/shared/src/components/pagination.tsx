@@ -68,7 +68,6 @@ const PageJumpInput = ({
 };
 
 type Props = ViewProps & {
-  className?: string;
   perPage: number;
   currentPage: number;
   totalCount: number;

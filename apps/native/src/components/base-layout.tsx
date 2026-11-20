@@ -67,15 +67,12 @@ const Body = styled.View`
 type Props = ComponentProps<typeof ScrollView> & {
   children?: ReactNode;
   header?: ReactNode;
-  headerClassName?: string;
   scrollable?: boolean;
 };
 
 export const BaseLayout = ({
   children,
-  className,
   header,
-  headerClassName,
   scrollable = true,
   ...props
 }: Props) => {
@@ -83,7 +80,7 @@ export const BaseLayout = ({
   const { t } = useTranslation();
   const colors = useThemeColors();
   const content = (
-    <Content $fill={!scrollable} className={className}>
+    <Content $fill={!scrollable}>
       {children}
     </Content>
   );
@@ -92,7 +89,7 @@ export const BaseLayout = ({
     <Layout>
       {header || navigation ? (
         <Header>
-          <Content className={headerClassName}>
+          <Content>
             <HeaderRow>
               {navigation ? (
                 <Button

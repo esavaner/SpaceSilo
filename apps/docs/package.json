@@ -17,11 +17,9 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^26.6.6",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
-    "babel-plugin-react-compiler": "^1.0.0",
-    "tailwindcss": "^4.1.18"
+    "babel-plugin-react-compiler": "^1.0.0"
   }
 }

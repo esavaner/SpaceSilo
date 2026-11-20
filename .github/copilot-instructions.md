@@ -9,7 +9,7 @@ SpaceSilo is a pnpm monorepo for a personal or shared media storage product. It 
 - `apps/core`: NestJS 12 backend API on Node.js
 - `apps/shared`: shared DTOs, Prisma schema/client, and the shared UI component library (styled-components 7 prerelease, native first, web via react-native-web)
 - `apps/docs`: Next.js 16 app-router page used as the web showcase for the shared components
-- `apps/native`: Expo 57 / React Native Web client (Expo Router, NativeWind 5, TypeScript 6)
+- `apps/native`: Expo 57 / React Native Web client (Expo Router, styled-components, TypeScript 6)
 
 Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, SWC for backend and shared builds, ESLint 9 flat config, Prettier, React 19.
 
@@ -44,7 +44,6 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 1. Bootstrap
    - Run `pnpm.cmd install`
    - Postcondition: `apps/shared` automatically runs `prisma generate` via `postinstall`
-   - Expected warning: `apps/native/package.json` contains a local `pnpm.overrides` field, but pnpm only honors overrides from the workspace root
 
 2. Lint
    - Run `pnpm.cmd lint` (about 7s)
