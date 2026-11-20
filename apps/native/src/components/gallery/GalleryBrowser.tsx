@@ -24,11 +24,25 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
-  Pressable,
   useWindowDimensions,
-  View,
 } from 'react-native';
+import styled from 'styled-components/native';
 import { GalleryLightbox } from './GalleryLightbox';
+
+const AlbumSearchResult = styled.Pressable`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[200]} ${theme.spacing[300]};
+  &:hover, &:active {
+    background-color: ${theme.colors.surface.stronger};
+  }
+`;
+
+const AlbumSearchDetails = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[50]};
+`;
 
 export type GalleryBrowserMode = 'gallery' | 'trash';
 
@@ -553,23 +567,18 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   };
 
   const albumSearchOptions = albumSearchResults.map((album) => (
-    <Pressable
+    <AlbumSearchResult
       key={`${album.serverId}:${album.id}`}
       onPress={() => handleSearchAlbumSelect(album)}
-      className="flex-row items-center gap-2 px-3 py-2"
-      // react-native-web also passes `hovered`
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) =>
-        pressed || hovered ? { backgroundColor: colors.surface.stronger } : null
-      }
     >
       <Icon.Folder color={colors.text.brand} size={18} aria-hidden />
-      <View className="flex-1 gap-0.5">
+      <AlbumSearchDetails>
         <Text numberOfLines={1}>{album.name}</Text>
         <Text.Caption color={theme.colors.text.secondary} numberOfLines={1}>
           {album.path.map((pathItem) => pathItem.name).join(' / ')}
         </Text.Caption>
-      </View>
-    </Pressable>
+      </AlbumSearchDetails>
+    </AlbumSearchResult>
   ));
 
   const confirmAction = (title: string, message: string) =>

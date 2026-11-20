@@ -1,10 +1,127 @@
-import { cn } from '@/utils/cn';
 import { type GalleryImageResponse } from '@repo/shared';
 import { Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { Image } from 'expo-image';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, View } from 'react-native';
+import { Platform, View } from 'react-native';
+import styled, { css } from 'styled-components/native';
+
+const TileCell = styled.View`
+  padding: ${theme.spacing[100]};
+`;
+
+const Tile = styled.Pressable<{ $album: boolean; $selected: boolean }>`
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: ${theme.radius[200]};
+  background-color: ${theme.colors.surface.medium};
+  border-width: ${({ $album, $selected }) => ($selected ? theme.borderWeight[50] : $album ? theme.borderWeight[25] : '0px')};
+  border-color: ${({ $album }) => ($album ? theme.colors.border.default : theme.colors.border.primary.default)};
+`;
+
+const EmptyTile = styled.View`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+  background-color: ${theme.colors.surface.stronger};
+`;
+
+const AttachmentBadge = styled.View`
+  position: absolute;
+  top: ${theme.spacing[200]};
+  right: ${theme.spacing[200]};
+  border-radius: ${theme.radius.full};
+  padding: ${theme.spacing[100]};
+  background-color: ${theme.colors.media.scrim};
+`;
+
+const AlbumTint = styled.View`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: ${theme.colors.media.tint};
+`;
+
+const SelectionButton = styled.Pressable<{ $selected: boolean; $visible: boolean }>`
+  position: absolute;
+  top: ${theme.spacing[200]};
+  left: ${theme.spacing[200]};
+  z-index: ${theme.zIndex.raised};
+  width: ${theme.spacing[800]};
+  height: ${theme.spacing[800]};
+  align-items: center;
+  justify-content: center;
+  border-radius: ${theme.radius.full};
+  border-width: ${theme.borderWeight[25]};
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  background-color: ${({ $selected }) => ($selected ? theme.colors.primary.default : theme.colors.media.scrim)};
+  border-color: ${({ $selected }) => ($selected ? theme.colors.border.primary.default : theme.colors.media.textMuted)};
+  ${Platform.OS === 'web' && css`
+    transition: opacity 150ms;
+  `}
+`;
+
+const SelectionCircle = styled.View`
+  width: ${theme.spacing[300]};
+  height: ${theme.spacing[300]};
+  border-radius: ${theme.radius.full};
+  border-width: ${theme.borderWeight[25]};
+  border-color: ${theme.colors.media.text};
+`;
+
+const AlbumCaption = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[300]};
+  background-color: ${theme.colors.media.scrimStrong};
+`;
+
+const AlbumName = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const SelectedBadge = styled.View`
+  position: absolute;
+  bottom: ${theme.spacing[200]};
+  right: ${theme.spacing[200]};
+  border-radius: ${theme.radius.full};
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
+  background-color: ${theme.colors.primary.default};
+`;
+
+const Groups = styled.View`
+  gap: ${theme.spacing[600]};
+`;
+
+const GroupHeading = styled.View`
+  margin-bottom: ${theme.spacing[300]};
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[300]};
+`;
+
+const GroupDivider = styled.View`
+  height: ${theme.borderWeight[25]};
+  flex: 1;
+  background-color: ${theme.colors.border.default};
+`;
+
+const Grid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 0 -${theme.spacing[100]};
+`;
 
 type HydratedGalleryBase = GalleryImageResponse & {
   serverId: string;
@@ -87,6 +204,7 @@ const GalleryTile = memo(function GalleryTile({
   const imageUri = item.thumbnailPath && item.displayable !== false ? `${item.baseUrl}${item.thumbnailPath}` : null;
   const isEmptyBox = item.type === 'photo' && !imageUri;
   const supportsHoverSelection = useSupportsHoverSelection();
+  const [hovered, setHovered] = useState(false);
   const { t } = useTranslation();
   const colors = useThemeColors();
   const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -135,17 +253,12 @@ const GalleryTile = memo(function GalleryTile({
   };
 
   return (
-    <View className="p-1" style={{ width: `${100 / columnCount}%` as `${number}%` }}>
-      <Pressable
-        className={cn(
-          'group overflow-hidden rounded-lg aspect-square',
-          item.type === 'album' && 'border',
-          isSelected && item.type === 'photo' && 'border-2'
-        )}
-        style={{
-          backgroundColor: colors.surface.medium,
-          borderColor: item.type === 'album' ? colors.border.default : colors.border.primary.default,
-        }}
+    <TileCell style={{ width: `${100 / columnCount}%` as `${number}%` }}>
+      <Tile
+        $album={item.type === 'album'}
+        $selected={isSelected && item.type === 'photo'}
+        onHoverIn={() => setHovered(true)}
+        onHoverOut={() => setHovered(false)}
         onLongPress={Platform.OS !== 'web' && item.type === 'photo' ? () => onTogglePhotoSelection(item) : undefined}
         delayLongPress={LONG_PRESS_DELAY_MS}
         onPressIn={handlePressIn}
@@ -158,42 +271,30 @@ const GalleryTile = memo(function GalleryTile({
             cachePolicy="memory-disk"
             contentFit="cover"
             transition={0}
-            className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
           />
         ) : (
-          <View
-            className="absolute inset-0 items-center justify-center"
-            style={{ backgroundColor: colors.surface.stronger }}
-          >
+          <EmptyTile>
             {isEmptyBox ? (
               <Icon.FileText color={colors.text.secondary} size={36} aria-hidden />
             ) : (
               <Icon.Folder color={colors.text.default} size={36} aria-hidden />
             )}
-          </View>
+          </EmptyTile>
         )}
 
         {item.type === 'photo' && (item.sidecarCount ?? 0) > 0 ? (
-          <View className="absolute right-2 top-2 rounded-full p-1" style={{ backgroundColor: colors.media.scrim }}>
+          <AttachmentBadge>
             <Icon.Paperclip color={colors.media.text} size={14} aria-hidden />
-          </View>
+          </AttachmentBadge>
         ) : null}
 
-        {item.type === 'album' ? (
-          <View className="absolute inset-0" style={{ backgroundColor: colors.media.tint }} />
-        ) : null}
+        {item.type === 'album' ? <AlbumTint /> : null}
 
         {item.type === 'photo' && (isSelected || isSelectionMode || supportsHoverSelection) ? (
-          <Pressable
-            className={cn(
-              'absolute left-2 top-2 z-10 h-8 w-8 items-center justify-center rounded-full border transition-opacity',
-              isSelected && 'opacity-100',
-              supportsHoverSelection && !isSelected && !isSelectionMode && 'opacity-0 group-hover:opacity-100'
-            )}
-            style={{
-              backgroundColor: isSelected ? colors.primary.default : colors.media.scrim,
-              borderColor: isSelected ? colors.border.primary.default : colors.media.textMuted,
-            }}
+          <SelectionButton
+            $selected={isSelected}
+            $visible={isSelected || isSelectionMode || !supportsHoverSelection || hovered}
             onPress={(event) => {
               event.stopPropagation();
               onTogglePhotoSelection(item);
@@ -202,19 +303,19 @@ const GalleryTile = memo(function GalleryTile({
             {isSelected ? (
               <Icon.Check color={colors.text.inverted} size={16} aria-hidden />
             ) : (
-              <View className="h-3 w-3 rounded-full border" style={{ borderColor: colors.media.text }} />
+              <SelectionCircle />
             )}
-          </Pressable>
+          </SelectionButton>
         ) : null}
 
         {item.type === 'album' ? (
-          <View className="absolute inset-x-0 bottom-0 gap-1 p-3" style={{ backgroundColor: colors.media.scrimStrong }}>
-            <View className="flex-row items-center gap-2">
+          <AlbumCaption>
+            <AlbumName>
               <Icon.Folder color={colors.media.text} size={16} aria-hidden />
               <Text color={theme.colors.media.text} style={{ flex: 1 }}>
                 {item.name}
               </Text>
-            </View>
+            </AlbumName>
             <Text.Caption color={theme.colors.media.textMuted}>
               {[
                 item.subalbumCount ? `${item.subalbumCount} ${t('common.nouns.albums')}` : '',
@@ -223,19 +324,16 @@ const GalleryTile = memo(function GalleryTile({
                 .filter(Boolean)
                 .join(' / ') || t('gallery.albumModal.emptyAlbum')}
             </Text.Caption>
-          </View>
+          </AlbumCaption>
         ) : null}
 
         {isSelected && item.type === 'photo' ? (
-          <View
-            className="absolute bottom-2 right-2 rounded-full px-2 py-1"
-            style={{ backgroundColor: colors.primary.default }}
-          >
+          <SelectedBadge>
             <Text.Caption color={theme.colors.text.inverted}>{t('gallery.selected')}</Text.Caption>
-          </View>
+          </SelectedBadge>
         ) : null}
-      </Pressable>
-    </View>
+      </Tile>
+    </TileCell>
   );
 });
 
@@ -258,19 +356,17 @@ export const GalleryGrid = memo(function GalleryGrid({
   onSelectPhoto: (index: number | null) => void;
   onTogglePhotoSelection: (item: GalleryPhotoItem) => void;
 }) {
-  const colors = useThemeColors();
-
   return (
-    <View className="gap-6">
+    <Groups>
       {galleryGroups.map((group) => (
         <View key={group.key}>
           {group.label && (
-            <View className="mb-3 flex-row items-center gap-3">
+            <GroupHeading>
               <Text.H3>{group.label}</Text.H3>
-              <View className="h-px flex-1" style={{ backgroundColor: colors.border.default }} />
-            </View>
+              <GroupDivider />
+            </GroupHeading>
           )}
-          <View className="flex-row flex-wrap -mx-1">
+          <Grid>
             {group.items.map((item) => {
               const itemKey = `${item.serverId}:${item.id}`;
               return (
@@ -287,9 +383,9 @@ export const GalleryGrid = memo(function GalleryGrid({
                 />
               );
             })}
-          </View>
+          </Grid>
         </View>
       ))}
-    </View>
+    </Groups>
   );
 });

@@ -4,7 +4,47 @@ import { Search } from '@/components/search';
 import { Button, Dropdown, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { useWindowDimensions } from 'react-native';
+import styled from 'styled-components/native';
+
+const Header = styled.View`
+  gap: ${theme.spacing[400]};
+`;
+
+const HeaderRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+
+const TitleSection = styled.View`
+  gap: ${theme.spacing[200]};
+  max-width: 100%;
+`;
+
+const SearchField = styled.View<{ $wide: boolean }>`
+  width: ${({ $wide }) => ($wide ? '320px' : '100%')};
+  max-width: 100%;
+`;
+
+const Actions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  max-width: 100%;
+`;
+
+const SelectionPanel = styled.View`
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[300]};
+  border-radius: ${theme.radius[200]};
+  border-width: ${theme.borderWeight[25]};
+  border-color: ${theme.colors.border.default};
+  background-color: ${theme.colors.surface.default};
+`;
 
 type LabelledOption<T extends string> = {
   label: string;
@@ -115,26 +155,28 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
 }: GalleryBrowserHeaderProps<GroupBy, ViewMode, PendingAction>) {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
   const noServers = serverCount === 0;
 
   return (
-    <View className="gap-4">
-      <View className="flex-row flex-wrap items-start justify-between gap-3">
-        <View className="gap-2" style={{ maxWidth: '100%' }}>
+    <Header>
+      <HeaderRow>
+        <TitleSection>
           <Text.H1>{title}</Text.H1>
           {albumSearch ? (
-            <Search
-              className="w-full md:w-80"
-              options={albumSearch.options}
-              value={albumSearch.value}
-              onChangeText={albumSearch.onChangeText}
-              placeholder={albumSearch.placeholder}
-            />
+            <SearchField $wide={width >= theme.breakpointNumbers.sm}>
+              <Search
+                options={albumSearch.options}
+                value={albumSearch.value}
+                onChangeText={albumSearch.onChangeText}
+                placeholder={albumSearch.placeholder}
+              />
+            </SearchField>
           ) : null}
           {!isTrashMode && breadcrumbItems.length > 0 ? <Breadcrumb items={breadcrumbItems} /> : null}
-        </View>
+        </TitleSection>
 
-        <View className="flex-row flex-wrap items-center gap-2" style={{ maxWidth: '100%' }}>
+        <Actions>
           <IncludedGroupsDropdown {...groupFilter} />
 
           {isTrashMode ? (
@@ -188,15 +230,12 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
               </Button>
             </>
           )}
-        </View>
-      </View>
+        </Actions>
+      </HeaderRow>
 
       {isSelectionMode ? (
-        <View
-          className="gap-2 rounded-lg border p-3"
-          style={{ backgroundColor: colors.surface.default, borderColor: colors.border.default }}
-        >
-          <View className="flex-row flex-wrap items-center gap-2">
+        <SelectionPanel>
+          <Actions>
             <Button
               variant="tertiary"
               size="small"
@@ -246,13 +285,13 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                 </Button>
               </>
             )}
-          </View>
+          </Actions>
 
           {!isTrashMode && !hasSelectedServer ? (
             <Text.S color={theme.colors.text.secondary}>{t('gallery.singleServerRequired')}</Text.S>
           ) : null}
-        </View>
+        </SelectionPanel>
       ) : null}
-    </View>
+    </Header>
   );
 }

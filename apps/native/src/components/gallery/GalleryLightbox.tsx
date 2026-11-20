@@ -3,8 +3,55 @@ import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/componen
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Platform, Pressable, View } from 'react-native';
+import { Modal, Platform } from 'react-native';
 import { Directions, Gesture, GestureDetector } from 'react-native-gesture-handler';
+import styled from 'styled-components/native';
+
+const Background = styled.View`
+  flex: 1;
+  background-color: ${theme.colors.media.background};
+`;
+
+const ImageTarget = styled.Pressable`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+`;
+
+const TopControls = styled.View`
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${theme.spacing[400]};
+`;
+
+const ImageCount = styled.View`
+  border-radius: ${theme.radius.full};
+  padding: ${theme.spacing[100]} ${theme.spacing[300]};
+  background-color: ${theme.colors.media.scrim};
+`;
+
+const ControlButtons = styled.View`
+  flex-direction: row;
+  gap: ${theme.spacing[200]};
+`;
+
+const SideControl = styled.View<{ $right?: boolean }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  ${({ $right }) => ($right ? 'right: 0;' : 'left: 0;')}
+  z-index: ${theme.zIndex.raised};
+  justify-content: center;
+  padding: 0 ${theme.spacing[400]};
+`;
 
 type GalleryLightboxImage = {
   key: string;
@@ -98,10 +145,9 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
 
   return (
     <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
-      <View className="flex-1" style={{ backgroundColor: colors.media.background }}>
+      <Background>
         <GestureDetector gesture={swipeGesture}>
-          <Pressable
-            className="absolute inset-0"
+          <ImageTarget
             onPress={() => setControlsVisible((visible) => !visible)}
             accessibilityRole="button"
           >
@@ -112,22 +158,19 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
               transition={150}
               style={{ width: '100%', height: '100%' }}
             />
-          </Pressable>
+          </ImageTarget>
         </GestureDetector>
 
         {controlsVisible ? (
           <>
-            <View
-              pointerEvents="box-none"
-              className="absolute left-0 right-0 top-0 z-20 flex-row items-center justify-between px-4 py-4"
-            >
-              <View className="rounded-full px-3 py-1" style={{ backgroundColor: colors.media.scrim }}>
+            <TopControls pointerEvents="box-none">
+              <ImageCount>
                 <Text.S color={theme.colors.media.text}>
                   {currentIndex + 1} / {images.length}
                 </Text.S>
-              </View>
+              </ImageCount>
 
-              <View className="flex-row gap-2">
+              <ControlButtons>
                 <Button
                   variant="tertiary"
                   size="small"
@@ -146,10 +189,10 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                 >
                   <Icon.X size={18} color={colors.media.text} aria-hidden />
                 </Button>
-              </View>
-            </View>
+              </ControlButtons>
+            </TopControls>
 
-            <View pointerEvents="box-none" className="absolute inset-y-0 left-0 z-10 justify-center px-4">
+            <SideControl pointerEvents="box-none">
               <Button
                 variant="tertiary"
                 size="small"
@@ -160,9 +203,9 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
               >
                 <Icon.ChevronLeft size={24} color={colors.media.text} aria-hidden />
               </Button>
-            </View>
+            </SideControl>
 
-            <View pointerEvents="box-none" className="absolute inset-y-0 right-0 z-10 justify-center px-4">
+            <SideControl $right pointerEvents="box-none">
               <Button
                 variant="tertiary"
                 size="small"
@@ -173,7 +216,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
               >
                 <Icon.ChevronRight size={24} color={colors.media.text} aria-hidden />
               </Button>
-            </View>
+            </SideControl>
           </>
         ) : null}
 
@@ -185,7 +228,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
             onClose={() => setInfoOpen(false)}
           />
         ) : null}
-      </View>
+      </Background>
     </Modal>
   );
 }

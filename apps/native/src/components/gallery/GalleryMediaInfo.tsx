@@ -5,7 +5,77 @@ import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/componen
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, View } from 'react-native';
+import styled from 'styled-components/native';
+
+const Overlay = styled.View`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+  padding: ${theme.spacing[400]};
+  background-color: ${theme.colors.overlay};
+`;
+
+const Backdrop = styled.Pressable`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+`;
+
+const Panel = styled.View`
+  width: 100%;
+  max-width: 512px;
+  max-height: 90%;
+  gap: ${theme.spacing[300]};
+  padding: ${theme.spacing[400]};
+  border-radius: ${theme.radius[200]};
+  border-width: ${theme.borderWeight[25]};
+  border-color: ${theme.colors.border.default};
+  background-color: ${theme.colors.surface.default};
+`;
+
+const PanelHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Files = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const FileOption = styled.Pressable<{ $selected: boolean }>`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[200]} ${theme.spacing[300]};
+  border-radius: ${theme.radius[150]};
+  border-width: ${theme.borderWeight[25]};
+  border-color: ${({ $selected }) => ($selected ? theme.colors.border.primary.default : theme.colors.border.default)};
+  background-color: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : 'transparent')};
+`;
+
+const DetailsScroll = styled.ScrollView`
+  flex-shrink: 1;
+`;
+
+const Details = styled.View`
+  gap: ${theme.spacing[300]};
+  padding-right: ${theme.spacing[200]};
+`;
+
+const Detail = styled.View`
+  gap: ${theme.spacing[100]};
+  padding-bottom: ${theme.spacing[300]};
+  border-bottom-width: ${theme.borderWeight[25]};
+  border-bottom-color: ${theme.colors.border.default};
+`;
 
 type GalleryMediaInfoProps = {
   serverId: string;
@@ -18,11 +88,11 @@ type DetailRowProps = {
   value: string;
 };
 
-const DetailRow = ({ label, value, borderColor }: DetailRowProps & { borderColor: string }) => (
-  <View className="gap-1 border-b pb-3" style={{ borderColor }}>
+const DetailRow = ({ label, value }: DetailRowProps) => (
+  <Detail>
     <Text.S color={theme.colors.text.secondary}>{label}</Text.S>
     <Text selectable>{value}</Text>
-  </View>
+  </Detail>
 );
 
 const formatExposureTime = (seconds: number) => (seconds < 1 ? `1/${Math.round(1 / seconds)} s` : `${seconds} s`);
@@ -109,36 +179,28 @@ export function GalleryMediaInfo({ serverId, mediaId, onClose }: GalleryMediaInf
   }
 
   return (
-    <View className="absolute inset-0 z-30 items-center justify-center p-4" style={{ backgroundColor: colors.overlay }}>
-      <Pressable className="absolute inset-0" onPress={onClose} accessibilityRole="button" />
+    <Overlay>
+      <Backdrop onPress={onClose} accessibilityRole="button" />
 
-      <View
-        className="w-full max-w-lg gap-3 rounded-lg border p-4"
-        style={{ maxHeight: '90%', backgroundColor: colors.surface.default, borderColor: colors.border.default }}
-      >
-        <View className="flex-row items-center justify-between">
+      <Panel>
+        <PanelHeader>
           <Text.H3>{t('gallery.info.title')}</Text.H3>
           <Button variant="tertiary" size="small" onPress={onClose} accessibilityLabel={t('gallery.lightbox.close')}>
             <Icon.X size={18} color={colors.text.default} aria-hidden />
           </Button>
-        </View>
+        </PanelHeader>
 
         {isLoading && <Text color={theme.colors.text.secondary}>{t('gallery.info.loading')}</Text>}
         {(isError || !server) && <Text color={theme.colors.text.danger}>{t('gallery.info.unavailable')}</Text>}
 
         {files.length > 1 && (
-          <View className="gap-2">
+          <Files>
             <Text.S color={theme.colors.text.secondary}>{t('gallery.info.files')}</Text.S>
             {files.map((file) => (
-              <Pressable
+              <FileOption
                 key={file.id}
                 onPress={() => setSelectedFileId(file.id)}
-                className="flex-row items-center gap-2 rounded-md border px-3 py-2"
-                style={
-                  file.id === selectedFile?.id
-                    ? { borderColor: colors.border.primary.default, backgroundColor: colors.surface.stronger }
-                    : { borderColor: colors.border.default }
-                }
+                $selected={file.id === selectedFile?.id}
               >
                 <Text style={{ flex: 1 }} numberOfLines={1}>
                   {file.originalName}
@@ -147,19 +209,21 @@ export function GalleryMediaInfo({ serverId, mediaId, onClose }: GalleryMediaInf
                   <Text.Caption color={theme.colors.text.secondary}>{t('gallery.info.main')}</Text.Caption>
                 ) : null}
                 <Text.Caption color={theme.colors.text.secondary}>{fileSize(file.size)}</Text.Caption>
-              </Pressable>
+              </FileOption>
             ))}
-          </View>
+          </Files>
         )}
 
         {rows.length > 0 && (
-          <ScrollView style={{ flexShrink: 1 }} contentContainerClassName="gap-3 pr-2">
-            {rows.map((row) => (
-              <DetailRow key={row.label} label={row.label} value={row.value} borderColor={colors.border.default} />
-            ))}
-          </ScrollView>
+          <DetailsScroll>
+            <Details>
+              {rows.map((row) => (
+                <DetailRow key={row.label} label={row.label} value={row.value} />
+              ))}
+            </Details>
+          </DetailsScroll>
         )}
-      </View>
-    </View>
+      </Panel>
+    </Overlay>
   );
 }
