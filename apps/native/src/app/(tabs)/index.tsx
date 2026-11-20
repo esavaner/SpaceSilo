@@ -1,7 +1,7 @@
 // Test page: keep example text here; do not add translations for this file.
 import { useRootNavigationState } from 'expo-router';
 import { BaseLayout } from '@/components/base-layout';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {
   Avatar,
   Icon,
@@ -25,6 +25,8 @@ import {
   Select,
   Dropdown,
   SideDrawer,
+  baseColors,
+  theme,
   useModal,
   useThemeMode,
   type ThemeMode,
@@ -32,19 +34,56 @@ import {
 import styled from 'styled-components/native';
 
 const Section = styled.View`
-  margin-bottom: 16px;
   border: 1px solid grey;
   border-radius: 8px;
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 `;
-const SectionHeader = styled.Text`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+const SectionHeader = styled(Text.H2)`
+  margin-bottom: 16px;
+  font-weight: 700;
 `;
+
+const SwatchGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[100]};
+`;
+
+const Swatch = styled.View`
+  width: 100px;
+  min-height: 80px;
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[200]};
+  padding: 8px;
+`;
+
+type Palette = { readonly [name: string]: string | Palette };
+
+function colorEntries(palette: Palette, prefix = ''): [string, string][] {
+  return Object.entries(palette).flatMap(([name, value]): [string, string][] => {
+    const token = `${prefix}${name}`;
+    return typeof value === 'string' ? [[token, value]] : colorEntries(value, `${token}.`);
+  });
+}
+
+function ColorPreview({ palette }: { palette: Palette }) {
+  return Object.entries(palette).map(([group, value]) => (
+    <Fragment key={group}>
+      {typeof value !== 'string' && <Text.Label role="heading">{group}</Text.Label>}
+      <SwatchGrid>
+        {colorEntries({ [group]: value }).map(([token, hex]) => (
+          <Swatch key={token} aria-hidden style={{ backgroundColor: hex }}>
+            <Text.Caption>{token}</Text.Caption>
+            <Text.S>{hex}</Text.S>
+          </Swatch>
+        ))}
+      </SwatchGrid>
+    </Fragment>
+  ));
+}
 
 export default function IndexPage() {
   const rootNavigationState = useRootNavigationState();
@@ -163,7 +202,6 @@ export default function IndexPage() {
             searchable
             closeLabel="Close colors"
           />
-          <Text.S>Selected color: {selectedColor}</Text.S>
           <Select
             label="Multiple colors"
             options={colorOptions}
@@ -173,17 +211,6 @@ export default function IndexPage() {
             searchable
             closeLabel="Close multiple colors"
             removeLabel={(label) => `Remove ${label}`}
-          />
-          <Text.S>Selected colors: {selectedColors.join(', ')}</Text.S>
-          <Select
-            label="Theme"
-            options={[
-              { label: 'Light', value: 'light' },
-              { label: 'Dark', value: 'dark' },
-              { label: 'Follow device', value: 'system' },
-            ]}
-            value={themeMode}
-            onValueChange={(value) => setThemeMode(value as ThemeMode)}
           />
           <Select label="Required color" options={colorOptions} error="Please choose a color." required />
           <Select label="Disabled color" options={colorOptions} defaultValue="green" disabled />
@@ -220,6 +247,7 @@ export default function IndexPage() {
           />
           <Text.S>Last action: {lastAction || 'none'}</Text.S>
         </Section>
+
         <Section>
           <SectionHeader>Avatar</SectionHeader>
           <Avatar size="sm" alt="Space Silo" />
@@ -390,6 +418,25 @@ export default function IndexPage() {
           <SetPasswordInput label="New password" value={password} onChangeText={setPassword} />
           <SetPasswordInput label="Uncontrolled password" defaultValue="Example1" error="Example error." />
           <SetPasswordInput label="Disabled password" disabled />
+        </Section>
+
+        <Section>
+          <SectionHeader>Base colors</SectionHeader>
+          <ColorPreview palette={baseColors} />
+        </Section>
+        <Section>
+          <SectionHeader>Semantic colors</SectionHeader>
+          <Select
+            label="Theme"
+            options={[
+              { label: 'Light', value: 'light' },
+              { label: 'Dark', value: 'dark' },
+              { label: 'Follow device', value: 'system' },
+            ]}
+            value={themeMode}
+            onValueChange={(value) => setThemeMode(value as ThemeMode)}
+          />
+          <ColorPreview palette={colors} />
         </Section>
       </BaseLayout>
       {showFullPageLoader && <Loader fullPage onRequestClose={() => setShowFullPageLoader(false)} />}

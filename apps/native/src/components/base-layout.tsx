@@ -16,7 +16,7 @@ const Content = styled.View<{ $fill?: boolean }>`
   max-width: 1280px;
   width: 100%;
   padding: ${theme.spacing[400]};
-  gap: ${theme.spacing[600]};
+  gap: ${theme.spacing[400]};
   flex: ${({ $fill }) => ($fill ? '1' : '0 0 auto')};
 `;
 
@@ -70,20 +70,11 @@ type Props = ComponentProps<typeof ScrollView> & {
   scrollable?: boolean;
 };
 
-export const BaseLayout = ({
-  children,
-  header,
-  scrollable = true,
-  ...props
-}: Props) => {
+export const BaseLayout = ({ children, header, scrollable = true, ...props }: Props) => {
   const navigation = useContext(NavigationToggleContext);
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const content = (
-    <Content $fill={!scrollable}>
-      {children}
-    </Content>
-  );
+  const content = <Content $fill={!scrollable}>{children}</Content>;
 
   return (
     <Layout>
