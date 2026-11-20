@@ -16,12 +16,14 @@ export type DropdownItem =
     }
   | undefined;
 
-const Root = styled.View`
+const Root = styled.View<{ $open: boolean }>`
   position: relative;
+  z-index: ${({ $open }) => ($open ? theme.zIndex.dropdown : theme.zIndex.base)};
 `;
 
 const Menu = styled.View`
   position: absolute;
+  z-index: ${theme.zIndex.dropdown};
   top: 100%;
   right: 0;
   min-width: 150px;
@@ -179,7 +181,7 @@ export const DropdownMenu = ({
   const state = { isOpen, isMobile: presentation?.isMobile ?? Platform.OS !== 'web', toggle, close, menuId };
 
   return (
-    <Root nativeID={rootId} style={[style, isOpen && !state.isMobile && { zIndex: theme.zIndex.dropdown }]}>
+    <Root $open={isOpen} nativeID={rootId} style={style}>
       {trigger(state)}
       {isOpen &&
         (state.isMobile ? (

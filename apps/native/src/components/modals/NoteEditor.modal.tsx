@@ -1,22 +1,30 @@
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { type NoteListItem } from '@/hooks/useNoteList';
-import {
-  NativeSelectScrollView,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/form/select';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { toast } from '@/lib/toast';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
-import { Input } from '../form/input';
-import { Text } from '../general/text';
-import { DialogDescription, DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
+import { Button, Input, Modal, ModalButtons, ModalTitle, Select, Text, Textarea, theme, useModal } from '@repo/shared/components';
+import styled from 'styled-components/native';
+
+const Field = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const Description = styled(Text.S)`
+  color: ${theme.colors.text.secondary};
+`;
+
+const NoGroups = styled.View`
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+`;
+
+const NoteTextarea = styled(Textarea)`
+  min-height: 180px;
+  padding-top: ${theme.spacing[300]};
+`;
 
 type NoteEditorModalProps = {
   groups: GroupListItem[];
@@ -43,6 +51,7 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
   const [content, setContent] = useState(note?.content ?? '');
   const [selectedGroupId, setSelectedGroupId] = useState(initialGroupId);
   const { createNote, updateNote, isPending } = useNoteActions();
+  const { closeModal } = useModal();
 
   const selectedGroup = availableGroups.find((group) => group.id === selectedGroupId) ?? null;
   const isEditing = Boolean(note);
@@ -95,67 +104,60 @@ export const NoteEditorModal = ({ groups, note, serverLabels = {} }: NoteEditorM
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{isEditing ? t('notes.editor.titleEdit') : t('notes.editor.titleCreate')}</DialogTitle>
-        <DialogDescription>
-          {isEditing ? t('notes.editor.descriptionEdit') : t('notes.editor.descriptionCreate')}
-        </DialogDescription>
-      </DialogHeader>
+    <Modal
+      closeLabel={t('common.actions.close')}
+      accessibilityLabel={isEditing ? t('notes.editor.titleEdit') : t('notes.editor.titleCreate')}
+    >
+      <ModalTitle>{isEditing ? t('notes.editor.titleEdit') : t('notes.editor.titleCreate')}</ModalTitle>
+      <Description>
+        {isEditing ? t('notes.editor.descriptionEdit') : t('notes.editor.descriptionCreate')}
+      </Description>
 
-      <View className="gap-2">
-        <Text>{t('common.labels.title')}</Text>
+      <Field>
         <Input
+          label={t('common.labels.title')}
           value={title}
           onChangeText={setTitle}
           placeholder={t('notes.editor.optionalTitle')}
           autoFocus={!isEditing}
         />
-      </View>
+      </Field>
 
-      <View className="gap-2">
-        <Text>{t('common.labels.belongsTo')}</Text>
+      <Field>
         {availableGroups.length === 0 ? (
-          <View className="rounded-xl border border-dashed border-border p-4">
-            <Text className="text-sm text-muted-foreground">{t('notes.editor.noAccessibleGroups')}</Text>
-          </View>
+          <NoGroups>
+            <Description>{t('notes.editor.noAccessibleGroups')}</Description>
+          </NoGroups>
         ) : (
           <Select
-            value={selectedGroup ? { value: selectedGroup.id, label: getGroupLabel(selectedGroup) } : undefined}
-            onValueChange={(option) => setSelectedGroupId(option?.value ?? '')}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t('notes.editor.selectGroup')} />
-            </SelectTrigger>
-            <SelectContent>
-              <NativeSelectScrollView>
-                {availableGroups.map((group) => (
-                  <SelectItem key={`${group.serverId}:${group.id}`} value={group.id} label={getGroupLabel(group)} />
-                ))}
-              </NativeSelectScrollView>
-            </SelectContent>
-          </Select>
+            label={t('common.labels.belongsTo')}
+            placeholder={t('notes.editor.selectGroup')}
+            closeLabel={t('common.actions.close')}
+            options={availableGroups.map((group) => ({ value: group.id, label: getGroupLabel(group) }))}
+            value={selectedGroup?.id}
+            onValueChange={setSelectedGroupId}
+          />
         )}
-      </View>
+      </Field>
 
-      <View className="gap-2">
-        <Text>{t('common.labels.content')}</Text>
-        <Input
+      <Field>
+        <NoteTextarea
+          label={t('common.labels.content')}
           value={content}
           onChangeText={setContent}
           placeholder={t('notes.editor.writeHere')}
-          multiline
           numberOfLines={10}
-          textAlignVertical="top"
-          className="min-h-[180px] py-3"
         />
-      </View>
+      </Field>
 
-      <DialogFooter
-        okText={isEditing ? t('notes.editor.save') : t('notes.editor.create')}
-        onOk={handleSubmit}
-        loading={isPending}
-      />
-    </DialogContent>
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button onPress={handleSubmit} loading={isPending}>
+          {isEditing ? t('notes.editor.save') : t('notes.editor.create')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

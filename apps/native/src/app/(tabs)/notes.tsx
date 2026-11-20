@@ -10,9 +10,8 @@ import { NoteEditorModal } from '@/components/modals/NoteEditor.modal';
 import { type GroupListItem, useGroupList } from '@/hooks/useGroupList';
 import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 
 const PageContent = styled.View`
   gap: ${theme.spacing[600]};
@@ -147,7 +146,7 @@ export default function NotesPage() {
   const { i18n, t } = useTranslation();
   const colors = useThemeColors();
   const { width } = useWindowDimensions();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
   const { allServers, servers } = useServerContext();
   const { notes, isNotesLoading } = useNoteList();
   const { groups, includedGroups, isGroupsLoading, handleToggleIncludedGroup } = useGroupList();

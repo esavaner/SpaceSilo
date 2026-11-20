@@ -1,8 +1,8 @@
 import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type CreateNoteRequest, type NoteResponse, type UpdateNoteRequest } from '@repo/shared';
+import { useModal } from '@repo/shared/components';
 import { useTranslation } from 'react-i18next';
 import { tApiErr } from '@/i18n/translate';
 
@@ -17,7 +17,7 @@ type RemoveNoteMutation = NoteMutationBase & { id: string };
 export const useNoteActions = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
   const { allServers } = useServerContext();
 
   const getServerClient = (serverId: string) => {
