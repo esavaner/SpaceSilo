@@ -1,5 +1,13 @@
-import { Icon } from '@/components/general/icon';
-import { JSX } from 'react/jsx-runtime';
+import {
+  DatabaseBackup,
+  FileText,
+  Folder,
+  Image,
+  LayoutDashboard,
+  Trash2,
+  Users,
+  type LucideIcon,
+} from 'lucide-react-native';
 
 export const routes = {
   index: 'index',
@@ -21,12 +29,12 @@ export const routeLabels: Record<keyof typeof routes, string> = {
   [routes.backups]: 'Backups',
 };
 
-export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
-  [routes.index]: <Icon.Layout />,
-  [routes.gallery]: <Icon.Image />,
-  [routes.trash]: <Icon.Trash />,
-  [routes.files]: <Icon.Folder />,
-  [routes.notes]: <Icon.File />,
-  [routes.groups]: <Icon.UserGroup />,
-  [routes.backups]: <Icon.Backup />,
+export const routeIcons: Record<keyof typeof routes, LucideIcon> = {
+  [routes.index]: LayoutDashboard,
+  [routes.gallery]: Image,
+  [routes.trash]: Trash2,
+  [routes.files]: Folder,
+  [routes.notes]: FileText,
+  [routes.groups]: Users,
+  [routes.backups]: DatabaseBackup,
 };
