@@ -1,25 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, View } from 'react-native';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/dropdowns/dropdown';
+import { ArrowLeft, Check, ChevronDown, Edit3, Plus, Trash2 } from 'lucide-react-native';
+import { Platform, View, type ViewProps } from 'react-native';
+import styled from 'styled-components/native';
+import { Avatar, Button, DropdownMenu, DropdownOption, Text, theme, useThemeColors } from '@repo/shared/components';
 import { GroupEditModal } from '@/components/modals/GroupEdit.modal';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { GroupRemoveModal } from '@/components/modals/GroupRemove.modal';
 import { BaseLayout } from '@/components/base-layout';
-import { Avatar } from '@repo/shared/components';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
-import { cn } from '@/utils/cn';
 import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 
@@ -33,50 +24,148 @@ type GroupDetail = Omit<GroupResponse, 'members'> & {
   members: GroupMemberWithUser[];
 };
 
+const Page = styled.View`
+  gap: ${theme.spacing[600]};
+  padding-bottom: ${theme.spacing[800]};
+`;
+const Stack = styled.View`
+  gap: ${theme.spacing[400]};
+`;
+const Card = styled.View`
+  gap: ${theme.spacing[400]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
+const HeaderRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  gap: ${theme.spacing[400]};
+`;
+const Heading = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[200]};
+`;
+const Row = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+const Chip = styled.View<{ $accent?: boolean }>`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[150]} ${theme.spacing[300]};
+  border: ${theme.borderWeight[25]} solid
+    ${({ $accent }) => ($accent ? theme.colors.border.primary.default : theme.colors.border.default)};
+  border-radius: ${theme.radius.full};
+  background-color: ${({ $accent }) => ($accent ? theme.colors.success.default : theme.colors.surface.default)};
+`;
+const ColorSwatch = styled.View<{ $color: string }>`
+  width: 12px;
+  height: 12px;
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius.full};
+  background-color: ${({ $color }) => $color};
+`;
+const Members = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+const MembersHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+const EmptyMembers = styled.View`
+  padding: ${theme.spacing[600]};
+  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+`;
+const MemberCard = styled.View<{ $order: number }>`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[300]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.medium};
+  z-index: ${({ $order }) => $order};
+`;
+const MemberInfo = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[100]};
+`;
+
 const SummaryChip = ({ label, accent = false }: { label: string; accent?: boolean }) => (
-  <View
-    className={cn(
-      'rounded-full border px-3 py-1.5',
-      accent ? 'border-primary/30 bg-primary/10' : 'border-border bg-background'
-    )}
-  >
-    <Text className={cn('text-sm', accent ? 'text-primary' : 'text-muted-foreground')}>{label}</Text>
-  </View>
+  <Chip $accent={accent}>
+    <Text.S color={accent ? theme.colors.text.brand : theme.colors.text.secondary}>{label}</Text.S>
+  </Chip>
 );
 
 const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const accessOptions = [
     { label: t('groups.membersModal.levels.admin'), value: 'admin' },
     { label: t('groups.membersModal.levels.edit'), value: 'edit' },
     { label: t('groups.membersModal.levels.read'), value: 'read' },
   ] as const satisfies { label: string; value: AccessLevel }[];
+  const selectedLabel = accessOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read');
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline" size="sm">
-          <Text>
-            {accessOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read')}
-          </Text>
-          <Icon.ChevronDown />
+    <DropdownMenu
+      label={t('groups.membersModal.access')}
+      closeLabel={t('common.actions.close')}
+      trigger={({ isOpen, toggle, menuId }) => (
+        <Button
+          variant="secondary"
+          size="small"
+          accessibilityLabel={`${t('groups.membersModal.access')}: ${selectedLabel}`}
+          accessibilityState={{ expanded: isOpen }}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
+          onPress={toggle}
+        >
+          {selectedLabel}
+          <ChevronDown size={18} color={colors.text.default} aria-hidden />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
+      )}
+    >
+      {({ close, menuId }) => (
+        <View
+          nativeID={menuId}
+          role={(Platform.OS === 'web' ? 'listbox' : 'list') as ViewProps['role']}
+          accessibilityLabel={t('groups.membersModal.access')}
+        >
           {accessOptions.map((option) => (
-            <DropdownMenuRadioItem key={option.value} value={option.value}>
-              <Text>{option.label}</Text>
-            </DropdownMenuRadioItem>
+            <DropdownOption
+              key={option.value}
+              role="option"
+              accessibilityState={{ selected: option.value === value }}
+              aria-selected={option.value === value}
+              $selected={option.value === value}
+              onPress={() => {
+                close();
+                onChange(option.value);
+              }}
+            >
+              <Text.S>{option.label}</Text.S>
+              {option.value === value && <Check size={18} color={colors.text.default} aria-hidden />}
+            </DropdownOption>
           ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
+        </View>
+      )}
     </DropdownMenu>
   );
 };
 
 export default function SingleGroupPage() {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const { groupId, serverId } = useLocalSearchParams<{ groupId: string; serverId?: string }>();
   const { allServers } = useServerContext();
   const { openModal } = useUi();
@@ -138,7 +227,7 @@ export default function SingleGroupPage() {
   if (isLoading) {
     return (
       <BaseLayout>
-        <Text className="text-muted-foreground">{t('groups.details.loading')}</Text>
+        <Text color={theme.colors.text.secondary}>{t('groups.details.loading')}</Text>
       </BaseLayout>
     );
   }
@@ -146,68 +235,63 @@ export default function SingleGroupPage() {
   if (!group) {
     return (
       <BaseLayout>
-        <View className="gap-4">
-          <Text variant="h2">{t('groups.details.Err.NotFound')}</Text>
-          <Button variant="outline" onPress={() => router.replace('/groups')}>
-            <Icon.NavigateNext className="rotate-180" />
-            <Text>{t('groups.details.backToGroups')}</Text>
+        <Stack>
+          <Text.H2>{t('groups.details.Err.NotFound')}</Text.H2>
+          <Button variant="secondary" onPress={() => router.replace('/groups')}>
+            <ArrowLeft size={18} color={colors.text.default} aria-hidden />
+            {t('groups.details.backToGroups')}
           </Button>
-        </View>
+        </Stack>
       </BaseLayout>
     );
   }
 
   return (
     <BaseLayout>
-      <View className="gap-6 pb-8">
-        <Button variant="ghost" className="self-start px-0" onPress={() => router.replace('/groups')}>
-          <Icon.NavigateNext className="rotate-180" />
-          <Text>{t('groups.details.backToGroups')}</Text>
+      <Page>
+        <Button variant="tertiary" onPress={() => router.replace('/groups')}>
+          <ArrowLeft size={18} color={colors.text.brand} aria-hidden />
+          {t('groups.details.backToGroups')}
         </Button>
 
-        <View className="gap-4 rounded-2xl border border-border bg-layer-secondary/40 p-5">
-          <View className="flex-row items-start gap-4">
+        <Card>
+          <HeaderRow>
             <Avatar alt={group.name} size="lg" color={group.color ?? undefined} />
 
-            <View className="flex-1 gap-2">
-              <View className="flex-row flex-wrap items-center gap-2">
-                <Text variant="h2">{group.name}</Text>
+            <Heading>
+              <Row>
+                <Text.H2>{group.name}</Text.H2>
                 {isOwner ? <SummaryChip label={t('groups.details.ownedByYou')} accent /> : null}
                 {group.personal ? (
                   <SummaryChip label={t('groups.filters.personal')} />
                 ) : (
                   <SummaryChip label={t('groups.details.shared')} />
                 )}
-              </View>
+              </Row>
 
-              <Text className="text-muted-foreground">#{group.id}</Text>
-            </View>
-          </View>
+              <Text color={theme.colors.text.secondary}>#{group.id}</Text>
+            </Heading>
+          </HeaderRow>
 
-          <View className="flex-row flex-wrap gap-2">
+          <Row>
             <SummaryChip label={`${group.members.length} ${t('common.nouns.members')}`} />
             <SummaryChip label={`${group.albumIds?.length ?? 0} ${t('common.nouns.albums')}`} />
             <SummaryChip label={`${group.photoIds?.length ?? 0} ${t('common.nouns.photos')}`} />
-            <View className="rounded-full border border-border bg-background px-3 py-1.5">
-              <View className="flex-row items-center gap-2">
-                <View
-                  className="h-3 w-3 rounded-full border border-border"
-                  style={{ backgroundColor: group.color ?? 'transparent' }}
-                />
-                <Text className="text-sm text-muted-foreground">{t('groups.details.color')}</Text>
-              </View>
-            </View>
-          </View>
+            <Chip>
+              <ColorSwatch $color={group.color ?? 'transparent'} />
+              <Text.S color={theme.colors.text.secondary}>{t('groups.details.color')}</Text.S>
+            </Chip>
+          </Row>
 
           {isOwner ? (
-            <View className="flex-row flex-wrap gap-2">
+            <Row>
               <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
-                <Icon.Add />
-                <Text>{t('groups.membersModal.title')}</Text>
+                <Plus size={18} color={colors.text.inverted} aria-hidden />
+                {t('groups.membersModal.title')}
               </Button>
-              <Button variant="outline" onPress={() => openModal(<GroupEditModal group={group} />)}>
-                <Icon.Edit />
-                <Text>{t('groups.details.editGroup')}</Text>
+              <Button variant="secondary" onPress={() => openModal(<GroupEditModal group={group} />)}>
+                <Edit3 size={18} color={colors.text.default} aria-hidden />
+                {t('groups.details.editGroup')}
               </Button>
               <Button
                 variant="destructive"
@@ -215,68 +299,70 @@ export default function SingleGroupPage() {
                   openModal(<GroupRemoveModal group={group} onRemoved={() => router.replace('/groups')} />)
                 }
               >
-                <Icon.Trash />
-                <Text>{t('groups.details.removeGroup')}</Text>
+                <Trash2 size={18} color={colors.text.inverted} aria-hidden />
+                {t('groups.details.removeGroup')}
               </Button>
-            </View>
+            </Row>
           ) : null}
-        </View>
+        </Card>
 
-        <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text variant="h3">{t('groups.details.members')}</Text>
-            <Text className="text-muted-foreground">{group.members.length}</Text>
-          </View>
+        <Members>
+          <MembersHeader>
+            <Text.H3>{t('groups.details.members')}</Text.H3>
+            <Text color={theme.colors.text.secondary}>{group.members.length}</Text>
+          </MembersHeader>
 
           {group.members.length === 0 ? (
-            <View className="rounded-xl border border-dashed border-border p-6">
-              <Text className="text-center text-muted-foreground">{t('groups.details.emptyMembers')}</Text>
-            </View>
+            <EmptyMembers>
+              <Text center color={theme.colors.text.secondary}>
+                {t('groups.details.emptyMembers')}
+              </Text>
+            </EmptyMembers>
           ) : (
-            <View className="gap-3">
-              {group.members.map((member) => {
+            <Members>
+              {group.members.map((member, index) => {
                 const memberIsOwner = member.userId === group.ownerId;
 
                 return (
-                  <Pressable
-                    key={member.userId}
-                    className="flex-row items-center gap-3 rounded-xl border border-border bg-layer-secondary/40 p-4"
-                  >
+                  <MemberCard key={member.userId} $order={group.members.length - index}>
                     <Avatar alt={member.user.name ?? member.user.email} />
 
-                    <View className="flex-1 gap-1">
-                      <View className="flex-row flex-wrap items-center gap-2">
-                        <Text className="text-base font-medium">{member.user.name ?? member.user.email}</Text>
+                    <MemberInfo>
+                      <Row>
+                        <Text weight={500}>{member.user.name ?? member.user.email}</Text>
                         {memberIsOwner ? <SummaryChip label={t('groups.details.owner')} accent /> : null}
-                      </View>
-                      <Text className="text-sm text-muted-foreground">{member.user.email}</Text>
-                    </View>
+                      </Row>
+                      <Text.S color={theme.colors.text.secondary}>{member.user.email}</Text.S>
+                    </MemberInfo>
 
                     {isOwner && !memberIsOwner ? (
-                      <View className="flex-row items-center gap-2">
+                      <Row>
                         <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member, value)} />
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="tertiary"
+                          size="small"
                           disabled={isPending}
+                          accessibilityLabel={t('groups.details.removeMember', {
+                            name: member.user.name ?? member.user.email,
+                          })}
                           onPress={() => handleRemoveMember(member)}
                         >
-                          <Icon.Trash />
+                          <Trash2 size={18} color={isPending ? colors.text.disabled : colors.text.brand} aria-hidden />
                         </Button>
-                      </View>
+                      </Row>
                     ) : (
                       <SummaryChip
                         label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
                         accent={memberIsOwner}
                       />
                     )}
-                  </Pressable>
+                  </MemberCard>
                 );
               })}
-            </View>
+            </Members>
           )}
-        </View>
-      </View>
+        </Members>
+      </Page>
     </BaseLayout>
   );
 }

@@ -312,6 +312,7 @@
       "ownedByYou": "Owned by you",
       "owner": "Owner",
       "removeGroup": "Remove group",
+      "removeMember": "Remove {{name}}",
       "shared": "Shared"
     },
     "membersModal": {
