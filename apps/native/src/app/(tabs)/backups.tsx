@@ -1,26 +1,196 @@
 import { useEffect, useState } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { type BackupResponse, type CreateBackupRequest, type UpdateBackupRequest } from '@repo/shared';
+import { Button, Input, Select, Text, theme, useThemeColors } from '@repo/shared/components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import styled from 'styled-components/native';
+import { Check, CheckCircle, Pencil, Trash2, X } from 'lucide-react-native';
 import { ServerType } from '@/api/_client';
 import { tApiErr } from '@/i18n/translate';
 import { BaseLayout } from '@/components/base-layout';
-import {
-  NativeSelectScrollView,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/form/select';
-import { Input } from '@/components/form/input';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
 import { toast } from '@/lib/toast';
 import { type ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
 import { createId } from '@/utils/common';
 import { useTranslation } from 'react-i18next';
+
+const Page = styled.View`
+  gap: ${theme.spacing[600]};
+  padding-bottom: ${theme.spacing[800]};
+`;
+const Intro = styled.View`
+  gap: ${theme.spacing[50]};
+`;
+const MutedText = styled(Text.M)`
+  color: ${theme.colors.text.secondary};
+`;
+const SmallText = styled(Text.S)`
+  color: ${theme.colors.text.secondary};
+`;
+const CaptionText = styled(Text.Caption)`
+  color: ${theme.colors.text.secondary};
+`;
+const Panel = styled.View`
+  gap: ${theme.spacing[400]};
+  padding: ${theme.spacing[400]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
+const Notice = styled.View`
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[400]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
+const FormHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+const FormHeaderText = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[50]};
+`;
+const FormSection = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+const ServerSummary = styled.View`
+  padding: ${theme.spacing[300]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.weak};
+`;
+const MediaOptions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[300]};
+`;
+const MediaOption = styled.Pressable<{ $selected: boolean }>`
+  flex: 1;
+  min-width: 140px;
+  padding: ${theme.spacing[300]} ${theme.spacing[400]};
+  border: 1px solid ${({ $selected }) => ($selected ? theme.colors.border.primary.default : theme.colors.border.default)};
+  border-radius: ${theme.radius[300]};
+  background-color: ${({ $selected }) => ($selected ? theme.colors.surface.medium : theme.colors.surface.weak)};
+`;
+const OptionTitle = styled(Text.M)`
+  font-weight: 600;
+`;
+const SourceTitle = styled(Text.M)`
+  font-size: ${theme.fontSize.lg};
+  font-weight: 600;
+`;
+const FormActions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: ${theme.spacing[300]};
+`;
+const ListSection = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+const EmptyState = styled.View`
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[600]};
+  border: 1px dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+`;
+const BackupList = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: ${theme.spacing[300]};
+`;
+const BackupCard = styled.View`
+  padding: ${theme.spacing[400]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
+const CardHeader = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+const CardMain = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[200]};
+`;
+const BadgeRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+const Badge = styled.View<{ $running?: boolean; $active?: boolean }>`
+  padding: ${theme.spacing[100]} ${theme.spacing[300]};
+  border-radius: ${theme.radius.full};
+  background-color: ${({ $running, $active }) =>
+    $running ? theme.colors.warning.default : $active ? theme.colors.surface.medium : theme.colors.surface.stronger};
+`;
+const BadgeLabel = styled(Text.Caption)<{ $running?: boolean; $active?: boolean }>`
+  color: ${({ $running, $active }) =>
+    $running ? theme.colors.text.warningDarker : $active ? theme.colors.text.brand : theme.colors.text.secondary};
+`;
+const CardActions = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+const ActionButton = styled(Button)`
+  align-self: flex-start;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+`;
+const MediaTags = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[200]};
+  margin-top: ${theme.spacing[400]};
+`;
+const MediaTag = styled.View`
+  padding: ${theme.spacing[100]} ${theme.spacing[300]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius.full};
+  background-color: ${theme.colors.surface.weak};
+`;
+const CardDetails = styled.View`
+  gap: ${theme.spacing[200]};
+  margin-top: ${theme.spacing[400]};
+`;
+const InfoPanel = styled.View`
+  gap: ${theme.spacing[200]};
+  margin-top: ${theme.spacing[400]};
+  padding: ${theme.spacing[300]};
+  border: 1px solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.weak};
+`;
+const StatsContent = styled.View`
+  gap: ${theme.spacing[50]};
+`;
+const ErrorPanel = styled.View`
+  gap: ${theme.spacing[100]};
+  margin-top: ${theme.spacing[400]};
+  padding: ${theme.spacing[300]};
+  border: 1px solid ${theme.colors.border.error.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.error.default};
+`;
+const ErrorText = styled(Text.M)`
+  color: ${theme.colors.text.danger};
+  font-weight: 600;
+`;
+const ErrorDetails = styled(Text.S)`
+  color: ${theme.colors.text.danger};
+`;
+const TriggerRow = styled.View`
+  flex-direction: row;
+  gap: ${theme.spacing[300]};
+  margin-top: ${theme.spacing[400]};
+`;
 
 type BackupListItem = BackupResponse & {
   ownerServerId: string;
@@ -84,6 +254,7 @@ const compareBackups = (left: BackupListItem, right: BackupListItem) => {
 
 export default function BackupsPage() {
   const { i18n, t } = useTranslation();
+  const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const queryClient = useQueryClient();
   const { servers } = useServerContext();
@@ -441,128 +612,114 @@ export default function BackupsPage() {
 
   return (
     <BaseLayout>
-      <View className="gap-6 pb-8">
-        <View className="gap-1">
-          <Text variant="h1">{t('navigation.backups')}</Text>
-          <Text className="text-muted-foreground">{t('backups.subtitle')}</Text>
-        </View>
+      <Page>
+        <Intro>
+          <Text.H1>{t('navigation.backups')}</Text.H1>
+          <MutedText>{t('backups.subtitle')}</MutedText>
+        </Intro>
 
         {nonAdminServers.length > 0 ? (
-          <View className="rounded-2xl border border-border bg-layer-secondary/30 p-4">
-            <Text className="font-medium">{t('backups.adminAccessRequired')}</Text>
-            <Text className="mt-1 text-sm text-muted-foreground">
+          <Notice>
+            <OptionTitle>{t('backups.adminAccessRequired')}</OptionTitle>
+            <SmallText>
               {t('backups.adminIgnored', { serverCount: `${nonAdminServers.length} ${t('common.nouns.servers')}` })}
-            </Text>
-          </View>
+            </SmallText>
+          </Notice>
         ) : null}
 
-        <View className="gap-4 rounded-2xl border border-border bg-layer-secondary/30 p-4">
-          <View className="flex-row items-center justify-between gap-3">
-            <View className="flex-1 gap-1">
-              <Text variant="h3">{formHeading}</Text>
-              <Text className="text-sm text-muted-foreground">{formDescription}</Text>
-            </View>
+        <Panel>
+          <FormHeader>
+            <FormHeaderText>
+              <Text.H3>{formHeading}</Text.H3>
+              <SmallText>{formDescription}</SmallText>
+            </FormHeaderText>
 
             {currentEditingBackup ? (
-              <Button variant="ghost" onPress={resetForm} disabled={busyAction !== null}>
-                <Icon.Close />
-                <Text>{t('common.actions.cancel')}</Text>
+              <Button variant="tertiary" onPress={resetForm} disabled={busyAction !== null}>
+                <X size={18} color={colors.text.brand} />
+                {t('common.actions.cancel')}
               </Button>
             ) : null}
-          </View>
+          </FormHeader>
 
           {adminServers.length < 2 && !currentEditingBackup ? (
-            <View className="rounded-xl border border-dashed border-border p-4">
-              <Text className="font-medium">{t('backups.form.needTwoServersTitle')}</Text>
-              <Text className="mt-1 text-sm text-muted-foreground">{t('backups.form.needTwoServersDescription')}</Text>
-            </View>
+            <EmptyState>
+              <OptionTitle>{t('backups.form.needTwoServersTitle')}</OptionTitle>
+              <SmallText>{t('backups.form.needTwoServersDescription')}</SmallText>
+            </EmptyState>
           ) : null}
 
-          <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">{t('backups.form.sourceServer')}</Text>
+          <FormSection>
+            <SmallText>{t('backups.form.sourceServer')}</SmallText>
             {currentEditingBackup ? (
-              <View className="rounded-xl border border-border bg-background px-3 py-3">
+              <ServerSummary>
                 <Text>{selectedSourceServer?.label ?? currentEditingBackup.sourceServerLabel}</Text>
-                <Text className="text-xs text-muted-foreground">
+                <CaptionText>
                   {selectedSourceServer?.baseUrl ?? currentEditingBackup.sourceServerBaseUrl}
-                </Text>
-              </View>
+                </CaptionText>
+              </ServerSummary>
             ) : (
               <Select
-                value={sourceOptions.find((option) => option.value === selectedSourceId)}
-                onValueChange={(option) => setSelectedSourceId(option?.value ?? '')}
+                label={t('backups.form.sourceServer')}
+                hideLabel
+                placeholder={t('backups.form.sourceServer')}
+                options={sourceOptions}
+                value={selectedSourceId}
+                onValueChange={setSelectedSourceId}
                 disabled={adminServers.length < 2}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('backups.form.sourceServer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <NativeSelectScrollView>
-                    {sourceOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} label={option.label} />
-                    ))}
-                  </NativeSelectScrollView>
-                </SelectContent>
-              </Select>
+                containerStyle={{ width: '100%' }}
+              />
             )}
-          </View>
+          </FormSection>
 
-          <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">{t('backups.form.destinationServer')}</Text>
+          <FormSection>
+            <SmallText>{t('backups.form.destinationServer')}</SmallText>
             {currentEditingBackup ? (
-              <View className="rounded-xl border border-border bg-background px-3 py-3">
+              <ServerSummary>
                 <Text>{selectedDestinationServer?.label ?? currentEditingBackup.destinationServerLabel}</Text>
-                <Text className="text-xs text-muted-foreground">
+                <CaptionText>
                   {selectedDestinationServer?.baseUrl ?? currentEditingBackup.destinationServerBaseUrl}
-                </Text>
-              </View>
+                </CaptionText>
+              </ServerSummary>
             ) : (
               <Select
-                value={destinationOptions.find((option) => option.value === selectedDestinationId)}
-                onValueChange={(option) => setSelectedDestinationId(option?.value ?? '')}
+                label={t('backups.form.destinationServer')}
+                hideLabel
+                placeholder={t('backups.form.destinationServer')}
+                options={destinationOptions}
+                value={selectedDestinationId}
+                onValueChange={setSelectedDestinationId}
                 disabled={adminServers.length < 2}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('backups.form.destinationServer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <NativeSelectScrollView>
-                    {destinationOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} label={option.label} />
-                    ))}
-                  </NativeSelectScrollView>
-                </SelectContent>
-              </Select>
+                containerStyle={{ width: '100%' }}
+              />
             )}
-          </View>
+          </FormSection>
 
-          <View className="gap-3">
-            <Text className="text-sm text-muted-foreground">{t('backups.media.title')}</Text>
-            <View className="flex-row flex-wrap gap-3">
+          <FormSection>
+            <SmallText>{t('backups.media.title')}</SmallText>
+            <MediaOptions>
               {mediaOptions.map((option) => (
-                <Pressable
+                <MediaOption
                   key={option.key}
                   onPress={option.toggle}
-                  className={`min-w-35 flex-1 rounded-xl border px-4 py-3 ${
-                    option.selected ? 'border-primary bg-primary/10' : 'border-border bg-background'
-                  }`}
+                  $selected={option.selected}
                 >
-                  <Text className="font-medium">{option.title}</Text>
-                  <Text className="mt-1 text-xs text-muted-foreground">{option.description}</Text>
-                </Pressable>
+                  <OptionTitle>{option.title}</OptionTitle>
+                  <CaptionText>{option.description}</CaptionText>
+                </MediaOption>
               ))}
-            </View>
-          </View>
+            </MediaOptions>
+          </FormSection>
 
-          <View className="gap-2">
-            <Text className="text-sm text-muted-foreground">{t('backups.form.schedule')}</Text>
+          <FormSection>
+            <SmallText>{t('backups.form.schedule')}</SmallText>
             <Input value={schedule} onChangeText={setSchedule} placeholder="0 2 * * *" autoCapitalize="none" />
-          </View>
+          </FormSection>
 
-          <View className="flex-row flex-wrap justify-end gap-3">
+          <FormActions>
             {currentEditingBackup ? (
-              <Button variant="outline" onPress={resetForm} disabled={busyAction !== null}>
-                <Text>{t('backups.form.reset')}</Text>
+              <Button variant="secondary" onPress={resetForm} disabled={busyAction !== null}>
+                {t('backups.form.reset')}
               </Button>
             ) : null}
             <Button
@@ -575,31 +732,31 @@ export default function BackupsPage() {
                   (!selectedSourceServer || !selectedDestinationServer || selectedSourceId === selectedDestinationId))
               }
             >
-              <Icon.Check className="text-black" />
-              <Text>{currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}</Text>
+              <Check size={18} color={colors.text.inverted} />
+              {currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}
             </Button>
-          </View>
-        </View>
+          </FormActions>
+        </Panel>
 
-        <View className="gap-3">
-          <Text variant="h3">{t('backups.list.title')}</Text>
-          <Text className="text-sm text-muted-foreground">{t('backups.list.description')}</Text>
+        <ListSection>
+          <Text.H3>{t('backups.list.title')}</Text.H3>
+          <SmallText>{t('backups.list.description')}</SmallText>
           {adminServers.length === 0 ? (
-            <View className="rounded-2xl border border-dashed border-border p-6">
-              <Text variant="h3">{t('backups.list.noServersTitle')}</Text>
-              <Text className="text-muted-foreground">{t('backups.list.noServersDescription')}</Text>
-            </View>
+            <EmptyState>
+              <Text.H3>{t('backups.list.noServersTitle')}</Text.H3>
+              <MutedText>{t('backups.list.noServersDescription')}</MutedText>
+            </EmptyState>
           ) : isLoading ? (
-            <View className="rounded-2xl border border-border bg-layer-secondary/30 p-6">
-              <Text className="text-muted-foreground">{t('backups.list.loading')}</Text>
-            </View>
+            <Panel>
+              <MutedText>{t('backups.list.loading')}</MutedText>
+            </Panel>
           ) : outgoingBackups.length === 0 ? (
-            <View className="rounded-2xl border border-dashed border-border p-6">
-              <Text variant="h3">{t('backups.list.emptyTitle')}</Text>
-              <Text className="text-muted-foreground">{t('backups.list.emptyDescription')}</Text>
-            </View>
+            <EmptyState>
+              <Text.H3>{t('backups.list.emptyTitle')}</Text.H3>
+              <MutedText>{t('backups.list.emptyDescription')}</MutedText>
+            </EmptyState>
           ) : (
-            <View className="flex-row flex-wrap items-start gap-3">
+            <BackupList>
               {outgoingBackups.map((backup) => {
                 const { sourceServer, destinationServer, sourceConfigId, destinationConfigId, incoming } =
                   resolveOutgoingTargets(backup);
@@ -614,160 +771,159 @@ export default function BackupsPage() {
                 ].filter((item) => item.enabled);
 
                 return (
-                  <View
+                  <BackupCard
                     key={`${backup.ownerServerId}:${backup.id}`}
-                    className="rounded-2xl border border-border bg-layer-secondary/40 p-4"
                     style={{ width: cardWidth }}
                   >
-                    <View className="flex-row items-start justify-between gap-3">
-                      <View className="flex-1 gap-2">
-                        <View className="flex-row flex-wrap items-center gap-2">
-                          <Text className="text-lg font-semibold">{backup.sourceServerLabel}</Text>
-                          <View className={`rounded-full px-2.5 py-1 ${backup.active ? 'bg-primary/10' : 'bg-muted'}`}>
-                            <Text className="text-xs text-muted-foreground">
+                    <CardHeader>
+                      <CardMain>
+                        <BadgeRow>
+                          <SourceTitle>{backup.sourceServerLabel}</SourceTitle>
+                          <Badge $active={backup.active}>
+                            <BadgeLabel $active={backup.active}>
                               {backup.active ? t('common.status.enabled') : t('common.status.disabled')}
-                            </Text>
-                          </View>
+                            </BadgeLabel>
+                          </Badge>
                           {backup.running ? (
-                            <View className="rounded-full bg-amber-500/10 px-2.5 py-1">
-                              <Text className="text-xs text-amber-700">{t('backups.list.running')}</Text>
-                            </View>
+                            <Badge $running>
+                              <BadgeLabel $running>{t('backups.list.running')}</BadgeLabel>
+                            </Badge>
                           ) : null}
-                        </View>
-                        <Text className="text-sm text-muted-foreground">
+                        </BadgeRow>
+                        <SmallText>
                           {t('backups.list.route', {
                             source: backup.sourceServerLabel,
                             destination: backup.destinationServerLabel,
                           })}
-                        </Text>
-                        <Text className="text-xs text-muted-foreground">
+                        </SmallText>
+                        <CaptionText>
                           {t('backups.list.storedOn', { server: backup.ownerServerLabel })}
-                        </Text>
-                      </View>
+                        </CaptionText>
+                      </CardMain>
 
-                      <View className="gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      <CardActions>
+                        <ActionButton
+                          variant="tertiary"
                           onPress={() => startEditing(backup)}
                           disabled={!canManage || busyAction !== null}
                         >
-                          <Icon.Edit />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                          <Pencil size={18} color={colors.text.brand} />
+                        </ActionButton>
+                        <ActionButton
+                          variant="tertiary"
                           onPress={() => toggleBackup(backup)}
                           disabled={!canManage || busyAction !== null}
                         >
-                          <Icon.CheckCircle className={backup.active ? 'text-primary' : 'text-muted-foreground'} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                          <CheckCircle
+                            size={18}
+                            color={backup.active ? colors.text.brand : colors.text.secondary}
+                          />
+                        </ActionButton>
+                        <ActionButton
+                          variant="tertiary"
                           onPress={() => deleteBackup(backup)}
                           disabled={busyAction !== null}
                         >
-                          <Icon.Trash />
-                        </Button>
-                      </View>
-                    </View>
+                          <Trash2 size={18} color={colors.text.brand} />
+                        </ActionButton>
+                      </CardActions>
+                    </CardHeader>
 
-                    <View className="mt-4 flex-row flex-wrap gap-2">
+                    <MediaTags>
                       {enabledMedia.map((item) => (
-                        <View key={item.key} className="rounded-full border border-border bg-background px-2.5 py-1">
-                          <Text className="text-xs text-muted-foreground">{item.label}</Text>
-                        </View>
+                        <MediaTag key={item.key}>
+                          <CaptionText>{item.label}</CaptionText>
+                        </MediaTag>
                       ))}
-                    </View>
+                    </MediaTags>
 
-                    <View className="mt-4 gap-2">
-                      <Text className="text-sm text-muted-foreground">
+                    <CardDetails>
+                      <SmallText>
                         {t('backups.list.schedule', { schedule: backup.schedule })}
-                      </Text>
-                      <Text className="text-sm text-muted-foreground">
+                      </SmallText>
+                      <SmallText>
                         {t('backups.list.runCount', { runTotal: backup.runCount })}
-                      </Text>
-                      <Text className="text-sm text-muted-foreground">
+                      </SmallText>
+                      <SmallText>
                         {t('backups.list.lastExecution', {
                           value: formatDateTime(backup.lastRunAt, i18n.language, t('common.status.never')),
                         })}
-                      </Text>
-                      <Text className="text-sm text-muted-foreground">
+                      </SmallText>
+                      <SmallText>
                         {t('backups.list.nextExecution', {
                           value: formatDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
                         })}
-                      </Text>
-                      <Text className="text-sm text-muted-foreground">
+                      </SmallText>
+                      <SmallText>
                         {t('backups.list.destinationPath', { path: displayedDestinationPath })}
-                      </Text>
-                    </View>
+                      </SmallText>
+                    </CardDetails>
 
-                    <View className="mt-4 rounded-xl border border-border bg-background/60 p-3">
-                      <Text className="font-medium">{t('backups.stats.title')}</Text>
-                      <View className="mt-2 gap-1">
-                        <Text className="text-sm text-muted-foreground">
+                    <InfoPanel>
+                      <OptionTitle>{t('backups.stats.title')}</OptionTitle>
+                      <StatsContent>
+                        <SmallText>
                           {t('backups.stats.photos', {
                             fileCount: `${displayedStats?.photos.count ?? 0} ${t('common.nouns.files')}`,
                             size: formatBytes(displayedStats?.photos.sizeBytes),
                           })}
-                        </Text>
-                        <Text className="text-sm text-muted-foreground">
+                        </SmallText>
+                        <SmallText>
                           {t('backups.stats.files', {
                             fileCount: `${displayedStats?.files.count ?? 0} ${t('common.nouns.files')}`,
                             size: formatBytes(displayedStats?.files.sizeBytes),
                           })}
-                        </Text>
-                        <Text className="text-sm text-muted-foreground">
+                        </SmallText>
+                        <SmallText>
                           {t('backups.stats.notes', {
                             itemCount: `${displayedStats?.notes.count ?? 0} ${t('common.nouns.items')}`,
                             size: formatBytes(displayedStats?.notes.sizeBytes),
                           })}
-                        </Text>
-                        <Text className="text-sm text-muted-foreground">
+                        </SmallText>
+                        <SmallText>
                           {t('backups.stats.total', {
                             itemCount: `${displayedStats?.totalCount ?? 0} ${t('common.nouns.items')}`,
                             size: formatBytes(displayedStats?.totalSizeBytes),
                           })}
-                        </Text>
-                      </View>
-                    </View>
+                        </SmallText>
+                      </StatsContent>
+                    </InfoPanel>
 
                     {!incoming ? (
-                      <View className="mt-4 rounded-xl border border-border bg-background/60 p-3">
-                        <Text className="text-sm text-muted-foreground">
+                      <InfoPanel>
+                        <SmallText>
                           {t('backups.list.destinationRecordMissing')}
-                        </Text>
-                      </View>
+                        </SmallText>
+                      </InfoPanel>
                     ) : null}
 
                     {backup.lastError ? (
-                      <View className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3">
-                        <Text className="font-medium text-destructive">{t('backups.list.lastError')}</Text>
-                        <Text className="mt-1 text-sm text-destructive">
+                      <ErrorPanel>
+                        <ErrorText>{t('backups.list.lastError')}</ErrorText>
+                        <ErrorDetails>
                           {backup.lastError.startsWith('api.') ? t(backup.lastError) : backup.lastError}
-                        </Text>
-                      </View>
+                        </ErrorDetails>
+                      </ErrorPanel>
                     ) : null}
 
-                    <View className="mt-4 flex-row gap-3">
+                    <TriggerRow>
                       <Button
                         variant="secondary"
                         onPress={() => triggerBackup(backup)}
                         loading={busyAction === `trigger:${backup.id}`}
                         disabled={!sourceConfigId || !sourceServer || busyAction !== null}
-                        className="flex-1"
+                        style={{ flex: 1 }}
                       >
-                        <Text>{t('backups.list.triggerNow')}</Text>
+                        {t('backups.list.triggerNow')}
                       </Button>
-                    </View>
-                  </View>
+                    </TriggerRow>
+                  </BackupCard>
                 );
               })}
-            </View>
+            </BackupList>
           )}
-        </View>
-      </View>
+        </ListSection>
+      </Page>
     </BaseLayout>
   );
 }
