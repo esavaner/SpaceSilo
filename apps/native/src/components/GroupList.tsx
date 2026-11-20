@@ -1,6 +1,6 @@
-import { Platform, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Avatar, Text, theme, useThemeColors } from '@repo/shared/components';
 import { ChevronRight } from 'lucide-react-native';
 import { GroupOptionsDropdown } from './dropdowns/GroupOptions.dropdown';
@@ -36,12 +36,11 @@ const Card = styled.Pressable<{ $owned: boolean }>`
     ${({ $owned }) => ($owned ? theme.colors.border.primary.default : theme.colors.border.default)};
   border-radius: ${theme.radius[300]};
   background-color: ${({ $owned }) => ($owned ? theme.colors.surface.stronger : theme.colors.surface.medium)};
-  ${Platform.OS === 'web' && css`
-    cursor: pointer;
-    &:hover, &:focus-visible {
-      background-color: ${theme.colors.surface.stronger};
-    }
-  `}
+  cursor: pointer;
+  &:hover,
+  &:focus-visible {
+    background-color: ${theme.colors.surface.stronger};
+  }
 `;
 
 const Options = styled.View`

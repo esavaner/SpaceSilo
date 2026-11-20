@@ -87,12 +87,7 @@ const commonInputStyles = css<InputInfoProps>`
             ? theme.colors.border.error.default
             : theme.colors.border.input.default};
   color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-    `
-  }
+  cursor: pointer;
 `;
 const inputStateStyles =
   Platform.OS === 'web'
@@ -139,13 +134,7 @@ const CustomInputWrapper = styled.View<InputInfoProps>`
               }
             `
           }
-          ${
-            Platform.OS === 'web' &&
-            $disabled &&
-            css`
-              cursor: not-allowed;
-            `
-          }
+          ${$disabled && 'cursor: not-allowed;'}
         `}
 `;
 const InputInfoRow = styled.View`

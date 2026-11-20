@@ -89,15 +89,10 @@ const CloseButton = styled.Pressable<{ $right: number }>`
   border-radius: ${theme.radius.full};
   z-index: ${theme.zIndex.raised};
   opacity: 0.7;
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:hover:not([aria-disabled='true']),
-      &:focus-visible:not([aria-disabled='true']) {
-        opacity: 1;
-      }
-    `
+  cursor: pointer;
+  &:hover:not([aria-disabled='true']),
+  &:focus-visible:not([aria-disabled='true']) {
+    opacity: 1;
   }
 `;
 

@@ -4,8 +4,8 @@ import { useFilesContext } from '@/providers/FilesProvider';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, useWindowDimensions } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import { useWindowDimensions } from 'react-native';
+import styled from 'styled-components/native';
 import { Copy, FileText, Folder, Trash2, X } from 'lucide-react-native';
 import { BaseLayout } from '@/components/base-layout';
 import { FileMoveCopyModal } from '@/components/modals/FileMoveCopy.modal';
@@ -30,22 +30,15 @@ const SearchField = styled.View<{ $wide: boolean }>`
   width: ${({ $wide }) => ($wide ? '320px' : '100%')};
 `;
 
-const SearchResult = styled.Pressable.attrs(({ theme: { colors } }) => ({
-  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
-}))`
+const SearchResult = styled.Pressable`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[200]};
   padding: ${theme.spacing[200]} ${theme.spacing[300]};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:hover,
-      &:active {
-        background-color: ${theme.colors.surface.medium};
-      }
-    `
+  cursor: pointer;
+  &:hover,
+  &:active {
+    background-color: ${theme.colors.surface.medium};
   }
 `;
 

@@ -1,8 +1,7 @@
 import { DrawerContentComponentProps, DrawerContentScrollView } from 'expo-router/drawer';
 import { router } from 'expo-router';
-import { Platform } from 'react-native';
 import { Plus } from 'lucide-react-native';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';
 import { useServerContext } from '@/providers/ServerProvider';
@@ -26,13 +25,8 @@ const MenuItem = styled.Pressable<{ $active?: boolean }>`
   border-radius: ${theme.radius[150]};
   background-color: ${({ $active }) => ($active ? theme.colors.surface.medium : 'transparent')};
 
-  ${
-    Platform.OS === 'web' &&
-    css`
-      &:hover {
-        background-color: ${theme.colors.tertiary.hover};
-      }
-    `
+  &:hover {
+    background-color: ${theme.colors.tertiary.hover};
   }
 `;
 

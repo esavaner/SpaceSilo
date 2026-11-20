@@ -57,21 +57,14 @@ const FileEntry = styled.View<{ $selected: boolean; $menuOpen: boolean }>`
   }
 `;
 
-const FileTarget = styled.Pressable.attrs(({ theme: { colors } }) => ({
-  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
-}))`
+const FileTarget = styled.Pressable`
   flex: 1;
   flex-direction: row;
   align-items: center;
   border-radius: ${theme.radius[150]};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:active {
-        background-color: ${theme.colors.surface.medium};
-      }
-    `
+  cursor: pointer;
+  &:active {
+    background-color: ${theme.colors.surface.medium};
   }
 `;
 

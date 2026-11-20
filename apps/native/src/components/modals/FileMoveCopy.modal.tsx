@@ -1,7 +1,6 @@
 import { useFileList } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
-import { Platform } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Folder } from 'lucide-react-native';
 import { useFileActions } from '@/hooks/useFileActions';
 import { Breadcrumb } from '../breadcrumb';
@@ -27,24 +26,17 @@ const Folders = styled.View`
   padding: ${theme.spacing[200]};
 `;
 
-const FolderTarget = styled.Pressable.attrs(({ theme: { colors } }) => ({
-  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
-}))`
+const FolderTarget = styled.Pressable`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};
   margin-bottom: ${theme.spacing[200]};
   padding: ${theme.spacing[200]};
   border-radius: ${theme.radius[150]};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:hover,
-      &:active {
-        background-color: ${theme.colors.surface.medium};
-      }
-    `
+  cursor: pointer;
+  &:hover,
+  &:active {
+    background-color: ${theme.colors.surface.medium};
   }
 `;
 

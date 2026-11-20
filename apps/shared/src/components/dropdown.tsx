@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Dimensions, Platform, View, type PressableProps, type ViewProps } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { theme } from '../config/theme';
 import { Text } from './text';
 import { Modal, ModalTitle } from './modal';
@@ -32,18 +32,13 @@ const Trigger = styled.Pressable<{ $disabled?: boolean }>`
   min-width: 44px;
   min-height: 44px;
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  ${({ $disabled }) =>
-    Platform.OS === 'web' &&
-    css`
-      cursor: ${$disabled ? 'not-allowed' : 'pointer'};
-    `}
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
 `;
 
-// Pressed feedback lives in the native-only style function; react-native-web drops Pressable style functions here.
-export const DropdownOption = styled.Pressable.attrs(({ theme: { colors } }) => ({
-  ...webSpaceActivation,
-  style: ({ pressed }: { pressed: boolean }) => (pressed ? { backgroundColor: colors.surface.medium } : null),
-}))<{ $selected?: boolean; $disabled?: boolean }>`
+export const DropdownOption = styled.Pressable.attrs<typeof webSpaceActivation>(webSpaceActivation)<{
+  $selected?: boolean;
+  $disabled?: boolean;
+}>`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[400]};
@@ -52,16 +47,15 @@ export const DropdownOption = styled.Pressable.attrs(({ theme: { colors } }) => 
   border-radius: ${theme.radius[200]};
   background-color: ${({ $selected }) => ($selected ? theme.colors.surface.stronger : 'transparent')};
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  ${({ $disabled }) =>
-    Platform.OS === 'web' &&
-    css`
-      cursor: ${$disabled ? 'not-allowed' : 'pointer'};
-      &:hover:not([aria-disabled='true']),
-      &:focus-visible:not([aria-disabled='true']) {
-        background-color: ${theme.colors.surface.medium};
-        outline: none;
-      }
-    `}
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
+  &:hover:not([aria-disabled='true']),
+  &:focus-visible:not([aria-disabled='true']) {
+    background-color: ${theme.colors.surface.medium};
+    outline: none;
+  }
+  &:active:not([aria-disabled='true']) {
+    background-color: ${theme.colors.surface.medium};
+  }
 `;
 
 // Web lucide icons use currentColor; native callers still pass `color` explicitly.

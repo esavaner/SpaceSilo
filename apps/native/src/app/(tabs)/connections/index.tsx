@@ -11,8 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tApiErr } from '@/i18n/translate';
 import { Controller, useForm } from 'react-hook-form';
-import { Platform } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Button, Input, Text, theme } from '@repo/shared/components';
 import * as yup from 'yup';
 
@@ -77,14 +76,9 @@ const ProviderCard = styled.Pressable`
   padding: ${theme.spacing[400]};
   border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
   border-radius: ${theme.radius[300]};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:hover {
-        background-color: ${theme.colors.surface.medium};
-      }
-    `
+  cursor: pointer;
+  &:hover {
+    background-color: ${theme.colors.surface.medium};
   }
 `;
 

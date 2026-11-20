@@ -1,6 +1,6 @@
 import { forwardRef, useId, useState } from 'react';
 import { Platform, View, type ViewProps } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
 import { getFieldA11y, Input, type InputProps } from './input';
@@ -33,19 +33,14 @@ const SelectedValueChip = styled.View`
 const ChipRemove = styled.Pressable`
   padding: ${theme.spacing[50]};
   border-radius: ${theme.radius.full};
-  ${
-    Platform.OS === 'web' &&
-    css`
-      cursor: pointer;
-      &:hover,
-      &:focus-visible {
-        background-color: ${theme.colors.surface.darker};
-        outline: none;
-      }
-      &:active {
-        opacity: 0.7;
-      }
-    `
+  cursor: pointer;
+  &:hover,
+  &:focus-visible {
+    background-color: ${theme.colors.surface.darker};
+    outline: none;
+  }
+  &:active {
+    opacity: 0.7;
   }
 `;
 
