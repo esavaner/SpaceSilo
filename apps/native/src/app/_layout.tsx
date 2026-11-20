@@ -12,7 +12,6 @@ import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
 import { Appearance, Platform } from 'react-native';
-import { PortalHost } from '@rn-primitives/portal';
 import { ServerProvider } from '@/providers/ServerProvider';
 import { Toaster } from '@/lib/toast';
 import { ModalProvider, ThemeModeProvider, useThemeMode, type ThemeMode } from '@repo/shared/components';
@@ -70,7 +69,6 @@ export default function RootLayout() {
                 <ServerProvider>
                   <FilesProvider>
                     <ModalProvider>
-                      <PortalHost />
                       <Stack
                         screenOptions={{
                           contentStyle: {
