@@ -9,7 +9,6 @@ export const routes = {
   notes: 'notes',
   groups: 'groups',
   backups: 'backups',
-  rnp: 'rnp',
 } as const;
 
 export const routeLabels: Record<keyof typeof routes, string> = {
@@ -20,7 +19,6 @@ export const routeLabels: Record<keyof typeof routes, string> = {
   [routes.notes]: 'Notes',
   [routes.groups]: 'Groups',
   [routes.backups]: 'Backups',
-  [routes.rnp]: 'RNP Test',
 };
 
 export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
@@ -31,5 +29,4 @@ export const routeIcons: Record<keyof typeof routes, JSX.Element> = {
   [routes.notes]: <Icon.File />,
   [routes.groups]: <Icon.UserGroup />,
   [routes.backups]: <Icon.Backup />,
-  [routes.rnp]: <Icon.File />,
 };
