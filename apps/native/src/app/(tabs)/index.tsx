@@ -9,7 +9,6 @@ import {
   Input,
   Textarea,
   SetPasswordInput,
-  PasswordInput,
   Loader,
   Checkbox,
   PhoneInput,
@@ -45,13 +44,17 @@ const SectionHeader = styled(Text.H2)`
   margin-bottom: 16px;
   font-weight: 700;
 `;
-
+const Row = styled.View`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[300]};
+`;
 const SwatchGrid = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   gap: ${theme.spacing[100]};
 `;
-
 const Swatch = styled.View`
   width: 100px;
   min-height: 80px;
@@ -108,11 +111,9 @@ export default function IndexPage() {
   const [name, setName] = useState('');
   const [invalidValue, setInvalidValue] = useState('Invalid value');
   const [description, setDescription] = useState('');
-  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [storagePlan, setStoragePlan] = useState('personal');
   const [updatesEnabled, setUpdatesEnabled] = useState(false);
-  const [explicitCheckboxId, setExplicitCheckboxId] = useState(false);
   const [showFullPageLoader, setShowFullPageLoader] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('blue');
@@ -203,10 +204,119 @@ export default function IndexPage() {
       />
       <BaseLayout style={{ backgroundColor: colors.surface.medium }}>
         <Section>
-          <SectionHeader>Side drawers</SectionHeader>
-          <Button accessibilityState={{ expanded: rightDrawerOpen }} onPress={() => setRightDrawerOpen(true)}>
-            Open full-screen right overlay
-          </Button>
+          <SectionHeader>Button</SectionHeader>
+          <Row>
+            <Button size="small" onPress={() => setUpdatesEnabled((enabled) => !enabled)}>
+              Small
+            </Button>
+            <Button size="medium">Medium</Button>
+            <Button size="large">Large</Button>
+          </Row>
+          <Row>
+            <Button variant="primary">Primary</Button>
+            <Button variant="primary" loading>
+              Loading
+            </Button>
+            <Button variant="primary" disabled>
+              Disabled
+            </Button>
+          </Row>
+          <Row>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="secondary" loading>
+              Loading
+            </Button>
+            <Button variant="secondary" disabled>
+              Disabled
+            </Button>
+          </Row>
+          <Row>
+            <Button variant="tertiary">Tertiary</Button>
+            <Button variant="tertiary" loading>
+              Loading
+            </Button>
+            <Button variant="tertiary" disabled>
+              Disabled
+            </Button>
+          </Row>
+          <Row>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="destructive" loading>
+              Loading
+            </Button>
+            <Button variant="destructive" disabled>
+              Disabled
+            </Button>
+          </Row>
+          <Row>
+            <Button variant="link" href="#">
+              Link
+            </Button>
+            <Button variant="link" loading>
+              Loading
+            </Button>
+            <Button variant="link" disabled>
+              Disabled
+            </Button>
+          </Row>
+        </Section>
+
+        <Section>
+          <SectionHeader>Shared text</SectionHeader>
+          <Text.DisplayXL>Display XL</Text.DisplayXL>
+          <Text.DisplayL>Display L</Text.DisplayL>
+          <Text.H1>Heading 1</Text.H1>
+          <Text.H2>Heading 2</Text.H2>
+          <Text.H3>Heading 3</Text.H3>
+          <Text.L>Text L</Text.L>
+          <Text.M>Text M</Text.M>
+          <Text.S>Text S</Text.S>
+          <Text.Button>Button text</Text.Button>
+          <Text.Label>Label text</Text.Label>
+          <Text.Caption>Caption text</Text.Caption>
+          <Text.FormLabel>Form label text</Text.FormLabel>
+          <Text.FormPlaceholder>Form placeholder text</Text.FormPlaceholder>
+          <Text.FormMessage>Form message text</Text.FormMessage>
+          <Text.M em="primary">Primary</Text.M>
+          <Text.M em="underline">Underline</Text.M>
+          <Text.M em="circle">Circle</Text.M>
+          <Text.M em="divider">Divider</Text.M>
+        </Section>
+        <Section>
+          <SectionHeader>Input</SectionHeader>
+          <Input
+            label="Display name"
+            placeholder="Enter a display name"
+            info="This is how your name appears to others."
+            value={name}
+            onChangeText={setName}
+            required
+          />
+          <Input
+            label="Invalid input"
+            error="This value is invalid."
+            value={invalidValue}
+            onChangeText={setInvalidValue}
+            leftIcon={<Icon.Eye />}
+          />
+          <Input label="Disabled input" disabled icon={<Icon.Eye />} />
+        </Section>
+        <Section>
+          <SectionHeader>Input variations</SectionHeader>
+          <Textarea
+            label="Textarea"
+            placeholder="Write more than one line"
+            info="Try entering multiple lines."
+            value={description}
+            onChangeText={setDescription}
+          />
+          <PhoneInput
+            label="Phone number"
+            value={phone}
+            onValueChange={setPhone}
+            info="Enter a 10-digit phone number."
+          />
+          <SetPasswordInput label="Password" defaultValue="Example1" />
         </Section>
         <Section>
           <SectionHeader>Select and dropdown</SectionHeader>
@@ -263,83 +373,10 @@ export default function IndexPage() {
           />
           <Text.S>Last action: {lastAction || 'none'}</Text.S>
         </Section>
-
-        <Section>
-          <SectionHeader>Avatar</SectionHeader>
-          <Avatar size="sm" alt="Space Silo" />
-          <Avatar alt="Project Atlas" color="#ef8354" />
-          <Avatar size="lg" alt="Space Silo" color="#1f8a70" />
-        </Section>
-
-        <Section>
-          <SectionHeader>Shared text</SectionHeader>
-          <Text.S center italic weight={700} color="#307467">
-            Centered, italic, bold, and colored.
-          </Text.S>
-          <Text.M em="primary">Primary emphasis</Text.M>
-          <Text.M em="underline">Underline emphasis</Text.M>
-          <Text.M em="circle">Circle emphasis</Text.M>
-          <Text.M em="divider">Divider emphasis</Text.M>
-        </Section>
-
-        <Section>
-          <SectionHeader>Loader</SectionHeader>
-          <Loader />
-          <Loader block />
-          <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
-        </Section>
-
-        <Section>
-          <SectionHeader>Button</SectionHeader>
-          <Button onPress={() => setUpdatesEnabled((enabled) => !enabled)}>Primary</Button>
-          <Button variant="secondary" onPress={() => setUpdatesEnabled((enabled) => !enabled)}>
-            Secondary
-          </Button>
-          <Button variant="tertiary">Tertiary</Button>
-          <Button variant="destructive">Destructive</Button>
-          <Button variant="link" href="#">
-            Link
-          </Button>
-          <Button size="small">Small</Button>
-          <Button size="large">Large</Button>
-          <Button loading>Loading</Button>
-          <Button disabled>Disabled</Button>
-          <Button center>Centered button</Button>
-        </Section>
-
-        <Section>
-          <SectionHeader>Pagination</SectionHeader>
-          <Pagination perPage={10} totalCount={80} currentPage={currentPage} paginate={setCurrentPage} />
-          <Pagination
-            perPage={10}
-            totalCount={80}
-            currentPage={currentPage}
-            paginate={setCurrentPage}
-            variant="simple"
-            jumper
-          />
-        </Section>
-
-        <Section>
-          <SectionHeader>Modal</SectionHeader>
-          <Button onPress={() => openExample('standard')}>Open modal</Button>
-          <Button onPress={() => openExample('long')}>Open long modal</Button>
-          <Button onPress={() => openExample('locked')}>Open modal with backdrop dismissal disabled</Button>
-        </Section>
-
-        <Section>
-          <SectionHeader>Overflow fade</SectionHeader>
-          <OverflowFade maxHeight={140}>
-            {Array.from({ length: 8 }, (_, index) => (
-              <Text.M key={index}>Scrollable item {index + 1}</Text.M>
-            ))}
-          </OverflowFade>
-        </Section>
-
         <Section>
           <SectionHeader>Checkbox</SectionHeader>
           <Checkbox
-            id={explicitCheckboxId ? 'updates-checkbox' : undefined}
+            id={'updates-checkbox'}
             label="Email me updates"
             checked={updatesEnabled}
             onValueChange={setUpdatesEnabled}
@@ -347,9 +384,7 @@ export default function IndexPage() {
           />
           <Checkbox label="Agreement" error="Please confirm this choice." />
           <Checkbox label="Disabled checkbox" disabled defaultChecked />
-          <Button onPress={() => setExplicitCheckboxId((explicit) => !explicit)}>Toggle checkbox ID</Button>
         </Section>
-
         <Section>
           <SectionHeader>Radio</SectionHeader>
           <RadioGroup name="storage-plan" legend="Storage plan">
@@ -378,64 +413,52 @@ export default function IndexPage() {
             Disabled selected radio
           </Radio>
         </Section>
-
         <Section>
-          <SectionHeader>Phone input</SectionHeader>
-          <PhoneInput
-            label="Phone number"
-            value={phone}
-            onValueChange={setPhone}
-            info="Enter a 10-digit phone number."
+          <SectionHeader>Loader</SectionHeader>
+          <Loader block />
+          <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
+        </Section>
+        <Section>
+          <SectionHeader>Pagination</SectionHeader>
+          <Pagination perPage={10} totalCount={80} currentPage={currentPage} paginate={setCurrentPage} />
+          <Pagination
+            perPage={10}
+            totalCount={80}
+            currentPage={currentPage}
+            paginate={setCurrentPage}
+            variant="simple"
+            jumper
           />
-          <PhoneInput
-            label="Phone number with error"
-            defaultValue="1234567890"
-            error="Please enter a valid phone number."
-          />
-          <PhoneInput label="Disabled phone number" defaultValue="1234567890" disabled />
+        </Section>
+        <Section>
+          <SectionHeader>Modal</SectionHeader>
+          <Row>
+            <Button onPress={() => openExample('standard')}>Open modal</Button>
+            <Button onPress={() => openExample('long')}>Open long modal</Button>
+            <Button onPress={() => openExample('locked')}>Open modal no backdrop</Button>
+          </Row>
+        </Section>
+        <Section>
+          <SectionHeader>Overflow fade</SectionHeader>
+          <OverflowFade maxHeight={140}>
+            {Array.from({ length: 8 }, (_, index) => (
+              <Text.M key={index}>Scrollable item {index + 1}</Text.M>
+            ))}
+          </OverflowFade>
+        </Section>
+        <Section>
+          <SectionHeader>Side drawers</SectionHeader>
+          <Button accessibilityState={{ expanded: rightDrawerOpen }} onPress={() => setRightDrawerOpen(true)}>
+            Open full-screen right overlay
+          </Button>
         </Section>
 
         <Section>
-          <SectionHeader>Input</SectionHeader>
-          <Input
-            label="Display name"
-            placeholder="Enter a display name"
-            info="This is how your name appears to others."
-            value={name}
-            onChangeText={setName}
-            required
-          />
-          <Input
-            label="Invalid input"
-            error="This value is invalid."
-            value={invalidValue}
-            onChangeText={setInvalidValue}
-            leftIcon={<Icon.Eye />}
-          />
-          <Input label="Disabled input" disabled icon={<Icon.Eye />} />
+          <SectionHeader>Avatar</SectionHeader>
+          <Avatar size="sm" alt="Space Silo" />
+          <Avatar alt="Project Atlas" color="#ef8354" />
+          <Avatar size="lg" alt="Space Silo" color="#1f8a70" />
         </Section>
-
-        <Section>
-          <SectionHeader>Textarea</SectionHeader>
-          <Textarea
-            label="Description"
-            placeholder="Write more than one line"
-            info="Try entering multiple lines."
-            value={description}
-            onChangeText={setDescription}
-          />
-          <Textarea label="Textarea with error" defaultValue="Example text" error="This text is invalid." />
-          <Textarea label="Disabled textarea" defaultValue="Cannot edit this text" disabled />
-        </Section>
-
-        <Section>
-          <SectionHeader>Set password</SectionHeader>
-          <PasswordInput label="Current password" />
-          <SetPasswordInput label="New password" value={password} onChangeText={setPassword} />
-          <SetPasswordInput label="Uncontrolled password" defaultValue="Example1" error="Example error." />
-          <SetPasswordInput label="Disabled password" disabled />
-        </Section>
-
         <Section>
           <SectionHeader>Base colors</SectionHeader>
           <ColorPreview palette={baseColors} backdrop={colors.surface.medium} />
