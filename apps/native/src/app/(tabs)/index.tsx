@@ -69,17 +69,33 @@ function colorEntries(palette: Palette, prefix = ''): [string, string][] {
   });
 }
 
-function ColorPreview({ palette }: { palette: Palette }) {
+function swatchTextColor(hex: string, backdrop: string) {
+  const alpha = hex.length === 9 ? parseInt(hex.slice(7), 16) / 255 : 1;
+  const [red, green, blue] = [1, 3, 5].map((offset) => {
+    const channel = parseInt(hex.slice(offset, offset + 2), 16);
+    const behind = parseInt(backdrop.slice(offset, offset + 2), 16);
+    const srgb = (channel * alpha + behind * (1 - alpha)) / 255;
+    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  // This is where black and white have equal WCAG contrast.
+  return luminance < Math.sqrt(0.05 * 1.05) - 0.05 ? baseColors.base.white : baseColors.base.black;
+}
+
+function ColorPreview({ palette, backdrop }: { palette: Palette; backdrop: string }) {
   return Object.entries(palette).map(([group, value]) => (
     <Fragment key={group}>
       {typeof value !== 'string' && <Text.Label role="heading">{group}</Text.Label>}
       <SwatchGrid>
-        {colorEntries({ [group]: value }).map(([token, hex]) => (
-          <Swatch key={token} aria-hidden style={{ backgroundColor: hex }}>
-            <Text.Caption>{token}</Text.Caption>
-            <Text.S>{hex}</Text.S>
-          </Swatch>
-        ))}
+        {colorEntries({ [group]: value }).map(([token, hex]) => {
+          const color = swatchTextColor(hex, backdrop);
+          return (
+            <Swatch key={token} aria-hidden style={{ backgroundColor: hex }}>
+              <Text.Caption color={color}>{token}</Text.Caption>
+              <Text.S color={color}>{hex}</Text.S>
+            </Swatch>
+          );
+        })}
       </SwatchGrid>
     </Fragment>
   ));
@@ -422,7 +438,7 @@ export default function IndexPage() {
 
         <Section>
           <SectionHeader>Base colors</SectionHeader>
-          <ColorPreview palette={baseColors} />
+          <ColorPreview palette={baseColors} backdrop={colors.surface.medium} />
         </Section>
         <Section>
           <SectionHeader>Semantic colors</SectionHeader>
@@ -436,7 +452,7 @@ export default function IndexPage() {
             value={themeMode}
             onValueChange={(value) => setThemeMode(value as ThemeMode)}
           />
-          <ColorPreview palette={colors} />
+          <ColorPreview palette={colors} backdrop={colors.surface.medium} />
         </Section>
       </BaseLayout>
       {showFullPageLoader && <Loader fullPage onRequestClose={() => setShowFullPageLoader(false)} />}

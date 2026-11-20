@@ -33,7 +33,6 @@ export const baseColors = {
     700: '#6b5d55',
     800: '#3f2c26',
     900: '#2f2520',
-    950: '#1a1512',
     '900-80': '#2f2520cc',
   },
   blush: {
@@ -297,11 +296,11 @@ export type ThemeColors = Palette<typeof lightColors>;
 
 export const darkColors: ThemeColors = {
   surface: {
-    default: baseColors.brown[900],
-    weak: baseColors.brown[900],
-    medium: baseColors.brown[950],
-    stronger: baseColors.brown[800],
-    darker: baseColors.brown[700],
+    default: baseColors.grey[900],
+    weak: baseColors.grey[800],
+    medium: baseColors.grey[800],
+    stronger: baseColors.grey[700],
+    darker: baseColors.grey[600],
     brandPrimary: baseColors.teal[600],
     brandSecondary: '#f1786c',
     gradient: {
