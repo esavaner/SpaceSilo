@@ -164,7 +164,7 @@ export class AlbumService {
         throw Err.BadRequest('api.albums.cycle');
       }
 
-      const album = await this.prisma.album.findFirst({
+      const album: { parentId: string | null } | null = await this.prisma.album.findFirst({
         where: { id: currentParentId, ownerId },
         select: { parentId: true },
       });

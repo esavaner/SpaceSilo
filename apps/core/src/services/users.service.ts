@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserRequest, UpdateUserRequest, UserResponse } from '@repo/shared';
+import { CreateUserRequest, Prisma, UpdateUserRequest } from '@repo/shared';
 import { GroupsService } from './groups.service';
 import { PrismaService } from '@/common/prisma.service';
+import { Err } from '@/common/api-message';
 
 @Injectable()
 export class UsersService {
@@ -23,9 +24,9 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserRequest) {
-    const { groupId, ...data } = dto;
+    const { groupId, settings, ...data } = dto;
     const user = await this.prisma.user.create({
-      data,
+      data: { ...data, settings: settings === null ? Prisma.DbNull : settings },
     });
     await this.groupsService.create({ id: groupId, name: 'Personal', members: [], personal: true }, user.id);
     return user;
@@ -36,9 +37,16 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
+      ...this.options,
     });
+
+    if (!user) {
+      throw Err.NotFound('api.users.Err.NotFound');
+    }
+
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -68,9 +76,10 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserRequest) {
+    const { settings, ...data } = updateUserDto;
     return await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: { ...data, settings: settings === null ? Prisma.DbNull : settings },
       ...this.options,
     });
   }

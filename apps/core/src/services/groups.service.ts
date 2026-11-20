@@ -15,6 +15,7 @@ import * as path from 'path';
 import { type TokenPayload } from '@repo/shared';
 import { Err } from '@/common/api-message';
 import { environment } from '@/common/env.validation';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class GroupsService {
@@ -108,7 +109,8 @@ export class GroupsService {
   }
 
   async create(dto: CreateGroupRequest, userId: string): Promise<GroupResponse> {
-    const existingGroup = await this.prisma.group.findUnique({ where: { id: dto.id } });
+    const id = dto.id ?? randomUUID();
+    const existingGroup = await this.prisma.group.findUnique({ where: { id } });
 
     if (existingGroup) {
       throw Err.Forbidden('api.groups.duplicateId');
@@ -118,7 +120,7 @@ export class GroupsService {
       data: {
         ownerId: userId,
         name: dto.name,
-        id: dto.id,
+        id,
         personal: dto.personal,
         color: dto.color,
         members: { create: dto.members },
@@ -126,7 +128,7 @@ export class GroupsService {
       ...this.options,
     });
 
-    fs.mkdirSync(path.join(environment.filesPath, dto.id), { recursive: true });
+    fs.mkdirSync(path.join(environment.filesPath, id), { recursive: true });
 
     return res;
   }
@@ -162,10 +164,16 @@ export class GroupsService {
   async findOne(id: string, user: TokenPayload): Promise<GroupResponse> {
     await this.assertGroupAccess(id, user);
 
-    return await this.prisma.group.findUnique({
+    const group = await this.prisma.group.findUnique({
       where: { id },
       ...this.options,
     });
+
+    if (!group) {
+      throw Err.NotFound('api.groups.Err.NotFound');
+    }
+
+    return group;
   }
 
   private async updateAsOwner(id: string, user: TokenPayload, data: Prisma.GroupUpdateInput): Promise<GroupResponse> {

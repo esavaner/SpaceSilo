@@ -136,7 +136,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
         </View>
 
         <View className="flex-row flex-wrap items-center gap-2">
-          <IncludedGroupsDropdown {...groupFilter} buttonVariant="outline" />
+          <IncludedGroupsDropdown {...groupFilter} />
 
           {isTrashMode ? (
             <>

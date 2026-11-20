@@ -1,6 +1,8 @@
 import { Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
+type ResponseChunk = Parameters<Response['write']>[0];
+
 export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
@@ -12,21 +14,33 @@ export class LoggerMiddleware implements NestMiddleware {
 
     const oldWrite = res.write;
     const oldEnd = res.end;
-    const chunks: any[] = [];
+    const chunks: Buffer[] = [];
 
-    res.write = (...restArgs: any[]) => {
-      chunks.push(Buffer.from(restArgs[0]));
-      return oldWrite.apply(res, restArgs);
+    res.write = (
+      chunk: ResponseChunk,
+      encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+      callback?: (error?: Error | null) => void
+    ) => {
+      chunks.push(Buffer.from(chunk));
+      const encoding = typeof encodingOrCallback === 'string' ? encodingOrCallback : 'utf8';
+      const writeCallback = typeof encodingOrCallback === 'function' ? encodingOrCallback : callback;
+      return oldWrite.call(res, chunk, encoding, writeCallback);
     };
 
-    res.end = (...restArgs: any[]) => {
-      if (restArgs[0]) {
-        chunks.push(Buffer.from(restArgs[0]));
+    res.end = (chunk?: ResponseChunk, encodingOrCallback?: BufferEncoding | (() => void), callback?: () => void) => {
+      if (chunk !== undefined && typeof chunk !== 'function') {
+        chunks.push(Buffer.from(chunk));
       }
       const body = Buffer.concat(chunks).toString('utf8');
       // this.logger.log(`Response: ${method} ${originalUrl} - ${res.statusCode} - ${body}`);
       this.logger.log(`Response: ${method} ${originalUrl} - ${res.statusCode}`);
-      return oldEnd.apply(res, restArgs);
+      if (typeof chunk === 'function') {
+        callback = chunk;
+        chunk = undefined;
+      }
+      const encoding = typeof encodingOrCallback === 'string' ? encodingOrCallback : 'utf8';
+      const endCallback = typeof encodingOrCallback === 'function' ? encodingOrCallback : callback;
+      return oldEnd.call(res, chunk, encoding, endCallback);
     };
 
     next();

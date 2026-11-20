@@ -25,7 +25,7 @@ export class CreateUserRequest {
   groupId!: string;
 
   @IsOptional()
-  settings?: Prisma.JsonValue | null;
+  settings?: Prisma.InputJsonValue | null;
 }
 
 export class UpdateUserRequest {
@@ -47,7 +47,7 @@ export class UpdateUserRequest {
   role?: Role;
 
   @IsOptional()
-  settings?: Prisma.JsonValue | null;
+  settings?: Prisma.InputJsonValue | null;
 }
 
 /* ------------------------- Responses ------------------------- */

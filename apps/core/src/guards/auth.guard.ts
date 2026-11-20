@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
     this.authTypeMap = {
       [AuthType.Bearer]: {
         canActivate: async (context: ExecutionContext): Promise<boolean> => {
-          const request = context.switchToHttp().getRequest<Request>();
+          const request = context.switchToHttp().getRequest<Request & { user?: TokenPayload }>();
           const authHeader = request.headers['authorization'];
           const bearer = typeof authHeader === 'string' ? authHeader : Array.isArray(authHeader) ? authHeader[0] : '';
           const token = bearer?.toLowerCase().startsWith('bearer ') ? bearer.slice(7) : null;
@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
             if (payload.typ !== 'access') {
               throw new UnauthorizedException();
             }
-            request['user'] = payload;
+            request.user = payload;
           } catch {
             throw new UnauthorizedException();
           }

@@ -3,9 +3,7 @@
     "outDir": "./dist",
     "types": ["node", "multer"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@repo/shared": ["../shared/src"],
-      "@repo/shared/*": ["../shared/src/*"]
+      "@/*": ["./src/*"]
     },
     "module": "esnext",
     "moduleResolution": "bundler",
