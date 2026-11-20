@@ -11,10 +11,9 @@ import { GalleryAddToAlbumModal, GalleryCreateAlbumModal } from '@/components/mo
 import { toast } from '@/lib/toast';
 import { resolveAppLanguage } from '@/i18n';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
 import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
-import { Text, theme, useThemeColors } from '@repo/shared/components';
+import { Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { Folder } from 'lucide-react-native';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
@@ -257,7 +256,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
   const { i18n, t } = useTranslation();
   const colors = useThemeColors();
   const { servers } = useServerContext();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
   const { clearSearch, query: albumSearchQuery, results: albumSearchResults, searchAlbums } = useAlbumSearch();
   const queryClient = useQueryClient();
   const { width } = useWindowDimensions();

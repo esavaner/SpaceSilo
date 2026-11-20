@@ -1,17 +1,73 @@
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
-import { Input } from '@/components/form/input';
 import { toast } from '@/lib/toast';
-import { useUi } from '@/providers/UiProvider';
 import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type AlbumResponse } from '@repo/shared';
+import { Folder } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
-import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
+import styled from 'styled-components/native';
+import {
+  Button,
+  Input,
+  Modal,
+  ModalButtons,
+  ModalTitle,
+  Text,
+  theme,
+  useModal,
+  useThemeColors,
+} from '@repo/shared/components';
+
+const Field = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const ButtonGroup = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[200]};
+`;
+
+const AlbumList = styled.ScrollView<{ $maxHeight: number }>`
+  max-height: ${({ $maxHeight }) => `${$maxHeight}px`};
+`;
+
+const AlbumRows = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const AlbumDepth = styled.View<{ $depth: number }>`
+  margin-left: ${({ $depth }) => `${$depth * 18}px`};
+`;
+
+const AlbumButton = styled(Button)`
+  width: 100%;
+  align-self: stretch;
+  justify-content: flex-start;
+  padding: ${theme.spacing[300]};
+`;
+
+const AlbumDetails = styled.View`
+  flex-shrink: 1;
+`;
+
+const AlbumName = styled(Text.M)<{ $selected?: boolean }>`
+  color: ${({ $selected }) => ($selected ? theme.colors.text.inverted : theme.colors.text.default)};
+  text-align: left;
+`;
+
+const AlbumDescription = styled(Text.Caption)<{ $selected?: boolean }>`
+  color: ${({ $selected }) => ($selected ? theme.colors.text.inverted : theme.colors.text.secondary)};
+  text-align: left;
+`;
+
+const SecondaryText = styled(Text.S)`
+  color: ${theme.colors.text.secondary};
+`;
+
+const Actions = styled(ModalButtons)`
+  justify-content: flex-end;
+`;
 
 type AlbumParentContext = {
   id: string;
@@ -80,7 +136,8 @@ export const GalleryCreateAlbumModal = ({
   onCreated,
 }: GalleryCreateAlbumModalProps) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
+  const colors = useThemeColors();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [selectedServerId, setSelectedServerId] = useState(parentAlbum?.serverId ?? servers[0]?.id ?? '');
@@ -180,93 +237,93 @@ export const GalleryCreateAlbumModal = ({
   });
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{createAlbumCopy.title}</DialogTitle>
-        <DialogDescription>{createAlbumCopy.description}</DialogDescription>
-      </DialogHeader>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={createAlbumCopy.title}>
+      <ModalTitle>{createAlbumCopy.title}</ModalTitle>
+      <SecondaryText>{createAlbumCopy.description}</SecondaryText>
 
       {!selectedPhotoCount && !parentAlbum && servers.length > 1 ? (
-        <View className="gap-2">
+        <Field>
           <Text>{t('gallery.albumModal.selectServer')}</Text>
-          <View className="flex-row flex-wrap gap-2">
+          <ButtonGroup>
             {servers.map((server) => (
               <Button
                 key={server.id}
-                variant={selectedServerId === server.id ? 'default' : 'outline'}
+                variant={selectedServerId === server.id ? 'primary' : 'secondary'}
                 onPress={() => setSelectedServerId(server.id)}
               >
-                <Text>{server.label}</Text>
+                {server.label}
               </Button>
             ))}
-          </View>
-        </View>
+          </ButtonGroup>
+        </Field>
       ) : null}
 
-      <View className="gap-2">
-        <Text>{t('common.labels.albumName')}</Text>
+      <Field>
         <Input
+          label={t('common.labels.albumName')}
           value={name}
           onChangeText={setName}
           placeholder={parentAlbum ? t('gallery.albumModal.subalbumName') : t('common.labels.albumName')}
           autoFocus
         />
-      </View>
+      </Field>
 
-      <View className="gap-2">
+      <Field>
         <Text>{t('common.labels.parentAlbum')}</Text>
-        <Button
-          variant={selectedParentId === null ? 'default' : 'outline'}
+        <AlbumButton
+          variant={selectedParentId === null ? 'primary' : 'secondary'}
           onPress={() => setSelectedParentId(null)}
           disabled={isPending}
-          className="justify-start px-3"
         >
-          <Icon.Folder className={selectedParentId === null ? 'text-primary-foreground' : 'text-foreground'} />
-          <View className="shrink">
-            <Text>
+          <Folder color={selectedParentId === null ? colors.text.inverted : colors.text.default} size={18} />
+          <AlbumDetails>
+            <AlbumName $selected={selectedParentId === null}>
               {selectedPhotoCount > 0 ? t('gallery.albumModal.topLevelAlbum') : t('gallery.albumModal.noParent')}
-            </Text>
-            <Text className="text-left text-xs text-muted-foreground">
+            </AlbumName>
+            <AlbumDescription $selected={selectedParentId === null}>
               {t('gallery.albumModal.rootLevelDescription')}
-            </Text>
-          </View>
-        </Button>
+            </AlbumDescription>
+          </AlbumDetails>
+        </AlbumButton>
 
-        {isLoadingAlbums ? (
-          <Text className="text-muted-foreground">{t('gallery.albumModal.loadingAlbums')}</Text>
-        ) : null}
+        {isLoadingAlbums ? <SecondaryText>{t('gallery.albumModal.loadingAlbums')}</SecondaryText> : null}
         {!isLoadingAlbums && albumRows.length > 0 ? (
-          <ScrollView className="max-h-64">
-            <View className="gap-2">
+          <AlbumList $maxHeight={256}>
+            <AlbumRows>
               {albumRows.map(({ album, depth }) => (
-                <View key={album.id} style={{ paddingLeft: depth * 18 }}>
-                  <Button
-                    variant={selectedParentId === album.id ? 'default' : 'outline'}
+                <AlbumDepth key={album.id} $depth={depth}>
+                  <AlbumButton
+                    variant={selectedParentId === album.id ? 'primary' : 'secondary'}
                     onPress={() => setSelectedParentId(album.id)}
                     disabled={isPending}
-                    className="justify-start px-3 py-3"
                   >
-                    <Icon.Folder
-                      className={selectedParentId === album.id ? 'text-primary-foreground' : 'text-foreground'}
+                    <Folder
+                      color={selectedParentId === album.id ? colors.text.inverted : colors.text.default}
+                      size={18}
                     />
-                    <View className="shrink">
-                      <Text className="text-left">{album.name}</Text>
-                      <Text className="text-left text-xs text-muted-foreground">{describeAlbum(album)}</Text>
-                    </View>
-                  </Button>
-                </View>
+                    <AlbumDetails>
+                      <AlbumName $selected={selectedParentId === album.id}>{album.name}</AlbumName>
+                      <AlbumDescription $selected={selectedParentId === album.id}>
+                        {describeAlbum(album)}
+                      </AlbumDescription>
+                    </AlbumDetails>
+                  </AlbumButton>
+                </AlbumDepth>
               ))}
-            </View>
-          </ScrollView>
+            </AlbumRows>
+          </AlbumList>
         ) : null}
-      </View>
+      </Field>
 
-      <DialogFooter
-        okText={parentAlbum ? t('gallery.albumModal.createSubalbum') : t('gallery.albumModal.createAlbum')}
-        onOk={() => createAlbum()}
-        loading={isPending}
-      />
-    </DialogContent>
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button onPress={() => createAlbum()} loading={isPending}>
+          {parentAlbum ? t('gallery.albumModal.createSubalbum') : t('gallery.albumModal.createAlbum')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };
 
@@ -278,7 +335,8 @@ type GalleryAddToAlbumModalProps = {
 
 export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: GalleryAddToAlbumModalProps) => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
+  const colors = useThemeColors();
   const queryClient = useQueryClient();
   const formatCount = (count: number, label: 'album' | 'photo') => {
     const nounKey = label === 'album' ? 'albums' : 'photos';
@@ -317,52 +375,43 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
   });
 
   return (
-    <DialogContent className="sm:max-w-xl">
-      <DialogHeader>
-        <DialogTitle>{t('gallery.albumModal.addToAlbumTitle')}</DialogTitle>
-        <DialogDescription>
-          {t('gallery.albumModal.selectedOnServer', {
-            photoCount: formatCount(selectedPhotos.length, 'photo'),
-            server: server.label,
-          })}
-        </DialogDescription>
-      </DialogHeader>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('gallery.albumModal.addToAlbumTitle')}>
+      <ModalTitle>{t('gallery.albumModal.addToAlbumTitle')}</ModalTitle>
+      <SecondaryText>
+        {t('gallery.albumModal.selectedOnServer', {
+          photoCount: formatCount(selectedPhotos.length, 'photo'),
+          server: server.label,
+        })}
+      </SecondaryText>
 
-      {isLoadingAlbums ? <Text className="text-muted-foreground">{t('gallery.albumModal.loadingAlbums')}</Text> : null}
+      {isLoadingAlbums ? <SecondaryText>{t('gallery.albumModal.loadingAlbums')}</SecondaryText> : null}
       {!isLoadingAlbums && albumRows.length === 0 ? (
-        <Text className="text-muted-foreground">{t('gallery.albumModal.emptyState')}</Text>
+        <SecondaryText>{t('gallery.albumModal.emptyState')}</SecondaryText>
       ) : null}
 
       {!isLoadingAlbums && albumRows.length > 0 ? (
-        <ScrollView className="max-h-80">
-          <View className="gap-2">
+        <AlbumList $maxHeight={320}>
+          <AlbumRows>
             {albumRows.map(({ album, depth }) => (
-              <View key={album.id} style={{ paddingLeft: depth * 18 }}>
-                <Button
-                  variant="outline"
-                  onPress={() => addPhotos(album.id)}
-                  disabled={isPending}
-                  className="justify-start px-3 py-3"
-                >
-                  <Icon.Folder />
-                  <View className="shrink">
-                    <Text className="text-left">{album.name}</Text>
-                    <Text className="text-left text-xs text-muted-foreground">{describeAlbum(album)}</Text>
-                  </View>
-                </Button>
-              </View>
+              <AlbumDepth key={album.id} $depth={depth}>
+                <AlbumButton variant="secondary" onPress={() => addPhotos(album.id)} disabled={isPending}>
+                  <Folder color={colors.text.default} size={18} />
+                  <AlbumDetails>
+                    <AlbumName>{album.name}</AlbumName>
+                    <AlbumDescription>{describeAlbum(album)}</AlbumDescription>
+                  </AlbumDetails>
+                </AlbumButton>
+              </AlbumDepth>
             ))}
-          </View>
-        </ScrollView>
+          </AlbumRows>
+        </AlbumList>
       ) : null}
 
-      <View className="flex-row justify-end">
-        <DialogClose asChild>
-          <Button variant="secondary" disabled={isPending}>
-            {t('common.actions.close')}
-          </Button>
-        </DialogClose>
-      </View>
-    </DialogContent>
+      <Actions>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.close')}
+        </Button>
+      </Actions>
+    </Modal>
   );
 };
