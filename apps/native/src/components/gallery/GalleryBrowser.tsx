@@ -13,8 +13,7 @@ import { resolveAppLanguage } from '@/i18n';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
 import { type FindGalleryImagesRequest, type GalleryImageResponse, type GalleryViewMode } from '@repo/shared';
-import { Text, theme, useModal, useThemeColors } from '@repo/shared/components';
-import { Folder } from 'lucide-react-native';
+import { Icon, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, pl } from 'date-fns/locale';
@@ -563,7 +562,7 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
         pressed || hovered ? { backgroundColor: colors.surface.stronger } : null
       }
     >
-      <Folder color={colors.text.brand} size={18} aria-hidden />
+      <Icon.Folder color={colors.text.brand} size={18} aria-hidden />
       <View className="flex-1 gap-0.5">
         <Text numberOfLines={1}>{album.name}</Text>
         <Text.Caption color={theme.colors.text.secondary} numberOfLines={1}>

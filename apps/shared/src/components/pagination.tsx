@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { theme, useThemeColors } from '../config/theme';
 import { Button as ButtonBase } from './button';
 import { Input } from './input';
-import { ArrowLeft, ArrowRight } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { Text } from './text';
 
 const Container = styled.View`
@@ -106,7 +106,7 @@ export const Pagination = ({
           accessibilityLabel="Previous page"
           onPress={() => paginate(currentPage - 1)}
         >
-          <ArrowLeft color={prevIconColor} aria-hidden />
+          <Icon.ArrowLeft color={prevIconColor} aria-hidden />
         </ArrowButton>
         {jumper ? (
           <PageJumpInput key={currentPage} totalPages={totalPages} defaultPage={currentPage + 1} onJump={paginate} />
@@ -123,7 +123,7 @@ export const Pagination = ({
           accessibilityLabel="Next page"
           onPress={() => paginate(currentPage + 1)}
         >
-          <ArrowRight color={nextIconColor} aria-hidden />
+          <Icon.ArrowRight color={nextIconColor} aria-hidden />
         </ArrowButton>
       </Container>
     );
@@ -135,7 +135,7 @@ export const Pagination = ({
   return (
     <Container {...rest}>
       <ArrowButton variant="tertiary" disabled={prevDisabled} onPress={() => paginate(currentPage - 1)}>
-        <ArrowLeft color={prevIconColor} aria-hidden /> Previous
+        <Icon.ArrowLeft color={prevIconColor} aria-hidden /> Previous
       </ArrowButton>
       {leftDistance >= 4 && (
         <>
@@ -182,7 +182,7 @@ export const Pagination = ({
         </>
       )}
       <ArrowButton variant="tertiary" disabled={nextDisabled} onPress={() => paginate(currentPage + 1)}>
-        Next <ArrowRight color={nextIconColor} aria-hidden />
+        Next <Icon.ArrowRight color={nextIconColor} aria-hidden />
       </ArrowButton>
       {jumper && (
         <>

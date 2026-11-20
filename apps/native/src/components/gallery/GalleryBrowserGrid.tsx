@@ -1,8 +1,7 @@
 import { cn } from '@/utils/cn';
 import { type GalleryImageResponse } from '@repo/shared';
-import { Text, theme, useThemeColors } from '@repo/shared/components';
+import { Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { Image } from 'expo-image';
-import { Check, FileText, Folder, Paperclip } from 'lucide-react-native';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, View } from 'react-native';
@@ -167,16 +166,16 @@ const GalleryTile = memo(function GalleryTile({
             style={{ backgroundColor: colors.surface.stronger }}
           >
             {isEmptyBox ? (
-              <FileText color={colors.text.secondary} size={36} aria-hidden />
+              <Icon.FileText color={colors.text.secondary} size={36} aria-hidden />
             ) : (
-              <Folder color={colors.text.default} size={36} aria-hidden />
+              <Icon.Folder color={colors.text.default} size={36} aria-hidden />
             )}
           </View>
         )}
 
         {item.type === 'photo' && (item.sidecarCount ?? 0) > 0 ? (
           <View className="absolute right-2 top-2 rounded-full p-1" style={{ backgroundColor: colors.media.scrim }}>
-            <Paperclip color={colors.media.text} size={14} aria-hidden />
+            <Icon.Paperclip color={colors.media.text} size={14} aria-hidden />
           </View>
         ) : null}
 
@@ -201,7 +200,7 @@ const GalleryTile = memo(function GalleryTile({
             }}
           >
             {isSelected ? (
-              <Check color={colors.text.inverted} size={16} aria-hidden />
+              <Icon.Check color={colors.text.inverted} size={16} aria-hidden />
             ) : (
               <View className="h-3 w-3 rounded-full border" style={{ borderColor: colors.media.text }} />
             )}
@@ -211,7 +210,7 @@ const GalleryTile = memo(function GalleryTile({
         {item.type === 'album' ? (
           <View className="absolute inset-x-0 bottom-0 gap-1 p-3" style={{ backgroundColor: colors.media.scrimStrong }}>
             <View className="flex-row items-center gap-2">
-              <Folder color={colors.media.text} size={16} aria-hidden />
+              <Icon.Folder color={colors.media.text} size={16} aria-hidden />
               <Text color={theme.colors.media.text} style={{ flex: 1 }}>
                 {item.name}
               </Text>

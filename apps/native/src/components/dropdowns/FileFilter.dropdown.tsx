@@ -1,9 +1,8 @@
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useServerContext } from '@/providers/ServerProvider';
-import { Button, Checkbox, DropdownMenu, OverflowFade, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Checkbox, DropdownMenu, Icon, OverflowFade, Text, theme, useThemeColors } from '@repo/shared/components';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
-import { Filter } from 'lucide-react-native';
 
 const FilterContent = styled.View`
   gap: ${theme.spacing[300]};
@@ -34,7 +33,7 @@ export const FileFilterDropdown = () => {
           aria-expanded={isOpen}
           aria-controls={isOpen ? menuId : undefined}
         >
-          <Filter size={18} color={colors.text.brand} />
+          <Icon.Funnel size={18} color={colors.text.brand} />
           {t('files.filter.title')}
         </Button>
       )}

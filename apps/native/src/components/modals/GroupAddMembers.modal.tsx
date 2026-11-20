@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
-import { Users, X } from 'lucide-react-native';
 import {
   Button,
   DropdownOption,
+  Icon,
   Input,
   Modal,
   ModalButtons,
@@ -116,7 +116,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
             accessibilityLabel={t('groups.details.removeMember', { name: member.name })}
             onPress={() => setSelectedMembers((current) => current.filter((item) => item.id !== member.id))}
           >
-            <X size={18} color={colors.text.brand} aria-hidden />
+            <Icon.X size={18} color={colors.text.brand} aria-hidden />
           </Button>
         </MemberRow>
       ))}
@@ -133,7 +133,7 @@ export const GroupAddMembersModal = ({ group }: Props) => {
           accessibilityLabel={`${user.name}, ${user.email}`}
           onPress={() => handleSelect(user)}
         >
-          <Users size={20} color={colors.text.default} aria-hidden />
+          <Icon.Users size={20} color={colors.text.default} aria-hidden />
           <ResultDetails>
             <Text.M>{user.name}</Text.M>
             <Text.S color={theme.colors.text.secondary}>{user.email}</Text.S>

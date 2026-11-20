@@ -1,8 +1,7 @@
 import { DrawerContentComponentProps, DrawerContentScrollView } from 'expo-router/drawer';
 import { router } from 'expo-router';
-import { Plus } from 'lucide-react-native';
 import styled from 'styled-components/native';
-import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';
 import { useServerContext } from '@/providers/ServerProvider';
 import { serverIcons } from '@/constants/server-icons';
@@ -78,7 +77,7 @@ export const Navigation = (props: NavigationProps) => {
             center
             onPress={() => router.push('/connections')}
           >
-            <Plus color={colors.text.default} size={18} />
+            <Icon.Plus color={colors.text.default} size={18} />
           </AddButton>
         </ConnectionsHeader>
         {allServers.map((server) => (

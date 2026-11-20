@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 
 const Trail = styled.ScrollView`
   flex-grow: 0;
@@ -75,7 +74,7 @@ export const Breadcrumb = ({ pathItems, handlePathClick, homeDirName, items }: P
       {breadcrumbItems.map((item, index) => (
         <React.Fragment key={item.key}>
           <Segment>
-            {index !== 0 && <ChevronRight color={colors.text.secondary} size={14} />}
+            {index !== 0 && <Icon.ChevronRight color={colors.text.secondary} size={14} />}
             {item.onPress ? (
               <Button variant="tertiary" size="small" onPress={item.onPress}>
                 {item.label === HOME_LABEL ? t(HOME_LABEL) : item.label}

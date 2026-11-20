@@ -2,7 +2,7 @@ import { Children, forwardRef, useId, useState, type AriaAttributes, type ReactN
 import { Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { theme, useThemeColors } from '../config/theme';
-import { CircleCheck } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { useNativeInteraction, webSpaceActivation } from './component-utils';
 
 type Variant = 'horizontal' | 'vertical';
@@ -98,7 +98,7 @@ const LabelText = styled.Text<{ $disabled?: boolean }>`
   color: ${({ $disabled }) => ($disabled ? theme.colors.text.disabled : theme.colors.text.default)};
   flex-shrink: 1;
 `;
-const Checkmark = styled(CircleCheck)`
+const Checkmark = styled(Icon.CircleCheck)`
   position: absolute;
   top: 8px;
   right: 12px;

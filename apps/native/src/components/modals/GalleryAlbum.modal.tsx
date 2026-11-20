@@ -2,12 +2,12 @@ import { toast } from '@/lib/toast';
 import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type AlbumResponse } from '@repo/shared';
-import { Folder } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
 import {
   Button,
+  Icon,
   Input,
   Modal,
   ModalButtons,
@@ -275,7 +275,7 @@ export const GalleryCreateAlbumModal = ({
           onPress={() => setSelectedParentId(null)}
           disabled={isPending}
         >
-          <Folder color={selectedParentId === null ? colors.text.inverted : colors.text.default} size={18} />
+          <Icon.Folder color={selectedParentId === null ? colors.text.inverted : colors.text.default} size={18} />
           <AlbumDetails>
             <AlbumName $selected={selectedParentId === null}>
               {selectedPhotoCount > 0 ? t('gallery.albumModal.topLevelAlbum') : t('gallery.albumModal.noParent')}
@@ -297,7 +297,7 @@ export const GalleryCreateAlbumModal = ({
                     onPress={() => setSelectedParentId(album.id)}
                     disabled={isPending}
                   >
-                    <Folder
+                    <Icon.Folder
                       color={selectedParentId === album.id ? colors.text.inverted : colors.text.default}
                       size={18}
                     />
@@ -395,7 +395,7 @@ export const GalleryAddToAlbumModal = ({ server, selectedPhotos, onAdded }: Gall
             {albumRows.map(({ album, depth }) => (
               <AlbumDepth key={album.id} $depth={depth}>
                 <AlbumButton variant="secondary" onPress={() => addPhotos(album.id)} disabled={isPending}>
-                  <Folder color={colors.text.default} size={18} />
+                  <Icon.Folder color={colors.text.default} size={18} />
                   <AlbumDetails>
                     <AlbumName>{album.name}</AlbumName>
                     <AlbumDescription>{describeAlbum(album)}</AlbumDescription>

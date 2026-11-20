@@ -1,9 +1,8 @@
 import { useServerContext } from '@/providers/ServerProvider';
 import { fileSize } from '@/utils/common';
 import { type MediaFileInfoResponse } from '@repo/shared';
-import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { useQuery } from '@tanstack/react-query';
-import { X } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -120,7 +119,7 @@ export function GalleryMediaInfo({ serverId, mediaId, onClose }: GalleryMediaInf
         <View className="flex-row items-center justify-between">
           <Text.H3>{t('gallery.info.title')}</Text.H3>
           <Button variant="tertiary" size="small" onPress={onClose} accessibilityLabel={t('gallery.lightbox.close')}>
-            <X size={18} color={colors.text.default} aria-hidden />
+            <Icon.X size={18} color={colors.text.default} aria-hidden />
           </Button>
         </View>
 

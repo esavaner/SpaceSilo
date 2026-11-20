@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Check, ChevronDown, Edit3, Plus, Trash2 } from 'lucide-react-native';
 import { Platform, View, type ViewProps } from 'react-native';
 import styled from 'styled-components/native';
-import { Avatar, Button, DropdownMenu, DropdownOption, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import { Avatar, Button, DropdownMenu, DropdownOption, Icon, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { GroupEditModal } from '@/components/modals/GroupEdit.modal';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { GroupRemoveModal } from '@/components/modals/GroupRemove.modal';
@@ -130,7 +129,7 @@ const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (valu
           onPress={toggle}
         >
           {selectedLabel}
-          <ChevronDown size={18} color={colors.text.default} aria-hidden />
+          <Icon.ChevronDown size={18} color={colors.text.default} aria-hidden />
         </Button>
       )}
     >
@@ -153,7 +152,7 @@ const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (valu
               }}
             >
               <Text.S>{option.label}</Text.S>
-              {option.value === value && <Check size={18} color={colors.text.default} aria-hidden />}
+              {option.value === value && <Icon.Check size={18} color={colors.text.default} aria-hidden />}
             </DropdownOption>
           ))}
         </View>
@@ -237,7 +236,7 @@ export default function SingleGroupPage() {
         <Stack>
           <Text.H2>{t('groups.details.Err.NotFound')}</Text.H2>
           <Button variant="secondary" onPress={() => router.replace('/groups')}>
-            <ArrowLeft size={18} color={colors.text.default} aria-hidden />
+            <Icon.ArrowLeft size={18} color={colors.text.default} aria-hidden />
             {t('groups.details.backToGroups')}
           </Button>
         </Stack>
@@ -249,7 +248,7 @@ export default function SingleGroupPage() {
     <BaseLayout>
       <Page>
         <Button variant="tertiary" onPress={() => router.replace('/groups')}>
-          <ArrowLeft size={18} color={colors.text.brand} aria-hidden />
+          <Icon.ArrowLeft size={18} color={colors.text.brand} aria-hidden />
           {t('groups.details.backToGroups')}
         </Button>
 
@@ -285,11 +284,11 @@ export default function SingleGroupPage() {
           {isOwner ? (
             <Row>
               <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
-                <Plus size={18} color={colors.text.inverted} aria-hidden />
+                <Icon.Plus size={18} color={colors.text.inverted} aria-hidden />
                 {t('groups.membersModal.title')}
               </Button>
               <Button variant="secondary" onPress={() => openModal(<GroupEditModal group={group} />)}>
-                <Edit3 size={18} color={colors.text.default} aria-hidden />
+                <Icon.PenLine size={18} color={colors.text.default} aria-hidden />
                 {t('groups.details.editGroup')}
               </Button>
               <Button
@@ -298,7 +297,7 @@ export default function SingleGroupPage() {
                   openModal(<GroupRemoveModal group={group} onRemoved={() => router.replace('/groups')} />)
                 }
               >
-                <Trash2 size={18} color={colors.text.inverted} aria-hidden />
+                <Icon.Trash size={18} color={colors.text.inverted} aria-hidden />
                 {t('groups.details.removeGroup')}
               </Button>
             </Row>
@@ -346,7 +345,7 @@ export default function SingleGroupPage() {
                           })}
                           onPress={() => handleRemoveMember(member)}
                         >
-                          <Trash2 size={18} color={isPending ? colors.text.disabled : colors.text.brand} aria-hidden />
+                          <Icon.Trash size={18} color={isPending ? colors.text.disabled : colors.text.brand} aria-hidden />
                         </Button>
                       </Row>
                     ) : (

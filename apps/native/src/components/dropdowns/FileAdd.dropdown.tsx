@@ -1,7 +1,6 @@
 import { FileCreateFolderModal } from '../modals/FileCreateFolder.modal';
-import { FileText, Folder, Plus } from 'lucide-react-native';
 import styled from 'styled-components/native';
-import { Button, DropdownMenu, DropdownOption, Text, useModal, useThemeColors } from '@repo/shared/components';
+import { Button, DropdownMenu, DropdownOption, Icon, Text, useModal, useThemeColors } from '@repo/shared/components';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -37,7 +36,7 @@ export const FileAddDropdown = ({ currentPath }: FileAddDropdownProps) => {
           aria-expanded={isOpen}
           aria-controls={isOpen ? menuId : undefined}
         >
-          <Plus size={18} color={colors.text.inverted} />
+          <Icon.Plus size={18} color={colors.text.inverted} />
           {t('files.actions.add')}
         </Button>
       )}
@@ -51,11 +50,11 @@ export const FileAddDropdown = ({ currentPath }: FileAddDropdownProps) => {
               close();
             }}
           >
-            <Folder size={18} color={colors.text.default} />
+            <Icon.Folder size={18} color={colors.text.default} />
             <Text.S>{t('files.actions.folder')}</Text.S>
           </DropdownOption>
           <DropdownOption role="menuitem" onPress={close}>
-            <FileText size={18} color={colors.text.default} />
+            <Icon.FileText size={18} color={colors.text.default} />
             <Text.S>{t('files.actions.file')}</Text.S>
           </DropdownOption>
         </View>

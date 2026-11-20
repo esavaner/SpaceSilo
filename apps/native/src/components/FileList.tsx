@@ -1,6 +1,5 @@
 import { Platform } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { FileText, Folder } from 'lucide-react-native';
 import { fileIcons } from '../utils/fileIcons';
 import { fileSize } from '@/utils/common';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -10,7 +9,7 @@ import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
-import { Checkbox, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Checkbox, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { type FileListItem } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
@@ -145,7 +144,7 @@ export const FileList = () => {
 
   const getIcon = (item: FileListItem) => {
     const extension = item.name.split('.').pop()?.toLowerCase() ?? '';
-    const FileTypeIcon = item.isDirectory ? Folder : (fileIcons[extension] ?? FileText);
+    const FileTypeIcon = item.isDirectory ? Icon.Folder : (fileIcons[extension] ?? Icon.FileText);
     return (
       <FileTypeIcon
         size={item.isDirectory ? 28 : 18}

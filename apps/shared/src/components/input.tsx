@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
-import { Info } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { forwardRef, type JSX, type ReactNode, useId, useRef } from 'react';
 import { useNativeInteraction } from './component-utils';
 
@@ -46,7 +46,7 @@ const InputField = styled.View`
   position: relative;
   justify-content: center;
 `;
-const Icon = styled.View.attrs({ pointerEvents: 'none' })<{ $left?: boolean }>`
+const IconSlot = styled.View.attrs({ pointerEvents: 'none' })<{ $left?: boolean }>`
   position: absolute;
   z-index: ${theme.zIndex.raised};
   color: ${theme.colors.text.secondary};
@@ -165,7 +165,7 @@ export const InputInfo = ({
       aria-live={error ? 'assertive' : 'polite'}
       style={style}
     >
-      <Info size={18} color={color} style={{ marginTop: 1 }} aria-hidden />
+      <Icon.Info size={18} color={color} style={{ marginTop: 1 }} aria-hidden />
       <Text.FormMessage color={color} style={{ flex: 1 }}>
         {children}
       </Text.FormMessage>
@@ -309,7 +309,7 @@ export const Input = forwardRef<TextInput, InputProps>(
         )}
         <InputContainer>
           <InputField>
-            {leftIconComponent ? leftIconComponent : leftIcon && <Icon $left>{leftIcon}</Icon>}
+            {leftIconComponent ? leftIconComponent : leftIcon && <IconSlot $left>{leftIcon}</IconSlot>}
             {customInput ? (
               <CustomInputWrapper
                 nativeID={inputId}
@@ -336,7 +336,7 @@ export const Input = forwardRef<TextInput, InputProps>(
                 <StyledInput {...inputProps} />
               </Pressable>
             )}
-            {iconComponent ? iconComponent : icon && <Icon>{icon}</Icon>}
+            {iconComponent ? iconComponent : icon && <IconSlot>{icon}</IconSlot>}
           </InputField>
           {hasInfo && <InputInfo id={infoId}>{info}</InputInfo>}
           {hasError && (

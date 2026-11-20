@@ -1,6 +1,6 @@
 import { ActivityIndicator, Modal, Platform, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
-import { Orbit } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { NoiseImage, ShapesAnimationImage } from '../assets/images';
 import { theme, useThemeColors } from '../config/theme';
 import { useWebScrollLock } from './component-utils';
@@ -119,7 +119,7 @@ export const Loader = ({ block, fullPage, size, color: colorProp, onRequestClose
       <Modal transparent statusBarTranslucent navigationBarTranslucent onRequestClose={onRequestClose ?? (() => {})}>
         <FullPageWrapper {...props}>
           <LogoContainer>
-            <Orbit size={24} color={colors.text.brand} />
+            <Icon.Orbit size={24} color={colors.text.brand} />
           </LogoContainer>
         </FullPageWrapper>
       </Modal>

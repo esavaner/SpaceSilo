@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { FileText, Pencil, Plus, Search, Trash2 } from 'lucide-react-native';
 import styled from 'styled-components/native';
 import { BaseLayout } from '@/components/base-layout';
 import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
@@ -11,7 +10,7 @@ import { type GroupListItem, useGroupList } from '@/hooks/useGroupList';
 import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 
 const PageContent = styled.View`
   gap: ${theme.spacing[600]};
@@ -231,7 +230,7 @@ export default function NotesPage() {
             </HeadingContent>
 
             <Button onPress={openCreateModal} disabled={groups.length === 0}>
-              <Plus size={18} color={colors.text.inverted} />
+              <Icon.Plus size={18} color={colors.text.inverted} />
               <Text.S color={colors.text.inverted}>{t('notes.actions.create')}</Text.S>
             </Button>
           </HeadingRow>
@@ -241,7 +240,7 @@ export default function NotesPage() {
               value={query}
               onChangeText={setQuery}
               placeholder={t('notes.searchPlaceholder')}
-              leftIcon={<Search size={16} color={colors.text.secondary} />}
+              leftIcon={<Icon.Search size={16} color={colors.text.secondary} />}
             />
 
             <FilterRow>
@@ -284,7 +283,7 @@ export default function NotesPage() {
                 disabled={groups.length === 0}
                 style={{ alignSelf: 'flex-start' }}
               >
-                <Plus size={18} color={colors.text.inverted} />
+                <Icon.Plus size={18} color={colors.text.inverted} />
                 <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
               </Button>
             ) : null}
@@ -334,7 +333,7 @@ export default function NotesPage() {
                         style={{ width: 40, height: 40, padding: 0 }}
                         onPress={() => openDetailsModal(note)}
                       >
-                        <FileText size={18} color={colors.text.brand} />
+                        <Icon.FileText size={18} color={colors.text.brand} />
                       </Button>
                       <Button
                         variant="tertiary"
@@ -342,7 +341,7 @@ export default function NotesPage() {
                         style={{ width: 40, height: 40, padding: 0 }}
                         onPress={() => openEditModal(note)}
                       >
-                        <Pencil size={18} color={colors.text.brand} />
+                        <Icon.Pencil size={18} color={colors.text.brand} />
                       </Button>
                       <Button
                         variant="tertiary"
@@ -350,7 +349,7 @@ export default function NotesPage() {
                         style={{ width: 40, height: 40, padding: 0 }}
                         onPress={() => openDeleteModal(note)}
                       >
-                        <Trash2 size={18} color={colors.text.brand} />
+                        <Icon.Trash size={18} color={colors.text.brand} />
                       </Button>
                     </NoteActions>
                   </NoteRow>

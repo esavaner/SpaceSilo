@@ -59,7 +59,7 @@ These are gotchas found while converting components:
 - **Disabled inputs on web:** react-native-web only turns `editable={false}` into `readOnly`. Also pass `disabled` on web only: `...(Platform.OS === 'web' ? { disabled } : {})`.
 - **Textarea resizing on web:** react-native-web's multiline `TextInput` defaults to `resize: none`. Set `resize: vertical` explicitly.
 - **Taps on web:** react-native-web's `TextInput` doesn't fire `onPress`. Wrap it in `<Pressable accessible={false}>`.
-- **Icons:** export all icons from `apps/shared/src/assets/icons.ts`, using their original Lucide names and no `as` aliases. Native components need `lucide-react-native`. Don't pass `accessible={false}` to an SVG icon, because it causes a DOM warning on web. `aria-hidden` is fine.
+- **Icons:** add Lucide icons to `apps/shared/src/assets/icons.ts` under their original names. Import `Icon` from `@repo/shared/components` in apps and render icons as `<Icon.Eye />`. Don't pass `accessible={false}` to an SVG icon, because it causes a DOM warning on web. `aria-hidden` is fine.
 - **Accessibility props:** use `role`, `aria-*`, and `accessibilityLabel`/`accessibilityState`. react-native-web maps them to the DOM.
 - **Modal backdrop hit testing:** use a plain React Native `View` with `pointerEvents="box-none"` for the positioning layer. The styled View dropped that prop on web, blocking backdrop presses.
 - **Taps inside an inline Modal while the keyboard is open:** RN Modal touches still bubble through the React ancestors. A page `ScrollView` with the default `keyboardShouldPersistTaps="never"` takes the first tap just to close the keyboard. `BaseLayout` now defaults it to `"handled"`. Other page-level ScrollViews hosting Select need the same setting.

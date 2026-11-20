@@ -1,7 +1,6 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
-import { Button, DropdownMenu, DropdownOption, Text, useThemeColors } from '@repo/shared/components';
-import { ChevronDown } from 'lucide-react-native';
+import { Button, DropdownMenu, DropdownOption, Icon, Text, useThemeColors } from '@repo/shared/components';
 import styled from 'styled-components/native';
 import { View } from 'react-native';
 
@@ -10,7 +9,7 @@ type Props = {
   comparator: Comparator;
 };
 
-const SortDirection = styled(ChevronDown)<{ $ascending: boolean }>`
+const SortDirection = styled(Icon.ChevronDown)<{ $ascending: boolean }>`
   transform: rotate(${({ $ascending }) => ($ascending ? '180deg' : '0deg')});
 `;
 

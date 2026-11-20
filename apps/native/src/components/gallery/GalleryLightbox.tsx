@@ -1,7 +1,6 @@
 import { GalleryMediaInfo } from '@/components/gallery/GalleryMediaInfo';
-import { Button, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { Image } from 'expo-image';
-import { ChevronLeft, ChevronRight, Info, X } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Platform, Pressable, View } from 'react-native';
@@ -136,7 +135,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                   onPress={() => setInfoOpen(true)}
                   accessibilityLabel={t('gallery.lightbox.info')}
                 >
-                  <Info size={18} color={colors.media.text} aria-hidden />
+                  <Icon.Info size={18} color={colors.media.text} aria-hidden />
                 </Button>
                 <Button
                   variant="tertiary"
@@ -145,7 +144,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                   onPress={onClose}
                   accessibilityLabel={t('gallery.lightbox.close')}
                 >
-                  <X size={18} color={colors.media.text} aria-hidden />
+                  <Icon.X size={18} color={colors.media.text} aria-hidden />
                 </Button>
               </View>
             </View>
@@ -159,7 +158,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                 onPress={() => onIndexChange(currentIndex - 1)}
                 accessibilityLabel={t('gallery.lightbox.previous')}
               >
-                <ChevronLeft size={24} color={colors.media.text} aria-hidden />
+                <Icon.ChevronLeft size={24} color={colors.media.text} aria-hidden />
               </Button>
             </View>
 
@@ -172,7 +171,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                 onPress={() => onIndexChange(currentIndex + 1)}
                 accessibilityLabel={t('gallery.lightbox.next')}
               >
-                <ChevronRight size={24} color={colors.media.text} aria-hidden />
+                <Icon.ChevronRight size={24} color={colors.media.text} aria-hidden />
               </Button>
             </View>
           </>

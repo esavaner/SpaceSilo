@@ -1,11 +1,11 @@
 import { useFileList } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
-import { Folder } from 'lucide-react-native';
 import { useFileActions } from '@/hooks/useFileActions';
 import { Breadcrumb } from '../breadcrumb';
 import {
   Button,
+  Icon,
   Modal,
   ModalButtons,
   ModalTitle,
@@ -88,7 +88,7 @@ export const FileMoveCopyModal = ({ path = '', selectedItems }: Props) => {
         {directoryItems.length === 0 ? <Text>{t('files.moveCopy.empty')}</Text> : null}
         {directoryItems.map((item) => (
           <FolderTarget key={item.name} onPress={() => handleItemClick(item)}>
-            <Folder size={18} color={colors.text.brand} />
+            <Icon.Folder size={18} color={colors.text.brand} />
             <Text.L>{item.name}</Text.L>
           </FolderTarget>
         ))}

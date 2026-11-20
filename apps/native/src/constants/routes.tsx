@@ -1,13 +1,4 @@
-import {
-  DatabaseBackup,
-  FileText,
-  Folder,
-  Image,
-  LayoutDashboard,
-  Trash2,
-  Users,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { Icon, type LucideIcon } from '@repo/shared/components';
 
 export const routes = {
   index: 'index',
@@ -30,11 +21,11 @@ export const routeLabels: Record<keyof typeof routes, string> = {
 };
 
 export const routeIcons: Record<keyof typeof routes, LucideIcon> = {
-  [routes.index]: LayoutDashboard,
-  [routes.gallery]: Image,
-  [routes.trash]: Trash2,
-  [routes.files]: Folder,
-  [routes.notes]: FileText,
-  [routes.groups]: Users,
-  [routes.backups]: DatabaseBackup,
+  [routes.index]: Icon.LayoutDashboard,
+  [routes.gallery]: Icon.Image,
+  [routes.trash]: Icon.Trash,
+  [routes.files]: Icon.Folder,
+  [routes.notes]: Icon.FileText,
+  [routes.groups]: Icon.Users,
+  [routes.backups]: Icon.DatabaseBackup,
 };

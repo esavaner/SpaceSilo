@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
-import { Plus, Search } from 'lucide-react-native';
-import { Button, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
 import { useGroupList } from '@/hooks/useGroupList';
@@ -102,7 +101,7 @@ export default function GroupsPage() {
             </Heading>
 
             <Button onPress={() => openModal(<GroupCreateModal />)}>
-              <Plus color={colors.text.inverted} size={18} aria-hidden />
+              <Icon.Plus color={colors.text.inverted} size={18} aria-hidden />
               {t('groups.actions.create')}
             </Button>
           </HeadingRow>
@@ -114,7 +113,7 @@ export default function GroupsPage() {
                 label={t('groups.searchPlaceholder')}
                 hideLabel
                 placeholder={t('groups.searchPlaceholder')}
-                leftIcon={<Search color={colors.text.secondary} size={16} aria-hidden />}
+                leftIcon={<Icon.Search color={colors.text.secondary} size={16} aria-hidden />}
               />
 
             <GroupFilterDropdown value={filter} onChange={setFilter} />

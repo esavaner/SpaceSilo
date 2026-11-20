@@ -1,5 +1,5 @@
 import { BaseLayout } from '@/components/base-layout';
-import { Icon } from '@/components/general/icon';
+import { ServerLogo } from '@/components/general/server-logo';
 import { ServerType } from '@/api/_client';
 import { endpoints } from '@/api/core.client';
 import { useValidators } from '@/hooks/useValidators';
@@ -19,17 +19,17 @@ const providerMeta = {
   coreNas: {
     titleKey: 'connections.providers.coreNas.title',
     descriptionKey: 'connections.providers.coreNas.desc',
-    icon: <Icon.Core size={30} />,
+    icon: <ServerLogo.Core size={30} />,
   },
   googleDrive: {
     titleKey: 'connections.providers.googleDrive.title',
     descriptionKey: 'connections.providers.googleDrive.desc',
-    icon: <Icon.GoogleDrive size={30} />,
+    icon: <ServerLogo.GoogleDrive size={30} />,
   },
   dropbox: {
     titleKey: 'connections.providers.dropbox.title',
     descriptionKey: 'connections.providers.dropbox.desc',
-    icon: <Icon.Dropbox size={30} />,
+    icon: <ServerLogo.Dropbox size={30} />,
   },
 } as const;
 

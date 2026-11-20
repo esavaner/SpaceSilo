@@ -4,6 +4,7 @@ import { BaseLayout } from '@/components/base-layout';
 import { useEffect, useState } from 'react';
 import {
   Avatar,
+  Icon,
   Text,
   Input,
   Textarea,
@@ -27,7 +28,6 @@ import {
   useThemeMode,
   type ThemeMode,
 } from '@repo/shared/components';
-import { Eye } from 'lucide-react-native';
 import styled from 'styled-components/native';
 
 const Section = styled.View`
@@ -164,7 +164,7 @@ export default function IndexPage() {
             closeLabel="Close actions"
             trigger={<Text.M>Custom action trigger</Text.M>}
             items={[
-              { label: 'Use blue', icon: <Eye size={20} />, onClick: () => setLastAction('blue') },
+              { label: 'Use blue', icon: <Icon.Eye size={20} />, onClick: () => setLastAction('blue') },
               undefined,
               { label: 'Unavailable action', disabled: true, onClick: () => setLastAction('disabled') },
               { label: 'Use red', color: '#b42318', onClick: () => setLastAction('red') },
@@ -337,9 +337,9 @@ export default function IndexPage() {
             error="This value is invalid."
             value={invalidValue}
             onChangeText={setInvalidValue}
-            leftIcon={<Eye />}
+            leftIcon={<Icon.Eye />}
           />
-          <Input label="Disabled input" disabled icon={<Eye />} />
+          <Input label="Disabled input" disabled icon={<Icon.Eye />} />
         </Section>
 
         <Section>

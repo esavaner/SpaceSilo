@@ -1,7 +1,7 @@
 import { forwardRef, useState } from 'react';
 import styled from 'styled-components/native';
 import { theme, useThemeColors } from '../config/theme';
-import { Check, Dot } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { defaultPasswordRequirements, type PasswordRequirement } from '../config/validators';
 import { PasswordInput, type PasswordInputProps } from './password-input';
 import { Text } from './text';
@@ -54,7 +54,7 @@ export const SetPasswordInput = forwardRef<TextInput, Props>(
 
             return (
               <Item key={requirement.id} role="listitem">
-                {requirement.isMet ? <Check size={16} color={color} aria-hidden /> : <Dot color={color} aria-hidden />}
+                {requirement.isMet ? <Icon.Check size={16} color={color} aria-hidden /> : <Icon.Dot color={color} aria-hidden />}
                 <Text.Caption color={color} style={{ flexShrink: 1 }}>
                   {requirement.label}
                 </Text.Caption>

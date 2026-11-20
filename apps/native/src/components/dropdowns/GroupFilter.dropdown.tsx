@@ -1,5 +1,4 @@
-import { Button, DropdownMenu, DropdownOption, Text, useThemeColors } from '@repo/shared/components';
-import { Check, Filter } from 'lucide-react-native';
+import { Button, DropdownMenu, DropdownOption, Icon, Text, useThemeColors } from '@repo/shared/components';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -39,7 +38,7 @@ export const GroupFilterDropdown = ({ value, onChange }: Props) => {
           aria-controls={isOpen ? menuId : undefined}
         >
           {filters.find((option) => option.value === value)?.label ?? label}
-          <Filter size={18} color={colors.text.default} aria-hidden />
+          <Icon.Funnel size={18} color={colors.text.default} aria-hidden />
         </Button>
       )}
     >
@@ -57,7 +56,7 @@ export const GroupFilterDropdown = ({ value, onChange }: Props) => {
               }}
             >
               <Text.S style={{ flex: 1 }}>{option.label}</Text.S>
-              {option.value === value && <Check size={18} color={colors.text.default} aria-hidden />}
+              {option.value === value && <Icon.Check size={18} color={colors.text.default} aria-hidden />}
             </DropdownOption>
           ))}
         </View>

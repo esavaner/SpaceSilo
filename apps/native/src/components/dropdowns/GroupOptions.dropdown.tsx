@@ -1,8 +1,7 @@
 import { useRef } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, DropdownMenu, DropdownOption, Text, useModal, useThemeColors } from '@repo/shared/components';
-import { Edit3, EllipsisVertical, Plus, Trash2 } from 'lucide-react-native';
+import { Button, DropdownMenu, DropdownOption, Icon, Text, useModal, useThemeColors } from '@repo/shared/components';
 import { GroupAddMembersModal } from '../modals/GroupAddMembers.modal';
 import { GroupEditModal } from '../modals/GroupEdit.modal';
 import { GroupRemoveModal } from '../modals/GroupRemove.modal';
@@ -25,17 +24,17 @@ export const GroupOptionsDropdown = ({ group, canManage, onOpenChange }: Props) 
   const items = [
     {
       label: t('groups.details.editGroup'),
-      icon: <Edit3 size={18} color={colors.text.default} aria-hidden />,
+      icon: <Icon.PenLine size={18} color={colors.text.default} aria-hidden />,
       onPress: () => openModal(<GroupEditModal group={group} />),
     },
     {
       label: t('groups.membersModal.title'),
-      icon: <Plus size={18} color={colors.text.default} aria-hidden />,
+      icon: <Icon.Plus size={18} color={colors.text.default} aria-hidden />,
       onPress: () => openModal(<GroupAddMembersModal group={group} />),
     },
     {
       label: t('groups.details.removeGroup'),
-      icon: <Trash2 size={18} color={colors.text.danger} aria-hidden />,
+      icon: <Icon.Trash size={18} color={colors.text.danger} aria-hidden />,
       color: colors.text.danger,
       onPress: () => openModal(<GroupRemoveModal group={group} />),
     },
@@ -66,7 +65,7 @@ export const GroupOptionsDropdown = ({ group, canManage, onOpenChange }: Props) 
             toggle();
           }}
         >
-          <EllipsisVertical size={18} color={colors.text.brand} aria-hidden />
+          <Icon.EllipsisVertical size={18} color={colors.text.brand} aria-hidden />
         </Button>
       )}
     >

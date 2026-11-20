@@ -1,7 +1,6 @@
-import { Check, Filter } from 'lucide-react-native';
 import { Fragment } from 'react';
 import styled from 'styled-components/native';
-import { Button, DropdownMenu, DropdownOption, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, DropdownMenu, DropdownOption, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 
 export type IncludedGroupOption = {
   key: string;
@@ -74,7 +73,7 @@ export const IncludedGroupsDropdown = ({
           aria-expanded={isOpen}
           aria-controls={isOpen ? menuId : undefined}
         >
-          <Filter size={18} color={colors.text.default} />
+          <Icon.Funnel size={18} color={colors.text.default} />
           <Text.S>{title}</Text.S>
         </Button>
       )}
@@ -101,7 +100,7 @@ export const IncludedGroupsDropdown = ({
                         onPress={() => onToggleIncluded(option.key)}
                       >
                         {included ? (
-                          <Check size={16} color={colors.text.brand} />
+                          <Icon.Check size={16} color={colors.text.brand} />
                         ) : (
                           <CheckSlot />
                         )}

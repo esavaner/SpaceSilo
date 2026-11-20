@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { type BackupResponse, type CreateBackupRequest, type UpdateBackupRequest } from '@repo/shared';
-import { Button, Input, Select, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Input, Select, Text, theme, useThemeColors } from '@repo/shared/components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components/native';
-import { Check, CheckCircle, Pencil, Trash2, X } from 'lucide-react-native';
 import { ServerType } from '@/api/_client';
 import { tApiErr } from '@/i18n/translate';
 import { BaseLayout } from '@/components/base-layout';
@@ -636,7 +635,7 @@ export default function BackupsPage() {
 
             {currentEditingBackup ? (
               <Button variant="tertiary" onPress={resetForm} disabled={busyAction !== null}>
-                <X size={18} color={colors.text.brand} />
+                <Icon.X size={18} color={colors.text.brand} />
                 {t('common.actions.cancel')}
               </Button>
             ) : null}
@@ -732,7 +731,7 @@ export default function BackupsPage() {
                   (!selectedSourceServer || !selectedDestinationServer || selectedSourceId === selectedDestinationId))
               }
             >
-              <Check size={18} color={colors.text.inverted} />
+              <Icon.Check size={18} color={colors.text.inverted} />
               {currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}
             </Button>
           </FormActions>
@@ -807,14 +806,14 @@ export default function BackupsPage() {
                           onPress={() => startEditing(backup)}
                           disabled={!canManage || busyAction !== null}
                         >
-                          <Pencil size={18} color={colors.text.brand} />
+                          <Icon.Pencil size={18} color={colors.text.brand} />
                         </ActionButton>
                         <ActionButton
                           variant="tertiary"
                           onPress={() => toggleBackup(backup)}
                           disabled={!canManage || busyAction !== null}
                         >
-                          <CheckCircle
+                          <Icon.CircleCheckBig
                             size={18}
                             color={backup.active ? colors.text.brand : colors.text.secondary}
                           />
@@ -824,7 +823,7 @@ export default function BackupsPage() {
                           onPress={() => deleteBackup(backup)}
                           disabled={busyAction !== null}
                         >
-                          <Trash2 size={18} color={colors.text.brand} />
+                          <Icon.Trash size={18} color={colors.text.brand} />
                         </ActionButton>
                       </CardActions>
                     </CardHeader>

@@ -15,6 +15,7 @@ export * from './select';
 export * from './set-password-input';
 export * from './text';
 export * from './textarea';
+export { Icon, type LucideIcon } from '../assets/icons';
 export * from '../config/theme';
 export * from '../config/validators';
 export * from '../context/modal-provider';

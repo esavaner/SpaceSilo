@@ -20,7 +20,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled, { css } from 'styled-components/native';
-import { X } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { ModalContext } from '../context/modal-provider';
 import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
@@ -204,7 +204,7 @@ export const Modal = ({
         $right={12 + (drawer ? insets.right : 0)}
         style={({ pressed }) => (pressed ? { opacity: 1 } : null)}
       >
-        <X color={colors.text.default} aria-hidden />
+        <Icon.X color={colors.text.default} aria-hidden />
       </CloseButton>
     </>
   );

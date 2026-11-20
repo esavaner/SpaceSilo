@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { Input, InputIconButton, type InputProps } from './input';
-import { EyeOff, Eye } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { TextInput } from 'react-native';
 import { useThemeColors } from '../config/theme';
 
@@ -10,7 +10,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
   ({ disabled, autoComplete = 'current-password', ...inputProps }, ref) => {
     const [isVisible, setIsVisible] = useState(false);
     const colors = useThemeColors();
-    const VisibilityIcon = isVisible ? Eye : EyeOff;
+    const VisibilityIcon = isVisible ? Icon.Eye : Icon.EyeOff;
     const iconColor = disabled ? colors.text.disabled : colors.text.secondary;
 
     return (

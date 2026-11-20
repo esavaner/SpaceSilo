@@ -1,8 +1,7 @@
 import { Breadcrumb, type BreadcrumbItem } from '@/components/breadcrumb';
 import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
 import { Search } from '@/components/search';
-import { Button, Dropdown, Text, theme, useThemeColors } from '@repo/shared/components';
-import { Check, ChevronDown, Folder, Plus, Trash2, X } from 'lucide-react-native';
+import { Button, Dropdown, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -74,12 +73,12 @@ function OptionMenu<T extends string>({
       trigger={(props) => (
         <Button {...props} variant="secondary">
           {options.find((option) => option.value === value)?.label}
-          <ChevronDown size={18} color={colors.text.default} aria-hidden />
+          <Icon.ChevronDown size={18} color={colors.text.default} aria-hidden />
         </Button>
       )}
       items={options.map((option) => ({
         label: option.label,
-        icon: option.value === value ? <Check size={18} color={colors.text.default} aria-hidden /> : undefined,
+        icon: option.value === value ? <Icon.Check size={18} color={colors.text.default} aria-hidden /> : undefined,
         onClick: () => onChange(option.value),
       }))}
     />
@@ -146,7 +145,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                 disabled={noServers}
                 loading={pendingAction === 'restore-all'}
               >
-                <Check size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
+                <Icon.Check size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
                 {t('gallery.actions.restoreAll')}
               </Button>
               <Button
@@ -155,7 +154,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                 disabled={noServers}
                 loading={pendingAction === 'delete-all'}
               >
-                <Trash2 size={18} color={noServers ? colors.text.disabled : colors.text.inverted} aria-hidden />
+                <Icon.Trash size={18} color={noServers ? colors.text.disabled : colors.text.inverted} aria-hidden />
                 {t('gallery.actions.deleteAll')}
               </Button>
             </>
@@ -176,12 +175,12 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
               />
 
               <Button variant="secondary" onPress={onCreateAlbum} disabled={noServers}>
-                <Folder size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
+                <Icon.Folder size={18} color={noServers ? colors.text.disabled : colors.text.default} aria-hidden />
                 {breadcrumbItems.length > 0 ? t('gallery.actions.newSubalbum') : t('gallery.actions.newAlbum')}
               </Button>
 
               <Button onPress={onUpload} loading={isUploading}>
-                <Plus size={18} color={colors.text.inverted} aria-hidden />
+                <Icon.Plus size={18} color={colors.text.inverted} aria-hidden />
                 {t('gallery.actions.upload')}
               </Button>
             </>
@@ -201,14 +200,14 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
               onPress={onClearSelection}
               accessibilityLabel={t('gallery.actions.clearSelection')}
             >
-              <X size={18} color={colors.text.default} aria-hidden />
+              <Icon.X size={18} color={colors.text.default} aria-hidden />
             </Button>
             <Text style={{ marginRight: 'auto' }}>{selectedPhotoCountLabel}</Text>
 
             {isTrashMode ? (
               <>
                 <Button variant="secondary" onPress={onRestoreSelected} loading={pendingAction === 'restore'}>
-                  <Check size={18} color={colors.text.default} aria-hidden />
+                  <Icon.Check size={18} color={colors.text.default} aria-hidden />
                   {t('gallery.actions.restoreSelected')}
                 </Button>
                 <Button
@@ -216,14 +215,14 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                   onPress={onDeleteSelectedPermanently}
                   loading={pendingAction === 'delete-permanently'}
                 >
-                  <Trash2 size={18} color={colors.text.inverted} aria-hidden />
+                  <Icon.Trash size={18} color={colors.text.inverted} aria-hidden />
                   {t('gallery.actions.deletePermanently')}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="secondary" onPress={onCreateAlbum} disabled={!hasSelectedServer}>
-                  <Folder
+                  <Icon.Folder
                     size={18}
                     color={hasSelectedServer ? colors.text.default : colors.text.disabled}
                     aria-hidden
@@ -231,7 +230,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                   {t('gallery.actions.newAlbum')}
                 </Button>
                 <Button variant="secondary" onPress={onAddToAlbum} disabled={!hasSelectedServer}>
-                  <Folder
+                  <Icon.Folder
                     size={18}
                     color={hasSelectedServer ? colors.text.default : colors.text.disabled}
                     aria-hidden
@@ -239,7 +238,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
                   {t('gallery.actions.addToAlbum')}
                 </Button>
                 <Button variant="secondary" onPress={onTrashSelected} loading={pendingAction === 'trash'}>
-                  <Trash2 size={18} color={colors.text.default} aria-hidden />
+                  <Icon.Trash size={18} color={colors.text.default} aria-hidden />
                   {t('gallery.actions.trash')}
                 </Button>
               </>

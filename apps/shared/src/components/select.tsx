@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
 import { getFieldA11y, Input, type InputProps } from './input';
-import { Check, ChevronDown, X } from '../assets/icons';
+import { Icon } from '../assets/icons';
 import { OverflowFade } from './overflow-fade';
 import { DropdownMenu, DropdownOption } from './dropdown';
 import { webSpaceActivation } from './component-utils';
@@ -162,7 +162,7 @@ export const Select = forwardRef<View, SelectProps>(
             error={error}
             disabled={disabled}
             icon={
-              <ChevronDown
+              <Icon.ChevronDown
                 color={disabled ? colors.text.disabled : colors.text.secondary}
                 style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
                 aria-hidden
@@ -207,7 +207,7 @@ export const Select = forwardRef<View, SelectProps>(
                             }}
                             style={({ pressed }) => (pressed ? { backgroundColor: colors.surface.darker } : null)}
                           >
-                            <X size={16} color={colors.text.secondary} aria-hidden />
+                            <Icon.X size={16} color={colors.text.secondary} aria-hidden />
                           </ChipRemove>
                         )}
                       </SelectedValueChip>
@@ -257,7 +257,7 @@ export const Select = forwardRef<View, SelectProps>(
                     }}
                   >
                     <Text.S style={{ flex: 1 }}>{option.label}</Text.S>
-                    {isSelected && <Check size={20} color={colors.text.default} aria-hidden />}
+                    {isSelected && <Icon.Check size={20} color={colors.text.default} aria-hidden />}
                   </DropdownOption>
                 );
               })}

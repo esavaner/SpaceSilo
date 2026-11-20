@@ -1,8 +1,7 @@
 import { useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import styled from 'styled-components/native';
-import { Avatar, Text, theme, useThemeColors } from '@repo/shared/components';
-import { ChevronRight } from 'lucide-react-native';
+import { Avatar, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { GroupOptionsDropdown } from './dropdowns/GroupOptions.dropdown';
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { useTranslation } from 'react-i18next';
@@ -150,7 +149,7 @@ export const GroupList = ({ groups, emptyText, scrollable = true, viewerIds = []
                   <ColorSwatch $color={group.color ?? undefined} />
                   <Row>
                     <Text.Caption color={theme.colors.text.secondary}>#{group.id.slice(0, 8)}</Text.Caption>
-                    <ChevronRight size={16} color={colors.text.secondary} aria-hidden />
+                    <Icon.ChevronRight size={16} color={colors.text.secondary} aria-hidden />
                   </Row>
                 </CardFooter>
               </Card>

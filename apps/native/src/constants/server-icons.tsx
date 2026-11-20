@@ -1,8 +1,8 @@
 import { ServerType } from '@/api/_client';
-import { Icon } from '@/components/general/icon';
+import { ServerLogo } from '@/components/general/server-logo';
 
 export const serverIcons: Record<ServerType, React.ReactNode> = {
-  core: <Icon.Core />,
-  googleDrive: <Icon.GoogleDrive />,
-  dropbox: <Icon.Dropbox />,
+  core: <ServerLogo.Core />,
+  googleDrive: <ServerLogo.GoogleDrive />,
+  dropbox: <ServerLogo.Dropbox />,
 };

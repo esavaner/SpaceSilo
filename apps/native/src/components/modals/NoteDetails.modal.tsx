@@ -1,7 +1,6 @@
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { type NoteListItem } from '@/hooks/useNoteList';
-import { Button, Modal, ModalButtons, ModalTitle, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
-import { Pencil, Trash2 } from 'lucide-react-native';
+import { Button, Icon, Modal, ModalButtons, ModalTitle, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import styled from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
 import { NoteDeleteModal } from './NoteDelete.modal';
@@ -79,11 +78,11 @@ export const NoteDetailsModal = ({ note, groups, groupName, serverLabel }: NoteD
           variant="tertiary"
           onPress={() => openModal(<NoteEditorModal note={note} groups={groups} />)}
         >
-          <Pencil size={18} color={colors.text.brand} />
+          <Icon.Pencil size={18} color={colors.text.brand} />
           {t('common.actions.edit')}
         </Button>
         <Button variant="destructive" onPress={() => openModal(<NoteDeleteModal note={note} />)}>
-          <Trash2 size={18} color={colors.text.inverted} />
+          <Icon.Trash size={18} color={colors.text.inverted} />
           Delete
         </Button>
       </ModalButtons>

@@ -6,13 +6,12 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
-import { Copy, FileText, Folder, Trash2, X } from 'lucide-react-native';
 import { BaseLayout } from '@/components/base-layout';
 import { FileMoveCopyModal } from '@/components/modals/FileMoveCopy.modal';
 import { FileRemoveModal } from '@/components/modals/FileRemove.modal';
 import { Search } from '@/components/search';
 import { useFileSearch, type FileSearchItem } from '@/hooks/useFileSearch';
-import { Button, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import { Button, Icon, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 
 const Header = styled.View`
   gap: ${theme.spacing[400]};
@@ -91,9 +90,9 @@ export default function FilesPage() {
   const searchOptions = results.map((file) => (
     <SearchResult key={`${file.serverId}:${file.groupId}:${file.uri}`} onPress={() => handleSearchSelect(file)}>
       {file.isDirectory ? (
-        <Folder color={colors.text.brand} size={18} />
+        <Icon.Folder color={colors.text.brand} size={18} />
       ) : (
-        <FileText color={colors.text.default} size={18} />
+        <Icon.FileText color={colors.text.default} size={18} />
       )}
       <SearchResultDetails>
         <Text numberOfLines={1}>{file.name}</Text>
@@ -126,7 +125,7 @@ export default function FilesPage() {
               onPress={handleClearSelection}
               accessibilityLabel={t('files.clearSelection')}
             >
-              <X size={18} color={colors.text.brand} />
+              <Icon.X size={18} color={colors.text.brand} />
             </Button>
             <SelectionCount>
               {selectedItems.length} {t('common.nouns.items')}
@@ -137,7 +136,7 @@ export default function FilesPage() {
               size="small"
               accessibilityLabel={t('files.moveCopy.title')}
             >
-              <Copy size={18} color={colors.text.brand} />
+              <Icon.Copy size={18} color={colors.text.brand} />
             </Button>
             <Button
               onPress={() => openModal(<FileRemoveModal files={selectedItems} />)}
@@ -145,7 +144,7 @@ export default function FilesPage() {
               size="small"
               accessibilityLabel={t('common.actions.remove')}
             >
-              <Trash2 size={18} color={colors.text.danger} />
+              <Icon.Trash size={18} color={colors.text.danger} />
             </Button>
           </SelectionActions>
         ) : (
