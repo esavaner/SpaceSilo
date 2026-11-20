@@ -9,7 +9,7 @@ import styled from 'styled-components/native';
 
 const Background = styled.View`
   flex: 1;
-  background-color: ${theme.colors.media.background};
+  background-color: ${theme.baseColors.base.black};
 `;
 
 const ImageTarget = styled.Pressable`
@@ -35,7 +35,7 @@ const TopControls = styled.View`
 const ImageCount = styled.View`
   border-radius: ${theme.radius.full};
   padding: ${theme.spacing[100]} ${theme.spacing[300]};
-  background-color: ${theme.colors.media.scrim};
+  background-color: ${theme.colors.surface.darker};
 `;
 
 const ControlButtons = styled.View`
@@ -71,7 +71,7 @@ type GalleryLightboxProps = {
 export function GalleryLightbox({ images, index, onClose, onIndexChange }: GalleryLightboxProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const controlStyle = { backgroundColor: colors.media.scrim, borderRadius: 999 };
+  const controlStyle = { backgroundColor: colors.surface.darker, borderRadius: 999 };
   const [controlsVisible, setControlsVisible] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
   const hasImage = index !== null && index >= 0 && index < images.length;
@@ -147,10 +147,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
     <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
       <Background>
         <GestureDetector gesture={swipeGesture}>
-          <ImageTarget
-            onPress={() => setControlsVisible((visible) => !visible)}
-            accessibilityRole="button"
-          >
+          <ImageTarget onPress={() => setControlsVisible((visible) => !visible)} accessibilityRole="button">
             <Image
               source={{ uri: currentImage.uri, headers: currentImage.headers }}
               cachePolicy="memory-disk"
@@ -165,7 +162,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
           <>
             <TopControls pointerEvents="box-none">
               <ImageCount>
-                <Text.S color={theme.colors.media.text}>
+                <Text.S color={theme.colors.text.inverted}>
                   {currentIndex + 1} / {images.length}
                 </Text.S>
               </ImageCount>
@@ -178,7 +175,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                   onPress={() => setInfoOpen(true)}
                   accessibilityLabel={t('gallery.lightbox.info')}
                 >
-                  <Icon.Info size={18} color={colors.media.text} aria-hidden />
+                  <Icon.Info size={18} color={colors.text.inverted} aria-hidden />
                 </Button>
                 <Button
                   variant="tertiary"
@@ -187,7 +184,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                   onPress={onClose}
                   accessibilityLabel={t('gallery.lightbox.close')}
                 >
-                  <Icon.X size={18} color={colors.media.text} aria-hidden />
+                  <Icon.X size={18} color={colors.text.inverted} aria-hidden />
                 </Button>
               </ControlButtons>
             </TopControls>
@@ -201,7 +198,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                 onPress={() => onIndexChange(currentIndex - 1)}
                 accessibilityLabel={t('gallery.lightbox.previous')}
               >
-                <Icon.ChevronLeft size={24} color={colors.media.text} aria-hidden />
+                <Icon.ChevronLeft size={24} color={colors.text.inverted} aria-hidden />
               </Button>
             </SideControl>
 
@@ -214,7 +211,7 @@ export function GalleryLightbox({ images, index, onClose, onIndexChange }: Galle
                 onPress={() => onIndexChange(currentIndex + 1)}
                 accessibilityLabel={t('gallery.lightbox.next')}
               >
-                <Icon.ChevronRight size={24} color={colors.media.text} aria-hidden />
+                <Icon.ChevronRight size={24} color={colors.text.inverted} aria-hidden />
               </Button>
             </SideControl>
           </>

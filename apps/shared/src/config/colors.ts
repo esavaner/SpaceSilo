@@ -3,11 +3,7 @@ export const baseColors = {
     white: '#ffffff',
     white20: '#ffffff33',
     black: '#000000',
-    black25: '#00000040',
-    black50: '#00000080',
-    black70: '#000000b3',
     black80: '#000000cc',
-    white80: '#ffffffcc',
   },
   teal: {
     50: '#f4fbfa',
@@ -17,7 +13,6 @@ export const baseColors = {
     400: '#6aaa9f',
     500: '#448b7e',
     600: '#307467',
-    '600-08': '#30746714',
     700: '#235a50',
     800: '#0d2a25',
     900: '#0d2a25',
@@ -33,7 +28,6 @@ export const baseColors = {
     700: '#6b5d55',
     800: '#3f2c26',
     900: '#2f2520',
-    '900-80': '#2f2520cc',
   },
   blush: {
     50: '#fef9f7',
@@ -70,6 +64,7 @@ export const baseColors = {
     700: '#404040',
     800: '#262626',
     900: '#171717',
+    950: '#0a0a0a',
   },
   green: {
     50: '#e0f4e7',
@@ -135,8 +130,8 @@ export const baseColors = {
 
 export const lightColors = {
   surface: {
-    default: baseColors.brown[50],
     weak: baseColors.base.white,
+    default: baseColors.brown[50],
     medium: baseColors.brown[100],
     stronger: baseColors.brown[200],
     darker: baseColors.brown[300],
@@ -147,16 +142,7 @@ export const lightColors = {
       end: baseColors.teal[400],
     },
   },
-  overlay: baseColors.brown['900-80'],
-  // Controls drawn over photos stay light-on-dark in both schemes.
-  media: {
-    background: baseColors.base.black,
-    tint: baseColors.base.black25,
-    scrim: baseColors.base.black50,
-    scrimStrong: baseColors.base.black70,
-    text: baseColors.base.white,
-    textMuted: baseColors.base.white80,
-  },
+  overlay: `${baseColors.brown[900]}cc`,
   primary: {
     default: baseColors.teal[600],
     hover: baseColors.teal[700],
@@ -296,8 +282,8 @@ export type ThemeColors = Palette<typeof lightColors>;
 
 export const darkColors: ThemeColors = {
   surface: {
+    weak: baseColors.grey[950],
     default: baseColors.grey[900],
-    weak: baseColors.grey[800],
     medium: baseColors.grey[800],
     stronger: baseColors.grey[700],
     darker: baseColors.grey[600],
@@ -309,15 +295,6 @@ export const darkColors: ThemeColors = {
     },
   },
   overlay: baseColors.base.black80,
-  // Controls drawn over photos stay light-on-dark in both schemes.
-  media: {
-    background: baseColors.base.black,
-    tint: baseColors.base.black25,
-    scrim: baseColors.base.black50,
-    scrimStrong: baseColors.base.black70,
-    text: baseColors.base.white,
-    textMuted: baseColors.base.white80,
-  },
   primary: {
     default: baseColors.teal[600],
     hover: baseColors.teal[500],
@@ -426,7 +403,7 @@ export const darkColors: ThemeColors = {
     brandHover: baseColors.teal[300],
     brandActive: baseColors.teal[200],
     brandSecondary: '#f1786c',
-    default: baseColors.brown[50],
+    default: baseColors.grey[50],
     // Only used on colored fills (primary/destructive), so it stays white.
     inverted: baseColors.base.white,
     secondary: baseColors.brown[300],
@@ -448,7 +425,7 @@ export const darkColors: ThemeColors = {
     infoDarker: baseColors.blue[300],
     warning: baseColors.yellow[400],
     warningDarker: baseColors.yellow[300],
-    danger: baseColors.red[400],
-    dangerDarker: baseColors.red[300],
+    danger: baseColors.red[500],
+    dangerDarker: baseColors.red[400],
   },
 };

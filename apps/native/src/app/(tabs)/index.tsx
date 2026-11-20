@@ -56,7 +56,7 @@ const SwatchGrid = styled.View`
   gap: ${theme.spacing[100]};
 `;
 const Swatch = styled.View`
-  width: 100px;
+  width: 110px;
   min-height: 80px;
   border: 1px solid ${theme.colors.border.default};
   border-radius: ${theme.radius[200]};
@@ -85,10 +85,18 @@ function swatchTextColor(hex: string, backdrop: string) {
   return luminance < Math.sqrt(0.05 * 1.05) - 0.05 ? baseColors.base.white : baseColors.base.black;
 }
 
-function ColorPreview({ palette, backdrop }: { palette: Palette; backdrop: string }) {
+function ColorPreview({
+  palette,
+  backdrop,
+  withGroupTitle,
+}: {
+  palette: Palette;
+  backdrop: string;
+  withGroupTitle?: boolean;
+}) {
   return Object.entries(palette).map(([group, value]) => (
     <Fragment key={group}>
-      {typeof value !== 'string' && <Text.Label role="heading">{group}</Text.Label>}
+      {withGroupTitle && typeof value !== 'string' && <Text.Label role="heading">{group}</Text.Label>}
       <SwatchGrid>
         {colorEntries({ [group]: value }).map(([token, hex]) => {
           const color = swatchTextColor(hex, backdrop);
@@ -475,7 +483,7 @@ export default function IndexPage() {
             value={themeMode}
             onValueChange={(value) => setThemeMode(value as ThemeMode)}
           />
-          <ColorPreview palette={colors} backdrop={colors.surface.medium} />
+          <ColorPreview palette={colors} backdrop={colors.surface.medium} withGroupTitle />
         </Section>
       </BaseLayout>
       {showFullPageLoader && <Loader fullPage onRequestClose={() => setShowFullPageLoader(false)} />}

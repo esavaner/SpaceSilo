@@ -108,17 +108,7 @@ const create = (style: RuleSet<object>) => {
   const ForwardedTextComponent = forwardRef<NativeText, TextProps>((props, ref) => {
     const { color, italic, weight, center, em, ...rest } = props;
 
-    return (
-      <Component
-        ref={ref}
-        $color={color}
-        $italic={italic}
-        $weight={weight}
-        $center={center}
-        $em={em}
-        {...rest}
-      />
-    );
+    return <Component ref={ref} $color={color} $italic={italic} $weight={weight} $center={center} $em={em} {...rest} />;
   });
 
   ForwardedTextComponent.displayName = 'Text';

@@ -36,7 +36,7 @@ const AttachmentBadge = styled.View`
   right: ${theme.spacing[200]};
   border-radius: ${theme.radius.full};
   padding: ${theme.spacing[100]};
-  background-color: ${theme.colors.media.scrim};
+  background-color: ${theme.colors.surface.darker};
 `;
 
 const AlbumTint = styled.View`
@@ -45,7 +45,7 @@ const AlbumTint = styled.View`
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: ${theme.colors.media.tint};
+  background-color: ${theme.colors.surface.darker};
 `;
 
 const SelectionButton = styled.Pressable<{ $selected: boolean; $visible: boolean }>`
@@ -60,11 +60,14 @@ const SelectionButton = styled.Pressable<{ $selected: boolean; $visible: boolean
   border-radius: ${theme.radius.full};
   border-width: ${theme.borderWeight[25]};
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  background-color: ${({ $selected }) => ($selected ? theme.colors.primary.default : theme.colors.media.scrim)};
-  border-color: ${({ $selected }) => ($selected ? theme.colors.border.primary.default : theme.colors.media.textMuted)};
-  ${Platform.OS === 'web' && css`
-    transition: opacity 150ms;
-  `}
+  background-color: ${({ $selected }) => ($selected ? theme.colors.primary.default : theme.colors.surface.darker)};
+  border-color: ${({ $selected }) => ($selected ? theme.colors.border.primary.default : theme.colors.text.inverted)};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      transition: opacity 150ms;
+    `
+  }
 `;
 
 const SelectionCircle = styled.View`
@@ -72,7 +75,7 @@ const SelectionCircle = styled.View`
   height: ${theme.spacing[300]};
   border-radius: ${theme.radius.full};
   border-width: ${theme.borderWeight[25]};
-  border-color: ${theme.colors.media.text};
+  border-color: ${theme.colors.border.default};
 `;
 
 const AlbumCaption = styled.View`
@@ -82,7 +85,7 @@ const AlbumCaption = styled.View`
   bottom: 0;
   gap: ${theme.spacing[100]};
   padding: ${theme.spacing[300]};
-  background-color: ${theme.colors.media.scrimStrong};
+  background-color: ${theme.colors.overlay};
 `;
 
 const AlbumName = styled.View`
@@ -285,7 +288,7 @@ const GalleryTile = memo(function GalleryTile({
 
         {item.type === 'photo' && (item.sidecarCount ?? 0) > 0 ? (
           <AttachmentBadge>
-            <Icon.Paperclip color={colors.media.text} size={14} aria-hidden />
+            <Icon.Paperclip color={colors.text.inverted} size={14} aria-hidden />
           </AttachmentBadge>
         ) : null}
 
@@ -300,23 +303,19 @@ const GalleryTile = memo(function GalleryTile({
               onTogglePhotoSelection(item);
             }}
           >
-            {isSelected ? (
-              <Icon.Check color={colors.text.inverted} size={16} aria-hidden />
-            ) : (
-              <SelectionCircle />
-            )}
+            {isSelected ? <Icon.Check color={colors.text.inverted} size={16} aria-hidden /> : <SelectionCircle />}
           </SelectionButton>
         ) : null}
 
         {item.type === 'album' ? (
           <AlbumCaption>
             <AlbumName>
-              <Icon.Folder color={colors.media.text} size={16} aria-hidden />
-              <Text color={theme.colors.media.text} style={{ flex: 1 }}>
+              <Icon.Folder color={colors.text.inverted} size={16} aria-hidden />
+              <Text color={theme.colors.text.inverted} style={{ flex: 1 }}>
                 {item.name}
               </Text>
             </AlbumName>
-            <Text.Caption color={theme.colors.media.textMuted}>
+            <Text.Caption color={theme.colors.text.inverted}>
               {[
                 item.subalbumCount ? `${item.subalbumCount} ${t('common.nouns.albums')}` : '',
                 item.photoCount ? `${item.photoCount} ${t('common.nouns.photos')}` : '',

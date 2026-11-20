@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { createTheme, css } from 'styled-components/native';
-import { lightColors, type ThemeColors } from './colors';
+import { baseColors, lightColors, type ThemeColors } from './colors';
 
 // Leaves are placeholders resolved against the nearest ThemeProvider at render time, so styles follow live theme changes.
 export const themeTokens = createTheme({ colors: lightColors });
@@ -171,6 +171,7 @@ export const theme = {
     bg: -1000,
   },
   colors: themeTokens.colors,
+  baseColors,
   breakpointNumbers,
   breakpoints,
 } as const;
