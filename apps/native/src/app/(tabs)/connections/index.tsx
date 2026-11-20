@@ -1,8 +1,5 @@
 import { BaseLayout } from '@/components/base-layout';
-import { InputController } from '@/components/controllers/input.controller';
-import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
 import { ServerType } from '@/api/_client';
 import { endpoints } from '@/api/core.client';
 import { useValidators } from '@/hooks/useValidators';
@@ -13,25 +10,27 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tApiErr } from '@/i18n/translate';
-import { useForm } from 'react-hook-form';
-import { Pressable, View } from 'react-native';
+import { Controller, useForm } from 'react-hook-form';
+import { Platform } from 'react-native';
+import styled, { css } from 'styled-components/native';
+import { Button, Input, Text, theme } from '@repo/shared/components';
 import * as yup from 'yup';
 
 const providerMeta = {
   coreNas: {
     titleKey: 'connections.providers.coreNas.title',
     descriptionKey: 'connections.providers.coreNas.desc',
-    icon: <Icon.Core size={30} className="mt-1" />,
+    icon: <Icon.Core size={30} />,
   },
   googleDrive: {
     titleKey: 'connections.providers.googleDrive.title',
     descriptionKey: 'connections.providers.googleDrive.desc',
-    icon: <Icon.GoogleDrive size={30} className="mt-1" />,
+    icon: <Icon.GoogleDrive size={30} />,
   },
   dropbox: {
     titleKey: 'connections.providers.dropbox.title',
     descriptionKey: 'connections.providers.dropbox.desc',
-    icon: <Icon.Dropbox size={30} className="mt-1" />,
+    icon: <Icon.Dropbox size={30} />,
   },
 } as const;
 
@@ -42,6 +41,105 @@ type CoreNasForm = {
   email: string;
   password: string;
 };
+
+const PageContent = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+
+const Subtitle = styled(Text.M)`
+  margin-top: ${theme.spacing[200]};
+  color: ${theme.colors.text.secondary};
+`;
+
+const AddPanel = styled.View`
+  margin: ${theme.spacing[400]} 0;
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[50]} dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[200]};
+`;
+
+const PanelContent = styled.View`
+  gap: ${theme.spacing[100]};
+`;
+
+const ProvidersGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[300]};
+  margin-top: ${theme.spacing[400]};
+`;
+
+const ProviderCard = styled.Pressable`
+  flex: 1;
+  min-width: 240px;
+  flex-direction: row;
+  gap: ${theme.spacing[400]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  ${
+    Platform.OS === 'web' &&
+    css`
+      cursor: pointer;
+      &:hover {
+        background-color: ${theme.colors.surface.medium};
+      }
+    `
+  }
+`;
+
+const ProviderIcon = styled.View`
+  margin-top: ${theme.spacing[100]};
+`;
+
+const ProviderDetails = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[50]};
+`;
+
+const ProviderConfig = styled.View`
+  gap: ${theme.spacing[300]};
+  margin-top: ${theme.spacing[400]};
+`;
+
+const FormActions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: ${theme.spacing[300]};
+  margin-top: ${theme.spacing[200]};
+`;
+
+const ExistingHeading = styled(Text.H2)`
+  margin-bottom: ${theme.spacing[300]};
+`;
+
+const ExistingGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[300]};
+`;
+
+const ServerCard = styled.View`
+  flex: 1;
+  min-width: 240px;
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[200]};
+`;
+
+const ServerActions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[200]};
+`;
+
+const EmptyState = styled(Text.S)`
+  align-self: center;
+  margin-top: ${theme.spacing[800]};
+  color: ${theme.colors.text.secondary};
+`;
 
 export default function ConnectionsPage() {
   const { t } = useTranslation();
@@ -125,145 +223,173 @@ export default function ConnectionsPage() {
 
   const providerConfig = selectedProvider ? (
     selectedProvider === 'coreNas' ? (
-      <View className="mt-4 gap-3">
-        <InputController
+      <ProviderConfig>
+        <Controller
           control={control}
           name="displayName"
-          label={t('inputs.displayName')}
-          placeholder={t('placeholders.displayName')}
-          error={errors.displayName?.message}
+          render={({ field }) => (
+            <Input
+              label={t('inputs.displayName')}
+              placeholder={t('placeholders.displayName')}
+              value={field.value}
+              onBlur={field.onBlur}
+              onChangeText={field.onChange}
+              error={errors.displayName?.message}
+            />
+          )}
         />
-        <InputController
+        <Controller
           control={control}
           name="serverUrl"
-          label={t('inputs.serverUrl')}
-          placeholder={t('placeholders.serverUrl')}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          error={errors.serverUrl?.message}
+          render={({ field }) => (
+            <Input
+              label={t('inputs.serverUrl')}
+              placeholder={t('placeholders.serverUrl')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              value={field.value}
+              onBlur={field.onBlur}
+              onChangeText={field.onChange}
+              error={errors.serverUrl?.message}
+            />
+          )}
         />
-        <InputController
+        <Controller
           control={control}
           name="email"
-          label={t('inputs.email')}
-          placeholder={t('placeholders.email')}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          error={errors.email?.message}
+          render={({ field }) => (
+            <Input
+              label={t('inputs.email')}
+              placeholder={t('placeholders.email')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              value={field.value}
+              onBlur={field.onBlur}
+              onChangeText={field.onChange}
+              error={errors.email?.message}
+            />
+          )}
         />
-        <InputController
+        <Controller
           control={control}
           name="password"
-          label={t('inputs.password')}
-          placeholder={t('placeholders.password')}
-          secureTextEntry
-          error={errors.password?.message}
+          render={({ field }) => (
+            <Input
+              label={t('inputs.password')}
+              placeholder={t('placeholders.password')}
+              secureTextEntry
+              value={field.value}
+              onBlur={field.onBlur}
+              onChangeText={field.onChange}
+              error={errors.password?.message}
+            />
+          )}
         />
-        <View className="flex-row gap-3 justify-end mt-2">
+        <FormActions>
           <Button variant="secondary" onPress={() => setSelectedProvider(null)}>
             {t('connections.actions.chooseOther')}
           </Button>
           <Button onPress={handleSubmit(onConnectCoreNas)} loading={isSavingCoreNas}>
             {t('connections.actions.addCoreNas')}
           </Button>
-        </View>
-      </View>
+        </FormActions>
+      </ProviderConfig>
     ) : (
-      <View className="mt-4 gap-3">
-        <Text variant="muted">
+      <ProviderConfig>
+        <Text.S color={theme.colors.text.secondary}>
           {t('connections.oauth', {
             provider: t(providerMeta[selectedProvider].titleKey),
           })}
-        </Text>
+        </Text.S>
         <Button onPress={() => null}>
           {t('connections.actions.connectWith', {
             provider: t(providerMeta[selectedProvider].titleKey),
           })}
         </Button>
-      </View>
+      </ProviderConfig>
     )
   ) : null;
 
   return (
     <BaseLayout>
-      <Text variant="h1">{t('connections.title')}</Text>
-      <Text variant="p">{t('connections.subtitle')}</Text>
-      <View className="border-border border-dashed border-2 p-4 rounded my-5">
-        <Text variant="h2">{t('connections.add')}</Text>
-        <Text variant="muted">
-          {selectedProvider
-            ? t('connections.setup', {
-                provider: t(providerMeta[selectedProvider].titleKey),
-              })
-            : t('connections.select')}
-        </Text>
+      <PageContent>
+        <Text.H1>{t('connections.title')}</Text.H1>
+        <Subtitle>{t('connections.subtitle')}</Subtitle>
+        <AddPanel>
+          <PanelContent>
+            <Text.H2>{t('connections.add')}</Text.H2>
+            <Text.S color={theme.colors.text.secondary}>
+              {selectedProvider
+                ? t('connections.setup', {
+                    provider: t(providerMeta[selectedProvider].titleKey),
+                  })
+                : t('connections.select')}
+            </Text.S>
+          </PanelContent>
 
-        {!selectedProvider ? (
-          <View className="mt-4 gap-3 grid md:grid-cols-2 xl:grid-cols-3">
-            {Object.entries(providerMeta).map(([provider, meta]) => (
-              <Pressable
-                key={provider}
-                className="p-4 flex-row gap-4 rounded-lg border-border border hover:bg-muted"
-                onPress={() => setSelectedProvider(provider as Provider)}
-              >
-                <View className="gap-4 flex-row shrink">
-                  {meta.icon}
-                  <View className="gap-1 shrink">
-                    <Text variant="h3">{t(meta.titleKey)}</Text>
-                    <Text variant="muted">{t(meta.descriptionKey)}</Text>
-                  </View>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          {!selectedProvider ? (
+            <ProvidersGrid>
+              {Object.entries(providerMeta).map(([provider, meta]) => (
+                <ProviderCard
+                  key={provider}
+                  onPress={() => setSelectedProvider(provider as Provider)}
+                  accessibilityRole="button"
+                >
+                  <ProviderIcon>{meta.icon}</ProviderIcon>
+                  <ProviderDetails>
+                    <Text.H3>{t(meta.titleKey)}</Text.H3>
+                    <Text.S color={theme.colors.text.secondary}>{t(meta.descriptionKey)}</Text.S>
+                  </ProviderDetails>
+                </ProviderCard>
+              ))}
+            </ProvidersGrid>
+          ) : (
+            providerConfig
+          )}
+        </AddPanel>
+        <ExistingHeading>{t('connections.existing')}</ExistingHeading>
+        {allServers.length === 0 ? (
+          <EmptyState>{t('connections.messages.none')}</EmptyState>
         ) : (
-          providerConfig
+          <ExistingGrid>
+            {allServers.map((server) => (
+              <ServerCard key={server.id}>
+                <Text.H3>{server.label}</Text.H3>
+                <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
+                <Text.S>
+                  {server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}
+                </Text.S>
+                <ServerActions>
+                  <Button
+                    variant="secondary"
+                    onPress={() =>
+                      router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })
+                    }
+                  >
+                    {t('common.actions.details')}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onPress={() => onToggleCoreServer(server.id, server.disabled)}
+                    loading={busyServerId === server.id}
+                  >
+                    {server.disabled ? t('connections.actions.enable') : t('connections.actions.disable')}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onPress={() => onRemoveCoreServer(server.id)}
+                    loading={busyServerId === server.id}
+                  >
+                    {t('connections.actions.remove')}
+                  </Button>
+                </ServerActions>
+              </ServerCard>
+            ))}
+          </ExistingGrid>
         )}
-      </View>
-      <Text variant="h2" className="mb-3">
-        {t('connections.existing')}
-      </Text>
-      {allServers.length === 0 ? (
-        <Text variant="muted" className="mx-auto mt-9">
-          {t('connections.messages.none')}
-        </Text>
-      ) : (
-        <View className="gap-3 grid md:grid-cols-2 xl:grid-cols-3">
-          {allServers.map((server) => (
-            <View key={server.id} className="border-border border rounded p-4 gap-2">
-              <Text variant="h4">{server.label}</Text>
-              <Text variant="muted">{server.baseUrl}</Text>
-              <Text variant="small">
-                {server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}
-              </Text>
-              <View className="flex-row gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
-                >
-                  {t('common.actions.details')}
-                </Button>
-                <Button
-                  variant="secondary"
-                  onPress={() => onToggleCoreServer(server.id, server.disabled)}
-                  loading={busyServerId === server.id}
-                >
-                  {server.disabled ? t('connections.actions.enable') : t('connections.actions.disable')}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onPress={() => onRemoveCoreServer(server.id)}
-                  loading={busyServerId === server.id}
-                >
-                  {t('connections.actions.remove')}
-                </Button>
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
+      </PageContent>
     </BaseLayout>
   );
 }
