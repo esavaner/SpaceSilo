@@ -7,10 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
 
-const Header = styled.View`
-  gap: ${theme.spacing[400]};
-`;
-
 const HeaderRow = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
@@ -159,7 +155,7 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
   const noServers = serverCount === 0;
 
   return (
-    <Header>
+    <>
       <HeaderRow>
         <TitleSection>
           <Text.H1>{title}</Text.H1>
@@ -292,6 +288,6 @@ export function GalleryBrowserHeader<GroupBy extends string, ViewMode extends st
           ) : null}
         </SelectionPanel>
       ) : null}
-    </Header>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import styled from 'styled-components/native';
-import { BaseLayout } from '@/components/base-layout';
+import { BaseLayout, BaseLayoutHeading, BaseLayoutHeadingRow } from '@/components/base-layout';
 import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
 import { NoteDetailsModal } from '@/components/modals/NoteDetails.modal';
 import { NoteDeleteModal } from '@/components/modals/NoteDelete.modal';
@@ -11,25 +11,6 @@ import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
-
-const PageContent = styled.View`
-  gap: ${theme.spacing[600]};
-  padding-bottom: ${theme.spacing[800]};
-`;
-
-const HeadingRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing[300]};
-`;
-
-const HeadingContent = styled.View`
-  flex: 1;
-  min-width: 120px;
-  gap: ${theme.spacing[50]};
-`;
 
 const FiltersPanel = styled.View`
   gap: ${theme.spacing[300]};
@@ -216,146 +197,135 @@ export default function NotesPage() {
   return (
     <BaseLayout
       header={
-        <HeadingRow>
-          <HeadingContent>
+        <BaseLayoutHeadingRow>
+          <BaseLayoutHeading>
             <Text.H1>{t('navigation.notes')}</Text.H1>
             <Text.S color={colors.text.secondary}>
               {isNotesLoading || isGroupsLoading
                 ? t('notes.loading')
                 : `${visibleNotes.length} ${t('common.nouns.notes')} ${t('common.labels.inView')}`}
             </Text.S>
-          </HeadingContent>
+          </BaseLayoutHeading>
           <Button onPress={openCreateModal} disabled={groups.length === 0}>
             <Icon.Plus size={18} color={colors.text.inverted} />
             <Text.S color={colors.text.inverted}>{t('notes.actions.create')}</Text.S>
           </Button>
-        </HeadingRow>
+        </BaseLayoutHeadingRow>
       }
     >
-      <PageContent>
-        <FiltersPanel>
-          <Input
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('notes.searchPlaceholder')}
-            leftIcon={<Icon.Search size={16} color={colors.text.secondary} />}
+      <FiltersPanel>
+        <Input
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('notes.searchPlaceholder')}
+          leftIcon={<Icon.Search size={16} color={colors.text.secondary} />}
+        />
+
+        <FilterRow>
+          <IncludedGroupsDropdown
+            options={groupFilterOptions}
+            includedKeys={includedGroupKeys}
+            title={t('notes.groupFilter.title')}
+            includeLabel={t('notes.groupFilter.include')}
+            emptyLabel={t('notes.groupFilter.empty')}
+            onToggleIncluded={(key) => {
+              const group = groups.find((item) => getGroupLookupKey(item) === key);
+
+              if (group) {
+                handleToggleIncludedGroup(group);
+              }
+            }}
           />
+        </FilterRow>
+      </FiltersPanel>
 
-          <FilterRow>
-            <IncludedGroupsDropdown
-              options={groupFilterOptions}
-              includedKeys={includedGroupKeys}
-              title={t('notes.groupFilter.title')}
-              includeLabel={t('notes.groupFilter.include')}
-              emptyLabel={t('notes.groupFilter.empty')}
-              onToggleIncluded={(key) => {
-                const group = groups.find((item) => getGroupLookupKey(item) === key);
+      {servers.length === 0 ? (
+        <EmptyState>
+          <Text.H3>{t('notes.empty.noServersTitle')}</Text.H3>
+          <Text.M color={colors.text.secondary}>{t('notes.empty.noServersDescription')}</Text.M>
+        </EmptyState>
+      ) : isNotesLoading || isGroupsLoading ? (
+        <LoadingState>
+          <Text.M color={colors.text.secondary}>{t('notes.loadingAll')}</Text.M>
+        </LoadingState>
+      ) : visibleNotes.length === 0 ? (
+        <EmptyState>
+          <Text.H3>{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text.H3>
+          <Text.M color={colors.text.secondary}>
+            {query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
+          </Text.M>
+          {!query.trim() ? (
+            <Button onPress={openCreateModal} disabled={groups.length === 0} style={{ alignSelf: 'flex-start' }}>
+              <Icon.Plus size={18} color={colors.text.inverted} />
+              <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
+            </Button>
+          ) : null}
+        </EmptyState>
+      ) : (
+        <NotesGrid>
+          {visibleNotes.map((note) => {
+            const group = groupLookup.get(getGroupLookupKey(note));
+            const serverLabel = serverLookup.get(note.serverId)?.label ?? t('common.messages.connectedServer');
 
-                if (group) {
-                  handleToggleIncludedGroup(group);
-                }
-              }}
-            />
-          </FilterRow>
-        </FiltersPanel>
+            return (
+              <NoteCard key={`${note.serverId}:${note.id}`} $width={cardWidth}>
+                <NoteRow>
+                  <NoteContent onPress={() => openDetailsModal(note)}>
+                    <NoteDetails>
+                      <TitleRow>
+                        <Text.L weight={700}>{getNoteTitle(note, t('notes.details.untitled'))}</Text.L>
+                        <NoteTag>
+                          <Text.Caption color={colors.text.secondary}>
+                            {group?.name ?? t('common.messages.unknownGroup')}
+                          </Text.Caption>
+                        </NoteTag>
+                        <NoteTag>
+                          <Text.Caption color={colors.text.secondary}>{serverLabel}</Text.Caption>
+                        </NoteTag>
+                      </TitleRow>
 
-        {servers.length === 0 ? (
-          <EmptyState>
-            <Text.H3>{t('notes.empty.noServersTitle')}</Text.H3>
-            <Text.M color={colors.text.secondary}>{t('notes.empty.noServersDescription')}</Text.M>
-          </EmptyState>
-        ) : isNotesLoading || isGroupsLoading ? (
-          <LoadingState>
-            <Text.M color={colors.text.secondary}>{t('notes.loadingAll')}</Text.M>
-          </LoadingState>
-        ) : visibleNotes.length === 0 ? (
-          <EmptyState>
-            <Text.H3>{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text.H3>
-            <Text.M color={colors.text.secondary}>
-              {query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
-            </Text.M>
-            {!query.trim() ? (
-              <Button
-                onPress={openCreateModal}
-                disabled={groups.length === 0}
-                style={{ alignSelf: 'flex-start' }}
-              >
-                <Icon.Plus size={18} color={colors.text.inverted} />
-                <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
-              </Button>
-            ) : null}
-          </EmptyState>
-        ) : (
-          <NotesGrid>
-            {visibleNotes.map((note) => {
-              const group = groupLookup.get(getGroupLookupKey(note));
-              const serverLabel = serverLookup.get(note.serverId)?.label ?? t('common.messages.connectedServer');
+                      <Text.S color={colors.text.secondary} numberOfLines={3}>
+                        {getNotePreview(note.content)}
+                      </Text.S>
+                    </NoteDetails>
 
-              return (
-                <NoteCard
-                  key={`${note.serverId}:${note.id}`}
-                  $width={cardWidth}
-                >
-                  <NoteRow>
-                    <NoteContent onPress={() => openDetailsModal(note)}>
-                      <NoteDetails>
-                        <TitleRow>
-                          <Text.L weight={700}>
-                            {getNoteTitle(note, t('notes.details.untitled'))}
-                          </Text.L>
-                          <NoteTag>
-                            <Text.Caption color={colors.text.secondary}>
-                              {group?.name ?? t('common.messages.unknownGroup')}
-                            </Text.Caption>
-                          </NoteTag>
-                          <NoteTag>
-                            <Text.Caption color={colors.text.secondary}>{serverLabel}</Text.Caption>
-                          </NoteTag>
-                        </TitleRow>
+                    <Text.Caption color={colors.text.secondary}>
+                      {t('notes.details.updated', { value: formatUpdatedAt(note.updatedAt, i18n.language) })}
+                    </Text.Caption>
+                  </NoteContent>
 
-                        <Text.S color={colors.text.secondary} numberOfLines={3}>
-                          {getNotePreview(note.content)}
-                        </Text.S>
-                      </NoteDetails>
-
-                      <Text.Caption color={colors.text.secondary}>
-                        {t('notes.details.updated', { value: formatUpdatedAt(note.updatedAt, i18n.language) })}
-                      </Text.Caption>
-                    </NoteContent>
-
-                    <NoteActions>
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        style={{ width: 40, height: 40, padding: 0 }}
-                        onPress={() => openDetailsModal(note)}
-                      >
-                        <Icon.FileText size={18} color={colors.text.brand} />
-                      </Button>
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        style={{ width: 40, height: 40, padding: 0 }}
-                        onPress={() => openEditModal(note)}
-                      >
-                        <Icon.Pencil size={18} color={colors.text.brand} />
-                      </Button>
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        style={{ width: 40, height: 40, padding: 0 }}
-                        onPress={() => openDeleteModal(note)}
-                      >
-                        <Icon.Trash size={18} color={colors.text.brand} />
-                      </Button>
-                    </NoteActions>
-                  </NoteRow>
-                </NoteCard>
-              );
-            })}
-          </NotesGrid>
-        )}
-      </PageContent>
+                  <NoteActions>
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      style={{ width: 40, height: 40, padding: 0 }}
+                      onPress={() => openDetailsModal(note)}
+                    >
+                      <Icon.FileText size={18} color={colors.text.brand} />
+                    </Button>
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      style={{ width: 40, height: 40, padding: 0 }}
+                      onPress={() => openEditModal(note)}
+                    >
+                      <Icon.Pencil size={18} color={colors.text.brand} />
+                    </Button>
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      style={{ width: 40, height: 40, padding: 0 }}
+                      onPress={() => openDeleteModal(note)}
+                    >
+                      <Icon.Trash size={18} color={colors.text.brand} />
+                    </Button>
+                  </NoteActions>
+                </NoteRow>
+              </NoteCard>
+            );
+          })}
+        </NotesGrid>
+      )}
     </BaseLayout>
   );
 }

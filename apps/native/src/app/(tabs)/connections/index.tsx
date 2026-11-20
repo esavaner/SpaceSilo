@@ -1,4 +1,4 @@
-import { BaseLayout } from '@/components/base-layout';
+import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
 import { ServerLogo } from '@/components/general/server-logo';
 import { ServerType } from '@/api/_client';
 import { endpoints } from '@/api/core.client';
@@ -41,17 +41,11 @@ type CoreNasForm = {
   password: string;
 };
 
-const PageContent = styled.View`
-  gap: ${theme.spacing[300]};
-`;
-
 const Subtitle = styled(Text.M)`
-  margin-top: ${theme.spacing[200]};
   color: ${theme.colors.text.secondary};
 `;
 
 const AddPanel = styled.View`
-  margin: ${theme.spacing[400]} 0;
   padding: ${theme.spacing[400]};
   border: ${theme.borderWeight[50]} dashed ${theme.colors.border.default};
   border-radius: ${theme.radius[200]};
@@ -309,86 +303,80 @@ export default function ConnectionsPage() {
   return (
     <BaseLayout
       header={
-        <>
+        <BaseLayoutHeading>
           <Text.H1>{t('connections.title')}</Text.H1>
           <Subtitle>{t('connections.subtitle')}</Subtitle>
-        </>
+        </BaseLayoutHeading>
       }
     >
-      <PageContent>
-        <AddPanel>
-          <PanelContent>
-            <Text.H2>{t('connections.add')}</Text.H2>
-            <Text.S color={theme.colors.text.secondary}>
-              {selectedProvider
-                ? t('connections.setup', {
-                    provider: t(providerMeta[selectedProvider].titleKey),
-                  })
-                : t('connections.select')}
-            </Text.S>
-          </PanelContent>
+      <AddPanel>
+        <PanelContent>
+          <Text.H2>{t('connections.add')}</Text.H2>
+          <Text.S color={theme.colors.text.secondary}>
+            {selectedProvider
+              ? t('connections.setup', {
+                  provider: t(providerMeta[selectedProvider].titleKey),
+                })
+              : t('connections.select')}
+          </Text.S>
+        </PanelContent>
 
-          {!selectedProvider ? (
-            <ProvidersGrid>
-              {Object.entries(providerMeta).map(([provider, meta]) => (
-                <ProviderCard
-                  key={provider}
-                  onPress={() => setSelectedProvider(provider as Provider)}
-                  accessibilityRole="button"
-                >
-                  <ProviderIcon>{meta.icon}</ProviderIcon>
-                  <ProviderDetails>
-                    <Text.H3>{t(meta.titleKey)}</Text.H3>
-                    <Text.S color={theme.colors.text.secondary}>{t(meta.descriptionKey)}</Text.S>
-                  </ProviderDetails>
-                </ProviderCard>
-              ))}
-            </ProvidersGrid>
-          ) : (
-            providerConfig
-          )}
-        </AddPanel>
-        <ExistingHeading>{t('connections.existing')}</ExistingHeading>
-        {allServers.length === 0 ? (
-          <EmptyState>{t('connections.messages.none')}</EmptyState>
-        ) : (
-          <ExistingGrid>
-            {allServers.map((server) => (
-              <ServerCard key={server.id}>
-                <Text.H3>{server.label}</Text.H3>
-                <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
-                <Text.S>
-                  {server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}
-                </Text.S>
-                <ServerActions>
-                  <Button
-                    variant="secondary"
-                    onPress={() =>
-                      router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })
-                    }
-                  >
-                    {t('common.actions.details')}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onPress={() => onToggleCoreServer(server.id, server.disabled)}
-                    loading={busyServerId === server.id}
-                  >
-                    {server.disabled ? t('connections.actions.enable') : t('connections.actions.disable')}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onPress={() => onRemoveCoreServer(server.id)}
-                    loading={busyServerId === server.id}
-                  >
-                    {t('connections.actions.remove')}
-                  </Button>
-                </ServerActions>
-              </ServerCard>
+        {!selectedProvider ? (
+          <ProvidersGrid>
+            {Object.entries(providerMeta).map(([provider, meta]) => (
+              <ProviderCard
+                key={provider}
+                onPress={() => setSelectedProvider(provider as Provider)}
+                accessibilityRole="button"
+              >
+                <ProviderIcon>{meta.icon}</ProviderIcon>
+                <ProviderDetails>
+                  <Text.H3>{t(meta.titleKey)}</Text.H3>
+                  <Text.S color={theme.colors.text.secondary}>{t(meta.descriptionKey)}</Text.S>
+                </ProviderDetails>
+              </ProviderCard>
             ))}
-          </ExistingGrid>
+          </ProvidersGrid>
+        ) : (
+          providerConfig
         )}
-      </PageContent>
+      </AddPanel>
+      <ExistingHeading>{t('connections.existing')}</ExistingHeading>
+      {allServers.length === 0 ? (
+        <EmptyState>{t('connections.messages.none')}</EmptyState>
+      ) : (
+        <ExistingGrid>
+          {allServers.map((server) => (
+            <ServerCard key={server.id}>
+              <Text.H3>{server.label}</Text.H3>
+              <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
+              <Text.S>{server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}</Text.S>
+              <ServerActions>
+                <Button
+                  variant="secondary"
+                  onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
+                >
+                  {t('common.actions.details')}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onPress={() => onToggleCoreServer(server.id, server.disabled)}
+                  loading={busyServerId === server.id}
+                >
+                  {server.disabled ? t('connections.actions.enable') : t('connections.actions.disable')}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onPress={() => onRemoveCoreServer(server.id)}
+                  loading={busyServerId === server.id}
+                >
+                  {t('connections.actions.remove')}
+                </Button>
+              </ServerActions>
+            </ServerCard>
+          ))}
+        </ExistingGrid>
+      )}
     </BaseLayout>
   );
 }

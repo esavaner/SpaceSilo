@@ -6,19 +6,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import { ServerType } from '@/api/_client';
 import { tApiErr } from '@/i18n/translate';
-import { BaseLayout } from '@/components/base-layout';
+import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
 import { toast } from '@/lib/toast';
 import { type ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
 import { createId } from '@/utils/common';
 import { useTranslation } from 'react-i18next';
 
-const Page = styled.View`
-  gap: ${theme.spacing[600]};
-  padding-bottom: ${theme.spacing[800]};
-`;
-const Intro = styled.View`
-  gap: ${theme.spacing[50]};
-`;
 const MutedText = styled(Text.M)`
   color: ${theme.colors.text.secondary};
 `;
@@ -612,319 +605,298 @@ export default function BackupsPage() {
   return (
     <BaseLayout
       header={
-        <Intro>
+        <BaseLayoutHeading>
           <Text.H1>{t('navigation.backups')}</Text.H1>
           <MutedText>{t('backups.subtitle')}</MutedText>
-        </Intro>
+        </BaseLayoutHeading>
       }
     >
-      <Page>
-        {nonAdminServers.length > 0 ? (
-          <Notice>
-            <OptionTitle>{t('backups.adminAccessRequired')}</OptionTitle>
-            <SmallText>
-              {t('backups.adminIgnored', { serverCount: `${nonAdminServers.length} ${t('common.nouns.servers')}` })}
-            </SmallText>
-          </Notice>
+      {nonAdminServers.length > 0 ? (
+        <Notice>
+          <OptionTitle>{t('backups.adminAccessRequired')}</OptionTitle>
+          <SmallText>
+            {t('backups.adminIgnored', { serverCount: `${nonAdminServers.length} ${t('common.nouns.servers')}` })}
+          </SmallText>
+        </Notice>
+      ) : null}
+
+      <Panel>
+        <FormHeader>
+          <FormHeaderText>
+            <Text.H3>{formHeading}</Text.H3>
+            <SmallText>{formDescription}</SmallText>
+          </FormHeaderText>
+
+          {currentEditingBackup ? (
+            <Button variant="tertiary" onPress={resetForm} disabled={busyAction !== null}>
+              <Icon.X size={18} color={colors.text.brand} />
+              {t('common.actions.cancel')}
+            </Button>
+          ) : null}
+        </FormHeader>
+
+        {adminServers.length < 2 && !currentEditingBackup ? (
+          <EmptyState>
+            <OptionTitle>{t('backups.form.needTwoServersTitle')}</OptionTitle>
+            <SmallText>{t('backups.form.needTwoServersDescription')}</SmallText>
+          </EmptyState>
         ) : null}
 
-        <Panel>
-          <FormHeader>
-            <FormHeaderText>
-              <Text.H3>{formHeading}</Text.H3>
-              <SmallText>{formDescription}</SmallText>
-            </FormHeaderText>
-
-            {currentEditingBackup ? (
-              <Button variant="tertiary" onPress={resetForm} disabled={busyAction !== null}>
-                <Icon.X size={18} color={colors.text.brand} />
-                {t('common.actions.cancel')}
-              </Button>
-            ) : null}
-          </FormHeader>
-
-          {adminServers.length < 2 && !currentEditingBackup ? (
-            <EmptyState>
-              <OptionTitle>{t('backups.form.needTwoServersTitle')}</OptionTitle>
-              <SmallText>{t('backups.form.needTwoServersDescription')}</SmallText>
-            </EmptyState>
-          ) : null}
-
-          <FormSection>
-            <SmallText>{t('backups.form.sourceServer')}</SmallText>
-            {currentEditingBackup ? (
-              <ServerSummary>
-                <Text>{selectedSourceServer?.label ?? currentEditingBackup.sourceServerLabel}</Text>
-                <CaptionText>
-                  {selectedSourceServer?.baseUrl ?? currentEditingBackup.sourceServerBaseUrl}
-                </CaptionText>
-              </ServerSummary>
-            ) : (
-              <Select
-                label={t('backups.form.sourceServer')}
-                hideLabel
-                placeholder={t('backups.form.sourceServer')}
-                options={sourceOptions}
-                value={selectedSourceId}
-                onValueChange={setSelectedSourceId}
-                disabled={adminServers.length < 2}
-                containerStyle={{ width: '100%' }}
-              />
-            )}
-          </FormSection>
-
-          <FormSection>
-            <SmallText>{t('backups.form.destinationServer')}</SmallText>
-            {currentEditingBackup ? (
-              <ServerSummary>
-                <Text>{selectedDestinationServer?.label ?? currentEditingBackup.destinationServerLabel}</Text>
-                <CaptionText>
-                  {selectedDestinationServer?.baseUrl ?? currentEditingBackup.destinationServerBaseUrl}
-                </CaptionText>
-              </ServerSummary>
-            ) : (
-              <Select
-                label={t('backups.form.destinationServer')}
-                hideLabel
-                placeholder={t('backups.form.destinationServer')}
-                options={destinationOptions}
-                value={selectedDestinationId}
-                onValueChange={setSelectedDestinationId}
-                disabled={adminServers.length < 2}
-                containerStyle={{ width: '100%' }}
-              />
-            )}
-          </FormSection>
-
-          <FormSection>
-            <SmallText>{t('backups.media.title')}</SmallText>
-            <MediaOptions>
-              {mediaOptions.map((option) => (
-                <MediaOption
-                  key={option.key}
-                  onPress={option.toggle}
-                  $selected={option.selected}
-                >
-                  <OptionTitle>{option.title}</OptionTitle>
-                  <CaptionText>{option.description}</CaptionText>
-                </MediaOption>
-              ))}
-            </MediaOptions>
-          </FormSection>
-
-          <FormSection>
-            <SmallText>{t('backups.form.schedule')}</SmallText>
-            <Input value={schedule} onChangeText={setSchedule} placeholder="0 2 * * *" autoCapitalize="none" />
-          </FormSection>
-
-          <FormActions>
-            {currentEditingBackup ? (
-              <Button variant="secondary" onPress={resetForm} disabled={busyAction !== null}>
-                {t('backups.form.reset')}
-              </Button>
-            ) : null}
-            <Button
-              onPress={saveBackup}
-              loading={busyAction === 'save'}
-              disabled={
-                !schedule.trim() ||
-                !hasMediaSelection ||
-                (!currentEditingBackup &&
-                  (!selectedSourceServer || !selectedDestinationServer || selectedSourceId === selectedDestinationId))
-              }
-            >
-              <Icon.Check size={18} color={colors.text.inverted} />
-              {currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}
-            </Button>
-          </FormActions>
-        </Panel>
-
-        <ListSection>
-          <Text.H3>{t('backups.list.title')}</Text.H3>
-          <SmallText>{t('backups.list.description')}</SmallText>
-          {adminServers.length === 0 ? (
-            <EmptyState>
-              <Text.H3>{t('backups.list.noServersTitle')}</Text.H3>
-              <MutedText>{t('backups.list.noServersDescription')}</MutedText>
-            </EmptyState>
-          ) : isLoading ? (
-            <Panel>
-              <MutedText>{t('backups.list.loading')}</MutedText>
-            </Panel>
-          ) : outgoingBackups.length === 0 ? (
-            <EmptyState>
-              <Text.H3>{t('backups.list.emptyTitle')}</Text.H3>
-              <MutedText>{t('backups.list.emptyDescription')}</MutedText>
-            </EmptyState>
+        <FormSection>
+          <SmallText>{t('backups.form.sourceServer')}</SmallText>
+          {currentEditingBackup ? (
+            <ServerSummary>
+              <Text>{selectedSourceServer?.label ?? currentEditingBackup.sourceServerLabel}</Text>
+              <CaptionText>{selectedSourceServer?.baseUrl ?? currentEditingBackup.sourceServerBaseUrl}</CaptionText>
+            </ServerSummary>
           ) : (
-            <BackupList>
-              {outgoingBackups.map((backup) => {
-                const { sourceServer, destinationServer, sourceConfigId, destinationConfigId, incoming } =
-                  resolveOutgoingTargets(backup);
-                const canManage = Boolean(sourceServer && destinationServer && sourceConfigId && destinationConfigId);
-                const displayedStats = incoming?.stats ?? backup.stats;
-                const displayedDestinationPath =
-                  incoming?.destinationPath ?? backup.destinationPath ?? t('backups.list.notLinkedYet');
-                const enabledMedia = [
-                  { key: 'photos', enabled: backup.copyPhotos, label: t('backups.media.photos.title') },
-                  { key: 'files', enabled: backup.copyFiles, label: t('backups.media.files.title') },
-                  { key: 'notes', enabled: backup.copyNotes, label: t('backups.media.notes.title') },
-                ].filter((item) => item.enabled);
-
-                return (
-                  <BackupCard
-                    key={`${backup.ownerServerId}:${backup.id}`}
-                    style={{ width: cardWidth }}
-                  >
-                    <CardHeader>
-                      <CardMain>
-                        <BadgeRow>
-                          <SourceTitle>{backup.sourceServerLabel}</SourceTitle>
-                          <Badge $active={backup.active}>
-                            <BadgeLabel $active={backup.active}>
-                              {backup.active ? t('common.status.enabled') : t('common.status.disabled')}
-                            </BadgeLabel>
-                          </Badge>
-                          {backup.running ? (
-                            <Badge $running>
-                              <BadgeLabel $running>{t('backups.list.running')}</BadgeLabel>
-                            </Badge>
-                          ) : null}
-                        </BadgeRow>
-                        <SmallText>
-                          {t('backups.list.route', {
-                            source: backup.sourceServerLabel,
-                            destination: backup.destinationServerLabel,
-                          })}
-                        </SmallText>
-                        <CaptionText>
-                          {t('backups.list.storedOn', { server: backup.ownerServerLabel })}
-                        </CaptionText>
-                      </CardMain>
-
-                      <CardActions>
-                        <ActionButton
-                          variant="tertiary"
-                          onPress={() => startEditing(backup)}
-                          disabled={!canManage || busyAction !== null}
-                        >
-                          <Icon.Pencil size={18} color={colors.text.brand} />
-                        </ActionButton>
-                        <ActionButton
-                          variant="tertiary"
-                          onPress={() => toggleBackup(backup)}
-                          disabled={!canManage || busyAction !== null}
-                        >
-                          <Icon.CircleCheckBig
-                            size={18}
-                            color={backup.active ? colors.text.brand : colors.text.secondary}
-                          />
-                        </ActionButton>
-                        <ActionButton
-                          variant="tertiary"
-                          onPress={() => deleteBackup(backup)}
-                          disabled={busyAction !== null}
-                        >
-                          <Icon.Trash size={18} color={colors.text.brand} />
-                        </ActionButton>
-                      </CardActions>
-                    </CardHeader>
-
-                    <MediaTags>
-                      {enabledMedia.map((item) => (
-                        <MediaTag key={item.key}>
-                          <CaptionText>{item.label}</CaptionText>
-                        </MediaTag>
-                      ))}
-                    </MediaTags>
-
-                    <CardDetails>
-                      <SmallText>
-                        {t('backups.list.schedule', { schedule: backup.schedule })}
-                      </SmallText>
-                      <SmallText>
-                        {t('backups.list.runCount', { runTotal: backup.runCount })}
-                      </SmallText>
-                      <SmallText>
-                        {t('backups.list.lastExecution', {
-                          value: formatDateTime(backup.lastRunAt, i18n.language, t('common.status.never')),
-                        })}
-                      </SmallText>
-                      <SmallText>
-                        {t('backups.list.nextExecution', {
-                          value: formatDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
-                        })}
-                      </SmallText>
-                      <SmallText>
-                        {t('backups.list.destinationPath', { path: displayedDestinationPath })}
-                      </SmallText>
-                    </CardDetails>
-
-                    <InfoPanel>
-                      <OptionTitle>{t('backups.stats.title')}</OptionTitle>
-                      <StatsContent>
-                        <SmallText>
-                          {t('backups.stats.photos', {
-                            fileCount: `${displayedStats?.photos.count ?? 0} ${t('common.nouns.files')}`,
-                            size: formatBytes(displayedStats?.photos.sizeBytes),
-                          })}
-                        </SmallText>
-                        <SmallText>
-                          {t('backups.stats.files', {
-                            fileCount: `${displayedStats?.files.count ?? 0} ${t('common.nouns.files')}`,
-                            size: formatBytes(displayedStats?.files.sizeBytes),
-                          })}
-                        </SmallText>
-                        <SmallText>
-                          {t('backups.stats.notes', {
-                            itemCount: `${displayedStats?.notes.count ?? 0} ${t('common.nouns.items')}`,
-                            size: formatBytes(displayedStats?.notes.sizeBytes),
-                          })}
-                        </SmallText>
-                        <SmallText>
-                          {t('backups.stats.total', {
-                            itemCount: `${displayedStats?.totalCount ?? 0} ${t('common.nouns.items')}`,
-                            size: formatBytes(displayedStats?.totalSizeBytes),
-                          })}
-                        </SmallText>
-                      </StatsContent>
-                    </InfoPanel>
-
-                    {!incoming ? (
-                      <InfoPanel>
-                        <SmallText>
-                          {t('backups.list.destinationRecordMissing')}
-                        </SmallText>
-                      </InfoPanel>
-                    ) : null}
-
-                    {backup.lastError ? (
-                      <ErrorPanel>
-                        <ErrorText>{t('backups.list.lastError')}</ErrorText>
-                        <ErrorDetails>
-                          {backup.lastError.startsWith('api.') ? t(backup.lastError) : backup.lastError}
-                        </ErrorDetails>
-                      </ErrorPanel>
-                    ) : null}
-
-                    <TriggerRow>
-                      <Button
-                        variant="secondary"
-                        onPress={() => triggerBackup(backup)}
-                        loading={busyAction === `trigger:${backup.id}`}
-                        disabled={!sourceConfigId || !sourceServer || busyAction !== null}
-                        style={{ flex: 1 }}
-                      >
-                        {t('backups.list.triggerNow')}
-                      </Button>
-                    </TriggerRow>
-                  </BackupCard>
-                );
-              })}
-            </BackupList>
+            <Select
+              label={t('backups.form.sourceServer')}
+              hideLabel
+              placeholder={t('backups.form.sourceServer')}
+              options={sourceOptions}
+              value={selectedSourceId}
+              onValueChange={setSelectedSourceId}
+              disabled={adminServers.length < 2}
+              containerStyle={{ width: '100%' }}
+            />
           )}
-        </ListSection>
-      </Page>
+        </FormSection>
+
+        <FormSection>
+          <SmallText>{t('backups.form.destinationServer')}</SmallText>
+          {currentEditingBackup ? (
+            <ServerSummary>
+              <Text>{selectedDestinationServer?.label ?? currentEditingBackup.destinationServerLabel}</Text>
+              <CaptionText>
+                {selectedDestinationServer?.baseUrl ?? currentEditingBackup.destinationServerBaseUrl}
+              </CaptionText>
+            </ServerSummary>
+          ) : (
+            <Select
+              label={t('backups.form.destinationServer')}
+              hideLabel
+              placeholder={t('backups.form.destinationServer')}
+              options={destinationOptions}
+              value={selectedDestinationId}
+              onValueChange={setSelectedDestinationId}
+              disabled={adminServers.length < 2}
+              containerStyle={{ width: '100%' }}
+            />
+          )}
+        </FormSection>
+
+        <FormSection>
+          <SmallText>{t('backups.media.title')}</SmallText>
+          <MediaOptions>
+            {mediaOptions.map((option) => (
+              <MediaOption key={option.key} onPress={option.toggle} $selected={option.selected}>
+                <OptionTitle>{option.title}</OptionTitle>
+                <CaptionText>{option.description}</CaptionText>
+              </MediaOption>
+            ))}
+          </MediaOptions>
+        </FormSection>
+
+        <FormSection>
+          <SmallText>{t('backups.form.schedule')}</SmallText>
+          <Input value={schedule} onChangeText={setSchedule} placeholder="0 2 * * *" autoCapitalize="none" />
+        </FormSection>
+
+        <FormActions>
+          {currentEditingBackup ? (
+            <Button variant="secondary" onPress={resetForm} disabled={busyAction !== null}>
+              {t('backups.form.reset')}
+            </Button>
+          ) : null}
+          <Button
+            onPress={saveBackup}
+            loading={busyAction === 'save'}
+            disabled={
+              !schedule.trim() ||
+              !hasMediaSelection ||
+              (!currentEditingBackup &&
+                (!selectedSourceServer || !selectedDestinationServer || selectedSourceId === selectedDestinationId))
+            }
+          >
+            <Icon.Check size={18} color={colors.text.inverted} />
+            {currentEditingBackup ? t('backups.form.saveChanges') : t('backups.form.createTitle')}
+          </Button>
+        </FormActions>
+      </Panel>
+
+      <ListSection>
+        <Text.H3>{t('backups.list.title')}</Text.H3>
+        <SmallText>{t('backups.list.description')}</SmallText>
+        {adminServers.length === 0 ? (
+          <EmptyState>
+            <Text.H3>{t('backups.list.noServersTitle')}</Text.H3>
+            <MutedText>{t('backups.list.noServersDescription')}</MutedText>
+          </EmptyState>
+        ) : isLoading ? (
+          <Panel>
+            <MutedText>{t('backups.list.loading')}</MutedText>
+          </Panel>
+        ) : outgoingBackups.length === 0 ? (
+          <EmptyState>
+            <Text.H3>{t('backups.list.emptyTitle')}</Text.H3>
+            <MutedText>{t('backups.list.emptyDescription')}</MutedText>
+          </EmptyState>
+        ) : (
+          <BackupList>
+            {outgoingBackups.map((backup) => {
+              const { sourceServer, destinationServer, sourceConfigId, destinationConfigId, incoming } =
+                resolveOutgoingTargets(backup);
+              const canManage = Boolean(sourceServer && destinationServer && sourceConfigId && destinationConfigId);
+              const displayedStats = incoming?.stats ?? backup.stats;
+              const displayedDestinationPath =
+                incoming?.destinationPath ?? backup.destinationPath ?? t('backups.list.notLinkedYet');
+              const enabledMedia = [
+                { key: 'photos', enabled: backup.copyPhotos, label: t('backups.media.photos.title') },
+                { key: 'files', enabled: backup.copyFiles, label: t('backups.media.files.title') },
+                { key: 'notes', enabled: backup.copyNotes, label: t('backups.media.notes.title') },
+              ].filter((item) => item.enabled);
+
+              return (
+                <BackupCard key={`${backup.ownerServerId}:${backup.id}`} style={{ width: cardWidth }}>
+                  <CardHeader>
+                    <CardMain>
+                      <BadgeRow>
+                        <SourceTitle>{backup.sourceServerLabel}</SourceTitle>
+                        <Badge $active={backup.active}>
+                          <BadgeLabel $active={backup.active}>
+                            {backup.active ? t('common.status.enabled') : t('common.status.disabled')}
+                          </BadgeLabel>
+                        </Badge>
+                        {backup.running ? (
+                          <Badge $running>
+                            <BadgeLabel $running>{t('backups.list.running')}</BadgeLabel>
+                          </Badge>
+                        ) : null}
+                      </BadgeRow>
+                      <SmallText>
+                        {t('backups.list.route', {
+                          source: backup.sourceServerLabel,
+                          destination: backup.destinationServerLabel,
+                        })}
+                      </SmallText>
+                      <CaptionText>{t('backups.list.storedOn', { server: backup.ownerServerLabel })}</CaptionText>
+                    </CardMain>
+
+                    <CardActions>
+                      <ActionButton
+                        variant="tertiary"
+                        onPress={() => startEditing(backup)}
+                        disabled={!canManage || busyAction !== null}
+                      >
+                        <Icon.Pencil size={18} color={colors.text.brand} />
+                      </ActionButton>
+                      <ActionButton
+                        variant="tertiary"
+                        onPress={() => toggleBackup(backup)}
+                        disabled={!canManage || busyAction !== null}
+                      >
+                        <Icon.CircleCheckBig
+                          size={18}
+                          color={backup.active ? colors.text.brand : colors.text.secondary}
+                        />
+                      </ActionButton>
+                      <ActionButton
+                        variant="tertiary"
+                        onPress={() => deleteBackup(backup)}
+                        disabled={busyAction !== null}
+                      >
+                        <Icon.Trash size={18} color={colors.text.brand} />
+                      </ActionButton>
+                    </CardActions>
+                  </CardHeader>
+
+                  <MediaTags>
+                    {enabledMedia.map((item) => (
+                      <MediaTag key={item.key}>
+                        <CaptionText>{item.label}</CaptionText>
+                      </MediaTag>
+                    ))}
+                  </MediaTags>
+
+                  <CardDetails>
+                    <SmallText>{t('backups.list.schedule', { schedule: backup.schedule })}</SmallText>
+                    <SmallText>{t('backups.list.runCount', { runTotal: backup.runCount })}</SmallText>
+                    <SmallText>
+                      {t('backups.list.lastExecution', {
+                        value: formatDateTime(backup.lastRunAt, i18n.language, t('common.status.never')),
+                      })}
+                    </SmallText>
+                    <SmallText>
+                      {t('backups.list.nextExecution', {
+                        value: formatDateTime(backup.nextRunAt, i18n.language, t('common.status.notScheduled')),
+                      })}
+                    </SmallText>
+                    <SmallText>{t('backups.list.destinationPath', { path: displayedDestinationPath })}</SmallText>
+                  </CardDetails>
+
+                  <InfoPanel>
+                    <OptionTitle>{t('backups.stats.title')}</OptionTitle>
+                    <StatsContent>
+                      <SmallText>
+                        {t('backups.stats.photos', {
+                          fileCount: `${displayedStats?.photos.count ?? 0} ${t('common.nouns.files')}`,
+                          size: formatBytes(displayedStats?.photos.sizeBytes),
+                        })}
+                      </SmallText>
+                      <SmallText>
+                        {t('backups.stats.files', {
+                          fileCount: `${displayedStats?.files.count ?? 0} ${t('common.nouns.files')}`,
+                          size: formatBytes(displayedStats?.files.sizeBytes),
+                        })}
+                      </SmallText>
+                      <SmallText>
+                        {t('backups.stats.notes', {
+                          itemCount: `${displayedStats?.notes.count ?? 0} ${t('common.nouns.items')}`,
+                          size: formatBytes(displayedStats?.notes.sizeBytes),
+                        })}
+                      </SmallText>
+                      <SmallText>
+                        {t('backups.stats.total', {
+                          itemCount: `${displayedStats?.totalCount ?? 0} ${t('common.nouns.items')}`,
+                          size: formatBytes(displayedStats?.totalSizeBytes),
+                        })}
+                      </SmallText>
+                    </StatsContent>
+                  </InfoPanel>
+
+                  {!incoming ? (
+                    <InfoPanel>
+                      <SmallText>{t('backups.list.destinationRecordMissing')}</SmallText>
+                    </InfoPanel>
+                  ) : null}
+
+                  {backup.lastError ? (
+                    <ErrorPanel>
+                      <ErrorText>{t('backups.list.lastError')}</ErrorText>
+                      <ErrorDetails>
+                        {backup.lastError.startsWith('api.') ? t(backup.lastError) : backup.lastError}
+                      </ErrorDetails>
+                    </ErrorPanel>
+                  ) : null}
+
+                  <TriggerRow>
+                    <Button
+                      variant="secondary"
+                      onPress={() => triggerBackup(backup)}
+                      loading={busyAction === `trigger:${backup.id}`}
+                      disabled={!sourceConfigId || !sourceServer || busyAction !== null}
+                      style={{ flex: 1 }}
+                    >
+                      {t('backups.list.triggerNow')}
+                    </Button>
+                  </TriggerRow>
+                </BackupCard>
+              );
+            })}
+          </BackupList>
+        )}
+      </ListSection>
     </BaseLayout>
   );
 }

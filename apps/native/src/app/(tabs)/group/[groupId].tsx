@@ -22,10 +22,6 @@ type GroupDetail = Omit<GroupResponse, 'members'> & {
   members: GroupMemberWithUser[];
 };
 
-const Page = styled.View`
-  gap: ${theme.spacing[600]};
-  padding-bottom: ${theme.spacing[800]};
-`;
 const Stack = styled.View`
   gap: ${theme.spacing[400]};
 `;
@@ -253,116 +249,116 @@ export default function SingleGroupPage() {
         </Button>
       }
     >
-      <Page>
-        <Card>
-          <HeaderRow>
-            <Avatar alt={group.name} size="lg" color={group.color ?? undefined} />
+      <Card>
+        <HeaderRow>
+          <Avatar alt={group.name} size="lg" color={group.color ?? undefined} />
 
-            <Heading>
-              <Row>
-                <Text.H2>{group.name}</Text.H2>
-                {isOwner ? <SummaryChip label={t('groups.details.ownedByYou')} accent /> : null}
-                {group.personal ? (
-                  <SummaryChip label={t('groups.filters.personal')} />
-                ) : (
-                  <SummaryChip label={t('groups.details.shared')} />
-                )}
-              </Row>
-
-              <Text color={theme.colors.text.secondary}>#{group.id}</Text>
-            </Heading>
-          </HeaderRow>
-
-          <Row>
-            <SummaryChip label={`${group.members.length} ${t('common.nouns.members')}`} />
-            <SummaryChip label={`${group.albumIds?.length ?? 0} ${t('common.nouns.albums')}`} />
-            <SummaryChip label={`${group.photoIds?.length ?? 0} ${t('common.nouns.photos')}`} />
-            <Chip>
-              <ColorSwatch $color={group.color ?? 'transparent'} />
-              <Text.S color={theme.colors.text.secondary}>{t('groups.details.color')}</Text.S>
-            </Chip>
-          </Row>
-
-          {isOwner ? (
+          <Heading>
             <Row>
-              <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
-                <Icon.Plus size={18} color={colors.text.inverted} aria-hidden />
-                {t('groups.membersModal.title')}
-              </Button>
-              <Button variant="secondary" onPress={() => openModal(<GroupEditModal group={group} />)}>
-                <Icon.PenLine size={18} color={colors.text.default} aria-hidden />
-                {t('groups.details.editGroup')}
-              </Button>
-              <Button
-                variant="destructive"
-                onPress={() =>
-                  openModal(<GroupRemoveModal group={group} onRemoved={() => router.replace('/groups')} />)
-                }
-              >
-                <Icon.Trash size={18} color={colors.text.inverted} aria-hidden />
-                {t('groups.details.removeGroup')}
-              </Button>
+              <Text.H2>{group.name}</Text.H2>
+              {isOwner ? <SummaryChip label={t('groups.details.ownedByYou')} accent /> : null}
+              {group.personal ? (
+                <SummaryChip label={t('groups.filters.personal')} />
+              ) : (
+                <SummaryChip label={t('groups.details.shared')} />
+              )}
             </Row>
-          ) : null}
-        </Card>
 
-        <Members>
-          <MembersHeader>
-            <Text.H3>{t('groups.details.members')}</Text.H3>
-            <Text color={theme.colors.text.secondary}>{group.members.length}</Text>
-          </MembersHeader>
+            <Text color={theme.colors.text.secondary}>#{group.id}</Text>
+          </Heading>
+        </HeaderRow>
 
-          {group.members.length === 0 ? (
-            <EmptyMembers>
-              <Text center color={theme.colors.text.secondary}>
-                {t('groups.details.emptyMembers')}
-              </Text>
-            </EmptyMembers>
-          ) : (
-            <Members>
-              {group.members.map((member, index) => {
-                const memberIsOwner = member.userId === group.ownerId;
+        <Row>
+          <SummaryChip label={`${group.members.length} ${t('common.nouns.members')}`} />
+          <SummaryChip label={`${group.albumIds?.length ?? 0} ${t('common.nouns.albums')}`} />
+          <SummaryChip label={`${group.photoIds?.length ?? 0} ${t('common.nouns.photos')}`} />
+          <Chip>
+            <ColorSwatch $color={group.color ?? 'transparent'} />
+            <Text.S color={theme.colors.text.secondary}>{t('groups.details.color')}</Text.S>
+          </Chip>
+        </Row>
 
-                return (
-                  <MemberCard key={member.userId} $order={group.members.length - index}>
-                    <Avatar alt={member.user.name ?? member.user.email} />
+        {isOwner ? (
+          <Row>
+            <Button onPress={() => openModal(<GroupAddMembersModal group={group} />)}>
+              <Icon.Plus size={18} color={colors.text.inverted} aria-hidden />
+              {t('groups.membersModal.title')}
+            </Button>
+            <Button variant="secondary" onPress={() => openModal(<GroupEditModal group={group} />)}>
+              <Icon.PenLine size={18} color={colors.text.default} aria-hidden />
+              {t('groups.details.editGroup')}
+            </Button>
+            <Button
+              variant="destructive"
+              onPress={() => openModal(<GroupRemoveModal group={group} onRemoved={() => router.replace('/groups')} />)}
+            >
+              <Icon.Trash size={18} color={colors.text.inverted} aria-hidden />
+              {t('groups.details.removeGroup')}
+            </Button>
+          </Row>
+        ) : null}
+      </Card>
 
-                    <MemberInfo>
-                      <Row>
-                        <Text weight={500}>{member.user.name ?? member.user.email}</Text>
-                        {memberIsOwner ? <SummaryChip label={t('groups.details.owner')} accent /> : null}
-                      </Row>
-                      <Text.S color={theme.colors.text.secondary}>{member.user.email}</Text.S>
-                    </MemberInfo>
+      <Members>
+        <MembersHeader>
+          <Text.H3>{t('groups.details.members')}</Text.H3>
+          <Text color={theme.colors.text.secondary}>{group.members.length}</Text>
+        </MembersHeader>
 
-                    {isOwner && !memberIsOwner ? (
-                      <Row>
-                        <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member, value)} />
-                        <Button
-                          variant="tertiary"
-                          size="small"
-                          disabled={isPending}
-                          accessibilityLabel={t('groups.details.removeMember', {
-                            name: member.user.name ?? member.user.email,
-                          })}
-                          onPress={() => handleRemoveMember(member)}
-                        >
-                          <Icon.Trash size={18} color={isPending ? colors.text.disabled : colors.text.brand} aria-hidden />
-                        </Button>
-                      </Row>
-                    ) : (
-                      <SummaryChip
-                        label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
-                        accent={memberIsOwner}
-                      />
-                    )}
-                  </MemberCard>
-                );
-              })}
-            </Members>
-          )}
-        </Members>
-      </Page>
+        {group.members.length === 0 ? (
+          <EmptyMembers>
+            <Text center color={theme.colors.text.secondary}>
+              {t('groups.details.emptyMembers')}
+            </Text>
+          </EmptyMembers>
+        ) : (
+          <Members>
+            {group.members.map((member, index) => {
+              const memberIsOwner = member.userId === group.ownerId;
+
+              return (
+                <MemberCard key={member.userId} $order={group.members.length - index}>
+                  <Avatar alt={member.user.name ?? member.user.email} />
+
+                  <MemberInfo>
+                    <Row>
+                      <Text weight={500}>{member.user.name ?? member.user.email}</Text>
+                      {memberIsOwner ? <SummaryChip label={t('groups.details.owner')} accent /> : null}
+                    </Row>
+                    <Text.S color={theme.colors.text.secondary}>{member.user.email}</Text.S>
+                  </MemberInfo>
+
+                  {isOwner && !memberIsOwner ? (
+                    <Row>
+                      <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member, value)} />
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        disabled={isPending}
+                        accessibilityLabel={t('groups.details.removeMember', {
+                          name: member.user.name ?? member.user.email,
+                        })}
+                        onPress={() => handleRemoveMember(member)}
+                      >
+                        <Icon.Trash
+                          size={18}
+                          color={isPending ? colors.text.disabled : colors.text.brand}
+                          aria-hidden
+                        />
+                      </Button>
+                    </Row>
+                  ) : (
+                    <SummaryChip
+                      label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
+                      accent={memberIsOwner}
+                    />
+                  )}
+                </MemberCard>
+              );
+            })}
+          </Members>
+        )}
+      </Members>
     </BaseLayout>
   );
 }

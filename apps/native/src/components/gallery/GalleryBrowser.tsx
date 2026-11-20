@@ -874,12 +874,12 @@ export function GalleryBrowser({ mode = 'gallery' }: { mode?: GalleryBrowserMode
       />
 
       {!isPending && hasMorePhotos && !isFetchingNextPage ? (
-        <Text center color={theme.colors.text.secondary} style={{ paddingTop: 16 }}>
+        <Text center color={theme.colors.text.secondary}>
           {t('gallery.scrollToLoadMore')}
         </Text>
       ) : null}
       {isFetchingNextPage ? (
-        <Text center color={theme.colors.text.secondary} style={{ paddingTop: 16 }}>
+        <Text center color={theme.colors.text.secondary}>
           {t('gallery.loadingMore')}
         </Text>
       ) : null}

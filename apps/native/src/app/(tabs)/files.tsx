@@ -13,10 +13,6 @@ import { Search } from '@/components/search';
 import { useFileSearch, type FileSearchItem } from '@/hooks/useFileSearch';
 import { Button, Icon, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 
-const Header = styled.View`
-  gap: ${theme.spacing[400]};
-`;
-
 const HeadingRow = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
@@ -104,7 +100,7 @@ export default function FilesPage() {
   ));
 
   const header = (
-    <Header>
+    <>
       <HeadingRow>
         <Text.H1>{t('navigation.files')}</Text.H1>
         <SearchField $wide={width >= theme.breakpointNumbers.md}>
@@ -155,7 +151,7 @@ export default function FilesPage() {
           />
         )}
       </SelectionBar>
-    </Header>
+    </>
   );
 
   return (

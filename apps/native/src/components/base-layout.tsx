@@ -16,6 +16,7 @@ const Content = styled.View<{ $fill?: boolean }>`
   max-width: 1280px;
   width: 100%;
   padding: ${theme.spacing[400]};
+  gap: ${theme.spacing[600]};
   flex: ${({ $fill }) => ($fill ? '1' : '0 0 auto')};
 `;
 
@@ -35,6 +36,21 @@ const HeaderRow = styled.View`
 const HeaderContent = styled.View`
   flex: 1;
   min-width: 0;
+  gap: ${theme.spacing[400]};
+`;
+
+export const BaseLayoutHeadingRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+
+export const BaseLayoutHeading = styled.View`
+  flex: 1;
+  min-width: 120px;
+  gap: ${theme.spacing[100]};
 `;
 
 const Scroller = styled.ScrollView`
@@ -55,7 +71,14 @@ type Props = ComponentProps<typeof ScrollView> & {
   scrollable?: boolean;
 };
 
-export const BaseLayout = ({ children, className, header, headerClassName, scrollable = true, ...props }: Props) => {
+export const BaseLayout = ({
+  children,
+  className,
+  header,
+  headerClassName,
+  scrollable = true,
+  ...props
+}: Props) => {
   const navigation = useContext(NavigationToggleContext);
   const { t } = useTranslation();
   const colors = useThemeColors();

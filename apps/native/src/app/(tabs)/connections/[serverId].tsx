@@ -38,12 +38,10 @@ const ServerDetails = styled.View`
 `;
 
 const NotFoundMessage = styled(Text.S)`
-  margin-top: ${theme.spacing[400]};
   color: ${theme.colors.text.secondary};
 `;
 
 const UnavailableMessage = styled(Text.S)`
-  margin-bottom: ${theme.spacing[400]};
   color: ${theme.colors.text.secondary};
 `;
 
@@ -51,7 +49,6 @@ const StatsGrid = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   gap: ${theme.spacing[300]};
-  margin-bottom: ${theme.spacing[600]};
 `;
 
 const StatCardContainer = styled.View`

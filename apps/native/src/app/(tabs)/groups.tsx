@@ -6,27 +6,9 @@ import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
 import { useGroupList } from '@/hooks/useGroupList';
 import { GroupFilterDropdown, type GroupFilter } from '@/components/dropdowns/GroupFilter.dropdown';
-import { BaseLayout } from '@/components/base-layout';
+import { BaseLayout, BaseLayoutHeading, BaseLayoutHeadingRow } from '@/components/base-layout';
 import { useServerContext } from '@/providers/ServerProvider';
 import { type GroupListItem } from '@/hooks/useGroupList';
-
-const Page = styled.View`
-  gap: ${theme.spacing[600]};
-`;
-
-const HeadingRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing[300]};
-`;
-
-const Heading = styled.View`
-  flex: 1;
-  min-width: 120px;
-  gap: ${theme.spacing[100]};
-`;
 
 const Filters = styled.View`
   gap: ${theme.spacing[300]};
@@ -86,43 +68,41 @@ export default function GroupsPage() {
   return (
     <BaseLayout
       header={
-        <HeadingRow>
-          <Heading>
+        <BaseLayoutHeadingRow>
+          <BaseLayoutHeading>
             <Text.H1>{t('navigation.groups')}</Text.H1>
             <Text color={theme.colors.text.secondary}>
               {isGroupsLoading
                 ? t('groups.loading')
                 : `${visibleGroupCount} ${t('common.nouns.groups')} ${t('common.labels.inView')}`}
             </Text>
-          </Heading>
+          </BaseLayoutHeading>
           <Button onPress={() => openModal(<GroupCreateModal />)}>
             <Icon.Plus color={colors.text.inverted} size={18} aria-hidden />
             {t('groups.actions.create')}
           </Button>
-        </HeadingRow>
+        </BaseLayoutHeadingRow>
       }
     >
-      <Page>
-        <Filters>
-          <Input
-            value={query}
-            onChangeText={setQuery}
-            label={t('groups.searchPlaceholder')}
-            hideLabel
-            placeholder={t('groups.searchPlaceholder')}
-            leftIcon={<Icon.Search color={colors.text.secondary} size={16} aria-hidden />}
-          />
-
-          <GroupFilterDropdown value={filter} onChange={setFilter} />
-        </Filters>
-
-        <GroupList
-          groups={visibleGroups}
-          viewerIds={viewerIds}
-          scrollable={false}
-          emptyText={t('groups.emptyFiltered')}
+      <Filters>
+        <Input
+          value={query}
+          onChangeText={setQuery}
+          label={t('groups.searchPlaceholder')}
+          hideLabel
+          placeholder={t('groups.searchPlaceholder')}
+          leftIcon={<Icon.Search color={colors.text.secondary} size={16} aria-hidden />}
         />
-      </Page>
+
+        <GroupFilterDropdown value={filter} onChange={setFilter} />
+      </Filters>
+
+      <GroupList
+        groups={visibleGroups}
+        viewerIds={viewerIds}
+        scrollable={false}
+        emptyText={t('groups.emptyFiltered')}
+      />
     </BaseLayout>
   );
 }
