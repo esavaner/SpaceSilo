@@ -1,12 +1,52 @@
 import { useLocalSearchParams } from 'expo-router';
-import { ScrollView, View } from 'react-native';
-import { Text } from '@/components/general/text';
-
+import { useWindowDimensions } from 'react-native';
+import styled from 'styled-components/native';
 import { Image } from 'expo-image';
+import { Text, theme } from '@repo/shared/components';
 import { FileType, getFileType } from '@/utils/files';
+
+const Page = styled.View`
+  position: relative;
+  flex: 1;
+  background-color: ${theme.colors.surface.default};
+`;
+
+const Stage = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: ${theme.colors.surface.medium};
+`;
+
+const PreviewImage = styled(Image)<{ $width: number; $maxHeight: number }>`
+  flex: 1;
+  width: ${({ $width }) => `${$width}px`};
+  max-height: ${({ $maxHeight }) => `${$maxHeight}px`};
+`;
+
+const DocumentScroll = styled.ScrollView`
+  flex: 1;
+  width: 100%;
+`;
+
+const DocumentScrollContent = styled.View`
+  flex-grow: 1;
+  align-items: center;
+  padding: ${theme.spacing[400]};
+`;
+
+const Document = styled.View<{ $minHeight: number }>`
+  width: 100%;
+  max-width: 512px;
+  min-height: ${({ $minHeight }) => `${$minHeight}px`};
+  padding: ${theme.spacing[400]};
+  border-radius: ${theme.radius[200]};
+  background-color: ${theme.colors.surface.default};
+`;
 
 export default function ViewPage() {
   const { groupId, fileUri } = useLocalSearchParams<{ groupId: string; fileUri: string }>();
+  const { width, height } = useWindowDimensions();
 
   // const { data: file } = useQuery({
   //   queryKey: ['file', groupId, fileUri],
@@ -40,22 +80,25 @@ export default function ViewPage() {
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'; // TODO: replace with actual file data
 
   return (
-    <View className="flex-1 bg-background relative">
-      <View className="flex-1 bg-layer-secondary items-center justify-center">
+    <Page>
+      <Stage>
         {fileType === FileType.IMAGE ? (
-          <Image
+          <PreviewImage
             source={`http://192.168.0.176:3100/files/download?groupId=${groupId}&fileUri=${fileUri}`}
-            className="flex-1 w-[80vw] max-h-[90vh]"
+            $width={width * 0.8}
+            $maxHeight={height * 0.9}
             contentFit="contain"
           />
         ) : (
-          <ScrollView className="p-4 h-full w-full items-center">
-            <View className="p-4 bg-background w-full max-w-lg min-h-[80vh] rounded-lg">
-              <Text>{fileData}</Text>
-            </View>
-          </ScrollView>
+          <DocumentScroll>
+            <DocumentScrollContent>
+              <Document $minHeight={height * 0.8}>
+                <Text>{fileData}</Text>
+              </Document>
+            </DocumentScrollContent>
+          </DocumentScroll>
         )}
-      </View>
-    </View>
+      </Stage>
+    </Page>
   );
 }
