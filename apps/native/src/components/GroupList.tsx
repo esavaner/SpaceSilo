@@ -1,12 +1,12 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
-import { Avatar } from './avatar';
-import { Icon } from './general/icon';
-import { Text } from './general/text';
-import { cn } from '@/utils/cn';
+import styled, { css } from 'styled-components/native';
+import { Avatar, Text, theme, useThemeColors } from '@repo/shared/components';
+import { ChevronRight } from 'lucide-react-native';
 import { GroupOptionsDropdown } from './dropdowns/GroupOptions.dropdown';
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 
 type Props = {
   groups?: GroupListItem[];
@@ -15,106 +15,161 @@ type Props = {
   viewerIds?: string[];
 };
 
-const GroupBadge = ({ label, tone = 'default' }: { label: string; tone?: 'default' | 'accent' }) => (
-  <View
-    className={cn(
-      'rounded-full border px-2.5 py-1',
-      tone === 'accent' ? 'border-primary/30 bg-primary/10' : 'border-border bg-background/70'
-    )}
-  >
-    <Text className={cn('text-xs font-medium', tone === 'accent' ? 'text-primary' : 'text-muted-foreground')}>
-      {label}
-    </Text>
-  </View>
+const Grid = styled.View`
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
+const CardSlot = styled.View<{ $columns: number; $menuOpen: boolean }>`
+  width: ${({ $columns }) => `${100 / $columns}%`};
+  padding: ${theme.spacing[150]};
+  z-index: ${({ $menuOpen }) => ($menuOpen ? theme.zIndex.raised : theme.zIndex.base)};
+`;
+
+const Card = styled.Pressable<{ $owned: boolean }>`
+  height: 100%;
+  gap: ${theme.spacing[400]};
+  padding: ${theme.spacing[400]};
+  padding-right: 56px;
+  border: ${theme.borderWeight[25]} solid
+    ${({ $owned }) => ($owned ? theme.colors.border.primary.default : theme.colors.border.default)};
+  border-radius: ${theme.radius[300]};
+  background-color: ${({ $owned }) => ($owned ? theme.colors.surface.stronger : theme.colors.surface.medium)};
+  ${Platform.OS === 'web' && css`
+    cursor: pointer;
+    &:hover, &:focus-visible {
+      background-color: ${theme.colors.surface.stronger};
+    }
+  `}
+`;
+
+const Options = styled.View`
+  position: absolute;
+  top: ${theme.spacing[300]};
+  right: ${theme.spacing[300]};
+  z-index: ${theme.zIndex.raised};
+`;
+
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const CardHeading = styled.View`
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const Badges = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[200]};
+`;
+
+const Badge = styled.View<{ $accent?: boolean }>`
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
+  border: ${theme.borderWeight[25]} solid
+    ${({ $accent }) => ($accent ? theme.colors.border.primary.default : theme.colors.border.default)};
+  border-radius: ${theme.radius.full};
+  background-color: ${({ $accent }) => ($accent ? theme.colors.surface.stronger : theme.colors.surface.weak)};
+`;
+
+const CardFooter = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ColorSwatch = styled.View<{ $color?: string }>`
+  width: 12px;
+  height: 12px;
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius.full};
+  background-color: ${({ $color }) => $color ?? 'transparent'};
+`;
+
+const Empty = styled.View`
+  width: 100%;
+  padding: ${theme.spacing[600]};
+  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+`;
+
+const GroupBadge = ({ label, accent = false }: { label: string; accent?: boolean }) => (
+  <Badge $accent={accent}>
+    <Text.Caption color={accent ? theme.colors.text.brand : theme.colors.text.secondary}>{label}</Text.Caption>
+  </Badge>
 );
 
-export const GroupList = ({ groups, emptyText = 'No groups found', scrollable = true, viewerIds = [] }: Props) => {
+export const GroupList = ({ groups, emptyText, scrollable = true, viewerIds = [] }: Props) => {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const colors = useThemeColors();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const columns = width >= 1280 ? 3 : width >= theme.breakpointNumbers.sm ? 2 : 1;
 
   const formatCount = (value: number, label: 'member' | 'album' | 'photo') => {
     const nounKey = { album: 'albums', member: 'members', photo: 'photos' }[label];
     return `${value} ${t(`common.nouns.${nounKey}`)}`;
   };
 
-  const content =
-    groups && groups.length > 0 ? (
-      <View className="w-full flex-row flex-wrap gap-3">
-        {groups.map((group) => {
-          const isOwnedByViewer = viewerIds.includes(group.ownerId);
-          const membersCount = group.members?.length ?? 0;
-          const albumsCount = group.albumIds?.length ?? 0;
-          const photosCount = group.photoIds?.length ?? 0;
+  const content = groups && groups.length > 0 ? (
+    <Grid>
+      {groups.map((group) => {
+        const isOwnedByViewer = viewerIds.includes(group.ownerId);
+        const key = `${group.serverId}:${group.id}`;
 
-          return (
-            <View
-              key={`${group.serverId}:${group.id}`}
-              className="w-full md:w-[calc(50%-6px)] xl:w-[calc(33.333%-8px)]"
-            >
-              <View className="relative h-full">
-                <View className="absolute right-3 top-3 z-10">
-                  <GroupOptionsDropdown group={group} canManage={isOwnedByViewer} />
-                </View>
+        return (
+          <CardSlot key={key} $columns={columns} $menuOpen={openMenu === key}>
+            <Options>
+              <GroupOptionsDropdown
+                group={group}
+                canManage={isOwnedByViewer}
+                onOpenChange={(open) => setOpenMenu(open ? key : null)}
+              />
+            </Options>
+            <Link href={{ pathname: '/group/[groupId]', params: { groupId: group.id, serverId: group.serverId } }} asChild>
+              <Card $owned={isOwnedByViewer}>
+                <Row>
+                  <Avatar alt={group.name} color={group.color ?? undefined} />
+                  <CardHeading>
+                    <Text.L style={{ flexShrink: 1 }}>{group.name}</Text.L>
+                    {isOwnedByViewer && <GroupBadge label={t('groups.badges.owned')} accent />}
+                  </CardHeading>
+                </Row>
+                <Badges>
+                  <GroupBadge label={formatCount(group.members?.length ?? 0, 'member')} />
+                  <GroupBadge label={formatCount(group.albumIds?.length ?? 0, 'album')} />
+                  <GroupBadge label={formatCount(group.photoIds?.length ?? 0, 'photo')} />
+                </Badges>
+                <CardFooter>
+                  <ColorSwatch $color={group.color ?? undefined} />
+                  <Row>
+                    <Text.Caption color={theme.colors.text.secondary}>#{group.id.slice(0, 8)}</Text.Caption>
+                    <ChevronRight size={16} color={colors.text.secondary} aria-hidden />
+                  </Row>
+                </CardFooter>
+              </Card>
+            </Link>
+          </CardSlot>
+        );
+      })}
+    </Grid>
+  ) : (
+    <Empty>
+      <Text center color={theme.colors.text.secondary}>{emptyText ?? t('groups.emptyFiltered')}</Text>
+    </Empty>
+  );
 
-                <Link
-                  href={{ pathname: '/group/[groupId]', params: { groupId: group.id, serverId: group.serverId } }}
-                  asChild
-                >
-                  <Pressable
-                    className={cn(
-                      'h-full gap-4 rounded-xl border border-border bg-layer-secondary/40 p-4 pr-14 hover:bg-layer-secondary active:bg-layer-secondary',
-                      isOwnedByViewer && 'border-primary/50 bg-primary/5'
-                    )}
-                  >
-                    <View className="flex-row items-start gap-3">
-                      <Avatar alt={group.name} color={group.color ?? undefined} />
-
-                      <View className="flex-1 gap-2">
-                        <View className="flex-row flex-wrap items-center gap-2">
-                          <Text className="flex-1 text-lg leading-5">{group.name}</Text>
-                          {isOwnedByViewer ? <GroupBadge label={t('groups.badges.owned')} tone="accent" /> : null}
-                        </View>
-                      </View>
-                    </View>
-
-                    <View className="flex-row flex-wrap gap-2">
-                      <GroupBadge label={formatCount(membersCount, 'member')} />
-                      <GroupBadge label={formatCount(albumsCount, 'album')} />
-                      <GroupBadge label={formatCount(photosCount, 'photo')} />
-                    </View>
-
-                    <View className="flex-row items-center justify-between gap-3">
-                      <View className="flex-row items-center gap-2">
-                        <View
-                          className="h-3 w-3 rounded-full border border-border"
-                          style={{ backgroundColor: group.color ?? 'transparent' }}
-                        />
-                      </View>
-
-                      <View className="flex-row items-center gap-2">
-                        <Text className="text-xs text-muted-foreground">#{group.id.slice(0, 8)}</Text>
-                        <Icon.NavigateNext className="text-muted-foreground" size={16} />
-                      </View>
-                    </View>
-                  </Pressable>
-                </Link>
-              </View>
-            </View>
-          );
-        })}
-      </View>
-    ) : (
-      <View className="w-full rounded-xl border border-dashed border-border p-6">
-        <Text className="text-center text-muted-foreground">{emptyText}</Text>
-      </View>
-    );
-
-  if (scrollable) {
-    return (
-      <ScrollView className="flex-1 w-full">
-        <View className="w-full p-1">{content}</View>
-      </ScrollView>
-    );
-  }
-
-  return <View className="w-full p-1">{content}</View>;
+  return scrollable ? <ListScroller>{content}</ListScroller> : content;
 };
+
+const ListScroller = styled.ScrollView`
+  flex: 1;
+  width: 100%;
+`;

@@ -3,6 +3,7 @@ import { useRootNavigationState } from 'expo-router';
 import { BaseLayout } from '@/components/base-layout';
 import { useEffect, useState } from 'react';
 import {
+  Avatar,
   Text,
   Input,
   Textarea,
@@ -190,6 +191,13 @@ export default function IndexPage() {
           />
           <Text.S>Last action: {lastAction || 'none'}</Text.S>
         </Section>
+        <Section>
+          <SectionHeader>Avatar</SectionHeader>
+          <Avatar size="sm" alt="Space Silo" />
+          <Avatar alt="Project Atlas" color="#ef8354" />
+          <Avatar size="lg" alt="Space Silo" color="#1f8a70" />
+        </Section>
+
         <Section>
           <SectionHeader>Shared text</SectionHeader>
           <Text.S center italic weight={700} color="#307467">

@@ -12,7 +12,7 @@ import { GroupEditModal } from '@/components/modals/GroupEdit.modal';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { GroupRemoveModal } from '@/components/modals/GroupRemove.modal';
 import { BaseLayout } from '@/components/base-layout';
-import { Avatar } from '@/components/avatar';
+import { Avatar } from '@repo/shared/components';
 import { Button } from '@/components/general/button';
 import { Icon } from '@/components/general/icon';
 import { Text } from '@/components/general/text';

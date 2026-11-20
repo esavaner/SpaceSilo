@@ -1,4 +1,4 @@
-import { Avatar } from '@/components/avatar';
+import { Avatar } from '@repo/shared/components';
 import { BaseLayout } from '@/components/base-layout';
 import { Breadcrumb } from '@/components/breadcrumb';
 import { GroupFilterDropdown, type GroupFilter } from '@/components/dropdowns/GroupFilter.dropdown';

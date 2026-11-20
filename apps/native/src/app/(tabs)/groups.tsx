@@ -1,21 +1,50 @@
 import { useState } from 'react';
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import styled from 'styled-components/native';
+import { Plus, Search } from 'lucide-react-native';
+import { Button, Input, Text, theme, useThemeColors } from '@repo/shared/components';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
 import { useGroupList } from '@/hooks/useGroupList';
 import { GroupFilterDropdown, type GroupFilter } from '@/components/dropdowns/GroupFilter.dropdown';
-import { Icon } from '@/components/general/icon';
-import { Button } from '@/components/general/button';
-import { Text } from '@/components/general/text';
-import { Input } from '@/components/form/input';
 import { useUi } from '@/providers/UiProvider';
 import { BaseLayout } from '@/components/base-layout';
 import { useServerContext } from '@/providers/ServerProvider';
 import { type GroupListItem } from '@/hooks/useGroupList';
 
+const Page = styled.View`
+  gap: ${theme.spacing[600]};
+`;
+
+const Header = styled.View`
+  gap: ${theme.spacing[300]};
+  z-index: ${theme.zIndex.raised};
+`;
+
+const HeadingRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+
+const Heading = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[100]};
+`;
+
+const Filters = styled.View`
+  gap: ${theme.spacing[300]};
+  padding: ${theme.spacing[300]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.medium};
+  z-index: ${theme.zIndex.raised};
+`;
+
 export default function GroupsPage() {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const { openModal } = useUi();
   const { servers } = useServerContext();
   const { groups, isGroupsLoading } = useGroupList();
@@ -61,40 +90,37 @@ export default function GroupsPage() {
 
   return (
     <BaseLayout>
-      <View className="gap-6">
-        <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <View className="flex-1 gap-1">
-              <Text variant="h1">{t('navigation.groups')}</Text>
-              <Text className="text-muted-foreground">
+      <Page>
+        <Header>
+          <HeadingRow>
+            <Heading>
+              <Text.H1>{t('navigation.groups')}</Text.H1>
+              <Text color={theme.colors.text.secondary}>
                 {isGroupsLoading
                   ? t('groups.loading')
                   : `${visibleGroupCount} ${t('common.nouns.groups')} ${t('common.labels.inView')}`}
               </Text>
-            </View>
+            </Heading>
 
             <Button onPress={() => openModal(<GroupCreateModal />)}>
-              <Icon.Add className="text-black" />
-              <Text>{t('groups.actions.create')}</Text>
+              <Plus color={colors.text.inverted} size={18} aria-hidden />
+              {t('groups.actions.create')}
             </Button>
-          </View>
+          </HeadingRow>
 
-          <View className="gap-3 rounded-xl border border-border bg-layer-secondary/30 p-3">
-            <View className="flex-row items-center gap-2 rounded-lg border border-border bg-background px-3">
-              <Icon.Search className="text-muted-foreground" size={16} />
+          <Filters>
               <Input
                 value={query}
                 onChangeText={setQuery}
+                label={t('groups.searchPlaceholder')}
+                hideLabel
                 placeholder={t('groups.searchPlaceholder')}
-                className="flex-1 border-0 bg-transparent px-0"
+                leftIcon={<Search color={colors.text.secondary} size={16} aria-hidden />}
               />
-            </View>
 
-            <View className="flex-row flex-wrap items-center gap-2">
-              <GroupFilterDropdown value={filter} onChange={setFilter} />
-            </View>
-          </View>
-        </View>
+            <GroupFilterDropdown value={filter} onChange={setFilter} />
+          </Filters>
+        </Header>
 
         <GroupList
           groups={visibleGroups}
@@ -102,7 +128,7 @@ export default function GroupsPage() {
           scrollable={false}
           emptyText={t('groups.emptyFiltered')}
         />
-      </View>
+      </Page>
     </BaseLayout>
   );
 }

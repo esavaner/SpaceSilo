@@ -1,15 +1,6 @@
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from './dropdown';
-import { useDropdown } from './useDropdown';
+import { Button, DropdownMenu, DropdownOption, Text, useThemeColors } from '@repo/shared/components';
+import { Check, Filter } from 'lucide-react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 export type GroupFilter = 'all' | 'owned' | 'personal' | 'shared' | 'with-members';
@@ -21,7 +12,7 @@ type Props = {
 
 export const GroupFilterDropdown = ({ value, onChange }: Props) => {
   const { t } = useTranslation();
-  const { ref, closeDropdown } = useDropdown();
+  const colors = useThemeColors();
   const filters: { label: string; value: GroupFilter }[] = [
     { label: t('groups.filters.all'), value: 'all' },
     { label: t('groups.filters.owned'), value: 'owned' },
@@ -29,32 +20,48 @@ export const GroupFilterDropdown = ({ value, onChange }: Props) => {
     { label: t('groups.filters.shared'), value: 'shared' },
     { label: t('groups.filters.withMembers'), value: 'with-members' },
   ];
-  const selected = filters.find((option) => option.value === value);
+  const label = t('groups.filters.trigger');
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger ref={ref}>
-        <Button variant="outline" size="sm">
-          <Text>{selected?.label ?? t('groups.filters.trigger')}</Text>
-          <Icon.Filter />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuLabel>{t('groups.filters.trigger')}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          value={value}
-          onValueChange={(nextValue) => {
-            onChange(nextValue as GroupFilter);
-            closeDropdown();
-          }}
+    <DropdownMenu
+      label={label}
+      closeLabel={t('common.actions.close')}
+      style={{ alignSelf: 'flex-start' }}
+      trigger={({ isOpen, toggle, menuId }) => (
+        <Button
+          variant="secondary"
+          size="small"
+          onPress={toggle}
+          accessibilityLabel={label}
+          accessibilityState={{ expanded: isOpen }}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
         >
+          {filters.find((option) => option.value === value)?.label ?? label}
+          <Filter size={18} color={colors.text.default} aria-hidden />
+        </Button>
+      )}
+    >
+      {({ close, menuId }) => (
+        <View nativeID={menuId} role="menu" accessibilityLabel={label}>
           {filters.map((option) => (
-            <DropdownMenuRadioItem key={option.value} value={option.value}>
-              <Text>{option.label}</Text>
-            </DropdownMenuRadioItem>
+            <DropdownOption
+              key={option.value}
+              role="menuitem"
+              accessibilityState={{ selected: option.value === value }}
+              $selected={option.value === value}
+              onPress={() => {
+                onChange(option.value);
+                close();
+              }}
+            >
+              <Text.S style={{ flex: 1 }}>{option.label}</Text.S>
+              {option.value === value && <Check size={18} color={colors.text.default} aria-hidden />}
+            </DropdownOption>
           ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
+        </View>
+      )}
     </DropdownMenu>
   );
 };
