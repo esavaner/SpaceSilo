@@ -1,7 +1,6 @@
 import { type GalleryScanResponse, type GalleryStatsResponse } from '@repo/shared';
+import { Button, Text, theme } from '@repo/shared/components';
 import { BaseLayout } from '@/components/base-layout';
-import { Button } from '@/components/general/button';
-import { Text } from '@/components/general/text';
 import { serverIcons } from '@/constants/server-icons';
 import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
@@ -9,17 +8,80 @@ import { fileSize } from '@/utils/common';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Alert, Platform, View } from 'react-native';
+import { Alert, Platform } from 'react-native';
+import styled from 'styled-components/native';
 import { tApiErr } from '@/i18n/translate';
 
+const Header = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${theme.spacing[400]};
+  margin-bottom: ${theme.spacing[600]};
+`;
+
+const ServerInfo = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[400]};
+`;
+
+const ServerIcon = styled.View`
+  margin-top: ${theme.spacing[100]};
+`;
+
+const ServerDetails = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[100]};
+`;
+
+const NotFoundMessage = styled(Text.S)`
+  margin-top: ${theme.spacing[400]};
+  color: ${theme.colors.text.secondary};
+`;
+
+const UnavailableMessage = styled(Text.S)`
+  margin-bottom: ${theme.spacing[400]};
+  color: ${theme.colors.text.secondary};
+`;
+
+const StatsGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${theme.spacing[300]};
+  margin-bottom: ${theme.spacing[600]};
+`;
+
+const StatCardContainer = styled.View`
+  flex: 1;
+  min-width: 160px;
+  gap: ${theme.spacing[100]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[200]};
+  background-color: ${theme.colors.surface.medium};
+`;
+
 const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <View className="border border-border rounded-lg p-4 gap-1 bg-layer-secondary/40 min-w-40 flex-1">
-    <Text variant="small" className="text-muted-foreground">
-      {label}
-    </Text>
-    <Text variant="h3">{value}</Text>
-  </View>
+  <StatCardContainer>
+    <Text.S color={theme.colors.text.secondary}>{label}</Text.S>
+    <Text.H3>{value}</Text.H3>
+  </StatCardContainer>
 );
+
+const ActionsPanel = styled.View`
+  gap: ${theme.spacing[200]};
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[200]};
+`;
+
+const ActionButtons = styled.View`
+  align-items: flex-start;
+  gap: ${theme.spacing[200]};
+  margin-top: ${theme.spacing[200]};
+`;
 
 export default function ConnectionDetailsPage() {
   const { t } = useTranslation();
@@ -81,10 +143,10 @@ export default function ConnectionDetailsPage() {
   if (!server) {
     return (
       <BaseLayout>
-        <Text variant="h1">{t('navigation.connection')}</Text>
-        <Text variant="muted" className="mt-4">
+        <Text.H1>{t('navigation.connection')}</Text.H1>
+        <NotFoundMessage>
           {t('connections.details.messages.Err.NotFound')}
-        </Text>
+        </NotFoundMessage>
       </BaseLayout>
     );
   }
@@ -98,35 +160,35 @@ export default function ConnectionDetailsPage() {
 
   return (
     <BaseLayout>
-      <View className="flex-row items-start justify-between gap-4 mb-6">
-        <View className="flex-row gap-4 items-center shrink">
-          <View className="mt-1">{serverIcons[server.type]}</View>
-          <View className="shrink gap-1">
-            <Text variant="h1">{server.label}</Text>
-            <Text variant="muted">{server.baseUrl}</Text>
-            <Text variant="small">
+      <Header>
+        <ServerInfo>
+          <ServerIcon>{serverIcons[server.type]}</ServerIcon>
+          <ServerDetails>
+            <Text.H1>{server.label}</Text.H1>
+            <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
+            <Text.S>
               {server.disabled
                 ? t('connections.details.state.disabled')
                 : server.client.status === 'logged_in'
                   ? t('connections.details.state.connected')
                   : t('connections.details.state.disconnected')}
-            </Text>
-            {server.client.account?.email && <Text variant="muted">{server.client.account.email}</Text>}
-          </View>
-        </View>
+            </Text.S>
+            {server.client.account?.email && (
+              <Text.S color={theme.colors.text.secondary}>{server.client.account.email}</Text.S>
+            )}
+          </ServerDetails>
+        </ServerInfo>
 
         <Button onPress={() => triggerScan(false)} loading={isScanning} disabled={!canQuery}>
           {t('connections.details.actions.scanImages')}
         </Button>
-      </View>
+      </Header>
 
       {!canQuery && (
-        <Text variant="muted" className="mb-4">
-          {t('connections.details.messages.statsUnavailable')}
-        </Text>
+        <UnavailableMessage>{t('connections.details.messages.statsUnavailable')}</UnavailableMessage>
       )}
 
-      <View className="gap-3 grid md:grid-cols-2 xl:grid-cols-4 mb-6">
+      <StatsGrid>
         <StatCard
           label={t('connections.details.stats.storedFiles')}
           value={isPending ? '...' : String(statValues.totalFiles)}
@@ -143,29 +205,20 @@ export default function ConnectionDetailsPage() {
           label={t('connections.details.stats.storageSize')}
           value={isPending ? '...' : fileSize(statValues.storageSize)}
         />
-      </View>
+      </StatsGrid>
 
-      <View className="border border-border rounded-lg p-4 gap-2">
-        <Text variant="h3">{t('common.labels.actions')}</Text>
-        <Text variant="muted">{t('connections.details.actionDescription')}</Text>
-        <Button
-          className="self-start mt-2"
-          onPress={() => triggerScan(false)}
-          loading={isScanning}
-          disabled={!canQuery}
-        >
-          {t('connections.details.actions.scanAndIndex')}
-        </Button>
-        <Button
-          className="self-start"
-          onPress={confirmResetAndScan}
-          loading={isScanning}
-          disabled={!canQuery}
-          variant="destructive"
-        >
-          {t('connections.details.actions.resetAndScan')}
-        </Button>
-      </View>
+      <ActionsPanel>
+        <Text.H3>{t('common.labels.actions')}</Text.H3>
+        <Text.S color={theme.colors.text.secondary}>{t('connections.details.actionDescription')}</Text.S>
+        <ActionButtons>
+          <Button onPress={() => triggerScan(false)} loading={isScanning} disabled={!canQuery}>
+            {t('connections.details.actions.scanAndIndex')}
+          </Button>
+          <Button onPress={confirmResetAndScan} loading={isScanning} disabled={!canQuery} variant="destructive">
+            {t('connections.details.actions.resetAndScan')}
+          </Button>
+        </ActionButtons>
+      </ActionsPanel>
     </BaseLayout>
   );
 }
