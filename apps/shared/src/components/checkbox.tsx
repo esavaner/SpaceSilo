@@ -34,8 +34,7 @@ const CheckboxVisual = styled.View<CheckboxVisualProps>`
             : theme.colors.border.primary.default};
   background-color: ${({ $disabled, $checked }) =>
     $disabled ? theme.colors.disabled : $checked ? theme.colors.primary.default : theme.colors.tertiary.default};
-  ${({ $isActive, $disabled }) =>
-    $isActive && !$disabled && `box-shadow: 0 0 0 4px ${theme.colors.shadow.focus};`}
+  ${({ $isActive, $disabled }) => $isActive && !$disabled && `box-shadow: 0 0 0 4px ${theme.colors.shadow.focus};`}
 `;
 
 const Label = styled.Pressable<{ $disabled?: boolean }>`
@@ -62,6 +61,7 @@ const Label = styled.Pressable<{ $disabled?: boolean }>`
 
 const LabelText = styled.Text`
   ${theme.text.formMessage}
+  color: ${theme.colors.text.default};
   flex: 1;
 `;
 
