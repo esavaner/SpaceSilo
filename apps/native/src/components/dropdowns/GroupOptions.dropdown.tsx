@@ -1,9 +1,8 @@
 import { useRef } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, DropdownMenu, DropdownOption, Text, useThemeColors } from '@repo/shared/components';
+import { Button, DropdownMenu, DropdownOption, Text, useModal, useThemeColors } from '@repo/shared/components';
 import { Edit3, EllipsisVertical, Plus, Trash2 } from 'lucide-react-native';
-import { useUi } from '@/providers/UiProvider';
 import { GroupAddMembersModal } from '../modals/GroupAddMembers.modal';
 import { GroupEditModal } from '../modals/GroupEdit.modal';
 import { GroupRemoveModal } from '../modals/GroupRemove.modal';
@@ -16,7 +15,7 @@ type Props = {
 };
 
 export const GroupOptionsDropdown = ({ group, canManage, onOpenChange }: Props) => {
-  const { openModal } = useUi();
+  const { openModal } = useModal();
   const { t } = useTranslation();
   const colors = useThemeColors();
   const pendingAction = useRef<(() => void) | null>(null);

@@ -2,7 +2,7 @@
 // import { AddMemberDto, CreateGroupDto } from '@/api/generated';
 import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
+import { useModal } from '@repo/shared/components';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -31,7 +31,7 @@ type UpdateMemberMutation = GroupMutationBase & UpdateGroupMemberRequest;
 export const useGroupActions = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
   const { allServers, servers } = useServerContext();
 
   const getServerClient = (serverId: string) => {

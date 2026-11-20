@@ -1,25 +1,24 @@
-// import { AddMemberDto, SearchUserDto, GetGroupDto, AccessLevel } from '@/api/generated';
-import { useGroupActions } from '@/hooks/useGroupActions';
-
-import { useTranslation } from 'react-i18next';
-import { useUserSearch } from '@/hooks/useUserSearch';
 import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import { Text } from '../general/text';
-import { Button } from '../general/button';
-import { Icon } from '../general/icon';
-import { Search } from '../search';
+import { useTranslation } from 'react-i18next';
+import styled from 'styled-components/native';
+import { Users, X } from 'lucide-react-native';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '../dropdowns/dropdown';
-import { DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
+  Button,
+  DropdownOption,
+  Input,
+  Modal,
+  ModalButtons,
+  ModalTitle,
+  Select,
+  Text,
+  theme,
+  useModal,
+  useThemeColors,
+} from '@repo/shared/components';
 import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
+import { useGroupActions } from '@/hooks/useGroupActions';
 import { type GroupListItem } from '@/hooks/useGroupList';
+import { useUserSearch } from '@/hooks/useUserSearch';
 
 type AccessLevel = NonNullable<AddGroupMemberRequest['access']>;
 type SearchUserResult = Pick<UserResponse, 'id' | 'email' | 'name'>;
@@ -34,112 +33,121 @@ type Props = {
   group: GroupWithMembers;
 };
 
-const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (value: AccessLevel) => void }) => {
+const MemberRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const MemberName = styled(Text.M)`
+  flex: 1;
+`;
+
+const AccessField = styled.View`
+  width: 130px;
+`;
+
+const ResultDetails = styled.View`
+  flex: 1;
+`;
+
+export const GroupAddMembersModal = ({ group }: Props) => {
   const { t } = useTranslation();
-  const selectOptions = [
+  const { closeModal } = useModal();
+  const colors = useThemeColors();
+  const { addMembers, isPending } = useGroupActions();
+  const { query, resetSearch, results, searchUsers } = useUserSearch(group.serverId);
+  const existingMembers = group.members ?? [];
+  const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
+  const accessOptions = [
     { label: t('groups.membersModal.levels.admin'), value: 'admin' },
     { label: t('groups.membersModal.levels.edit'), value: 'edit' },
     { label: t('groups.membersModal.levels.read'), value: 'read' },
   ] as const satisfies { label: string; value: AccessLevel }[];
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">
-          <Text>
-            {selectOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read')}
-          </Text>
-          <Icon.ChevronDown />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuRadioGroup value={value} onValueChange={(nextValue) => onChange(nextValue as AccessLevel)}>
-          {selectOptions.map((option) => (
-            <DropdownMenuRadioItem key={option.value} value={option.value}>
-              <Text>{option.label}</Text>
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-export const GroupAddMembersModal = ({ group }: Props) => {
-  const { t } = useTranslation();
-  const { addMembers, isPending } = useGroupActions();
-  const { query, resetSearch, results, searchUsers } = useUserSearch(group.serverId);
-  const existingMembers = group.members ?? [];
-
-  const [selectedMembers, setSelectedMembers] = useState<SelectedUser[]>([]);
-
   const handleSelect = (user: SearchUserResult) => {
-    setSelectedMembers([...selectedMembers, { ...user, userId: user.id, access: 'read' }]);
+    setSelectedMembers((current) => [...current, { ...user, userId: user.id, access: 'read' }]);
     resetSearch();
-  };
-
-  const handleDeselect = (user: SearchUserResult) => {
-    setSelectedMembers(selectedMembers.filter((m) => m.id !== user.id));
-  };
-
-  const handleAccessChange = (memberId: string, access: AccessLevel) => {
-    setSelectedMembers((current) => current.map((member) => (member.id === memberId ? { ...member, access } : member)));
   };
 
   const handleSubmit = () => {
     addMembers({
       id: group.id,
       serverId: group.serverId,
-      members: selectedMembers.map((m) => ({ userId: m.userId, access: m.access })),
+      members: selectedMembers.map((member) => ({ userId: member.userId, access: member.access })),
     });
   };
 
-  const options = results
-    .filter(
-      (user) =>
-        !selectedMembers.find((member) => member.id === user.id) &&
-        !existingMembers.find((member) => member.userId === user.id)
-    )
-    .map((user) => (
-      <Pressable
-        key={user.id}
-        onPress={() => handleSelect(user)}
-        className="flex-row items-center gap-5 px-4 py-3 hover:bg-background active:bg-background"
-      >
-        <Icon.UserGroup />
-        <View>
-          <Text>{user.name}</Text>
-          <Text className="text-sm text-muted-foreground">{user.email}</Text>
-        </View>
-      </Pressable>
-    ));
+  const options = results.filter(
+    (user) =>
+      !selectedMembers.some((member) => member.id === user.id) &&
+      !existingMembers.some((member) => member.userId === user.id)
+  );
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t('groups.membersModal.title')}</DialogTitle>
-      </DialogHeader>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('groups.membersModal.title')}>
+      <ModalTitle>{t('groups.membersModal.title')}</ModalTitle>
       {selectedMembers.length > 0 && (
-        <View className="flex-row gap-2 p-2">
-          <Text>{selectedMembers.length}</Text>
-          <Text>{t('groups.membersModal.access')}</Text>
-          <Text>{t('common.actions.remove')}</Text>
-        </View>
+        <Text.S>{`${selectedMembers.length} ${t('common.nouns.members')}`}</Text.S>
       )}
-      <ScrollView className="h-max-96">
-        {selectedMembers.map((member) => (
-          <View key={member.id} className="flex-row items-center gap-2 p-2">
-            <Text className="flex-1">{member.name}</Text>
-            <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member.id, value)} />
-            <Button onPress={() => handleDeselect(member)} variant="ghost" className="p-2">
-              <Icon.Close />
-            </Button>
-          </View>
-        ))}
-      </ScrollView>
-      <Search options={options} value={query} onChangeText={searchUsers} className="w-72" />
-      {/* @TODO */}
-      <DialogFooter okText={t('common.actions.add')} onOk={handleSubmit} loading={isPending} className="z-[-2]" />
-    </DialogContent>
+      {selectedMembers.map((member) => (
+        <MemberRow key={member.id}>
+          <MemberName>{member.name}</MemberName>
+          <AccessField>
+            <Select
+              label={t('groups.membersModal.access')}
+              hideLabel
+              closeLabel={t('common.actions.close')}
+              value={member.access}
+              options={accessOptions}
+              onOptionChange={(option) => {
+                const access = accessOptions.find((item) => item.value === option.value);
+                if (access) {
+                  setSelectedMembers((current) =>
+                    current.map((item) => (item.id === member.id ? { ...item, access: access.value } : item))
+                  );
+                }
+              }}
+            />
+          </AccessField>
+          <Button
+            variant="tertiary"
+            size="small"
+            accessibilityLabel={t('groups.details.removeMember', { name: member.name })}
+            onPress={() => setSelectedMembers((current) => current.filter((item) => item.id !== member.id))}
+          >
+            <X size={18} color={colors.text.brand} aria-hidden />
+          </Button>
+        </MemberRow>
+      ))}
+      <Input
+        hideLabel
+        label={t('common.labels.search')}
+        value={query}
+        onChangeText={searchUsers}
+      />
+      {options.map((user) => (
+        <DropdownOption
+          key={user.id}
+          role="button"
+          accessibilityLabel={`${user.name}, ${user.email}`}
+          onPress={() => handleSelect(user)}
+        >
+          <Users size={20} color={colors.text.default} aria-hidden />
+          <ResultDetails>
+            <Text.M>{user.name}</Text.M>
+            <Text.S color={theme.colors.text.secondary}>{user.email}</Text.S>
+          </ResultDetails>
+        </DropdownOption>
+      ))}
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button onPress={handleSubmit} loading={isPending}>
+          {t('common.actions.add')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

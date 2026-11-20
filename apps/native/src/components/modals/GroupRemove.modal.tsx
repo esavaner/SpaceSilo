@@ -1,8 +1,7 @@
-import { DialogDescription, DialogContent, DialogHeader, DialogTitle } from './dialog';
-import { DialogFooter } from './dialog-footer';
 import { useGroupActions } from '@/hooks/useGroupActions';
-import { Text } from '../general/text';
 import { type GroupListItem } from '@/hooks/useGroupList';
+import { useTranslation } from 'react-i18next';
+import { Button, Modal, ModalButtons, ModalTitle, Text, theme, useModal } from '@repo/shared/components';
 
 type GroupRemoveModalProps = {
   group: Pick<GroupListItem, 'id' | 'name' | 'serverId'>;
@@ -10,6 +9,8 @@ type GroupRemoveModalProps = {
 };
 
 export const GroupRemoveModal = ({ group, onRemoved }: GroupRemoveModalProps) => {
+  const { t } = useTranslation();
+  const { closeModal } = useModal();
   const { removeGroup, isPending } = useGroupActions();
 
   const handleRemove = () => {
@@ -22,14 +23,19 @@ export const GroupRemoveModal = ({ group, onRemoved }: GroupRemoveModalProps) =>
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Remove group</DialogTitle>
-        <DialogDescription>This permanently removes the group and its membership references.</DialogDescription>
-      </DialogHeader>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('groups.details.removeGroup')}>
+      <ModalTitle>{t('groups.details.removeGroup')}</ModalTitle>
+      <Text.S color={theme.colors.text.secondary}>{t('groups.removeModal.description')}</Text.S>
       <Text>{group.name}</Text>
-      <Text className="text-sm text-muted-foreground">#{group.id}</Text>
-      <DialogFooter okText="Remove" onOk={handleRemove} loading={isPending} />
-    </DialogContent>
+      <Text.S color={theme.colors.text.secondary}>#{group.id}</Text.S>
+      <ModalButtons>
+        <Button variant="secondary" onPress={closeModal} disabled={isPending}>
+          {t('common.actions.cancel')}
+        </Button>
+        <Button variant="destructive" onPress={handleRemove} loading={isPending}>
+          {t('common.actions.remove')}
+        </Button>
+      </ModalButtons>
+    </Modal>
   );
 };

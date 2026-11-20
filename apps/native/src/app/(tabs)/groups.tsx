@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components/native';
 import { Plus, Search } from 'lucide-react-native';
-import { Button, Input, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { GroupCreateModal } from '@/components/modals/GroupCreate.modal';
 import { GroupList } from '@/components/GroupList';
 import { useGroupList } from '@/hooks/useGroupList';
 import { GroupFilterDropdown, type GroupFilter } from '@/components/dropdowns/GroupFilter.dropdown';
-import { useUi } from '@/providers/UiProvider';
 import { BaseLayout } from '@/components/base-layout';
 import { useServerContext } from '@/providers/ServerProvider';
 import { type GroupListItem } from '@/hooks/useGroupList';
@@ -45,7 +44,7 @@ const Filters = styled.View`
 export default function GroupsPage() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
   const { servers } = useServerContext();
   const { groups, isGroupsLoading } = useGroupList();
   const [query, setQuery] = useState('');

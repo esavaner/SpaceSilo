@@ -5,11 +5,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import styled from 'styled-components/native';
-import { Button, Input, theme } from '@repo/shared/components';
-import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from './dialog';
-import { useUi } from '@/providers/UiProvider';
+import { Button, Input, Modal, ModalButtons, ModalTitle, theme, useModal } from '@repo/shared/components';
 
 const PickerContainer = styled.View`
+  width: 100%;
+  max-width: 300px;
+  align-self: center;
   align-items: center;
 `;
 
@@ -26,7 +27,7 @@ type CreateGroupForm = {
 
 export const GroupCreateModal = () => {
   const { t } = useTranslation();
-  const { closeModal } = useUi();
+  const { closeModal } = useModal();
   const { createGroup, isPending } = useGroupActions();
   const schema = yup.object().shape({
     name: yup.string().required(t('groups.createModal.validation.nameRequired')),
@@ -47,10 +48,8 @@ export const GroupCreateModal = () => {
   };
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t('groups.createModal.title')}</DialogTitle>
-      </DialogHeader>
+    <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('groups.createModal.title')}>
+      <ModalTitle>{t('groups.createModal.title')}</ModalTitle>
       <Controller
         control={control}
         name="name"
@@ -82,7 +81,7 @@ export const GroupCreateModal = () => {
         name="color"
         render={({ field }) => (
           <PickerContainer>
-            <ColorPicker style={{ width: 300, gap: 10 }} onComplete={(value) => field.onChange(value.hex)}>
+            <ColorPicker style={{ width: '100%', gap: 10 }} onComplete={(value) => field.onChange(value.hex)}>
               <Preview />
               <PickerRow>
                 <Panel1 style={{ flex: 1 }} />
@@ -92,14 +91,14 @@ export const GroupCreateModal = () => {
           </PickerContainer>
         )}
       />
-      <DialogFooter>
+      <ModalButtons>
         <Button variant="secondary" onPress={closeModal} disabled={isPending}>
           {t('common.actions.cancel')}
         </Button>
         <Button onPress={handleSubmit(onSubmit)} loading={isPending}>
           {t('common.actions.create')}
         </Button>
-      </DialogFooter>
-    </DialogContent>
+      </ModalButtons>
+    </Modal>
   );
 };

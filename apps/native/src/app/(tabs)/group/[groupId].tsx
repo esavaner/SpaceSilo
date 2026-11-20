@@ -3,14 +3,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Check, ChevronDown, Edit3, Plus, Trash2 } from 'lucide-react-native';
 import { Platform, View, type ViewProps } from 'react-native';
 import styled from 'styled-components/native';
-import { Avatar, Button, DropdownMenu, DropdownOption, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Avatar, Button, DropdownMenu, DropdownOption, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
 import { GroupEditModal } from '@/components/modals/GroupEdit.modal';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { GroupRemoveModal } from '@/components/modals/GroupRemove.modal';
 import { BaseLayout } from '@/components/base-layout';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import { useServerContext } from '@/providers/ServerProvider';
-import { useUi } from '@/providers/UiProvider';
 import { type AddGroupMemberRequest, type GroupResponse, type UserResponse } from '@repo/shared';
 import { useTranslation } from 'react-i18next';
 
@@ -168,7 +167,7 @@ export default function SingleGroupPage() {
   const colors = useThemeColors();
   const { groupId, serverId } = useLocalSearchParams<{ groupId: string; serverId?: string }>();
   const { allServers } = useServerContext();
-  const { openModal } = useUi();
+  const { openModal } = useModal();
   const { removeMember, updateMember, isPending } = useGroupActions();
 
   const getServerById = (id?: string) => (id ? allServers.find((server) => server.id === id) : undefined);

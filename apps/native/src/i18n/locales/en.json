@@ -324,6 +324,9 @@
       },
       "title": "Add members"
     },
+    "removeModal": {
+      "description": "This permanently removes the group and its membership references."
+    },
     "toasts": {
       "addMemberSuccess": "Member added",
       "addMembersSuccess": "Members added",
