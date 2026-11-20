@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Dimensions, Platform, View, type PressableProps, type ViewProps } from 'react-native';
 import styled, { css } from 'styled-components/native';
 import { theme } from '../config/theme';
@@ -16,18 +16,8 @@ export type DropdownItem =
     }
   | undefined;
 
-const Root = styled.View<{ $open: boolean }>`
-  position: relative;
-  z-index: ${({ $open }) => ($open ? theme.zIndex.dropdown : theme.zIndex.base)};
-`;
-
 const Menu = styled.View`
-  position: absolute;
-  z-index: ${theme.zIndex.dropdown};
-  top: 100%;
-  right: 0;
   min-width: 150px;
-  margin-top: ${theme.spacing[200]};
   padding: ${theme.spacing[300]};
   border: 1px solid ${theme.colors.border.default};
   border-radius: ${theme.radius[300]};
@@ -87,7 +77,7 @@ type MenuState = {
   menuId: string;
 };
 
-/** Shared presentation; the viewport is sampled only when opening. */
+/** Desktop web uses an anchored top-layer popover; other platforms use the shared modal. */
 export const DropdownMenu = ({
   trigger,
   children,
@@ -107,13 +97,27 @@ export const DropdownMenu = ({
 }) => {
   const rootId = `dropdown-${useId().replace(/:/g, '')}`;
   const menuId = `${rootId}-menu`;
+  const anchorName = `--${rootId}`;
   const [presentation, setPresentation] = useState<{ isMobile: boolean; closing?: boolean } | null>(null);
   const onCloseRef = useRef(onClose);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const isOpen = presentation !== null;
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+
+  useLayoutEffect(() => {
+    const popover = popoverRef.current;
+    if (!popover) return;
+    const root = document.getElementById(rootId);
+    root?.style.setProperty('anchor-name', anchorName);
+    popover.showPopover();
+    return () => {
+      popover.hidePopover();
+      root?.style.removeProperty('anchor-name');
+    };
+  }, [isOpen, rootId, anchorName]);
 
   const finishClose = () => {
     setPresentation(null);
@@ -131,7 +135,11 @@ export const DropdownMenu = ({
     if (isOpen) close();
     else {
       setPresentation({
-        isMobile: Platform.OS !== 'web' || Dimensions.get('window').width <= theme.breakpointNumbers.sm,
+        isMobile:
+          Platform.OS !== 'web' ||
+          Dimensions.get('window').width <= theme.breakpointNumbers.sm ||
+          !HTMLElement.prototype.showPopover ||
+          !CSS.supports('top', 'anchor(bottom)'),
       });
     }
   };
@@ -181,7 +189,7 @@ export const DropdownMenu = ({
   const state = { isOpen, isMobile: presentation?.isMobile ?? Platform.OS !== 'web', toggle, close, menuId };
 
   return (
-    <Root $open={isOpen} nativeID={rootId} style={style}>
+    <View nativeID={rootId} style={style}>
       {trigger(state)}
       {isOpen &&
         (state.isMobile ? (
@@ -195,9 +203,30 @@ export const DropdownMenu = ({
             {children(state)}
           </Modal>
         ) : (
-          <Menu style={matchTriggerWidth ? { left: 0 } : undefined}>{children(state)}</Menu>
+          <div
+            ref={popoverRef}
+            popover="manual"
+            style={{
+              // Let React autofocus the search input before the layout effect shows the popover.
+              display: 'block',
+              position: 'fixed',
+              positionAnchor: anchorName,
+              top: 'anchor(bottom)',
+              right: 'anchor(right)',
+              bottom: 'auto',
+              left: matchTriggerWidth ? 'anchor(left)' : 'auto',
+              width: matchTriggerWidth ? 'auto' : undefined,
+              margin: `${theme.spacing[200]} 0 0`,
+              border: 0,
+              padding: 0,
+              background: 'transparent',
+              overflow: 'visible',
+            }}
+          >
+            <Menu>{children(state)}</Menu>
+          </div>
         ))}
-    </Root>
+    </View>
   );
 };
 
