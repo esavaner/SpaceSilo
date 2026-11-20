@@ -1,15 +1,7 @@
-import { Button, type ButtonProps } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './dropdown';
+import { Check, Filter } from 'lucide-react-native';
 import { Fragment } from 'react';
+import styled from 'styled-components/native';
+import { Button, DropdownMenu, DropdownOption, Text, theme, useThemeColors } from '@repo/shared/components';
 
 export type IncludedGroupOption = {
   key: string;
@@ -25,9 +17,25 @@ type IncludedGroupsDropdownProps = {
   includeLabel: string;
   emptyLabel: string;
   onToggleIncluded: (key: string) => void;
-  buttonClassName?: string;
-  buttonVariant?: ButtonProps['variant'];
 };
+
+const MenuContent = styled.View`
+  min-width: 224px;
+  gap: ${theme.spacing[200]};
+`;
+
+const ServerLabel = styled(Text.S)`
+  padding: ${theme.spacing[200]};
+`;
+
+const Separator = styled.View`
+  height: ${theme.borderWeight[25]};
+  background-color: ${theme.colors.border.default};
+`;
+
+const CheckSlot = styled.View`
+  width: 16px;
+`;
 
 export const IncludedGroupsDropdown = ({
   options,
@@ -36,9 +44,8 @@ export const IncludedGroupsDropdown = ({
   includeLabel,
   emptyLabel,
   onToggleIncluded,
-  buttonClassName,
-  buttonVariant,
 }: IncludedGroupsDropdownProps) => {
+  const colors = useThemeColors();
   const includedKeySet = new Set(includedKeys);
   const serverGroups = new Map<string, { id: string; label: string; options: IncludedGroupOption[] }>();
 
@@ -54,38 +61,62 @@ export const IncludedGroupsDropdown = ({
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant={buttonVariant} className={buttonClassName}>
-          <Icon.Filter className="text-foreground" />
-          <Text>{title}</Text>
+    <DropdownMenu
+      label={title}
+      closeLabel={title}
+      trigger={({ isOpen, toggle, menuId }) => (
+        <Button
+          variant="secondary"
+          onPress={toggle}
+          accessibilityLabel={title}
+          accessibilityState={{ expanded: isOpen }}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
+        >
+          <Filter size={18} color={colors.text.default} />
+          <Text.S>{title}</Text.S>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-56">
-        <DropdownMenuLabel>{includeLabel}</DropdownMenuLabel>
-        {options.length > 0 ? (
-          <>
-            <DropdownMenuSeparator />
-            {[...serverGroups.values()].map((serverGroup, serverIndex) => (
-              <Fragment key={serverGroup.id}>
-                {serverIndex > 0 ? <DropdownMenuSeparator /> : null}
-                <DropdownMenuLabel className="text-muted-foreground text-xs">{serverGroup.label}</DropdownMenuLabel>
-                {serverGroup.options.map((option) => (
-                  <DropdownMenuCheckboxItem
-                    key={option.key}
-                    checked={includedKeySet.has(option.key)}
-                    onCheckedChange={() => onToggleIncluded(option.key)}
-                  >
-                    <Text>{option.label}</Text>
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </Fragment>
-            ))}
-          </>
-        ) : (
-          <Text className="px-2 py-1.5 text-sm text-muted-foreground">{emptyLabel}</Text>
-        )}
-      </DropdownMenuContent>
+      )}
+    >
+      {() => (
+        <MenuContent>
+          <Text.S weight={700}>{includeLabel}</Text.S>
+          {options.length > 0 ? (
+            <>
+              <Separator />
+              {[...serverGroups.values()].map((serverGroup, serverIndex) => (
+                <Fragment key={serverGroup.id}>
+                  {serverIndex > 0 ? <Separator /> : null}
+                  <ServerLabel color={colors.text.secondary}>{serverGroup.label}</ServerLabel>
+                  {serverGroup.options.map((option) => {
+                    const included = includedKeySet.has(option.key);
+
+                    return (
+                      <DropdownOption
+                        key={option.key}
+                        role="menuitem"
+                        accessibilityState={{ checked: included }}
+                        $selected={included}
+                        onPress={() => onToggleIncluded(option.key)}
+                      >
+                        {included ? (
+                          <Check size={16} color={colors.text.brand} />
+                        ) : (
+                          <CheckSlot />
+                        )}
+                        <Text.S>{option.label}</Text.S>
+                      </DropdownOption>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </>
+          ) : (
+            <Text.S color={colors.text.secondary}>{emptyLabel}</Text.S>
+          )}
+        </MenuContent>
+      )}
     </DropdownMenu>
   );
 };

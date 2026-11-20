@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
+import { FileText, Pencil, Plus, Search, Trash2 } from 'lucide-react-native';
+import styled from 'styled-components/native';
 import { BaseLayout } from '@/components/base-layout';
 import { IncludedGroupsDropdown, type IncludedGroupOption } from '@/components/dropdowns/IncludedGroups.dropdown';
-import { Button } from '@/components/general/button';
-import { Icon } from '@/components/general/icon';
-import { Text } from '@/components/general/text';
-import { Input } from '@/components/form/input';
 import { NoteDetailsModal } from '@/components/modals/NoteDetails.modal';
 import { NoteDeleteModal } from '@/components/modals/NoteDelete.modal';
 import { NoteEditorModal } from '@/components/modals/NoteEditor.modal';
@@ -14,6 +12,105 @@ import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useUi } from '@/providers/UiProvider';
 import { useTranslation } from 'react-i18next';
+import { Button, Input, Text, theme, useThemeColors } from '@repo/shared/components';
+
+const PageContent = styled.View`
+  gap: ${theme.spacing[600]};
+  padding-bottom: ${theme.spacing[800]};
+`;
+
+const PageHeader = styled.View`
+  gap: ${theme.spacing[300]};
+`;
+
+const HeadingRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${theme.spacing[300]};
+`;
+
+const HeadingContent = styled.View`
+  flex: 1;
+  gap: ${theme.spacing[50]};
+`;
+
+const FiltersPanel = styled.View`
+  gap: ${theme.spacing[300]};
+  padding: ${theme.spacing[300]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[300]};
+  background-color: ${theme.colors.surface.medium};
+`;
+
+const FilterRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const NotesGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: ${theme.spacing[300]};
+`;
+
+const NoteCard = styled.View<{ $width: number }>`
+  width: ${({ $width }) => $width}px;
+  padding: ${theme.spacing[400]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
+
+const NoteRow = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  gap: ${theme.spacing[300]};
+`;
+
+const NoteContent = styled.Pressable`
+  flex: 1;
+  gap: ${theme.spacing[300]};
+`;
+
+const NoteDetails = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const TitleRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${theme.spacing[200]};
+`;
+
+const NoteTag = styled.View`
+  padding: ${theme.spacing[100]} ${theme.spacing[200]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius.full};
+  background-color: ${theme.colors.surface.weak};
+`;
+
+const NoteActions = styled.View`
+  gap: ${theme.spacing[200]};
+`;
+
+const EmptyState = styled.View`
+  gap: ${theme.spacing[300]};
+  padding: ${theme.spacing[600]};
+  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+`;
+
+const LoadingState = styled.View`
+  padding: ${theme.spacing[600]};
+  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
+  border-radius: ${theme.radius[400]};
+  background-color: ${theme.colors.surface.medium};
+`;
 
 const getNoteTitle = (note: Pick<NoteListItem, 'title' | 'content'>, untitledLabel: string) => {
   const title = note.title?.trim();
@@ -48,6 +145,7 @@ const getGroupLookupKey = (
 
 export default function NotesPage() {
   const { i18n, t } = useTranslation();
+  const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const { openModal } = useUi();
   const { allServers, servers } = useServerContext();
@@ -121,36 +219,33 @@ export default function NotesPage() {
 
   return (
     <BaseLayout>
-      <View className="gap-6 pb-8">
-        <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <View className="flex-1 gap-1">
-              <Text variant="h1">{t('navigation.notes')}</Text>
-              <Text className="text-muted-foreground">
+      <PageContent>
+        <PageHeader>
+          <HeadingRow>
+            <HeadingContent>
+              <Text.H1>{t('navigation.notes')}</Text.H1>
+              <Text.S color={colors.text.secondary}>
                 {isNotesLoading || isGroupsLoading
                   ? t('notes.loading')
                   : `${visibleNotes.length} ${t('common.nouns.notes')} ${t('common.labels.inView')}`}
-              </Text>
-            </View>
+              </Text.S>
+            </HeadingContent>
 
             <Button onPress={openCreateModal} disabled={groups.length === 0}>
-              <Icon.Add className="text-black" />
-              <Text>{t('notes.actions.create')}</Text>
+              <Plus size={18} color={colors.text.inverted} />
+              <Text.S color={colors.text.inverted}>{t('notes.actions.create')}</Text.S>
             </Button>
-          </View>
+          </HeadingRow>
 
-          <View className="gap-3 rounded-xl border border-border bg-layer-secondary/30 p-3">
-            <View className="flex-row items-center gap-2 rounded-lg border border-border bg-background px-3">
-              <Icon.Search className="text-muted-foreground" size={16} />
-              <Input
-                value={query}
-                onChangeText={setQuery}
-                placeholder={t('notes.searchPlaceholder')}
-                className="flex-1 border-0 bg-transparent px-0"
-              />
-            </View>
+          <FiltersPanel>
+            <Input
+              value={query}
+              onChangeText={setQuery}
+              placeholder={t('notes.searchPlaceholder')}
+              leftIcon={<Search size={16} color={colors.text.secondary} />}
+            />
 
-            <View className="flex-row flex-wrap items-center gap-2">
+            <FilterRow>
               <IncludedGroupsDropdown
                 options={groupFilterOptions}
                 includedKeys={includedGroupKeys}
@@ -164,91 +259,108 @@ export default function NotesPage() {
                     handleToggleIncludedGroup(group);
                   }
                 }}
-                buttonVariant="outline"
               />
-            </View>
-          </View>
-        </View>
+            </FilterRow>
+          </FiltersPanel>
+        </PageHeader>
 
         {servers.length === 0 ? (
-          <View className="gap-3 rounded-2xl border border-dashed border-border p-6">
-            <Text variant="h3">{t('notes.empty.noServersTitle')}</Text>
-            <Text className="text-muted-foreground">{t('notes.empty.noServersDescription')}</Text>
-          </View>
+          <EmptyState>
+            <Text.H3>{t('notes.empty.noServersTitle')}</Text.H3>
+            <Text.M color={colors.text.secondary}>{t('notes.empty.noServersDescription')}</Text.M>
+          </EmptyState>
         ) : isNotesLoading || isGroupsLoading ? (
-          <View className="rounded-2xl border border-border bg-layer-secondary/30 p-6">
-            <Text className="text-muted-foreground">{t('notes.loadingAll')}</Text>
-          </View>
+          <LoadingState>
+            <Text.M color={colors.text.secondary}>{t('notes.loadingAll')}</Text.M>
+          </LoadingState>
         ) : visibleNotes.length === 0 ? (
-          <View className="gap-3 rounded-2xl border border-dashed border-border p-6">
-            <Text variant="h3">{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text>
-            <Text className="text-muted-foreground">
+          <EmptyState>
+            <Text.H3>{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text.H3>
+            <Text.M color={colors.text.secondary}>
               {query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
-            </Text>
+            </Text.M>
             {!query.trim() ? (
-              <Button onPress={openCreateModal} className="self-start" disabled={groups.length === 0}>
-                <Icon.Add className="text-black" />
-                <Text>{t('notes.actions.createFirst')}</Text>
+              <Button
+                onPress={openCreateModal}
+                disabled={groups.length === 0}
+                style={{ alignSelf: 'flex-start' }}
+              >
+                <Plus size={18} color={colors.text.inverted} />
+                <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
               </Button>
             ) : null}
-          </View>
+          </EmptyState>
         ) : (
-          <View className="flex-row flex-wrap items-start gap-3">
+          <NotesGrid>
             {visibleNotes.map((note) => {
               const group = groupLookup.get(getGroupLookupKey(note));
               const serverLabel = serverLookup.get(note.serverId)?.label ?? t('common.messages.connectedServer');
 
               return (
-                <View
+                <NoteCard
                   key={`${note.serverId}:${note.id}`}
-                  className="rounded-2xl border border-border bg-layer-secondary/40 p-4"
-                  style={{ width: cardWidth }}
+                  $width={cardWidth}
                 >
-                  <View className="flex-row items-start gap-3">
-                    <Pressable className="flex-1 gap-3" onPress={() => openDetailsModal(note)}>
-                      <View className="gap-2">
-                        <View className="flex-row flex-wrap items-center gap-2">
-                          <Text className="text-lg font-semibold">
+                  <NoteRow>
+                    <NoteContent onPress={() => openDetailsModal(note)}>
+                      <NoteDetails>
+                        <TitleRow>
+                          <Text.L weight={700}>
                             {getNoteTitle(note, t('notes.details.untitled'))}
-                          </Text>
-                          <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                            <Text className="text-xs text-muted-foreground">
+                          </Text.L>
+                          <NoteTag>
+                            <Text.Caption color={colors.text.secondary}>
                               {group?.name ?? t('common.messages.unknownGroup')}
-                            </Text>
-                          </View>
-                          <View className="rounded-full border border-border bg-background px-2.5 py-1">
-                            <Text className="text-xs text-muted-foreground">{serverLabel}</Text>
-                          </View>
-                        </View>
+                            </Text.Caption>
+                          </NoteTag>
+                          <NoteTag>
+                            <Text.Caption color={colors.text.secondary}>{serverLabel}</Text.Caption>
+                          </NoteTag>
+                        </TitleRow>
 
-                        <Text className="text-sm leading-6 text-muted-foreground" numberOfLines={3}>
+                        <Text.S color={colors.text.secondary} numberOfLines={3}>
                           {getNotePreview(note.content)}
-                        </Text>
-                      </View>
+                        </Text.S>
+                      </NoteDetails>
 
-                      <Text className="text-xs text-muted-foreground">
+                      <Text.Caption color={colors.text.secondary}>
                         {t('notes.details.updated', { value: formatUpdatedAt(note.updatedAt, i18n.language) })}
-                      </Text>
-                    </Pressable>
+                      </Text.Caption>
+                    </NoteContent>
 
-                    <View className="gap-2">
-                      <Button variant="ghost" size="icon" onPress={() => openDetailsModal(note)}>
-                        <Icon.File />
+                    <NoteActions>
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        style={{ width: 40, height: 40, padding: 0 }}
+                        onPress={() => openDetailsModal(note)}
+                      >
+                        <FileText size={18} color={colors.text.brand} />
                       </Button>
-                      <Button variant="ghost" size="icon" onPress={() => openEditModal(note)}>
-                        <Icon.Edit />
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        style={{ width: 40, height: 40, padding: 0 }}
+                        onPress={() => openEditModal(note)}
+                      >
+                        <Pencil size={18} color={colors.text.brand} />
                       </Button>
-                      <Button variant="ghost" size="icon" onPress={() => openDeleteModal(note)}>
-                        <Icon.Trash />
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        style={{ width: 40, height: 40, padding: 0 }}
+                        onPress={() => openDeleteModal(note)}
+                      >
+                        <Trash2 size={18} color={colors.text.brand} />
                       </Button>
-                    </View>
-                  </View>
-                </View>
+                    </NoteActions>
+                  </NoteRow>
+                </NoteCard>
               );
             })}
-          </View>
+          </NotesGrid>
         )}
-      </View>
+      </PageContent>
     </BaseLayout>
   );
 }
