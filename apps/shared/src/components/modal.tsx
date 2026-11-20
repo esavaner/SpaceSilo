@@ -8,7 +8,6 @@ import {
   View,
   useWindowDimensions,
   type ViewProps,
-  type ViewStyle,
 } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -24,7 +23,7 @@ import { Icon } from '../assets/icons';
 import { ModalContext } from '../context/modal-provider';
 import { theme, useThemeColors } from '../config/theme';
 import { Text } from './text';
-import { useWebScrollLock } from './component-utils';
+import { modalBackdropStyle, useWebScrollLock } from './component-utils';
 
 type StyledProps = {
   $drawer: boolean;
@@ -33,12 +32,6 @@ type StyledProps = {
 const Wrapper = styled(KeyboardAvoidingView)`
   flex: 1;
 `;
-
-// Blur must share the opacity layer; an opacity ancestor isolates the backdrop until it reaches 1.
-const backdropBaseStyle: ViewStyle & Pick<React.CSSProperties, 'backdropFilter'> = {
-  backgroundColor: 'rgba(63, 44, 38, 0.4)',
-  ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}),
-};
 
 const ModalCard = styled.View<StyledProps>`
   flex-shrink: 1;
@@ -222,7 +215,7 @@ export const Modal = ({
       aria-labelledby={labelledBy}
     >
       <Wrapper behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}>
-        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, backdropBaseStyle, backdropStyle]} />
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, modalBackdropStyle, backdropStyle]} />
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={disableClickOutside ? undefined : handleClose}

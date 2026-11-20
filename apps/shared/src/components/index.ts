@@ -13,6 +13,7 @@ export * from './radio';
 export * from './radio-group';
 export * from './select';
 export * from './set-password-input';
+export * from './side-drawer';
 export * from './text';
 export * from './textarea';
 export { Icon, type LucideIcon } from '../assets/icons';

@@ -1,6 +1,12 @@
 import type { KeyboardEvent } from 'react';
-import { Platform, type PressableProps } from 'react-native';
+import { Platform, type PressableProps, type ViewStyle } from 'react-native';
 import { useEffect, useState } from 'react';
+
+// Animate opacity on this same layer; an opacity ancestor isolates the blur.
+export const modalBackdropStyle: ViewStyle & { backdropFilter?: string } = {
+  backgroundColor: 'rgba(63, 44, 38, 0.4)',
+  ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}),
+};
 
 // React Native Web handles Space for buttons, but not checkbox/radio/combobox/option roles.
 export const webSpaceActivation =

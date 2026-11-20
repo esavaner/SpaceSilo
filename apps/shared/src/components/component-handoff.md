@@ -30,6 +30,10 @@ Done and tested on a real device by the user:
 - `modal.tsx`, including the context lifecycle, fixed title/buttons, and synchronized web backdrop blur/dimming
   `dropdown` and `select`
 
+## SideDrawer
+
+Import `SideDrawer` from `@repo/shared/components`. Pass `open` from caller state, `panel` for drawer content, and `children` for the main content. Any button can update `open`; set its expanded accessibility state. `side` defaults to `left`, `mode` to `push`, and `width` to 260. Push drawers animate within the layout they wrap. Overlay drawers can omit `children`: they slide over the full viewport and use the modal backdrop (blur and dim on web, dim on native). Pass `onClose` to set `open` to `false` on backdrop press, Escape, or Android Back, and include a close button in the panel. Drawers can nest and keep independent state; the panel unmounts after closing.
+
 ## Workflow for each component
 
 1. Rewrite the component as a single file using React Native primitives, styled with `styled-components/native`.

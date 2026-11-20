@@ -24,6 +24,7 @@ import {
   ModalTitle,
   Select,
   Dropdown,
+  SideDrawer,
   useModal,
   useThemeMode,
   type ThemeMode,
@@ -62,6 +63,8 @@ export default function IndexPage() {
   const [selectedColor, setSelectedColor] = useState('blue');
   const [selectedColors, setSelectedColors] = useState<string[]>(['green']);
   const [lastAction, setLastAction] = useState('');
+  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
+  const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const colorOptions = [
     { label: 'Blue', value: 'blue' },
     { label: 'Green', value: 'green' },
@@ -123,7 +126,33 @@ export default function IndexPage() {
 
   return (
     <>
+      <SideDrawer
+        open={rightDrawerOpen}
+        side="right"
+        mode="overlay"
+        onClose={() => setRightDrawerOpen(false)}
+        panel={
+          <>
+            <Button onPress={() => setRightDrawerOpen(false)}>Close right drawer</Button>
+            <Button accessibilityState={{ expanded: leftDrawerOpen }} onPress={() => setLeftDrawerOpen(true)}>
+              Open nested left drawer
+            </Button>
+            <SideDrawer
+              open={leftDrawerOpen}
+              mode="overlay"
+              onClose={() => setLeftDrawerOpen(false)}
+              panel={<Button onPress={() => setLeftDrawerOpen(false)}>Close left drawer</Button>}
+            />
+          </>
+        }
+      />
       <BaseLayout style={{ backgroundColor: colors.surface.medium }}>
+        <Section>
+          <SectionHeader>Side drawers</SectionHeader>
+          <Button accessibilityState={{ expanded: rightDrawerOpen }} onPress={() => setRightDrawerOpen(true)}>
+            Open full-screen right overlay
+          </Button>
+        </Section>
         <Section>
           <SectionHeader>Select and dropdown</SectionHeader>
           <Select

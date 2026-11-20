@@ -1,5 +1,5 @@
-import { DrawerContentComponentProps, DrawerContentScrollView } from 'expo-router/drawer';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
+import { ScrollView } from 'react-native';
 import styled from 'styled-components/native';
 import { Button, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { routeIcons, routeLabels, routes } from '@/constants/routes';
@@ -7,15 +7,12 @@ import { useServerContext } from '@/providers/ServerProvider';
 import { serverIcons } from '@/constants/server-icons';
 import { useTranslation } from 'react-i18next';
 
-type NavigationProps = DrawerContentComponentProps;
-
 const AppTitle = styled(Text)`
   align-self: center;
   margin: ${theme.spacing[600]} 0;
 `;
 
 const MenuItem = styled.Pressable<{ $active?: boolean }>`
-  flex: 1;
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[300]};
@@ -46,23 +43,35 @@ const AddButton = styled(Button)`
   padding: 0;
 `;
 
-export const Navigation = (props: NavigationProps) => {
+export const Navigation = ({ onClose }: { onClose?: () => void }) => {
   const { t } = useTranslation();
   const { allServers } = useServerContext();
   const colors = useThemeColors();
+  const pathname = usePathname();
 
-  const currentRoute = props.state.routeNames[props.state.index];
   return (
     <>
       <AppTitle>{t('navigation.app')}</AppTitle>
-      <DrawerContentScrollView {...props}>
+      {onClose && (
+        <MenuItem onPress={onClose} accessibilityRole="button">
+          <Icon.X color={colors.text.secondary} size={18} aria-hidden />
+          <MenuLabel>{t('common.actions.close')}</MenuLabel>
+        </MenuItem>
+      )}
+      <ScrollView>
         {Object.values(routes).map((key) => {
           const RouteIcon = routeIcons[key];
+          const href = key === routes.index ? '/' : (`/${key}` as const);
           return (
             <MenuItem
               key={key}
-              onPress={() => props.navigation.navigate(key)}
-              $active={currentRoute === key}
+              onPress={() => {
+                router.navigate(href);
+                onClose?.();
+              }}
+              $active={pathname === href}
+              accessibilityRole="button"
+              accessibilityState={{ selected: pathname === href }}
             >
               <RouteIcon color={colors.text.secondary} size={18} />
               <MenuLabel>{routeLabels[key]}</MenuLabel>
@@ -75,7 +84,11 @@ export const Navigation = (props: NavigationProps) => {
             variant="tertiary"
             size="small"
             center
-            onPress={() => router.push('/connections')}
+            accessibilityLabel={t('navigation.connections')}
+            onPress={() => {
+              router.push('/connections');
+              onClose?.();
+            }}
           >
             <Icon.Plus color={colors.text.default} size={18} />
           </AddButton>
@@ -83,13 +96,17 @@ export const Navigation = (props: NavigationProps) => {
         {allServers.map((server) => (
           <MenuItem
             key={server.id}
-            onPress={() => router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } })}
+            accessibilityRole="button"
+            onPress={() => {
+              router.push({ pathname: '/connections/[serverId]', params: { serverId: server.id } });
+              onClose?.();
+            }}
           >
             {serverIcons[server.type]}
             <MenuLabel>{server.label}</MenuLabel>
           </MenuItem>
         ))}
-      </DrawerContentScrollView>
+      </ScrollView>
     </>
   );
 };
