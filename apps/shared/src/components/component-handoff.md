@@ -40,13 +40,12 @@ Done and tested on a real device by the user:
 4. Add examples to the test page `apps/native/src/app/(tabs)/index.tsx`, including normal, error, and disabled states where they apply.
    - **The test page must not use translations.** A comment at the top of the file says so.
    - The page uses a white background.
-5. Check the change:
+5. Check the change once, after all edits are done (not after every edit):
    - `pnpm.cmd --filter @repo/shared typecheck`
    - `pnpm.cmd --filter @repo/native typecheck`
    - Run `eslint` and `prettier` on the files you changed.
-   - Check web with `pnpm.cmd --filter @repo/native exec expo start --web --port 8099`.
-   - Check that the native bundle builds with `pnpm.cmd --filter @repo/native exec expo export --platform android --platform ios`.
-   - The user then tests on a real device.
+   - **Leave manual and visual testing to the user.** By default, don't start Expo/web servers, open a browser, or run Playwright. The user tests on web and on a real device, so tell them what to check. Exception: for a web-only bug, or if the user asks, do one quick browser check and then stop.
+   - Run `pnpm.cmd --filter @repo/native exec expo export --platform android` only after changing dependencies, package exports, or Metro/Babel config.
 
 Use `pnpm.cmd` in Windows PowerShell.
 

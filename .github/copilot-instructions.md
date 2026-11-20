@@ -6,29 +6,32 @@ Trust this file first. Only search the repo when the task touches an area not co
 
 SpaceSilo is a pnpm monorepo for a personal or shared media storage product. It contains:
 
-- `apps/core`: NestJS 11 backend API on Node.js
-- `apps/shared`: shared DTOs, Prisma schema/client, and shared exports consumed by other apps
-- `apps/docs`: Next.js 16 app-router web app
-- `apps/native`: Expo 54 / React Native Web client
+- `apps/core`: NestJS 12 backend API on Node.js
+- `apps/shared`: shared DTOs, Prisma schema/client, and the shared UI component library (styled-components 7 prerelease, native first, web via react-native-web)
+- `apps/docs`: Next.js 16 app-router page used as the web showcase for the shared components
+- `apps/native`: Expo 57 / React Native Web client (Expo Router, NativeWind 5, TypeScript 6)
 
-Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, SWC for backend builds, ESLint 9 flat config, React 19, Next.js 16, Expo Router.
+Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, SWC for backend and shared builds, ESLint 9 flat config, Prettier, React 19.
 
-Observed locally on Windows: Node `v24.13.0`. The repo pins `pnpm@10.28.1` in the root `package.json`.
+Observed locally on Windows: Node `v26.13.0`. The repo pins `pnpm@10.28.1` in the root `package.json`.
 
 Important: the root README and app READMEs are still starter-template docs and are not authoritative for this repo.
 
 ## Layout And Architecture
 
-- Root files: `compose.yml`, `package.json`, `pnpm-workspace.yaml`, `README.md`, `apps/`, `.vscode/`
-- `apps/core/src/main.ts`: Nest bootstrap, global validation pipe, CORS, listens on port `3100`
-- `apps/core/src/app.module.ts`: registers controllers/services and `ConfigModule`
-- `apps/core/src/common/env.validation.ts`: backend requires `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH`
-- `apps/core/src/controllers/*` and `apps/core/src/services/*`: API surface and business logic
+- Root files: `compose.yml` (production: `core` + `web`), `compose.dev.yml` (dev: Postgres + Adminer), `.env.example`, `package.json`, `pnpm-workspace.yaml`, `apps/`, `.vscode/`
+- `apps/core/src/main.ts`: Nest bootstrap, global `HttpExceptionFilter`, validation pipe, CORS, API prefix from `@repo/shared/constants/api`, listens on port `3100`
+- `apps/core/src/app.module.ts`: registers controllers/services and `ConfigModule` with `validateEnvironment`
+- `apps/core/src/common/env.validation.ts`: backend requires `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH`; optional `RSYNC_BIN`, `BACKUP_RSYNC_SSH_PORT`, `BACKUP_RSYNC_SSH_USER`
+- `apps/core/src/controllers/*`, `services/*`, `guards/*`, `decorators/*`: API surface, business logic, auth/roles
 - `apps/core/src/common/prisma.service.ts`: backend Prisma client wrapper using `@repo/shared`
-- `apps/shared/src/index.tsx`: all shared exports; update this when adding DTOs or shared Prisma helpers
-- `apps/shared/src/prisma/schema.prisma`: canonical data model (User, Group, GroupMember, Album, Photo)
-- `apps/docs/src/app/*`: Next.js app-router pages and layout
-- `apps/native/src/app/_layout.tsx`: Expo root layout; tab routes live under `apps/native/src/app/(tabs)`
+- `apps/shared/src/index.tsx`: main shared exports (DTOs, Prisma, API constants, types); update this when adding DTOs or shared Prisma helpers
+- `apps/shared` subpath exports: `@repo/shared/components` (UI barrel), `@repo/shared/style` (web-only `GlobalStyle`), `@repo/shared/constants/api`
+- `apps/shared/src/components/component-handoff.md`: rules and current status for shared UI component work; read it before touching shared components
+- `apps/shared/src/prisma/schema.prisma`: canonical data model (User, Group, GroupMember, Album, Media, MediaFile, Note, Backup)
+- `apps/shared/src/prisma/seed.ts`: dev seed
+- `apps/docs/src/app/page.tsx`: shared component showcase page
+- `apps/native/src/app/_layout.tsx`: Expo root layout; routes under `(tabs)`, `login`, and `view`
 - `apps/native/src/api/*`: HTTP clients used by the mobile/web client
 - `apps/native/src/providers/*` and `apps/native/src/hooks/*`: app state, server connections, and query logic
 
@@ -40,76 +43,66 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 
 1. Bootstrap
    - Run `pnpm.cmd install`
-   - Validated: succeeds in about 22s
    - Postcondition: `apps/shared` automatically runs `prisma generate` via `postinstall`
    - Expected warning: `apps/native/package.json` contains a local `pnpm.overrides` field, but pnpm only honors overrides from the workspace root
 
 2. Lint
-   - Run `pnpm.cmd lint`
-   - Validated: succeeds in about 12s
-   - Current state: existing warnings only, mostly unused variables and `any` usage in `apps/native` plus a few warnings in `apps/core`
-   - Do not treat warning-free output as a prerequisite for merging unless the user asks you to clean them up
+   - Run `pnpm.cmd lint` (about 7s)
+   - Current state: passes with existing warnings only (`any` and unused variables); don't treat warnings as blockers unless the user asks
 
-3. Build
-   - Run `pnpm.cmd build`
-   - Validated: succeeds in about 8s
-   - What it actually builds: `@repo/shared`, `@repo/core`, and `@repo/docs`
-   - `@repo/native` has no build script and is not part of the root build pipeline
+3. Typecheck
+   - Per package: `pnpm.cmd --filter <pkg> typecheck`. Prefer this and only check the packages you touched
+   - Root `pnpm.cmd typecheck` builds `@repo/shared` first, then typechecks every package
+   - `pnpm.cmd --filter <pkg> check` runs lint + typecheck for one package
+   - Current state: `@repo/shared` and `@repo/native` pass. `@repo/core` has existing errors (`logger.middleware.ts`, `users.controller.ts`, `auth.guard.ts` rootDir). `@repo/docs` fails because `page.tsx` is behind the current shared `Radio` API. Don't fix these unless asked, but don't add new errors
 
-4. Backend database setup
-   - If you need a local database, run `docker compose up -d`
-   - Validated: starts PostgreSQL on `localhost:5432` and Adminer on `localhost:8080`
+4. Build
+   - `pnpm.cmd build` builds `@repo/shared`, `@repo/core`, and `@repo/docs`. It currently fails at `@repo/docs` (Turbopack parse errors), after shared and core succeed
+   - `pnpm.cmd build:core` builds only shared + core and passes
+   - `@repo/native` has no build script; `pnpm.cmd --filter @repo/native export:web` exports the web build to `apps/native/dist`
 
-- Use `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/db?schema=public`
-- Preferred early-dev reset/bootstrap path: run `pnpm.cmd reset`
-- Validated behavior: resets the database from the single initial migration, rebuilds `@repo/shared`, and runs the shared Prisma dev seed for one default user:
-  - `email: t@t.com`
-  - `password: 123456`
-  - `groupId: testcom`
-- This root command runs `pnpm --filter @repo/shared reset`; `@repo/shared` owns the actual Prisma reset and seed flow, while Docker startup and runtime env validation stay separate
-- If you only need schema sync without a reset, `pnpm.cmd --filter @repo/shared db:push` still works
-- After DB work, run `docker compose down` if you want to stop local services
+5. Database
+   - Start local Postgres + Adminer: `docker compose -f compose.dev.yml up -d` (Postgres on `localhost:5432`, Adminer on `localhost:8080`)
+   - `DATABASE_URL=postgresql://postgres:pass123@localhost:5432/db?schema=public`
+   - `.env` lives at the repo root (template: `.env.example`), but `dotenv/config` and Nest `ConfigModule` read `.env` from the package's working directory. When running with `--filter`, set the variables in the shell
+   - Preferred early-dev reset: `pnpm.cmd reset` (runs `pnpm --filter @repo/shared reset`: Prisma migrate reset, rebuild shared, run seed). Seeded dev user: `t@t.com` / `123456`, personal group `testcom`
+   - Schema sync without reset: `pnpm.cmd --filter @repo/shared db:push`
+   - Stop with `docker compose -f compose.dev.yml down`
 
-5. Run docs app
-   - Run `pnpm.cmd --filter @repo/docs dev`
-   - Validated: starts Next.js on `http://localhost:4000` and was ready in about 5s
+6. Run backend
+   - Set `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` first, for example `$env:FILES_PATH='C:\path\to\files'`
+   - Dev (SWC watch + node watch): `pnpm.cmd --filter @repo/core dev`
+   - Production-like: `pnpm.cmd start:core` (builds shared + core, then runs `node build/main.js`)
+   - The user often already has core running on port `3100`; an `EADDRINUSE` error means it is already up. Don't kill it
 
-6. Run backend in development
-   - Always set `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` first
-   - Example PowerShell sequence:
-     - `$env:FILES_PATH='C:\path\to\files'`
-     - `$env:STORAGE_PATH='C:\path\to\storage'`
-     - `$env:APPDATA_PATH='C:\path\to\appdata'`
-     - `pnpm.cmd --filter @repo/core dev`
-   - Validated: this path stays up and serves requests; the watch/type-check process reported `Found 0 issues`
+7. Run frontends (only when the user asks; see Token Budget)
+   - Docs showcase: `pnpm.cmd --filter @repo/docs dev` on `http://localhost:4000`
+   - Native web: `pnpm.cmd --filter @repo/native dev` (`expo start --web`)
 
 ## Known Broken Or Misleading Scripts
 
-- Do not rely on `pnpm.cmd start:core`
-  - Validated failure: it builds successfully, then `node build/src/main.js` crashes with `ERR_MODULE_NOT_FOUND` for `build/src/app.module`
-  - Practical workaround: use `pnpm.cmd --filter @repo/core dev` instead
-
-- `pnpm.cmd clean` is not portable on Windows
-  - Validated failure: the script fails on `rm -rf node_modules`
-
-- `pnpm.cmd --filter @repo/core test`
-  - Validated failure: exits with `No tests found`
-
-- `pnpm.cmd --filter @repo/core test:e2e`
-  - Validated failure: references missing file `apps/core/test/jest-e2e.json`
-
-- `pnpm.cmd --filter @repo/native api`
-  - Treat as stale until proven otherwise
-  - The script expects Swagger JSON at `http://localhost:3100/api/json`, but no Swagger bootstrap code exists in `apps/core/src/main.ts`
+- `pnpm.cmd clean` is not portable on Windows: it fails on `rm -rf node_modules`
+- `pnpm.cmd build` and root `pnpm.cmd typecheck` currently fail on `@repo/docs` (see above); use per-package commands
 
 ## Change Guidance
 
 - Backend API contract changes usually touch `apps/shared` first, then `apps/core`, then `apps/native`
-- If you change shared DTO exports, rebuild `@repo/shared` before validating consumers
-- For backend-only changes, always run at least `pnpm.cmd lint`, `pnpm.cmd build`, and if runtime behavior changed, `pnpm.cmd --filter @repo/core dev` with the required env vars
-- For docs-only changes, run `pnpm.cmd --filter @repo/docs build` and `pnpm.cmd --filter @repo/docs lint`
+- If you change shared exports, rebuild `@repo/shared` (`pnpm.cmd --filter @repo/shared build`) before validating consumers
+- For backend-only changes, run `pnpm.cmd --filter @repo/core lint` and `pnpm.cmd build:core`. Compare typecheck errors with the known existing ones
+- For shared component changes, follow `apps/shared/src/components/component-handoff.md`
 - For Prisma schema changes during early development, prefer folding them into `apps/shared/src/prisma/migrations/20260127001311_init` instead of adding new migrations unless the user explicitly wants migration history preserved
-- For Prisma schema changes, run `pnpm.cmd reset` when you need a clean local reset with seed data, or `docker compose up -d`, set `DATABASE_URL`, run `pnpm.cmd --filter @repo/shared db:push`, then rebuild shared for incremental sync
+- For Prisma schema changes, run `pnpm.cmd reset` for a clean reset with seed data, or `pnpm.cmd --filter @repo/shared db:push` then rebuild shared for incremental sync
+
+## Token Budget
+
+Session analysis showed that browser testing and dev-server polling used about 25% of agent tokens, and full-file re-reads and repeated typechecks used most of the rest. The user does manual testing of the native and web apps.
+
+- By default, don't start Expo/Next/web dev servers, open a browser, or run Playwright/screenshots. Instead, end with a short list of what the user should check manually.
+- Exceptions: the user explicitly asks for it, or the bug is web-only. For a web-only bug, do one quick browser check (reuse an already-running server if there is one), then stop the server and don't keep polling or iterating in the browser.
+- Don't run `expo export` just as a check. Run it only after changing dependencies, package exports, or Metro/Babel config.
+- Run typecheck, lint, and prettier once after a batch of edits, not after each edit.
+- Read a file once, then edit it. Use `view_range` and `grep` instead of re-reading whole files.
+- Use `git --no-pager diff --stat` or diff specific files. Never diff `pnpm-lock.yaml`.
 
 ## Localization Guidance
 
