@@ -8,7 +8,6 @@ import '@/i18n';
 import '../styles.css';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { UiProvider } from '@/providers/UiProvider';
 import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
@@ -70,24 +69,22 @@ export default function RootLayout() {
               <UserProvider>
                 <ServerProvider>
                   <FilesProvider>
-                    <UiProvider>
-                      <ModalProvider>
-                        <PortalHost />
-                        <Stack
-                          screenOptions={{
-                            contentStyle: {
-                              backgroundColor: 'var(--color-background)',
-                            },
-                          }}
-                        >
-                          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                          <Stack.Screen name="view/index" options={commonOptions} />
-                          <Stack.Screen name="login/index" options={commonOptions} />
-                          <Stack.Screen name="+not-found" />
-                        </Stack>
-                        <Toaster />
-                      </ModalProvider>
-                    </UiProvider>
+                    <ModalProvider>
+                      <PortalHost />
+                      <Stack
+                        screenOptions={{
+                          contentStyle: {
+                            backgroundColor: 'var(--color-background)',
+                          },
+                        }}
+                      >
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="view/index" options={commonOptions} />
+                        <Stack.Screen name="login/index" options={commonOptions} />
+                        <Stack.Screen name="+not-found" />
+                      </Stack>
+                      <Toaster />
+                    </ModalProvider>
                   </FilesProvider>
                 </ServerProvider>
               </UserProvider>
