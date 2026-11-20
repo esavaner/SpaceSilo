@@ -35,7 +35,7 @@ const styles: Record<Variant, StyleProps> = {
       color: ${theme.colors.text.inverted};
       background: ${theme.colors.primary.hover};
       border-color: ${theme.colors.border.primary.hover};
-      box-shadow: 0 0 0 4px #e7f1e9;
+      box-shadow: 0 0 0 4px ${theme.colors.shadow.hover};
     `,
     clicked: css`
       color: ${theme.colors.text.inverted};

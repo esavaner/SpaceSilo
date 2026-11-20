@@ -21,7 +21,7 @@ const Results = styled.ScrollView`
   background-color: ${theme.colors.surface.weak};
   border-width: ${theme.borderWeight[25]};
   border-color: ${theme.colors.border.default};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px ${theme.colors.shadow.base};
 `;
 
 type Props = React.ComponentProps<typeof TextInput> & {

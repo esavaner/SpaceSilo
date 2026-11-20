@@ -80,7 +80,7 @@ const Label = styled.Pressable<StyledProps>`
               &:hover:not([aria-checked='true']) {
                 background: ${theme.colors.surface.default};
                 border: ${theme.borderWeight[25]} solid ${theme.colors.border.input.hover};
-                box-shadow: 0 0 0 4px #f7f3f0;
+                box-shadow: 0 0 0 4px ${theme.colors.shadow.hover};
               }
 
               &:active,

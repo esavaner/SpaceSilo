@@ -129,6 +129,11 @@ export const baseColors = {
 } as const;
 
 export const lightColors = {
+  shadow: {
+    base: 'rgba(0, 0, 0, 0.15)',
+    focus: '#f5f2ef',
+    hover: '#e7f1e9',
+  },
   surface: {
     weak: baseColors.base.white,
     default: baseColors.brown[50],
@@ -281,6 +286,11 @@ type Palette<T> = { [K in keyof T]: T[K] extends string ? string : Palette<T[K]>
 export type ThemeColors = Palette<typeof lightColors>;
 
 export const darkColors: ThemeColors = {
+  shadow: {
+    base: 'rgba(0, 0, 0, 0.15)',
+    focus: 'rgba(223, 221, 221, 0.15)',
+    hover: 'rgba(223, 221, 221, 0.15)',
+  },
   surface: {
     weak: baseColors.grey[950],
     default: baseColors.grey[900],

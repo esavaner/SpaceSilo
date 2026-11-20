@@ -94,7 +94,7 @@ const inputStateStyles =
     ? css`
         &:hover:not(:disabled) {
           border: 1px solid ${theme.colors.border.input.hover};
-          box-shadow: 0 0 0 4px #f5f2ef;
+          box-shadow: 0 0 0 4px ${theme.colors.shadow.focus};
         }
         &:active:not(:disabled),
         &:focus:not(:disabled) {
@@ -127,7 +127,7 @@ const CustomInputWrapper = styled.View<InputInfoProps>`
             css`
               &:hover {
                 border: 1px solid ${theme.colors.border.input.hover};
-                box-shadow: 0 0 0 4px #f5f2ef;
+                box-shadow: 0 0 0 4px ${theme.colors.shadow.focus};
               }
               &:focus-within {
                 border: 1px solid ${theme.colors.border.input.active};

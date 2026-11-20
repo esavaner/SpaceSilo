@@ -22,7 +22,7 @@ const Menu = styled.View`
   border: 1px solid ${theme.colors.border.default};
   border-radius: ${theme.radius[300]};
   background-color: ${theme.colors.surface.weak};
-  box-shadow: 0 4px 24px rgba(162, 174, 169, 0.46);
+  box-shadow: 0 4px 24px ${theme.colors.shadow.base};
 `;
 
 const Trigger = styled.Pressable<{ $disabled?: boolean }>`
