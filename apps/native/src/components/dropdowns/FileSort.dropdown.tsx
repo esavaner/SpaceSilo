@@ -1,7 +1,6 @@
 import { Comparator, SortBy } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { Button, DropdownMenu, DropdownOption, Icon, Text, useThemeColors } from '@repo/shared/components';
-import styled from 'styled-components/native';
 import { View } from 'react-native';
 
 type Props = {
@@ -9,14 +8,11 @@ type Props = {
   comparator: Comparator;
 };
 
-const SortDirection = styled(Icon.ChevronDown)<{ $ascending: boolean }>`
-  transform: rotate(${({ $ascending }) => ($ascending ? '180deg' : '0deg')});
-`;
-
 export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const sortOptions: SortBy[] = ['name', 'size', 'date', 'type'];
+  const SortDirection = comparator.order === 1 ? Icon.ChevronUp : Icon.ChevronDown;
 
   return (
     <DropdownMenu
@@ -32,7 +28,7 @@ export const FileSortDropdown = ({ handleSort, comparator }: Props) => {
           aria-controls={isOpen ? menuId : undefined}
         >
           {t(`sort.${comparator.sort}`)}
-          <SortDirection size={18} color={colors.text.brand} $ascending={comparator.order === 1} />
+          <SortDirection size={18} color={colors.text.brand} />
         </Button>
       )}
     >
