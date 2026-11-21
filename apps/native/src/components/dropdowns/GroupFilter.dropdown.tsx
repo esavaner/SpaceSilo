@@ -29,7 +29,6 @@ export const GroupFilterDropdown = ({ value, onChange }: Props) => {
       trigger={({ isOpen, toggle, menuId }) => (
         <Button
           variant="secondary"
-          size="small"
           onPress={toggle}
           accessibilityLabel={label}
           accessibilityState={{ expanded: isOpen }}

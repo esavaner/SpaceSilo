@@ -74,7 +74,7 @@ export const IncludedGroupsDropdown = ({
           aria-controls={isOpen ? menuId : undefined}
         >
           <Icon.Funnel size={18} color={colors.text.default} />
-          <Text.S>{title}</Text.S>
+          <Text>{title}</Text>
         </Button>
       )}
     >
@@ -99,11 +99,7 @@ export const IncludedGroupsDropdown = ({
                         $selected={included}
                         onPress={() => onToggleIncluded(option.key)}
                       >
-                        {included ? (
-                          <Icon.Check size={16} color={colors.text.brand} />
-                        ) : (
-                          <CheckSlot />
-                        )}
+                        {included ? <Icon.Check size={16} color={colors.text.brand} /> : <CheckSlot />}
                         <Text.S>{option.label}</Text.S>
                       </DropdownOption>
                     );
