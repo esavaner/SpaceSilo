@@ -3,8 +3,9 @@ import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import translationEn from './locales/en.json';
-import translationPl from './locales/pl.json';
+// import translationPl from './locales/pl.json';
 
+// SKIP Polish for now
 export const SUPPORTED_LANGUAGES = ['en', 'pl'] as const;
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -19,7 +20,7 @@ export const resolveAppLanguage = (language?: string | null): AppLanguage => {
 
 const resources = {
   en: { translation: translationEn },
-  pl: { translation: translationPl },
+  // pl: { translation: translationPl },
 };
 
 const initI18n = async () => {
