@@ -1,4 +1,6 @@
-# Handoff: native-first shared components (SpaceSilo)
+# Shared components: rules and lessons learned (SpaceSilo)
+
+> Read this before you touch `apps/shared/src/components`. It started as the handoff for converting the components to native-first; the rules still apply to every new or changed shared component. It was moved here from `apps/shared/src/components/component-handoff.md`.
 
 ## Goal
 
