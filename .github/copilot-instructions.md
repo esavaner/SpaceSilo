@@ -1,6 +1,6 @@
 ﻿# SpaceSilo Copilot Instructions
 
-The full agent guide lives in [AGENTS.md](../AGENTS.md) at the repo root. Read it first. It covers the layout, validated commands, known broken scripts, change guidance, the token budget, localization, and where specs live (Linear).
+The full agent guide lives in [AGENTS.md](../AGENTS.md) at the repo root. Read it first. It covers the layout, validated commands, change guidance, the token budget, localization, and where specs live (Linear).
 
 Must-knows if you only read this file:
 

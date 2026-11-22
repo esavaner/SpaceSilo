@@ -1,5 +1,7 @@
 # SpaceSilo
 
+[![CI](https://github.com/esavaner/SpaceSilo/actions/workflows/ci.yml/badge.svg)](https://github.com/esavaner/SpaceSilo/actions/workflows/ci.yml)
+
 SpaceSilo is a self-hosted storage system with:
 
 - `apps/core`: NestJS backend API

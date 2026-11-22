@@ -6,10 +6,10 @@
     "build:core": "pnpm --filter @repo/shared --filter @repo/core build",
     "reset": "pnpm --filter @repo/shared reset",
     "start:core": "pnpm build:core && pnpm --filter @repo/core start",
-    "clean": "pnpm -r --if-present clean && rm -rf node_modules",
+    "clean": "node -e \"for (const p of ['node_modules','apps/core/node_modules','apps/core/build','apps/shared/node_modules','apps/shared/dist','apps/native/node_modules','apps/native/dist','apps/native/.expo']) fs.rmSync(p,{recursive:true,force:true})\"",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm --filter @repo/shared build && pnpm -r --if-present typecheck",
-    "check": "pnpm -r --if-present check"
+    "check": "pnpm lint && pnpm typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
