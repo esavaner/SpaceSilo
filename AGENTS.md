@@ -58,7 +58,7 @@ The root `README.md` is accurate (dev and production setup). The app READMEs (`a
 - `apps/native/src/api/*`: HTTP clients used by the mobile/web client
 - `apps/native/src/providers/*` and `apps/native/src/hooks/*`: app state, server connections, and query logic
 
-There is no `CONTRIBUTING.md` and no `.github/workflows` yet (CI is tracked in Linear under Platform & DevEx). Until then, the local commands below are the nearest equivalent to CI/check-in validation.
+There is no `CONTRIBUTING.md`. GitHub Actions runs the backend integration tests; broader CI is tracked in Linear under Platform & DevEx.
 
 ## Validated Command Order
 
@@ -96,6 +96,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
    - Dev (SWC watch + node watch): `pnpm.cmd --filter @repo/core dev`
    - Production-like: `pnpm.cmd start:core` (builds shared + core, then runs `node build/main.js`)
    - The user often already has core running on port `3100`; an `EADDRINUSE` error means it is already up. Don't kill it
+   - Backend tests: `pnpm.cmd --filter @repo/core test`. Docker must be running; tests build shared and core with SWC, start a disposable PostgreSQL container, apply migrations, and use temporary storage. They do not use the development database. Every new backend story must add tests. Tests for known security gaps are skipped until their fixes land; in PowerShell, use `$env:RUN_PENDING_SECURITY_TESTS='1'` before running the test command to see the expected failures, then `Remove-Item Env:RUN_PENDING_SECURITY_TESTS`.
 
 7. Run frontends (only when the user asks; see Token Budget)
    - Native web: `pnpm.cmd --filter @repo/native dev` (`expo start --web`)
