@@ -9,6 +9,7 @@ services:
       FILES_PATH: /data/files
       STORAGE_PATH: /data/storage
       APPDATA_PATH: /data/appdata
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
     volumes:
       - type: bind
         source: ${FILES_PATH:?FILES_PATH is required}

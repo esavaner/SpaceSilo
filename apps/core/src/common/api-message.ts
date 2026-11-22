@@ -21,5 +21,6 @@ export const defaultMessageByStatus: Partial<Record<HttpStatus, string>> = {
   [HttpStatus.FORBIDDEN]: 'api.common.forbidden',
   [HttpStatus.NOT_FOUND]: 'api.common.Err.NotFound',
   [HttpStatus.CONFLICT]: 'api.common.conflict',
+  [HttpStatus.TOO_MANY_REQUESTS]: 'api.common.tooManyRequests',
   [HttpStatus.INTERNAL_SERVER_ERROR]: 'api.common.internalServerError',
 };

@@ -56,6 +56,7 @@ $env:DATABASE_URL='postgresql://postgres:pass123@localhost:5432/db?schema=public
 $env:FILES_PATH='C:\path\to\spacesilo\files'
 $env:STORAGE_PATH='C:\path\to\spacesilo\storage'
 $env:APPDATA_PATH='C:\path\to\spacesilo\appdata'
+$env:CORS_ORIGINS='http://localhost:8081'
 ```
 
 These paths are used by the backend for uploaded files, derived storage, previews, and thumbnails.

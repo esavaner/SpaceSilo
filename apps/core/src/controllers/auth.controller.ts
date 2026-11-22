@@ -1,9 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { LoginRequest, RefreshRequest, RegisterRequest } from '@repo/shared';
 import { Auth, AuthType } from '@/decorators/auth.decorator';
 import { AuthService } from '@/services/auth.service';
 
 @Auth(AuthType.None)
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
