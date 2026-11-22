@@ -75,6 +75,7 @@ beforeAll(async () => {
   vi.stubEnv('FILES_PATH', join(tempDir, 'files'));
   vi.stubEnv('STORAGE_PATH', join(tempDir, 'storage'));
   vi.stubEnv('APPDATA_PATH', join(tempDir, 'appdata'));
+  vi.stubEnv('JWT_SECRET', 'test-jwt-secret-that-is-at-least-32-chars');
   vi.stubEnv('CORS_ORIGINS', 'https://allowed.example, https://second.example');
 
   execFileSync(process.execPath, [join(sharedDir, 'node_modules/prisma/build/index.js'), 'migrate', 'deploy'], {
@@ -164,6 +165,17 @@ afterAll(async () => {
 describe('backend permissions', () => {
   it('rejects unauthenticated user management requests', async () => {
     expect((await request('/users')).status).toBe(401);
+  });
+
+  it('rejects tokens signed with a different secret', async () => {
+    const forged = new JwtService({ secret: 'another-instance-secret-at-least-32-chars' }).sign({
+      sub: serverOwner.user.id,
+      email: serverOwner.user.email,
+      role: 'owner',
+      typ: 'access',
+    });
+    expect((await request('/users', forged)).status).toBe(401);
+    expect((await request('/users', serverOwner.accessToken)).status).toBe(200);
   });
 
   it('allows group members to read but rejects non-members', async () => {

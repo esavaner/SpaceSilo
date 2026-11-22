@@ -17,8 +17,8 @@ The production shape is:
 
 ## Prerequisites
 
-- Node.js 24
-- `pnpm` via Corepack or a compatible local install
+- Node.js 26
+- pnpm 10.28.1 (`npm install --global pnpm@10.28.1`; Node.js 26 does not bundle Corepack)
 - Docker and Docker Compose for the provided dev/prod container flows
 - PostgreSQL for production
 
@@ -56,10 +56,11 @@ $env:DATABASE_URL='postgresql://postgres:pass123@localhost:5432/db?schema=public
 $env:FILES_PATH='C:\path\to\spacesilo\files'
 $env:STORAGE_PATH='C:\path\to\spacesilo\storage'
 $env:APPDATA_PATH='C:\path\to\spacesilo\appdata'
+$env:JWT_SECRET='local-dev-jwt-secret-change-me-32-chars-min'
 $env:CORS_ORIGINS='http://localhost:8081'
 ```
 
-These paths are used by the backend for uploaded files, derived storage, previews, and thumbnails.
+These paths are used by the backend for uploaded files, derived storage, previews, and thumbnails. `JWT_SECRET` signs access/refresh tokens and must be at least 32 characters.
 
 ### 3. Initialize the database
 
@@ -118,10 +119,11 @@ DATABASE_URL=postgresql://postgres:pass123@db.example.com:5432/spacesilo?schema=
 FILES_PATH=/absolute/path/to/files
 STORAGE_PATH=/absolute/path/to/storage
 APPDATA_PATH=/absolute/path/to/appdata
+JWT_SECRET=<random string, at least 32 characters>
 WEB_PORT=80
 ```
 
-`DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` are required.
+`DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, `APPDATA_PATH`, and `JWT_SECRET` are required. Generate `JWT_SECRET` with something like `openssl rand -base64 48`; the backend refuses to start if it is missing or shorter than 32 characters. Changing it invalidates all existing sessions.
 
 ### 2. Prepare persistent data folders
 
@@ -146,6 +148,10 @@ The stack will:
 - expose the web UI on `http://<server-ip>:<WEB_PORT>`
 - proxy API requests from `http://<server-ip>:<WEB_PORT>/api` to the backend container
 
+The backend applies Prisma migrations before starting the compiled API. If migrations fail, the API does not start. The production image never runs the development seed. Existing installations must have compatible migration history; the initial migration is still edited in place during early development.
+
+Env files are excluded from Docker build contexts. Supply runtime secrets through the compose environment, not the image. Image builds need no `DATABASE_URL`: Prisma client generation does not connect to a database, and the backend container reads `DATABASE_URL` from the compose environment at startup.
+
 ### 4. Connect clients
 
 - Browser users open `http://<server-ip>` or `http://<server-ip>:<WEB_PORT>`
@@ -166,6 +172,8 @@ docker compose down
 
 ## Validation Commands
 
+CI runs only on pushes to `master`, PR creation, and new commits pushed to an existing PR (`opened` / `synchronize`).
+
 Useful checks from the repo root:
 
 ```powershell
@@ -178,5 +186,5 @@ pnpm.cmd --filter @repo/native exec eslint src/api/_client.ts src/api/core.clien
 ## Notes
 
 - `pnpm.cmd start:core` is not the preferred way to run the backend locally.
-- The backend requires `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` at runtime.
+- The backend requires `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, `APPDATA_PATH`, and `JWT_SECRET` (min 32 chars) at runtime.
 - The public API prefix is `/api` and is shared across backend and client code.

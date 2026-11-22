@@ -3,7 +3,8 @@ FROM node:26-bookworm-slim AS builder
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 
-RUN corepack enable
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists
+RUN npm install --global pnpm@10.28.1
 
 WORKDIR /app
 

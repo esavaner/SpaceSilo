@@ -27,11 +27,21 @@ beforeAll(() => {
     FILES_PATH: filesRoot,
     STORAGE_PATH: tempDir,
     APPDATA_PATH: tempDir,
+    JWT_SECRET: 'test-jwt-secret-that-is-at-least-32-chars',
   });
 });
 
 afterAll(() => {
   if (tempDir) rmSync(tempDir, { recursive: true, force: true });
+});
+
+describe('validateEnvironment JWT_SECRET', () => {
+  const base = { DATABASE_URL: 'unused', FILES_PATH: 'f', STORAGE_PATH: 's', APPDATA_PATH: 'a' };
+
+  it('rejects a missing or short secret', () => {
+    expect(() => validateEnvironment(base)).toThrow(/JWT_SECRET/);
+    expect(() => validateEnvironment({ ...base, JWT_SECRET: '123' })).toThrow(/at least 32/);
+  });
 });
 
 describe('resolveGroupPath', () => {

@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { LoggerMiddleware } from './common/logger.middleware';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -33,9 +33,12 @@ import { validateEnvironment } from './common/env.validation';
       isGlobal: true,
       validate: validateEnvironment,
     }),
-    JwtModule.register({
-      secret: '123',
-      signOptions: { expiresIn: '30m' },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.getOrThrow<string>('JWT_SECRET').trim(),
+        signOptions: { expiresIn: '30m' },
+      }),
     }),
     ThrottlerModule.forRoot([
       {
