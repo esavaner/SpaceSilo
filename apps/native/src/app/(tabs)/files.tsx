@@ -78,7 +78,8 @@ export default function FilesPage() {
   }, []);
 
   const handleSearchSelect = (file: FileSearchItem) => {
-    const parentPath = file.uri.slice(0, file.uri.lastIndexOf('/'));
+    const lastSeparator = file.uri.lastIndexOf('/');
+    const parentPath = lastSeparator === -1 ? '' : file.uri.slice(0, lastSeparator);
     handlePathClick(file.isDirectory ? file.uri : parentPath);
     clearSearch();
   };
@@ -93,7 +94,7 @@ export default function FilesPage() {
       <SearchResultDetails>
         <Text numberOfLines={1}>{file.name}</Text>
         <Text.S color={theme.colors.text.secondary} numberOfLines={1}>
-          {file.uri}
+          /{file.uri}
         </Text.S>
       </SearchResultDetails>
     </SearchResult>

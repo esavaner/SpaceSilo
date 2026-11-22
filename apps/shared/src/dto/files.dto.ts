@@ -16,7 +16,6 @@ import {
 
 export class CreateFileRequest {
   @IsString()
-  @IsNotEmpty()
   newPath!: string;
 
   @IsString()
@@ -40,7 +39,6 @@ export class CopyFileRequest extends MoveFileRequest {}
 
 export class DownloadFileRequest {
   @IsString()
-  @IsNotEmpty()
   fileUri!: string;
 
   @IsString()

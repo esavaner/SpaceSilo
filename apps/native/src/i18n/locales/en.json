@@ -694,6 +694,7 @@
       "createFolderSuccess": "Folder created successfully",
       "fileErr.NotFound": "File not found",
       "groupErr.NotFound": "Group not found",
+      "invalidPath": "Invalid or unsafe file path or group ID",
       "moveSuccess": "File moved",
       "removeSuccess": "File removed"
     },

@@ -11,10 +11,9 @@ import {
 } from '@repo/shared';
 import { PrismaService } from '@/common/prisma.service';
 import * as fs from 'fs';
-import * as path from 'path';
 import { type TokenPayload } from '@repo/shared';
 import { Err } from '@/common/api-message';
-import { environment } from '@/common/env.validation';
+import { resolveGroupPath } from '@/common/group-path';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
@@ -110,6 +109,7 @@ export class GroupsService {
 
   async create(dto: CreateGroupRequest, userId: string): Promise<GroupResponse> {
     const id = dto.id ?? randomUUID();
+    resolveGroupPath(id);
     const existingGroup = await this.prisma.group.findUnique({ where: { id } });
 
     if (existingGroup) {
@@ -128,7 +128,7 @@ export class GroupsService {
       ...this.options,
     });
 
-    fs.mkdirSync(path.join(environment.filesPath, id), { recursive: true });
+    fs.mkdirSync(resolveGroupPath(id), { recursive: true });
 
     return res;
   }

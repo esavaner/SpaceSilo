@@ -5,9 +5,10 @@ import { JwtService } from '@nestjs/jwt';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { compare } from 'bcrypt';
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -180,7 +181,7 @@ describe('backend permissions', () => {
       (
         await request('/files/folder', editor.accessToken, 'POST', {
           groupId: 'shared-group',
-          newPath: '/',
+          newPath: '',
           name: 'ok',
         })
       ).status
@@ -292,17 +293,257 @@ describe('backend permissions', () => {
     expect((await request(`/notes/${noteId}`, editor.accessToken, 'PATCH', { content: 'Edited' })).status).toBe(200);
   });
 
-  pendingSecurity("rejects path traversal outside a group's storage root", async () => {
-    const query = new URLSearchParams({ groupId: 'shared-group', fileUri: '../../sentinel.txt' });
-    const response = await request(`/files/download?${query}`, owner.accessToken);
-    expect([400, 403, 404]).toContain(response.status);
-    expect(await response.text()).not.toContain('private test data');
+  it('rejects traversal, absolute paths, and invalid group IDs across file operations', async () => {
+    if (!tempDir) throw new Error('Temporary storage was not initialized');
+    const groupId = 'shared-group';
+    await writeFile(join(tempDir, 'files', groupId, 'source.txt'), 'group data');
+    const query = (fileUri: string, id = groupId) => new URLSearchParams({ groupId: id, fileUri });
+    const body = { groupId, fileUri: 'source.txt', newPath: '', name: 'target.txt' };
+    const upload = new FormData();
+    upload.append('groupId', groupId);
+    upload.append('newPath', '..\\outside');
+    upload.append('name', 'upload');
+    upload.append('file', new Blob(['data']), 'file.txt');
+
+    const responses = await Promise.all([
+      request(`/files?${query('../sentinel.txt')}`, owner.accessToken),
+      request(`/files/info?${query('..\\sentinel.txt')}`, owner.accessToken),
+      request(`/files/download?${query('../../sentinel.txt')}`, owner.accessToken),
+      request(`/files/download?${query('/etc/passwd')}`, owner.accessToken),
+      request(`/files/download?${query('C:\\Windows\\file.txt')}`, owner.accessToken),
+      request(`/files/download?${query('%252e%252e%252fsentinel.txt')}`, owner.accessToken),
+      request(`/files?${query('source.txt', '../other')}`, owner.accessToken),
+      request('/files/all', owner.accessToken, 'POST', { items: [{ groupId, path: '../other' }] }),
+      request('/files/folder', owner.accessToken, 'POST', { groupId, newPath: '', name: '../other' }),
+      fetch(`${baseUrl}/api/files`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${owner.accessToken}` },
+        body: upload,
+      }),
+      request('/files', owner.accessToken, 'PATCH', { ...body, fileUri: '../sentinel.txt' }),
+      request('/files', owner.accessToken, 'PATCH', { ...body, newPath: '../other' }),
+      request('/files', owner.accessToken, 'PATCH', { ...body, fileUri: 'missing.txt', newPath: '../other' }),
+      request('/files/copy', owner.accessToken, 'POST', { ...body, fileUri: '../sentinel.txt' }),
+      request('/files/copy', owner.accessToken, 'POST', { ...body, newPath: '..\\other' }),
+      request('/files/copy', owner.accessToken, 'POST', { ...body, fileUri: 'missing.txt', newPath: '..\\other' }),
+      request('/files', owner.accessToken, 'DELETE', { groupId, fileUri: '../sentinel.txt' }),
+    ]);
+
+    for (const response of responses) {
+      expect(response.status, response.url).toBe(400);
+      expect(await response.json()).toMatchObject({ message: 'api.files.invalidPath' });
+    }
+    expect(await readFile(join(tempDir, 'sentinel.txt'), 'utf8')).toBe('private test data');
+    expect((await request(`/files?${query('source.txt', 'missing-group')}`, owner.accessToken)).status).toBe(404);
+  });
+
+  it('rejects unsafe group IDs before creating groups or users', async () => {
+    if (!prisma) throw new Error('Prisma was not initialized');
+    const group = await request('/groups', owner.accessToken, 'POST', { id: '../outside', name: 'Unsafe' });
+    expect(group.status).toBe(400);
+    expect(await group.json()).toMatchObject({ message: 'api.files.invalidPath' });
+    expect(await prisma.group.findUnique({ where: { id: '../outside' } })).toBeNull();
+
+    const registration = await request('/auth/register', undefined, 'POST', {
+      email: 'unsafe-group@example.test',
+      password: 'test-password',
+      groupId: '..\\outside',
+    });
+    expect(registration.status).toBe(400);
+    expect(await registration.json()).toMatchObject({ message: 'api.files.invalidPath' });
+    expect(await prisma.user.findUnique({ where: { email: 'unsafe-group@example.test' } })).toBeNull();
+  });
+
+  it.skipIf(process.platform !== 'win32')(
+    'rejects a differently cased ID for an existing group directory',
+    async () => {
+      const response = await request('/groups', owner.accessToken, 'POST', {
+        id: 'SHARED-GROUP',
+        name: 'Unsafe alias',
+      });
+      expect(response.status).toBe(400);
+      expect(await response.json()).toMatchObject({ message: 'api.files.invalidPath' });
+    }
+  );
+
+  it('round-trips relative paths through folder, upload, list, search, info, download, move, copy, and remove', async () => {
+    if (!tempDir || !app) throw new Error('Test app or temporary storage was not initialized');
+    const groupId = 'shared-group';
+    const folder = await request('/files/folder', owner.accessToken, 'POST', { groupId, newPath: '', name: 'work' });
+    expect(folder.status).toBe(201);
+    expect(await folder.json()).toMatchObject({ folderDir: 'work' });
+    const rootQuery = new URLSearchParams({ groupId, fileUri: '' });
+    const rootInfo = await request(`/files/info?${rootQuery}`, owner.accessToken);
+    expect(rootInfo.status).toBe(200);
+    expect(await rootInfo.json()).toMatchObject({ uri: '', isDirectory: true });
+
+    const upload = new FormData();
+    upload.append('groupId', groupId);
+    upload.append('newPath', 'work');
+    upload.append('name', 'uploaded');
+    upload.append('file', new Blob(['uploaded data']), '..\\safe.txt');
+    const uploaded = await fetch(`${baseUrl}/api/files`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${owner.accessToken}` },
+      body: upload,
+    });
+    expect(uploaded.status).toBe(201);
+    expect(await uploaded.json()).toMatchObject({ filePath: 'work/uploaded/safe.txt' });
+
+    const { FilesService }: typeof import('../src/services/files.service') = await import(
+      join(buildDir, 'services/files.service.js')
+    );
+    const directUpload = await app.get(FilesService).createFile(
+      { groupId, newPath: 'work', name: 'direct' },
+      {
+        fieldname: 'file',
+        originalname: 'C:\\elsewhere\\direct.txt',
+        encoding: '7bit',
+        mimetype: 'text/plain',
+        size: 6,
+        buffer: Buffer.from('direct'),
+        stream: Readable.from([]),
+        destination: '',
+        filename: '',
+        path: '',
+      },
+      { sub: owner.user.id, email: owner.user.email, role: 'user', typ: 'access' }
+    );
+    expect(directUpload.filePath).toBe('work/direct/direct.txt');
+
+    const listing = await request('/files/all', owner.accessToken, 'POST', {
+      items: [{ groupId, path: 'work/uploaded' }],
+    });
+    expect(listing.status).toBe(201);
+    expect(await listing.json()).toEqual([
+      expect.objectContaining({ name: 'safe.txt', uri: 'work/uploaded/safe.txt' }),
+    ]);
+    const query = new URLSearchParams({ groupId, fileUri: 'work/uploaded/safe.txt' });
+    const info = await request(`/files/info?${query}`, owner.accessToken);
+    expect(info.status).toBe(200);
+    expect(await info.json()).toMatchObject({ uri: 'work/uploaded/safe.txt' });
+    const download = await request(`/files/download?${query}`, owner.accessToken);
+    expect(download.status).toBe(200);
+    expect(await download.text()).toBe('uploaded data');
+    const search = await request('/files/search?query=safe.txt', owner.accessToken);
+    expect(search.status).toBe(200);
+    expect(await search.json()).toContainEqual(expect.objectContaining({ groupId, uri: 'work/uploaded/safe.txt' }));
+
+    expect(
+      (
+        await request('/files', owner.accessToken, 'PATCH', {
+          groupId,
+          fileUri: 'work/uploaded/safe.txt',
+          newPath: 'work',
+          name: 'moved.txt',
+        })
+      ).status
+    ).toBe(200);
+    expect(
+      (
+        await request('/files/copy', owner.accessToken, 'POST', {
+          groupId,
+          fileUri: 'work/moved.txt',
+          newPath: '',
+          name: 'copied.txt',
+        })
+      ).status
+    ).toBe(201);
+    expect(await readFile(join(tempDir, 'files', groupId, 'copied.txt'), 'utf8')).toBe('uploaded data');
+    expect((await request('/files', owner.accessToken, 'DELETE', { groupId, fileUri: 'copied.txt' })).status).toBe(200);
+  });
+
+  it('skips outside symlinks in listings and search, and rejects reading or writing through them', async () => {
+    if (!tempDir) throw new Error('Temporary storage was not initialized');
+    const groupId = 'shared-group';
+    const groupRoot = join(tempDir, 'files', groupId);
+    const outside = join(tempDir, 'outside');
+    const inside = join(groupRoot, 'inside-target');
+    await mkdir(outside);
+    await mkdir(inside);
+    await writeFile(join(outside, 'outside-secret.txt'), 'outside data');
+    await writeFile(join(inside, 'inside.txt'), 'inside data');
+    const linkType = process.platform === 'win32' ? 'junction' : 'dir';
+    await symlink(outside, join(groupRoot, 'outside-link'), linkType);
+    await symlink(inside, join(groupRoot, 'inside-link'), linkType);
+
+    const listing = await request('/files/all', owner.accessToken, 'POST', { items: [{ groupId, path: '' }] });
+    expect(listing.status).toBe(201);
+    const entries = (await listing.json()) as { name: string }[];
+    expect(entries).toContainEqual(expect.objectContaining({ name: 'inside-link' }));
+    expect(entries).not.toContainEqual(expect.objectContaining({ name: 'outside-link' }));
+    const insideQuery = new URLSearchParams({ groupId, fileUri: 'inside-link/inside.txt' });
+    expect(await (await request(`/files/download?${insideQuery}`, owner.accessToken)).text()).toBe('inside data');
+
+    const outsideQuery = new URLSearchParams({ groupId, fileUri: 'outside-link/outside-secret.txt' });
+    const outsideRead = await request(`/files/download?${outsideQuery}`, owner.accessToken);
+    expect(outsideRead.status).toBe(400);
+    const outsideWrite = await request('/files/folder', owner.accessToken, 'POST', {
+      groupId,
+      newPath: 'outside-link',
+      name: 'forbidden',
+    });
+    expect(outsideWrite.status).toBe(400);
+    for (const endpoint of ['/files', '/files/copy']) {
+      const response = await request(endpoint, owner.accessToken, endpoint === '/files' ? 'PATCH' : 'POST', {
+        groupId,
+        fileUri: 'source.txt',
+        newPath: 'outside-link',
+        name: 'forbidden.txt',
+      });
+      expect(response.status).toBe(400);
+    }
+    const search = await request('/files/search?query=outside-secret', owner.accessToken);
+    expect(await search.json()).not.toContainEqual(expect.objectContaining({ groupId }));
+    expect(await readFile(join(outside, 'outside-secret.txt'), 'utf8')).toBe('outside data');
+
+    await symlink(outside, join(inside, 'outside-child'), linkType);
+    const copy = await request('/files/copy', owner.accessToken, 'POST', {
+      groupId,
+      fileUri: 'inside-target',
+      newPath: '',
+      name: 'inside-copy',
+    });
+    expect(copy.status).toBe(201);
+    await expect(lstat(join(groupRoot, 'inside-copy', 'outside-child'))).rejects.toMatchObject({ code: 'ENOENT' });
+    const copied = await request('/files/all', owner.accessToken, 'POST', {
+      items: [{ groupId, path: 'inside-copy' }],
+    });
+    expect(await copied.json()).toEqual([expect.objectContaining({ name: 'inside.txt' })]);
+  });
+
+  it('does not merge a copied folder into an existing suffix containing an outside symlink', async () => {
+    if (!tempDir) throw new Error('Temporary storage was not initialized');
+    const groupId = 'shared-group';
+    const groupRoot = join(tempDir, 'files', groupId);
+    const outside = join(tempDir, 'copy-outside');
+    await mkdir(join(groupRoot, 'copy-source', 'nested'), { recursive: true });
+    await mkdir(join(groupRoot, 'collision'));
+    await mkdir(join(groupRoot, 'collision_copy'));
+    await mkdir(outside);
+    await writeFile(join(groupRoot, 'copy-source', 'nested', 'file.txt'), 'group data');
+    await writeFile(join(outside, 'file.txt'), 'outside data');
+    await symlink(
+      outside,
+      join(groupRoot, 'collision_copy', 'nested'),
+      process.platform === 'win32' ? 'junction' : 'dir'
+    );
+
+    const copy = await request('/files/copy', owner.accessToken, 'POST', {
+      groupId,
+      fileUri: 'copy-source',
+      newPath: '',
+      name: 'collision',
+    });
+    expect(copy.status).toBe(201);
+    expect(await readFile(join(groupRoot, 'collision_copy_copy', 'nested', 'file.txt'), 'utf8')).toBe('group data');
+    expect(await readFile(join(outside, 'file.txt'), 'utf8')).toBe('outside data');
   });
 
   pendingSecurity('rejects folder creation by a read-only member', async () => {
     const response = await request('/files/folder', reader.accessToken, 'POST', {
       groupId: 'shared-group',
-      newPath: '/',
+      newPath: '',
       name: 'forbidden',
     });
     expect(response.status).toBe(403);

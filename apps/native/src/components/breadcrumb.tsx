@@ -43,12 +43,12 @@ const createPathBreadcrumbItems = ({
   handlePathClick,
   homeDirName,
 }: PathBreadcrumbProps): BreadcrumbItem[] => {
-  const normalizedPathItems = pathItems.length > 0 ? pathItems : [''];
+  const normalizedPathItems = ['', ...pathItems.filter(Boolean)];
 
   return normalizedPathItems.map((item, index) => ({
     key: index === 0 ? ROOT_KEY : `${normalizedPathItems.slice(0, index + 1).join('/')}:${index}`,
     label: index === 0 ? homeDirName || item || HOME_LABEL : item,
-    onPress: () => handlePathClick(normalizedPathItems.slice(0, index + 1).join('/')),
+    onPress: () => handlePathClick(normalizedPathItems.slice(1, index + 1).join('/')),
   }));
 };
 

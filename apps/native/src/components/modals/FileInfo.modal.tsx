@@ -69,7 +69,7 @@ export const FileInfoModal = ({ file }: FileInfoModalProps) => {
           )}
           <DetailRow label={t('files.infoModal.labels.modified')} value={formatDate(fileInfo.modificationTime)} />
           <DetailRow label={t('files.infoModal.labels.created')} value={formatDate(fileInfo.createdAt)} />
-          <DetailRow label={t('files.infoModal.labels.path')} value={fileInfo.uri} />
+          <DetailRow label={t('files.infoModal.labels.path')} value={`/${fileInfo.uri}`} />
           {!fileInfo.isDirectory && fileInfo.md5 && (
             <DetailRow label={t('files.infoModal.labels.checksum')} value={fileInfo.md5} />
           )}

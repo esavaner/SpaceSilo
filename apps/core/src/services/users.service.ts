@@ -4,6 +4,7 @@ import { genSalt, hash } from 'bcrypt';
 import { GroupsService } from './groups.service';
 import { PrismaService } from '@/common/prisma.service';
 import { Err } from '@/common/api-message';
+import { resolveGroupPath } from '@/common/group-path';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +38,7 @@ export class UsersService {
   }
 
   async create(dto: CreateUserRequest, caller?: Pick<TokenPayload, 'role'>) {
+    resolveGroupPath(dto.groupId);
     const existingUser = await this.findByEmail(dto.email);
     if (existingUser) {
       throw Err.Conflict('api.auth.userAlreadyExists');
