@@ -1,10 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import {
-  type BackupResponse,
-  type CreateBackupRequest,
-  type TokenPayload,
-  type UpdateBackupRequest,
-} from '@repo/shared';
+import { type BackupResponse, CreateBackupRequest, type TokenPayload, UpdateBackupRequest } from '@repo/shared';
 import { User } from '@/decorators/user.decorator';
 import { BackupsService } from '@/services/backups.service';
 

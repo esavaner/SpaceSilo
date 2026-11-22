@@ -685,6 +685,7 @@
       "forbidden": "Forbidden",
       "internalServerError": "Internal server error",
       "Err.NotFound": "Not found",
+      "tooManyRequests": "Too many requests, please try again later",
       "unauthorized": "Authentication is required"
     },
     "files": {

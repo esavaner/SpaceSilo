@@ -46,7 +46,7 @@ The root `README.md` is accurate (dev and production setup). The app READMEs (`a
 - Root files: `compose.yml` (production: `core` + `web`), `compose.dev.yml` (dev: Postgres + Adminer), `.env.example`, `package.json`, `pnpm-workspace.yaml`, `apps/`, `.vscode/`
 - `apps/core/src/main.ts`: Nest bootstrap, global `HttpExceptionFilter`, validation pipe, CORS, API prefix from `@repo/shared/constants/api`, listens on port `3100`
 - `apps/core/src/app.module.ts`: registers controllers/services and `ConfigModule` with `validateEnvironment`
-- `apps/core/src/common/env.validation.ts`: backend requires `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH`; optional `RSYNC_BIN`, `BACKUP_RSYNC_SSH_PORT`, `BACKUP_RSYNC_SSH_USER`
+- `apps/core/src/common/env.validation.ts`: backend requires `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH`; optional `CORS_ORIGINS` (comma-separated allowed origins), `RSYNC_BIN`, `BACKUP_RSYNC_SSH_PORT`, `BACKUP_RSYNC_SSH_USER`
 - `apps/core/src/controllers/*`, `services/*`, `guards/*`, `decorators/*`: API surface, business logic, auth/roles
 - `apps/core/src/common/prisma.service.ts`: backend Prisma client wrapper using `@repo/shared`
 - `apps/shared/src/index.tsx`: main shared exports (DTOs, Prisma, API constants, types); update this when adding DTOs or shared Prisma helpers
@@ -92,7 +92,7 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
    - Stop with `docker compose -f compose.dev.yml down`
 
 6. Run backend (see Token Budget)
-   - Set `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` first, for example `$env:FILES_PATH='C:\path\to\files'`
+   - Set `DATABASE_URL`, `FILES_PATH`, `STORAGE_PATH`, and `APPDATA_PATH` first (plus `CORS_ORIGINS='http://localhost:8081'` when serving Expo Web locally), for example `$env:FILES_PATH='C:\path\to\files'`
    - Dev (SWC watch + node watch): `pnpm.cmd --filter @repo/core dev`
    - Production-like: `pnpm.cmd start:core` (builds shared + core, then runs `node build/main.js`)
    - The user often already has core running on port `3100`; an `EADDRINUSE` error means it is already up. Don't kill it
