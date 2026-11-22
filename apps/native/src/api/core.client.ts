@@ -1,4 +1,4 @@
-import { ApiClient, createApiError, type ApiClientOptions } from './_client';
+import { ApiClient, ApiError, ClientStatus, createApiError, type ApiClientOptions } from './_client';
 import { buildQuery } from '../utils/requests';
 import {
   type AddGroupMemberRequest,
@@ -36,6 +36,7 @@ import {
   type RemoveGroupMemberRequest,
   type RemoveFileRequest,
   type SearchFilesRequest,
+  type SessionResponse,
   type CreateNoteRequest,
   type UpdateAlbumRequest,
   type UpdateBackupRequest,
@@ -52,6 +53,8 @@ export const endpoints = {
   login: '/auth/login',
   refresh: '/auth/refresh',
   register: '/auth/register',
+  logout: '/auth/logout',
+  sessions: '/auth/sessions',
   users: '/users',
   backups: '/backups',
   groups: '/groups',
@@ -65,13 +68,40 @@ export const endpoints = {
 export type Options = ApiClientOptions & {
   email?: string;
   password?: string;
+  loadRefreshToken?: () => Promise<string | undefined>;
+  getRefreshLockKey?: () => string | undefined;
 };
 
+export function withSessionLock<T>(key: string | undefined, action: () => Promise<T>): Promise<T> {
+  if (key && typeof navigator !== 'undefined' && navigator.locks) {
+    return navigator.locks.request(`spacesilo-session:${key}`, action);
+  }
+  return action();
+}
+
 export class CoreApiClient extends ApiClient<UserResponse> {
+  private readonly loadRefreshToken?: Options['loadRefreshToken'];
+  private readonly getRefreshLockKey?: Options['getRefreshLockKey'];
+  private reconnectPromise?: Promise<boolean>;
+  private unsavedRefreshToken = false;
+
   constructor(options: Options) {
     super(options);
+    this.loadRefreshToken = options.loadRefreshToken;
+    this.getRefreshLockKey = options.getRefreshLockKey;
     if (options.email && options.password) {
       void this.startLogin(() => this.login(options.email!, options.password!));
+    }
+  }
+
+  private async syncRefreshToken() {
+    if (this.unsavedRefreshToken) {
+      await this.saveRefreshToken(this.refreshToken);
+      this.unsavedRefreshToken = false;
+      return;
+    }
+    if (this.loadRefreshToken) {
+      this.refreshToken = await this.loadRefreshToken();
     }
   }
 
@@ -96,7 +126,34 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   }
 
   public override async reconnect() {
-    return this.startLogin(() => this.refreshTokens());
+    if (!this.reconnectPromise) {
+      this.reconnectPromise = withSessionLock(this.getRefreshLockKey?.(), async () => {
+        try {
+          await this.syncRefreshToken();
+          if (!this.refreshToken) {
+            await super.logout();
+            return false;
+          }
+          await this.refreshTokens();
+          this.status = ClientStatus.LOGGED_IN;
+          this.loginError = undefined;
+          this.notifyStatusChange();
+          return true;
+        } catch (error) {
+          this.loginError = error instanceof Error ? error : new Error('Refresh failed');
+          if (error instanceof ApiError && error.status === 401) {
+            await super.logout();
+          } else {
+            this.status = ClientStatus.ERROR;
+            this.notifyStatusChange();
+          }
+          return false;
+        }
+      }).finally(() => {
+        this.reconnectPromise = undefined;
+      });
+    }
+    return this.reconnectPromise;
   }
 
   private async refreshTokens() {
@@ -106,14 +163,79 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     }
     const response = await this.rawJsonPost(endpoints.refresh, { refreshToken });
     if (!response.ok) {
-      return false;
+      throw await createApiError(response);
     }
-    const refreshed = (await response.json()) as RefreshResponse;
+    const refreshed = (await response.json()) as RefreshResponse | null;
+    if (
+      !refreshed ||
+      typeof refreshed.accessToken !== 'string' ||
+      !refreshed.accessToken ||
+      typeof refreshed.refreshToken !== 'string' ||
+      !refreshed.refreshToken ||
+      typeof refreshed.user !== 'object' ||
+      !refreshed.user ||
+      typeof refreshed.user.id !== 'string' ||
+      typeof refreshed.user.email !== 'string' ||
+      typeof refreshed.user.role !== 'string'
+    ) {
+      throw new Error('Invalid refresh response');
+    }
     this.accessToken = refreshed.accessToken;
     this.refreshToken = refreshed.refreshToken;
+    this.account = refreshed.user;
+    this.unsavedRefreshToken = true;
     await this.saveRefreshToken(refreshed.refreshToken);
+    this.unsavedRefreshToken = false;
     return true;
   }
+
+  public override async logout() {
+    if (this.reconnectPromise) await this.reconnectPromise;
+    await withSessionLock(this.getRefreshLockKey?.(), async () => {
+      const previousToken = this.refreshToken;
+      if (!this.unsavedRefreshToken) await this.syncRefreshToken();
+      if (!this.refreshToken) {
+        await super.logout();
+        this.unsavedRefreshToken = false;
+        return;
+      }
+
+      const refreshForLogout = async () => {
+        try {
+          return await this.refreshTokens();
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 401) return false;
+          throw error;
+        }
+      };
+
+      if ((!this.accessToken || previousToken !== this.refreshToken) && !(await refreshForLogout())) {
+        await super.logout();
+        this.unsavedRefreshToken = false;
+        return;
+      }
+
+      try {
+        await this.rawRequest<void>(endpoints.logout, { method: 'POST' });
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) throw error;
+        if (await refreshForLogout()) {
+          try {
+            await this.rawRequest<void>(endpoints.logout, { method: 'POST' });
+          } catch (retryError) {
+            if (!(retryError instanceof ApiError) || retryError.status !== 401) throw retryError;
+          }
+        }
+      }
+      await super.logout();
+      this.unsavedRefreshToken = false;
+    });
+  }
+
+  public readonly auth = {
+    listSessions: () => this.get<SessionResponse[]>(endpoints.sessions),
+    revokeSession: (id: string) => this.delete<undefined, void>(`${endpoints.sessions}/${encodeURIComponent(id)}`),
+  };
 
   public readonly files = {
     find: (dto: FindFileRequest) => this.get<FileResponse>(buildQuery(endpoints.files, { ...dto })),

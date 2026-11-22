@@ -9,6 +9,7 @@ export type TokenClaims = {
 };
 
 export type TokenPayload = TokenClaims & {
+  sid: string;
   typ: TokenType;
   iat?: number;
   exp?: number;

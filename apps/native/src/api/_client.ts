@@ -54,6 +54,7 @@ export type ApiClientOptions = {
   baseUrl: string;
   refreshToken?: string;
   saveRefreshToken: (token: string | undefined) => void | Promise<void>;
+  onStatusChange?: (status: ClientStatus) => void;
 };
 
 export class ApiClient<TAccount = unknown> {
@@ -67,16 +68,22 @@ export class ApiClient<TAccount = unknown> {
   protected refreshToken?: string;
   protected saveRefreshToken: ApiClientOptions['saveRefreshToken'];
   protected readonly apiBaseUrl: string;
+  private readonly onStatusChange?: ApiClientOptions['onStatusChange'];
 
   private readonly defaultConfig: RequestInit = {};
   private initializationPromise?: Promise<boolean>;
 
-  constructor({ baseUrl, saveRefreshToken, refreshToken }: ApiClientOptions) {
+  constructor({ baseUrl, saveRefreshToken, refreshToken, onStatusChange }: ApiClientOptions) {
     this.status = ClientStatus.INITIALIZING;
     this.baseUrl = baseUrl.trim().replace(/\/+$/, '');
     this.apiBaseUrl = `${this.baseUrl}${API_PREFIX_PATH}`;
     this.saveRefreshToken = saveRefreshToken;
     this.refreshToken = refreshToken;
+    this.onStatusChange = onStatusChange;
+  }
+
+  protected notifyStatusChange() {
+    this.onStatusChange?.(this.status);
   }
 
   protected buildApiUrl(path: string) {
@@ -92,13 +99,16 @@ export class ApiClient<TAccount = unknown> {
         if (loginResult === false) {
           this.status = ClientStatus.ERROR;
           this.loginError = new Error('Login failed');
+          this.notifyStatusChange();
           return false;
         }
         this.status = ClientStatus.LOGGED_IN;
+        this.notifyStatusChange();
         return true;
       } catch (error) {
         this.status = ClientStatus.ERROR;
         this.loginError = error instanceof Error ? error : new Error('Login failed');
+        this.notifyStatusChange();
         return false;
       }
     })();
@@ -111,11 +121,13 @@ export class ApiClient<TAccount = unknown> {
     }
   }
 
-  public logout() {
+  public async logout() {
     this.status = ClientStatus.LOGGED_OUT;
     this.accessToken = undefined;
     this.refreshToken = undefined;
-    this.saveRefreshToken(undefined);
+    this.account = undefined;
+    this.notifyStatusChange();
+    await this.saveRefreshToken(undefined);
   }
 
   public getAuthHeaders(): Record<string, string> {
@@ -167,29 +179,29 @@ export class ApiClient<TAccount = unknown> {
     if (!response.ok) {
       throw await createApiError(response);
     }
-    return unparsed ? (response as Res) : (response.json() as Promise<Res>);
+    if (unparsed) return response as Res;
+    if (response.status === 204) return undefined as Res;
+    return response.json() as Promise<Res>;
   }
 
   private async request<Res>(path: string, config: RequestInit = {}, unparsed = false) {
     if (this.initializationPromise) await this.initializationPromise;
+    const requestToken = this.accessToken;
     try {
       return await this.rawRequest<Res>(path, config, unparsed);
     } catch (error) {
       if (!(error instanceof ApiError) || error.status !== 401) {
         throw error;
       }
-      try {
-        const refreshed = await this.reconnect();
-        if (!refreshed) {
-          this.logout();
-          throw error;
-        }
-        this.status = ClientStatus.LOGGED_IN;
+      if (this.accessToken && this.accessToken !== requestToken) {
         return this.rawRequest<Res>(path, config, unparsed);
-      } catch {
-        this.logout();
-        throw error;
       }
+      const refreshed = await this.reconnect();
+      if (!refreshed) {
+        if (this.status !== ClientStatus.LOGGED_OUT && !this.refreshToken) await this.logout();
+        throw this.loginError ?? error;
+      }
+      return this.rawRequest<Res>(path, config, unparsed);
     }
   }
 

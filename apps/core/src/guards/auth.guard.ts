@@ -4,6 +4,7 @@ import { AuthType } from '../decorators/auth.decorator';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { type TokenPayload } from '@repo/shared';
+import { PrismaService } from '@/common/prisma.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -11,7 +12,8 @@ export class AuthGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService
   ) {
     this.authTypeMap = {
       [AuthType.Bearer]: {
@@ -24,15 +26,23 @@ export class AuthGuard implements CanActivate {
           if (!token) {
             throw new UnauthorizedException();
           }
+          let payload: TokenPayload;
           try {
-            const payload = this.jwtService.verify<TokenPayload>(token);
-            if (payload.typ !== 'access') {
-              throw new UnauthorizedException();
-            }
-            request.user = payload;
+            payload = this.jwtService.verify<TokenPayload>(token);
           } catch {
             throw new UnauthorizedException();
           }
+          if (payload.typ !== 'access' || typeof payload.sid !== 'string' || typeof payload.sub !== 'string') {
+            throw new UnauthorizedException();
+          }
+          const session = await this.prisma.session.findFirst({
+            where: { id: payload.sid, userId: payload.sub, expiresAt: { gt: new Date() } },
+            select: { id: true },
+          });
+          if (!session) {
+            throw new UnauthorizedException();
+          }
+          request.user = payload;
           return true;
         },
       },

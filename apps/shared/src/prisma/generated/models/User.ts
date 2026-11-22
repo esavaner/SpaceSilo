@@ -214,6 +214,7 @@ export type UserWhereInput = {
   albums?: Prisma.AlbumListRelationFilter
   notes?: Prisma.NoteListRelationFilter
   backups?: Prisma.BackupListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
   ownerOf?: Prisma.GroupListRelationFilter
   memberOf?: Prisma.GroupMemberListRelationFilter
 }
@@ -232,6 +233,7 @@ export type UserOrderByWithRelationInput = {
   albums?: Prisma.AlbumOrderByRelationAggregateInput
   notes?: Prisma.NoteOrderByRelationAggregateInput
   backups?: Prisma.BackupOrderByRelationAggregateInput
+  sessions?: Prisma.SessionOrderByRelationAggregateInput
   ownerOf?: Prisma.GroupOrderByRelationAggregateInput
   memberOf?: Prisma.GroupMemberOrderByRelationAggregateInput
 }
@@ -253,6 +255,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   albums?: Prisma.AlbumListRelationFilter
   notes?: Prisma.NoteListRelationFilter
   backups?: Prisma.BackupListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
   ownerOf?: Prisma.GroupListRelationFilter
   memberOf?: Prisma.GroupMemberListRelationFilter
 }, "id" | "email">
@@ -301,6 +304,7 @@ export type UserCreateInput = {
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
@@ -319,6 +323,7 @@ export type UserUncheckedCreateInput = {
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
@@ -337,6 +342,7 @@ export type UserUpdateInput = {
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
@@ -355,6 +361,7 @@ export type UserUncheckedUpdateInput = {
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -454,6 +461,20 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type UserCreateNestedOneWithoutSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
+  upsert?: Prisma.UserUpsertWithoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
 export type UserCreateNestedOneWithoutBackupsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutBackupsInput, Prisma.UserUncheckedCreateWithoutBackupsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutBackupsInput
@@ -538,6 +559,94 @@ export type UserUpdateOneRequiredWithoutMemberOfNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMemberOfInput, Prisma.UserUpdateWithoutMemberOfInput>, Prisma.UserUncheckedUpdateWithoutMemberOfInput>
 }
 
+export type UserCreateWithoutSessionsInput = {
+  id?: string
+  email: string
+  password: string
+  name?: string | null
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
+  albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
+  notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
+  backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
+  memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSessionsInput = {
+  id?: string
+  email: string
+  password: string
+  name?: string | null
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
+  albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
+  backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
+  memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+}
+
+export type UserUpsertWithoutSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSessionsInput, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSessionsInput, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type UserUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
+  albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
+  backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
+  memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
+  albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
+  backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
+  memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutBackupsInput = {
   id?: string
   email: string
@@ -551,6 +660,7 @@ export type UserCreateWithoutBackupsInput = {
   media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
@@ -568,6 +678,7 @@ export type UserUncheckedCreateWithoutBackupsInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
@@ -601,6 +712,7 @@ export type UserUpdateWithoutBackupsInput = {
   media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
@@ -618,6 +730,7 @@ export type UserUncheckedUpdateWithoutBackupsInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -635,6 +748,7 @@ export type UserCreateWithoutMediaInput = {
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
@@ -652,6 +766,7 @@ export type UserUncheckedCreateWithoutMediaInput = {
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
@@ -685,6 +800,7 @@ export type UserUpdateWithoutMediaInput = {
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
@@ -702,6 +818,7 @@ export type UserUncheckedUpdateWithoutMediaInput = {
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -719,6 +836,7 @@ export type UserCreateWithoutAlbumsInput = {
   media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
@@ -736,6 +854,7 @@ export type UserUncheckedCreateWithoutAlbumsInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
@@ -769,6 +888,7 @@ export type UserUpdateWithoutAlbumsInput = {
   media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
@@ -786,6 +906,7 @@ export type UserUncheckedUpdateWithoutAlbumsInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -804,6 +925,7 @@ export type UserCreateWithoutOwnerOfInput = {
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
 
@@ -821,6 +943,7 @@ export type UserUncheckedCreateWithoutOwnerOfInput = {
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -854,6 +977,7 @@ export type UserUpdateWithoutOwnerOfInput = {
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
 
@@ -871,6 +995,7 @@ export type UserUncheckedUpdateWithoutOwnerOfInput = {
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -887,6 +1012,7 @@ export type UserCreateWithoutNotesInput = {
   media?: Prisma.MediaCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
 }
@@ -904,6 +1030,7 @@ export type UserUncheckedCreateWithoutNotesInput = {
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutOwnerInput
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
   memberOf?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
@@ -937,6 +1064,7 @@ export type UserUpdateWithoutNotesInput = {
   media?: Prisma.MediaUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
 }
@@ -954,6 +1082,7 @@ export type UserUncheckedUpdateWithoutNotesInput = {
   media?: Prisma.MediaUncheckedUpdateManyWithoutOwnerNestedInput
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
   memberOf?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -972,6 +1101,7 @@ export type UserCreateWithoutMemberOfInput = {
   albums?: Prisma.AlbumCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupCreateNestedManyWithoutOwnerInput
 }
 
@@ -989,6 +1119,7 @@ export type UserUncheckedCreateWithoutMemberOfInput = {
   albums?: Prisma.AlbumUncheckedCreateNestedManyWithoutOwnerInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutOwnerInput
   backups?: Prisma.BackupUncheckedCreateNestedManyWithoutCreatedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   ownerOf?: Prisma.GroupUncheckedCreateNestedManyWithoutOwnerInput
 }
 
@@ -1022,6 +1153,7 @@ export type UserUpdateWithoutMemberOfInput = {
   albums?: Prisma.AlbumUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUpdateManyWithoutOwnerNestedInput
 }
 
@@ -1039,6 +1171,7 @@ export type UserUncheckedUpdateWithoutMemberOfInput = {
   albums?: Prisma.AlbumUncheckedUpdateManyWithoutOwnerNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutOwnerNestedInput
   backups?: Prisma.BackupUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   ownerOf?: Prisma.GroupUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
@@ -1052,6 +1185,7 @@ export type UserCountOutputType = {
   albums: number
   notes: number
   backups: number
+  sessions: number
   ownerOf: number
   memberOf: number
 }
@@ -1061,6 +1195,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   albums?: boolean | UserCountOutputTypeCountAlbumsArgs
   notes?: boolean | UserCountOutputTypeCountNotesArgs
   backups?: boolean | UserCountOutputTypeCountBackupsArgs
+  sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   ownerOf?: boolean | UserCountOutputTypeCountOwnerOfArgs
   memberOf?: boolean | UserCountOutputTypeCountMemberOfArgs
 }
@@ -1106,6 +1241,13 @@ export type UserCountOutputTypeCountBackupsArgs<ExtArgs extends runtime.Types.Ex
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountOwnerOfArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.GroupWhereInput
 }
@@ -1132,6 +1274,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   albums?: boolean | Prisma.User$albumsArgs<ExtArgs>
   notes?: boolean | Prisma.User$notesArgs<ExtArgs>
   backups?: boolean | Prisma.User$backupsArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   ownerOf?: boolean | Prisma.User$ownerOfArgs<ExtArgs>
   memberOf?: boolean | Prisma.User$memberOfArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1179,6 +1322,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   albums?: boolean | Prisma.User$albumsArgs<ExtArgs>
   notes?: boolean | Prisma.User$notesArgs<ExtArgs>
   backups?: boolean | Prisma.User$backupsArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   ownerOf?: boolean | Prisma.User$ownerOfArgs<ExtArgs>
   memberOf?: boolean | Prisma.User$memberOfArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1193,6 +1337,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     albums: Prisma.$AlbumPayload<ExtArgs>[]
     notes: Prisma.$NotePayload<ExtArgs>[]
     backups: Prisma.$BackupPayload<ExtArgs>[]
+    sessions: Prisma.$SessionPayload<ExtArgs>[]
     ownerOf: Prisma.$GroupPayload<ExtArgs>[]
     memberOf: Prisma.$GroupMemberPayload<ExtArgs>[]
   }
@@ -1604,6 +1749,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   albums<T extends Prisma.User$albumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$albumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlbumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notes<T extends Prisma.User$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   backups<T extends Prisma.User$backupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$backupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BackupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownerOf<T extends Prisma.User$ownerOfArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownerOfArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberOf<T extends Prisma.User$memberOfArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$memberOfArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2125,6 +2271,30 @@ export type User$backupsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.BackupScalarFieldEnum | Prisma.BackupScalarFieldEnum[]
+}
+
+/**
+ * User.sessions
+ */
+export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Session
+   */
+  select?: Prisma.SessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Session
+   */
+  omit?: Prisma.SessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SessionInclude<ExtArgs> | null
+  where?: Prisma.SessionWhereInput
+  orderBy?: Prisma.SessionOrderByWithRelationInput | Prisma.SessionOrderByWithRelationInput[]
+  cursor?: Prisma.SessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
 }
 
 /**

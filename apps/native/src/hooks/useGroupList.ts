@@ -14,7 +14,7 @@ export const useGroupList = () => {
   const [excludedGroupKeys, setExcludedGroupKeys] = useState<string[]>([]);
 
   const { data: groups, isLoading: isGroupsLoading } = useQuery({
-    queryKey: ['groups'],
+    queryKey: ['groups', servers.map((server) => server.id)],
     queryFn: async () => {
       if (!servers.length) {
         return { data: [] };

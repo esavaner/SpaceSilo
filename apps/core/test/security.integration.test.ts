@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { compare } from 'bcrypt';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -12,7 +13,7 @@ import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-type Account = { accessToken: string; user: { id: string; email: string; role?: string } };
+type Account = { accessToken: string; refreshToken: string; user: { id: string; email: string; role?: string } };
 
 const pendingSecurity = process.env.RUN_PENDING_SECURITY_TESTS === '1' ? it : it.skip;
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -117,8 +118,10 @@ beforeAll(async () => {
       groupId: `personal-${name}`,
     });
     const updated = await prisma!.user.update({ where: { id: created.id }, data: { role } });
+    const loggedIn = await authService!.login({ email: updated.email, password: 'test-password' });
     return {
-      accessToken: jwtService!.sign({ sub: updated.id, email: updated.email, role, typ: 'access' }),
+      accessToken: loggedIn.accessToken,
+      refreshToken: loggedIn.refreshToken,
       user: { id: updated.id, email: updated.email, role },
     };
   };
@@ -419,13 +422,20 @@ describe('backend permissions', () => {
         filename: '',
         path: '',
       },
-      { sub: owner.user.id, email: owner.user.email, role: 'user', typ: 'access' }
+      {
+        sub: owner.user.id,
+        email: owner.user.email,
+        role: 'user',
+        typ: 'access',
+        sid: jwtService!.verify<{ sid: string }>(owner.accessToken).sid,
+      }
     );
     expect(directUpload.filePath).toBe('work/direct/direct.txt');
 
     const listing = await request('/files/all', owner.accessToken, 'POST', {
       items: [{ groupId, path: 'work/uploaded' }],
     });
+
     expect(listing.status).toBe(201);
     expect(await listing.json()).toEqual([
       expect.objectContaining({ name: 'safe.txt', uri: 'work/uploaded/safe.txt' }),
@@ -804,5 +814,130 @@ describe('backend permissions', () => {
     const ownerDeleteAdminRes = await request(`/users/${targetAdmin.id}`, serverOwner.accessToken, 'DELETE');
     expect(ownerDeleteAdminRes.status).toBe(200);
     expect((await ownerDeleteAdminRes.json()) as Record<string, unknown>).not.toHaveProperty('password');
+  });
+});
+
+describe('session security', () => {
+  it('stores hashed tokens, rotates them with a sliding expiry, and revokes a reused token family', async () => {
+    if (!prisma || !authService || !jwtService) throw new Error('Services were not initialized');
+    const registered = await request(
+      '/auth/register',
+      undefined,
+      'POST',
+      { email: 'session-family@example.test', password: 'test-password', groupId: 'session-family' },
+      { 'User-Agent': 'Session test device' }
+    );
+    expect(registered.status).toBe(201);
+    const first = (await registered.json()) as Account;
+    const claims = jwtService.verify<{ sid: string; iat: number; exp: number; jti: string }>(first.refreshToken);
+    expect(claims.exp - claims.iat).toBe(30 * 24 * 60 * 60);
+
+    const stored = await prisma.session.findUniqueOrThrow({ where: { id: claims.sid } });
+    expect(stored.tokenHash).toBe(createHash('sha256').update(first.refreshToken).digest('hex'));
+    expect(stored.tokenHash).not.toBe(first.refreshToken);
+    expect(stored.deviceLabel).toBe('Session test device');
+
+    const previousExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const previousUse = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    await prisma.session.update({
+      where: { id: claims.sid },
+      data: { expiresAt: previousExpiry, lastUsedAt: previousUse },
+    });
+
+    const listed = await request('/auth/sessions', first.accessToken);
+    expect(listed.status).toBe(200);
+    const sessions = (await listed.json()) as Record<string, unknown>[];
+    expect(sessions).toEqual([
+      expect.objectContaining({ id: claims.sid, deviceLabel: 'Session test device', isCurrent: true }),
+    ]);
+    expect(Object.keys(sessions[0]).sort()).toEqual([
+      'createdAt',
+      'deviceLabel',
+      'expiresAt',
+      'id',
+      'isCurrent',
+      'lastUsedAt',
+    ]);
+
+    const refreshedResponse = await request('/auth/refresh', undefined, 'POST', { refreshToken: first.refreshToken });
+    expect(refreshedResponse.status).toBe(200);
+    const refreshed = (await refreshedResponse.json()) as Account;
+    expect(refreshed.refreshToken).not.toBe(first.refreshToken);
+    expect(refreshed.user).not.toHaveProperty('password');
+    const refreshedClaims = jwtService.verify<{ sid: string; jti: string }>(refreshed.refreshToken);
+    expect(refreshedClaims.sid).toBe(claims.sid);
+    expect(refreshedClaims.jti).not.toBe(claims.jti);
+    const rotated = await prisma.session.findUniqueOrThrow({ where: { id: claims.sid } });
+    expect(rotated.tokenHash).toBe(createHash('sha256').update(refreshed.refreshToken).digest('hex'));
+    expect(rotated.lastUsedAt.getTime()).toBeGreaterThan(previousUse.getTime());
+    expect(rotated.expiresAt.getTime()).toBeGreaterThan(previousExpiry.getTime());
+
+    const other = await authService.login({ email: first.user.email, password: 'test-password' }, 'Other device');
+    expect((await request('/auth/refresh', undefined, 'POST', { refreshToken: first.refreshToken })).status).toBe(401);
+    expect((await request(`/users/${first.user.id}`, refreshed.accessToken)).status).toBe(401);
+    expect((await request('/auth/refresh', undefined, 'POST', { refreshToken: refreshed.refreshToken })).status).toBe(
+      401
+    );
+    expect((await request(`/users/${other.user.id}`, other.accessToken)).status).toBe(200);
+    const remaining = await request('/auth/sessions', other.accessToken);
+    expect(await remaining.json()).toEqual([expect.objectContaining({ deviceLabel: 'Other device', isCurrent: true })]);
+  });
+
+  it('revokes the family if the same refresh token is used concurrently', async () => {
+    if (!authService) throw new Error('AuthService was not initialized');
+    const account = await authService.login({ email: 'owner@example.test', password: 'test-password' });
+    const responses = await Promise.all([
+      request('/auth/refresh', undefined, 'POST', { refreshToken: account.refreshToken }),
+      request('/auth/refresh', undefined, 'POST', { refreshToken: account.refreshToken }),
+    ]);
+    expect(responses.map((response) => response.status).sort()).toEqual([200, 401]);
+    const winner = (await responses.find((response) => response.status === 200)!.json()) as Account;
+    expect((await request(`/users/${account.user.id}`, winner.accessToken)).status).toBe(401);
+    expect((await request('/auth/refresh', undefined, 'POST', { refreshToken: winner.refreshToken })).status).toBe(401);
+  });
+
+  it('restricts session revocation to the account and immediately revokes access', async () => {
+    if (!authService || !jwtService) throw new Error('Services were not initialized');
+    const credentials = { email: 'owner@example.test', password: 'test-password' };
+    const current = await authService.login(credentials);
+    const other = await authService.login(credentials);
+    const outsiderSession = await authService.login({ email: 'editor@example.test', password: 'test-password' });
+    const currentId = jwtService.verify<{ sid: string }>(current.accessToken).sid;
+    const otherId = jwtService.verify<{ sid: string }>(other.accessToken).sid;
+    const outsiderId = jwtService.verify<{ sid: string }>(outsiderSession.accessToken).sid;
+
+    expect((await request(`/auth/sessions/${outsiderId}`, current.accessToken, 'DELETE')).status).toBe(404);
+    expect((await request(`/users/${outsiderSession.user.id}`, outsiderSession.accessToken)).status).toBe(200);
+    expect((await request(`/auth/sessions/${otherId}`, current.accessToken, 'DELETE')).status).toBe(204);
+    expect((await request(`/users/${other.user.id}`, other.accessToken)).status).toBe(401);
+    expect((await request('/auth/refresh', undefined, 'POST', { refreshToken: other.refreshToken })).status).toBe(401);
+    expect((await request(`/users/${current.user.id}`, current.accessToken)).status).toBe(200);
+    expect((await request(`/auth/sessions/${currentId}`, current.accessToken, 'DELETE')).status).toBe(204);
+    expect((await request(`/users/${current.user.id}`, current.accessToken)).status).toBe(401);
+  });
+
+  it('logs out only the current session and rejects expired or legacy sessions', async () => {
+    if (!authService || !jwtService || !prisma) throw new Error('Services were not initialized');
+    const credentials = { email: 'reader@example.test', password: 'test-password' };
+    const current = await authService.login(credentials);
+    const other = await authService.login(credentials);
+    expect((await request('/auth/logout', undefined, 'POST')).status).toBe(401);
+    expect((await request('/auth/sessions')).status).toBe(401);
+    expect((await request('/auth/logout', current.accessToken, 'POST')).status).toBe(204);
+    expect((await request(`/users/${current.user.id}`, current.accessToken)).status).toBe(401);
+    expect((await request('/auth/refresh', undefined, 'POST', { refreshToken: current.refreshToken })).status).toBe(
+      401
+    );
+    expect((await request(`/users/${other.user.id}`, other.accessToken)).status).toBe(200);
+
+    const legacy = jwtService.sign({ sub: other.user.id, email: other.user.email, role: 'user', typ: 'refresh' });
+    await expect(authService.refresh({ refreshToken: legacy })).rejects.toMatchObject({ status: 401 });
+    await expect(authService.refresh({ refreshToken: other.accessToken })).rejects.toMatchObject({ status: 401 });
+    const legacyAccess = jwtService.sign({ sub: other.user.id, email: other.user.email, role: 'user', typ: 'access' });
+    expect((await request(`/users/${other.user.id}`, legacyAccess)).status).toBe(401);
+    const otherId = jwtService.verify<{ sid: string }>(other.accessToken).sid;
+    await prisma.session.update({ where: { id: otherId }, data: { expiresAt: new Date(Date.now() - 1000) } });
+    expect((await request(`/users/${other.user.id}`, other.accessToken)).status).toBe(401);
+    await expect(authService.refresh({ refreshToken: other.refreshToken })).rejects.toMatchObject({ status: 401 });
   });
 });

@@ -8,16 +8,18 @@ export const routes = {
   notes: 'notes',
   groups: 'groups',
   backups: 'backups',
+  settings: 'settings',
 } as const;
 
 export const routeLabels: Record<keyof typeof routes, string> = {
-  [routes.index]: 'Dashboard',
-  [routes.gallery]: 'Gallery',
-  [routes.trash]: 'Trash',
-  [routes.files]: 'Files',
-  [routes.notes]: 'Notes',
-  [routes.groups]: 'Groups',
-  [routes.backups]: 'Backups',
+  [routes.index]: 'navigation.dashboard',
+  [routes.gallery]: 'navigation.gallery',
+  [routes.trash]: 'navigation.trash',
+  [routes.files]: 'navigation.files',
+  [routes.notes]: 'navigation.notes',
+  [routes.groups]: 'navigation.groups',
+  [routes.backups]: 'navigation.backups',
+  [routes.settings]: 'navigation.settings',
 };
 
 export const routeIcons: Record<keyof typeof routes, LucideIcon> = {
@@ -28,4 +30,5 @@ export const routeIcons: Record<keyof typeof routes, LucideIcon> = {
   [routes.notes]: Icon.FileText,
   [routes.groups]: Icon.Users,
   [routes.backups]: Icon.DatabaseBackup,
+  [routes.settings]: Icon.Settings,
 };

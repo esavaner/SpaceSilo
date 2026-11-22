@@ -98,6 +98,7 @@
     "gallery": "Gallery",
     "groups": "Groups",
     "notes": "Notes",
+    "settings": "Settings",
     "toggle": "Toggle navigation",
     "trash": "Trash"
   },
@@ -164,10 +165,46 @@
         "storageSize": "Storage size",
         "storedFiles": "Stored files"
       },
+      "session": {
+        "title": "Account",
+        "logout": "Log out",
+        "loggedOut": "Logged out of this connection",
+        "logoutFailed": "Could not log out of this connection",
+        "signIn": "Sign in",
+        "signInDescription": "Sign in to use this connection again.",
+        "loginFailed": "Could not sign in to this connection",
+        "retry": "Retry connection",
+        "reconnected": "Connection restored",
+        "reconnectFailed": "Could not restore this connection"
+      },
       "state": {
         "connected": "Connected",
         "disabled": "Disabled",
         "disconnected": "Disconnected"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": {
+      "title": "Account",
+      "sessions": {
+        "title": "Sessions",
+        "description": "Review and revoke sessions for your connected accounts.",
+        "unknownDevice": "Unknown device",
+        "current": "This session",
+        "created": "Signed in: {{date}}",
+        "lastUsed": "Last refreshed: {{date}}",
+        "expires": "Expires: {{date}}",
+        "revoke": "Revoke session",
+        "confirmTitle": "Revoke session?",
+        "confirmCurrent": "This will log out this connection. Continue?",
+        "confirmOther": "This will log out the selected device. Continue?",
+        "revoked": "Session revoked",
+        "revokeFailed": "Could not revoke the session",
+        "loadFailed": "Could not load sessions",
+        "retry": "Retry",
+        "empty": "No active sessions"
       }
     }
   },
@@ -657,6 +694,7 @@
     "auth": {
       "invalidCredentials": "Invalid email or password",
       "invalidRefreshToken": "Invalid refresh token",
+      "sessionNotFound": "Session not found",
       "userAlreadyExists": "User already exists"
     },
     "backups": {

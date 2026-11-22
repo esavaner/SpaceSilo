@@ -77,7 +77,7 @@ export const Navigation = ({ onClose }: { onClose?: () => void }) => {
               accessibilityState={{ selected: pathname === href }}
             >
               <RouteIcon color={colors.text.secondary} size={18} />
-              <MenuLabel>{routeLabels[key]}</MenuLabel>
+              <MenuLabel>{t(routeLabels[key])}</MenuLabel>
             </MenuItem>
           );
         })}

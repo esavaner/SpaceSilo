@@ -148,7 +148,7 @@ The stack will:
 - expose the web UI on `http://<server-ip>:<WEB_PORT>`
 - proxy API requests from `http://<server-ip>:<WEB_PORT>/api` to the backend container
 
-The backend applies Prisma migrations before starting the compiled API. If migrations fail, the API does not start. The production image never runs the development seed. Existing installations must have compatible migration history; the initial migration is still edited in place during early development.
+The backend applies Prisma migrations before starting the compiled API. If migrations fail, the API does not start. The production image never runs the development seed. Existing installations must have compatible migration history. The session migration is additive so existing data is preserved; connections created before session tracking must sign in again.
 
 Env files are excluded from Docker build contexts. Supply runtime secrets through the compose environment, not the image. Image builds need no `DATABASE_URL`: Prisma client generation does not connect to a database, and the backend container reads `DATABASE_URL` from the compose environment at startup.
 

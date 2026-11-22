@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import { UserResponse } from './user.dto';
@@ -61,4 +61,29 @@ export class RefreshResponse {
   @IsString()
   @IsNotEmpty()
   refreshToken!: string;
+
+  @ValidateNested()
+  @Type(() => UserResponse)
+  user!: UserResponse;
+}
+
+export class SessionResponse {
+  @IsString()
+  id!: string;
+
+  @IsOptional()
+  @IsString()
+  deviceLabel!: string | null;
+
+  @IsDate()
+  createdAt!: Date;
+
+  @IsDate()
+  lastUsedAt!: Date;
+
+  @IsDate()
+  expiresAt!: Date;
+
+  @IsBoolean()
+  isCurrent!: boolean;
 }

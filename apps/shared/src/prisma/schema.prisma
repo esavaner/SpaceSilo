@@ -45,8 +45,22 @@ model User {
   albums    Album[]
   notes     Note[]
   backups   Backup[]
+  sessions  Session[]
   ownerOf   Group[]
   memberOf  GroupMember[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String
+  deviceLabel  String?
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+  expiresAt    DateTime
+
+  @@index([userId])
 }
 
 
