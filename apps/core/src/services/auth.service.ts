@@ -9,8 +9,9 @@ import {
   RegisterRequest,
   TokenClaims,
   TokenPayload,
+  type UserResponse,
 } from '@repo/shared';
-import { compare, genSalt, hash } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { Err } from '@/common/api-message';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class AuthService {
     };
   }
 
-  private toAuthResponse({ password: _password, ...user }: Awaited<ReturnType<UsersService['create']>>): AuthResponse {
+  private toAuthResponse({ password: _password, ...user }: UserResponse & { password?: string }): AuthResponse {
     return { ...this.signTokens({ email: user.email, sub: user.id, role: user.role }), user };
   }
 
@@ -43,17 +44,7 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterRequest): Promise<AuthResponse> {
-    const existingUser = await this.usersService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw Err.Conflict('api.auth.userAlreadyExists');
-    }
-    const salt = await genSalt();
-    const hashedPassword = await hash(registerDto.password, salt);
-    const user = await this.usersService.create({
-      ...registerDto,
-      password: hashedPassword,
-      role: 'user',
-    });
+    const user = await this.usersService.create(registerDto);
 
     return this.toAuthResponse(user);
   }

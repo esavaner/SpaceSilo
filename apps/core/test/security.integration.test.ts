@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { type INestApplication, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+import { compare } from 'bcrypt';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -9,7 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-type Account = { accessToken: string; user: { id: string } };
+type Account = { accessToken: string; user: { id: string; email: string; role?: string } };
 
 const pendingSecurity = process.env.RUN_PENDING_SECURITY_TESTS === '1' ? it : it.skip;
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -18,9 +20,14 @@ const buildDir = resolve(testDir, '../build');
 let container: StartedPostgreSqlContainer | undefined;
 let app: INestApplication | undefined;
 let prisma: import('../src/common/prisma.service').PrismaService | undefined;
+let authService: import('../src/services/auth.service').AuthService | undefined;
+let usersService: import('../src/services/users.service').UsersService | undefined;
+let jwtService: JwtService | undefined;
 let parseCorsOrigins: typeof import('../src/common/env.validation').parseCorsOrigins;
 let tempDir: string | undefined;
 let baseUrl: string;
+let serverOwner: Account;
+let serverAdmin: Account;
 let owner: Account;
 let editor: Account;
 let reader: Account;
@@ -85,12 +92,37 @@ beforeAll(async () => {
   const { PrismaService }: typeof import('../src/common/prisma.service') = await import(
     join(buildDir, 'common/prisma.service.js')
   );
+  const { AuthService }: typeof import('../src/services/auth.service') = await import(
+    join(buildDir, 'services/auth.service.js')
+  );
+  const { UsersService }: typeof import('../src/services/users.service') = await import(
+    join(buildDir, 'services/users.service.js')
+  );
   app = await NestFactory.create(AppModule, { logger: false, abortOnError: false });
   configureApp(app);
   prisma = app.get(PrismaService);
+  authService = app.get(AuthService);
+  usersService = app.get(UsersService);
+  jwtService = app.get(JwtService);
   await app.listen(0, '127.0.0.1');
   baseUrl = await app.getUrl();
 
+  const createPrivilegedAccount = async (name: string, role: 'owner' | 'admin'): Promise<Account> => {
+    const created = await usersService!.create({
+      email: `${name}@example.test`,
+      password: 'test-password',
+      name,
+      groupId: `personal-${name}`,
+    });
+    const updated = await prisma!.user.update({ where: { id: created.id }, data: { role } });
+    return {
+      accessToken: jwtService!.sign({ sub: updated.id, email: updated.email, role, typ: 'access' }),
+      user: { id: updated.id, email: updated.email, role },
+    };
+  };
+
+  serverOwner = await createPrivilegedAccount('server-owner', 'owner');
+  serverAdmin = await createPrivilegedAccount('server-admin', 'admin');
   owner = await register('owner');
   editor = await register('editor');
   reader = await register('reader');
@@ -297,11 +329,11 @@ describe('backend permissions', () => {
     expect((await request(`/notes/${id}`, formerEditor.accessToken, 'PATCH', { content: 'Changed' })).status).toBe(403);
   });
 
-  pendingSecurity('rejects user listing for an ordinary user', async () => {
+  it('rejects user listing for an ordinary user', async () => {
     expect((await request('/users', reader.accessToken)).status).toBe(403);
   });
 
-  pendingSecurity('rejects user creation by an ordinary user', async () => {
+  it('rejects user creation by an ordinary user', async () => {
     expect(
       (
         await request('/users', reader.accessToken, 'POST', {
@@ -313,15 +345,211 @@ describe('backend permissions', () => {
     ).toBe(403);
   });
 
-  pendingSecurity('rejects user deletion by an ordinary user', async () => {
+  it('rejects user deletion by an ordinary user', async () => {
     if (!prisma) throw new Error('Prisma was not initialized');
     const user = await prisma.user.create({ data: { email: 'deletable@example.test', password: 'test-password' } });
     expect((await request(`/users/${user.id}`, reader.accessToken, 'DELETE')).status).toBe(403);
   });
 
-  pendingSecurity('rejects role escalation by an ordinary user', async () => {
+  it('rejects role escalation by an ordinary user', async () => {
     expect((await request(`/users/${reader.user.id}`, reader.accessToken, 'PATCH', { role: 'admin' })).status).toBe(
       403
     );
+  });
+
+  it('rejects role in public registration and never exposes password in auth responses', async () => {
+    if (!authService) throw new Error('AuthService was not initialized');
+
+    const withRole = await request('/auth/register', undefined, 'POST', {
+      email: 'role-attempt@example.test',
+      password: 'test-password',
+      groupId: 'personal-role-attempt',
+      role: 'admin',
+    });
+    expect(withRole.status).toBe(400);
+
+    const registered = await request('/auth/register', undefined, 'POST', {
+      email: 'clean-register@example.test',
+      password: 'test-password',
+      groupId: 'personal-clean-register',
+    });
+    expect(registered.status).toBe(201);
+    const registeredBody = (await registered.json()) as { user: Record<string, unknown> };
+    expect(registeredBody.user.role).toBe('user');
+    expect(registeredBody.user).not.toHaveProperty('password');
+
+    const loggedIn = await authService.login({ email: 'clean-register@example.test', password: 'test-password' });
+    expect(loggedIn.user).not.toHaveProperty('password');
+  });
+
+  it('restricts user creation roles to owner, hashes passwords, and omits password from responses', async () => {
+    if (!prisma || !usersService || !authService) throw new Error('Services were not initialized');
+
+    const serviceCreated = await usersService.create({
+      email: 'service-direct@example.test',
+      password: 'direct-password',
+      role: 'admin',
+      groupId: 'personal-service-direct',
+    });
+    expect(serviceCreated.role).toBe('user');
+    expect(serviceCreated).not.toHaveProperty('password');
+
+    const adminCreateRes = await request('/users', serverAdmin.accessToken, 'POST', {
+      email: 'created-by-admin@example.test',
+      password: 'admin-created-password',
+      name: 'Created By Admin',
+      role: 'admin',
+      groupId: 'personal-created-by-admin',
+    });
+    expect(adminCreateRes.status).toBe(201);
+    const adminCreated = (await adminCreateRes.json()) as Record<string, unknown> & { id: string; role: string };
+    expect(adminCreated.role).toBe('user');
+    expect(adminCreated).not.toHaveProperty('password');
+
+    const storedAdminCreated = await prisma.user.findUniqueOrThrow({ where: { id: adminCreated.id } });
+    expect(storedAdminCreated.password).not.toBe('admin-created-password');
+    expect(await compare('admin-created-password', storedAdminCreated.password)).toBe(true);
+    await expect(
+      authService.login({ email: 'created-by-admin@example.test', password: 'admin-created-password' })
+    ).resolves.toMatchObject({ user: { id: adminCreated.id, role: 'user' } });
+
+    const ownerAdminRes = await request('/users', serverOwner.accessToken, 'POST', {
+      email: 'created-admin@example.test',
+      password: 'owner-created-password',
+      role: 'admin',
+      groupId: 'personal-created-admin',
+    });
+    expect(ownerAdminRes.status).toBe(201);
+    const ownerCreatedAdmin = (await ownerAdminRes.json()) as Record<string, unknown> & { id: string; role: string };
+    expect(ownerCreatedAdmin.role).toBe('admin');
+    expect(ownerCreatedAdmin).not.toHaveProperty('password');
+
+    const ownerSecondOwnerRes = await request('/users', serverOwner.accessToken, 'POST', {
+      email: 'second-owner@example.test',
+      password: 'owner-created-password',
+      role: 'owner',
+      groupId: 'personal-second-owner',
+    });
+    expect(ownerSecondOwnerRes.status).toBe(403);
+  });
+
+  it('restricts user listing and user detail lookups while keeping search minimal', async () => {
+    const adminListRes = await request('/users', serverAdmin.accessToken);
+    expect(adminListRes.status).toBe(200);
+    const listedUsers = (await adminListRes.json()) as Record<string, unknown>[];
+    expect(listedUsers.length).toBeGreaterThan(0);
+    for (const item of listedUsers) {
+      expect(item).not.toHaveProperty('password');
+    }
+
+    const selfDetailRes = await request(`/users/${reader.user.id}`, reader.accessToken);
+    expect(selfDetailRes.status).toBe(200);
+    expect((await selfDetailRes.json()) as Record<string, unknown>).not.toHaveProperty('password');
+
+    expect((await request(`/users/${editor.user.id}`, reader.accessToken)).status).toBe(403);
+    expect((await request(`/users/${editor.user.id}`, serverAdmin.accessToken)).status).toBe(200);
+
+    const searchRes = await request('/users/search/reader@example.test', editor.accessToken);
+    expect(searchRes.status).toBe(200);
+    const searchResults = (await searchRes.json()) as Record<string, unknown>[];
+    expect(searchResults.length).toBeGreaterThan(0);
+    for (const item of searchResults) {
+      expect(Object.keys(item).sort()).toEqual(['email', 'id', 'name']);
+    }
+  });
+
+  it('enforces PATCH /users/:id ownership, owner-only role updates, and bcrypt password hashing', async () => {
+    if (!prisma || !authService) throw new Error('Services were not initialized');
+
+    const selfUpdateRes = await request(`/users/${reader.user.id}`, reader.accessToken, 'PATCH', {
+      name: 'Reader Self Name',
+      settings: { theme: 'dark' },
+    });
+    expect(selfUpdateRes.status).toBe(200);
+    const selfUpdated = (await selfUpdateRes.json()) as Record<string, unknown>;
+    expect(selfUpdated).toMatchObject({ id: reader.user.id, name: 'Reader Self Name', settings: { theme: 'dark' } });
+    expect(selfUpdated).not.toHaveProperty('password');
+
+    expect((await request(`/users/${editor.user.id}`, reader.accessToken, 'PATCH', { name: 'Tampered' })).status).toBe(
+      403
+    );
+    expect(
+      (await request(`/users/${reader.user.id}`, reader.accessToken, 'PATCH', { email: 'new-reader@example.test' }))
+        .status
+    ).toBe(403);
+    expect(
+      (await request(`/users/${reader.user.id}`, reader.accessToken, 'PATCH', { password: 'unverified-password' }))
+        .status
+    ).toBe(403);
+
+    expect(
+      (await request(`/users/${editor.user.id}`, serverAdmin.accessToken, 'PATCH', { role: 'admin' })).status
+    ).toBe(403);
+    expect(
+      (
+        await request(`/users/${serverOwner.user.id}`, serverAdmin.accessToken, 'PATCH', {
+          password: 'admin-takeover-password',
+        })
+      ).status
+    ).toBe(403);
+
+    const promoteRes = await request(`/users/${outsider.user.id}`, serverOwner.accessToken, 'PATCH', {
+      role: 'admin',
+    });
+    expect(promoteRes.status).toBe(200);
+    expect(((await promoteRes.json()) as { role: string }).role).toBe('admin');
+
+    expect(
+      (await request(`/users/${outsider.user.id}`, serverAdmin.accessToken, 'PATCH', { name: 'Admin Vs Admin' })).status
+    ).toBe(403);
+
+    const demoteRes = await request(`/users/${outsider.user.id}`, serverOwner.accessToken, 'PATCH', {
+      role: 'user',
+    });
+    expect(demoteRes.status).toBe(200);
+    expect(((await demoteRes.json()) as { role: string }).role).toBe('user');
+
+    expect(
+      (await request(`/users/${outsider.user.id}`, serverOwner.accessToken, 'PATCH', { role: 'owner' })).status
+    ).toBe(403);
+    expect(
+      (await request(`/users/${serverOwner.user.id}`, serverOwner.accessToken, 'PATCH', { role: 'admin' })).status
+    ).toBe(403);
+
+    const passwordResetRes = await request(`/users/${outsider.user.id}`, serverAdmin.accessToken, 'PATCH', {
+      password: 'rotated-by-admin-password',
+    });
+    expect(passwordResetRes.status).toBe(200);
+    expect((await passwordResetRes.json()) as Record<string, unknown>).not.toHaveProperty('password');
+
+    const storedOutsider = await prisma.user.findUniqueOrThrow({ where: { id: outsider.user.id } });
+    expect(storedOutsider.password).not.toBe('rotated-by-admin-password');
+    expect(await compare('rotated-by-admin-password', storedOutsider.password)).toBe(true);
+    await expect(
+      authService.login({ email: 'outsider@example.test', password: 'rotated-by-admin-password' })
+    ).resolves.toMatchObject({ user: { id: outsider.user.id } });
+  });
+
+  it('allows owner and admin to delete regular users while protecting owner and admin accounts', async () => {
+    if (!prisma) throw new Error('Prisma was not initialized');
+
+    const targetUser = await prisma.user.create({
+      data: { email: 'removable-user@example.test', password: 'removable-password', role: 'user' },
+    });
+    const targetAdmin = await prisma.user.create({
+      data: { email: 'removable-admin@example.test', password: 'removable-password', role: 'admin' },
+    });
+
+    expect((await request(`/users/${serverOwner.user.id}`, serverAdmin.accessToken, 'DELETE')).status).toBe(403);
+    expect((await request(`/users/${targetAdmin.id}`, serverAdmin.accessToken, 'DELETE')).status).toBe(403);
+    expect((await request(`/users/${serverOwner.user.id}`, serverOwner.accessToken, 'DELETE')).status).toBe(403);
+
+    const adminDeleteUserRes = await request(`/users/${targetUser.id}`, serverAdmin.accessToken, 'DELETE');
+    expect(adminDeleteUserRes.status).toBe(200);
+    expect((await adminDeleteUserRes.json()) as Record<string, unknown>).not.toHaveProperty('password');
+
+    const ownerDeleteAdminRes = await request(`/users/${targetAdmin.id}`, serverOwner.accessToken, 'DELETE');
+    expect(ownerDeleteAdminRes.status).toBe(200);
+    expect((await ownerDeleteAdminRes.json()) as Record<string, unknown>).not.toHaveProperty('password');
   });
 });

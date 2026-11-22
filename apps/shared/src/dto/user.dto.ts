@@ -52,6 +52,18 @@ export class UpdateUserRequest {
 
 /* ------------------------- Responses ------------------------- */
 
+export class UserSearchResponse {
+  @IsString()
+  id!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string | null;
+}
+
 export class UserResponse {
   @IsString()
   id!: string;

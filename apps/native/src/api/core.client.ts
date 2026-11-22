@@ -43,6 +43,7 @@ import {
   type UpdateGroupMemberRequest,
   type UpdateNoteRequest,
   type UserResponse,
+  type UserSearchResponse,
   type FileSearchResponse,
 } from '@repo/shared';
 
@@ -167,7 +168,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
   public readonly users = {
     findAll: () => this.get<UserResponse[]>(endpoints.users),
     findOne: (id: string) => this.get<UserResponse>(`${endpoints.users}/${id}`),
-    search: (query: string) => this.get<UserResponse[]>(`${endpoints.users}/search/${encodeURIComponent(query)}`),
+    search: (query: string) => this.get<UserSearchResponse[]>(`${endpoints.users}/search/${encodeURIComponent(query)}`),
   };
 
   public readonly backups = {

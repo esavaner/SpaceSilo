@@ -1,7 +1,6 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { Role } from '../prisma/generated/client';
 import { UserResponse } from './user.dto';
 
 /* ------------------------- Requests -------------------------- */
@@ -26,10 +25,6 @@ export class RegisterRequest {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
 
   @IsString()
   @IsNotEmpty()

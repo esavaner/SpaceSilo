@@ -719,6 +719,14 @@
       "Err.NotFound": "Photo not found",
       "photosMissing": "One or more photos do not exist",
       "thumbnailErr.NotFound": "Thumbnail not found"
+    },
+    "users": {
+      "accessDenied": "You are not allowed to access or modify this user",
+      "Err.NotFound": "User not found",
+      "ownerDeleteForbidden": "The server owner account cannot be deleted",
+      "ownerRoleForbidden": "The owner role cannot be assigned or changed",
+      "roleChangeForbidden": "Only the server owner can change user roles",
+      "selfCredentialsFlowRequired": "Email and password must be changed through account settings"
     }
   },
   "cancel": "Cancel",

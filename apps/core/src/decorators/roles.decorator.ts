@@ -1,8 +1,4 @@
-// import { SetMetadata } from '@nestjs/common';
-// import { Role } from '@prisma/client';
-
-// export const Roles = (...roles: Role[]) => SetMetadata('roles', roles);
-
 import { SetMetadata } from '@nestjs/common';
+import { type Role } from '@repo/shared';
 
-export const Roles = (...roles: any[]) => SetMetadata('roles', roles);
+export const Roles = (...roles: Role[]) => SetMetadata('roles', roles);

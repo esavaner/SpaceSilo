@@ -1,11 +1,10 @@
-// import { Api } from '@/api/api';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useServerContext } from '@/providers/ServerProvider';
-import { type UserResponse } from '@repo/shared';
+import { type UserSearchResponse } from '@repo/shared';
 
-type UserSearchResponse = {
-  data: UserResponse[];
+type UserSearchQueryResult = {
+  data: UserSearchResponse[];
 };
 
 export const useUserSearch = (serverId?: string) => {
@@ -15,7 +14,7 @@ export const useUserSearch = (serverId?: string) => {
   const server =
     (serverId ? allServers.find((item) => item.id === serverId) : undefined) ?? servers[0] ?? allServers[0];
 
-  const { data, isLoading } = useQuery<UserSearchResponse>({
+  const { data, isLoading } = useQuery<UserSearchQueryResult>({
     queryKey: ['users', server?.id, query],
     queryFn: async () => {
       if (!server || query.length === 0) {
