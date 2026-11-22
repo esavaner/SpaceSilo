@@ -32,14 +32,14 @@ SpaceSilo is a pnpm monorepo for a personal or shared media storage product. It 
 
 - `apps/core`: NestJS 12 backend API on Node.js
 - `apps/shared`: shared DTOs, Prisma schema/client, and the shared UI component library (styled-components 7 prerelease, native first, web via react-native-web)
-- `apps/docs`: Next.js 16 app-router page. Skipped until base project is completed.
+- `apps/docs`: Next.js 16 app, planned as the public project documentation site for future users. **Parked until the base project is finished**: it's excluded from the pnpm workspace (`!apps/docs` in `pnpm-workspace.yaml`), the root `tsconfig.json` references, and ESLint, so install, lint, typecheck, and build all skip it. Don't edit or validate it unless the user asks. To re-enable it, revert those three exclusions and run `pnpm.cmd install`
 - `apps/native`: Expo 57 / React Native Web client (Expo Router, styled-components, TypeScript 6)
 
 Languages and tooling: TypeScript throughout, Prisma 7, PostgreSQL, SWC for backend and shared builds, ESLint 9 flat config, Prettier, React 19.
 
 Observed locally on Windows: Node `v26.13.0`. The repo pins `pnpm@10.28.1` in the root `package.json`.
 
-The root `README.md` is accurate (dev and production setup). The app READMEs (`apps/core`, `apps/native`, `apps/docs`) are still starter templates and aren't authoritative.
+The root `README.md` is accurate (dev and production setup). The app READMEs (`apps/core`, `apps/native`) are still starter templates and aren't authoritative.
 
 ## Layout And Architecture
 
@@ -54,7 +54,6 @@ The root `README.md` is accurate (dev and production setup). The app READMEs (`a
 - `docs/agents/shared-components.md`: rules and lessons learned for shared UI component work. Read it before you touch shared components
 - `apps/shared/src/prisma/schema.prisma`: canonical data model (User, Group, GroupMember, Album, Media, MediaFile, Note, Backup)
 - `apps/shared/src/prisma/seed.ts`: dev seed
-- `apps/docs/src/app/page.tsx`: shared component showcase page
 - `apps/native/src/app/_layout.tsx`: Expo root layout; routes under `(tabs)`, `login`, and `view`
 - `apps/native/src/api/*`: HTTP clients used by the mobile/web client
 - `apps/native/src/providers/*` and `apps/native/src/hooks/*`: app state, server connections, and query logic
@@ -77,10 +76,10 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
    - Per package: `pnpm.cmd --filter <pkg> typecheck`. Prefer this and only check the packages you touched
    - Root `pnpm.cmd typecheck` builds `@repo/shared` first, then typechecks every package
    - `pnpm.cmd --filter <pkg> check` runs lint + typecheck for one package
-   - Current state: `@repo/shared` and `@repo/native` pass. `@repo/core` has existing errors (`logger.middleware.ts`, `users.controller.ts`, `auth.guard.ts` rootDir). `@repo/docs` fails because `page.tsx` is behind the current shared `Radio` API. Don't fix these unless asked, but don't add new errors
+   - Current state: `@repo/shared`, `@repo/native`, and `@repo/core` all pass. Don't add new errors
 
 4. Build
-   - `pnpm.cmd build` builds `@repo/shared`, `@repo/core`, and `@repo/docs`. It currently fails at `@repo/docs` (Turbopack parse errors), after shared and core succeed
+   - `pnpm.cmd build` builds `@repo/shared` and `@repo/core` (docs is parked)
    - `pnpm.cmd build:core` builds only shared + core and passes
    - `@repo/native` has no build script; `pnpm.cmd --filter @repo/native export:web` exports the web build to `apps/native/dist`
 
@@ -99,13 +98,11 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
    - The user often already has core running on port `3100`; an `EADDRINUSE` error means it is already up. Don't kill it
 
 7. Run frontends (only when the user asks; see Token Budget)
-   - Docs showcase: `pnpm.cmd --filter @repo/docs dev` on `http://localhost:4000`
    - Native web: `pnpm.cmd --filter @repo/native dev` (`expo start --web`)
 
 ## Known Broken Or Misleading Scripts
 
 - `pnpm.cmd clean` is not portable on Windows: it fails on `rm -rf node_modules`
-- `pnpm.cmd build` and root `pnpm.cmd typecheck` currently fail on `@repo/docs` (see above); use per-package commands
 
 ## Change Guidance
 

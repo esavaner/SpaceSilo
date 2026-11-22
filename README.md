@@ -5,7 +5,7 @@ SpaceSilo is a self-hosted storage system with:
 - `apps/core`: NestJS backend API
 - `apps/native`: Expo app used for web, mobile, and TV clients
 - `apps/shared`: shared Prisma client, DTOs, and cross-app constants
-- `apps/docs`: separate docs/site app
+- `apps/docs`: future public documentation site (parked, not part of the workspace yet)
 
 The production shape is:
 

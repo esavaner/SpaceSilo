@@ -1,2 +1,4 @@
-packages:
+﻿packages:
   - 'apps/*'
+  # Docs site is parked until the base project is finished. Remove this line to re-enable it.
+  - '!apps/docs'

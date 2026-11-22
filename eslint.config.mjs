@@ -4,7 +4,8 @@ import pluginReact from 'eslint-plugin-react';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-const projects = ['core', 'docs', 'native', 'shared'].join(',');
+// apps/docs is parked until the base project is finished.
+const projects = ['core', 'native', 'shared'].join(',');
 
 export default defineConfig([
   {
@@ -19,6 +20,7 @@ export default defineConfig([
       '**/.expo/**',
       '**/.next/**',
       '**/next-env.d.ts',
+      'apps/docs/**',
     ],
   },
   {
