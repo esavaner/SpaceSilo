@@ -92,7 +92,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     this.accessToken = result.accessToken;
     this.refreshToken = result.refreshToken;
     this.account = result.user;
-    this.saveRefreshToken(result.refreshToken);
+    await this.saveRefreshToken(result.refreshToken);
   }
 
   public override async reconnect() {
@@ -111,7 +111,7 @@ export class CoreApiClient extends ApiClient<UserResponse> {
     const refreshed = (await response.json()) as RefreshResponse;
     this.accessToken = refreshed.accessToken;
     this.refreshToken = refreshed.refreshToken;
-    this.saveRefreshToken(refreshed.refreshToken);
+    await this.saveRefreshToken(refreshed.refreshToken);
     return true;
   }
 

@@ -1,10 +1,9 @@
 import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
 import { ServerLogo } from '@/components/general/server-logo';
 import { ServerType } from '@/api/_client';
-import { endpoints } from '@/api/core.client';
 import { useValidators } from '@/hooks/useValidators';
 import { toast } from '@/lib/toast';
-import { ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
+import { useServerContext } from '@/providers/ServerProvider';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -160,10 +159,9 @@ export default function ConnectionsPage() {
   });
 
   const onConnectCoreNas = async (values: CoreNasForm) => {
-    let savedServer: ServerConnectionWithClient | undefined;
     setIsSavingCoreNas(true);
     try {
-      savedServer = await loginAndSaveServer({
+      const savedServer = await loginAndSaveServer({
         type: ServerType.CORE,
         baseUrl: values.serverUrl,
         email: values.email,
@@ -171,7 +169,6 @@ export default function ConnectionsPage() {
         label: values.displayName,
       });
 
-      await savedServer.client.get(endpoints.users);
       toast.success(
         t('connections.messages.connected', {
           provider: t('connections.providers.coreNas.title'),
@@ -181,9 +178,6 @@ export default function ConnectionsPage() {
       reset();
       setSelectedProvider(null);
     } catch (error) {
-      if (savedServer) {
-        await removeServer(savedServer.id);
-      }
       toast.error(tApiErr(t, error, 'connections.messages.failed'));
     } finally {
       setIsSavingCoreNas(false);

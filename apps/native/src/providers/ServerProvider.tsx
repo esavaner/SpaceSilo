@@ -84,13 +84,31 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
     password,
   }: LoginAndSaveServerInput): Promise<ServerConnectionWithClient> => {
     let saved: ServerConnection | undefined;
+    let refreshToken: string | undefined;
+    const client = new CoreApiClient({
+      baseUrl,
+      email,
+      password,
+      saveRefreshToken: (token) => {
+        if (saved) return updateRefreshTokenInStorage(saved.id, token);
+        refreshToken = token;
+      },
+    });
+
+    await client.waitForLogin();
+    if (!client.account?.id || typeof refreshToken !== 'string' || !refreshToken) {
+      throw new Error('Login response did not include a user and refresh token');
+    }
+    await client.users.findOne(client.account.id);
+
     await updateServersInStorage((currentServers) => {
       const existingIndex = currentServers.findIndex(
         (s) => s.type === type && s.baseUrl === baseUrl && s.label === label
       );
       const newServers = [...currentServers];
       if (existingIndex >= 0) {
-        saved = newServers[existingIndex];
+        saved = { ...newServers[existingIndex], refreshToken };
+        newServers[existingIndex] = saved;
       } else {
         saved = {
           id: createId(),
@@ -98,6 +116,7 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
           label: label || baseUrl || email,
           baseUrl,
           disabled: false,
+          refreshToken,
         };
         newServers.push(saved);
       }
@@ -108,12 +127,7 @@ export const ServerProvider = ({ children }: { children: React.ReactNode }) => {
 
     const newServer = {
       ...saved,
-      client: new CoreApiClient({
-        baseUrl,
-        email,
-        password,
-        saveRefreshToken: (token) => updateRefreshTokenInStorage(saved!.id, token),
-      }),
+      client,
     };
 
     setServers((prev) => [...prev, newServer]);

@@ -53,7 +53,7 @@ export const createApiError = async (response: Response) => {
 export type ApiClientOptions = {
   baseUrl: string;
   refreshToken?: string;
-  saveRefreshToken: (token: string | undefined) => void;
+  saveRefreshToken: (token: string | undefined) => void | Promise<void>;
 };
 
 export class ApiClient<TAccount = unknown> {
@@ -65,7 +65,7 @@ export class ApiClient<TAccount = unknown> {
 
   protected accessToken?: string;
   protected refreshToken?: string;
-  protected saveRefreshToken: (token: string | undefined) => void;
+  protected saveRefreshToken: ApiClientOptions['saveRefreshToken'];
   protected readonly apiBaseUrl: string;
 
   private readonly defaultConfig: RequestInit = {};
@@ -103,6 +103,12 @@ export class ApiClient<TAccount = unknown> {
       }
     })();
     return this.initializationPromise;
+  }
+
+  public async waitForLogin() {
+    if (!(await this.initializationPromise)) {
+      throw this.loginError ?? new Error('Login failed');
+    }
   }
 
   public logout() {
