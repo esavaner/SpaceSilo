@@ -19,7 +19,7 @@ Rules of precedence: the user's explicit instruction comes first, then the Linea
 
 ## Working from a Linear issue (summary)
 
-1. Read the issue, its parent project, and the issues it's blocked by. Move the issue to **In Progress**.
+1. Read the issue, its parent project, and the issues it's blocked by before assessing complexity or choosing a delegate. Base delegation on the actual scope, not the short request or issue ID. Move the issue to **In Progress**.
 2. Work on the issue's branch name (`spa-<n>-<slug>`, shown in Linear) when the user wants a branch. Mention `SPA-<n>` in commits and PRs.
 3. Implement it full stack in this order: `apps/shared` (DTOs/schema) → `apps/core` → `apps/native`. Keep every user-facing string localized.
 4. Validate with the commands below. Tick the acceptance criteria checkboxes in the issue description.
