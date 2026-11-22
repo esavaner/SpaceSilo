@@ -58,7 +58,7 @@ The root `README.md` is accurate (dev and production setup). The app READMEs (`a
 - `apps/native/src/api/*`: HTTP clients used by the mobile/web client
 - `apps/native/src/providers/*` and `apps/native/src/hooks/*`: app state, server connections, and query logic
 
-There is no `CONTRIBUTING.md`. GitHub Actions runs the backend integration tests; broader CI is tracked in Linear under Platform & DevEx.
+There is no `CONTRIBUTING.md`. GitHub Actions (`.github/workflows/ci.yml`) runs lint, typecheck, build, Prisma validation and migration sync checks, and backend integration tests on every push and PR.
 
 ## Validated Command Order
 
@@ -100,10 +100,6 @@ Run commands from the repo root. In Windows PowerShell, use `pnpm.cmd` instead o
 
 7. Run frontends (only when the user asks; see Token Budget)
    - Native web: `pnpm.cmd --filter @repo/native dev` (`expo start --web`)
-
-## Known Broken Or Misleading Scripts
-
-- `pnpm.cmd clean` is not portable on Windows: it fails on `rm -rf node_modules`
 
 ## Change Guidance
 
