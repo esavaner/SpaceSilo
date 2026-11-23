@@ -2,7 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Platform, View, type ViewProps } from 'react-native';
 import styled from 'styled-components/native';
-import { Avatar, Button, DropdownMenu, DropdownOption, Icon, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import {
+  Avatar,
+  Button,
+  DropdownMenu,
+  DropdownOption,
+  EmptyState,
+  Icon,
+  ListRow,
+  Text,
+  theme,
+  useModal,
+  useThemeColors,
+} from '@repo/shared/components';
 import { GroupEditModal } from '@/components/modals/GroupEdit.modal';
 import { GroupAddMembersModal } from '@/components/modals/GroupAddMembers.modal';
 import { GroupRemoveModal } from '@/components/modals/GroupRemove.modal';
@@ -73,26 +85,6 @@ const MembersHeader = styled.View`
   justify-content: space-between;
   gap: ${theme.spacing[300]};
 `;
-const EmptyMembers = styled.View`
-  padding: ${theme.spacing[600]};
-  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
-  border-radius: ${theme.radius[300]};
-`;
-const MemberCard = styled.View<{ $order: number }>`
-  flex-direction: row;
-  align-items: center;
-  gap: ${theme.spacing[300]};
-  padding: ${theme.spacing[400]};
-  border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
-  border-radius: ${theme.radius[300]};
-  background-color: ${theme.colors.surface.medium};
-  z-index: ${({ $order }) => $order};
-`;
-const MemberInfo = styled.View`
-  flex: 1;
-  gap: ${theme.spacing[100]};
-`;
-
 const SummaryChip = ({ label, accent = false }: { label: string; accent?: boolean }) => (
   <Chip $accent={accent}>
     <Text.S color={accent ? theme.colors.text.brand : theme.colors.text.secondary}>{label}</Text.S>
@@ -107,7 +99,8 @@ const AccessSelect = ({ value, onChange }: { value: AccessLevel; onChange: (valu
     { label: t('groups.membersModal.levels.edit'), value: 'edit' },
     { label: t('groups.membersModal.levels.read'), value: 'read' },
   ] as const satisfies { label: string; value: AccessLevel }[];
-  const selectedLabel = accessOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read');
+  const selectedLabel =
+    accessOptions.find((option) => option.value === value)?.label ?? t('groups.membersModal.levels.read');
 
   return (
     <DropdownMenu
@@ -306,54 +299,52 @@ export default function SingleGroupPage() {
         </MembersHeader>
 
         {group.members.length === 0 ? (
-          <EmptyMembers>
-            <Text center color={theme.colors.text.secondary}>
-              {t('groups.details.emptyMembers')}
-            </Text>
-          </EmptyMembers>
+          <EmptyState description={t('groups.details.emptyMembers')} />
         ) : (
           <Members>
             {group.members.map((member, index) => {
               const memberIsOwner = member.userId === group.ownerId;
 
               return (
-                <MemberCard key={member.userId} $order={group.members.length - index}>
-                  <Avatar alt={member.user.name ?? member.user.email} />
-
-                  <MemberInfo>
+                <ListRow
+                  key={member.userId}
+                  style={{ zIndex: group.members.length - index }}
+                  leading={<Avatar alt={member.user.name ?? member.user.email} />}
+                  title={
                     <Row>
                       <Text weight={500}>{member.user.name ?? member.user.email}</Text>
                       {memberIsOwner ? <SummaryChip label={t('groups.details.owner')} accent /> : null}
                     </Row>
-                    <Text.S color={theme.colors.text.secondary}>{member.user.email}</Text.S>
-                  </MemberInfo>
-
-                  {isOwner && !memberIsOwner ? (
-                    <Row>
-                      <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member, value)} />
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        disabled={isPending}
-                        accessibilityLabel={t('groups.details.removeMember', {
-                          name: member.user.name ?? member.user.email,
-                        })}
-                        onPress={() => handleRemoveMember(member)}
-                      >
-                        <Icon.Trash
-                          size={18}
-                          color={isPending ? colors.text.disabled : colors.text.brand}
-                          aria-hidden
-                        />
-                      </Button>
-                    </Row>
-                  ) : (
-                    <SummaryChip
-                      label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
-                      accent={memberIsOwner}
-                    />
-                  )}
-                </MemberCard>
+                  }
+                  description={member.user.email}
+                  trailing={
+                    isOwner && !memberIsOwner ? (
+                      <Row>
+                        <AccessSelect value={member.access} onChange={(value) => handleAccessChange(member, value)} />
+                        <Button
+                          variant="tertiary"
+                          size="small"
+                          disabled={isPending}
+                          accessibilityLabel={t('groups.details.removeMember', {
+                            name: member.user.name ?? member.user.email,
+                          })}
+                          onPress={() => handleRemoveMember(member)}
+                        >
+                          <Icon.Trash
+                            size={18}
+                            color={isPending ? colors.text.disabled : colors.text.brand}
+                            aria-hidden
+                          />
+                        </Button>
+                      </Row>
+                    ) : (
+                      <SummaryChip
+                        label={memberIsOwner ? t('groups.details.fullAccess') : member.access}
+                        accent={memberIsOwner}
+                      />
+                    )
+                  }
+                />
               );
             })}
           </Members>

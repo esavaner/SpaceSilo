@@ -10,7 +10,17 @@ import { type GroupListItem, useGroupList } from '@/hooks/useGroupList';
 import { type NoteListItem, useNoteList } from '@/hooks/useNoteList';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Input, Text, theme, useModal, useThemeColors } from '@repo/shared/components';
+import {
+  Button,
+  EmptyState,
+  Icon,
+  Input,
+  Skeleton,
+  Text,
+  theme,
+  useModal,
+  useThemeColors,
+} from '@repo/shared/components';
 
 const FiltersPanel = styled.View`
   gap: ${theme.spacing[300]};
@@ -75,14 +85,8 @@ const NoteActions = styled.View`
   gap: ${theme.spacing[200]};
 `;
 
-const EmptyState = styled.View`
-  gap: ${theme.spacing[300]};
-  padding: ${theme.spacing[600]};
-  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
-  border-radius: ${theme.radius[400]};
-`;
-
 const LoadingState = styled.View`
+  gap: ${theme.spacing[300]};
   padding: ${theme.spacing[600]};
   border: ${theme.borderWeight[25]} solid ${theme.colors.border.default};
   border-radius: ${theme.radius[400]};
@@ -240,27 +244,32 @@ export default function NotesPage() {
       </FiltersPanel>
 
       {servers.length === 0 ? (
-        <EmptyState>
-          <Text.H3>{t('notes.empty.noServersTitle')}</Text.H3>
-          <Text.M color={colors.text.secondary}>{t('notes.empty.noServersDescription')}</Text.M>
-        </EmptyState>
+        <EmptyState
+          center={false}
+          title={t('notes.empty.noServersTitle')}
+          description={t('notes.empty.noServersDescription')}
+        />
       ) : isNotesLoading || isGroupsLoading ? (
         <LoadingState>
           <Text.M color={colors.text.secondary}>{t('notes.loadingAll')}</Text.M>
+          <Skeleton height={20} width="72%" />
+          <Skeleton height={16} />
+          <Skeleton height={16} width="84%" />
         </LoadingState>
       ) : visibleNotes.length === 0 ? (
-        <EmptyState>
-          <Text.H3>{query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}</Text.H3>
-          <Text.M color={colors.text.secondary}>
-            {query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
-          </Text.M>
-          {!query.trim() ? (
-            <Button onPress={openCreateModal} disabled={groups.length === 0} style={{ alignSelf: 'flex-start' }}>
-              <Icon.Plus size={18} color={colors.text.inverted} />
-              <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
-            </Button>
-          ) : null}
-        </EmptyState>
+        <EmptyState
+          center={false}
+          title={query.trim() ? t('notes.empty.noMatchesTitle') : t('notes.empty.noneTitle')}
+          description={query.trim() ? t('notes.empty.noMatchesDescription') : t('notes.empty.noneDescription')}
+          action={
+            !query.trim() ? (
+              <Button onPress={openCreateModal} disabled={groups.length === 0} style={{ alignSelf: 'flex-start' }}>
+                <Icon.Plus size={18} color={colors.text.inverted} />
+                <Text.S color={colors.text.inverted}>{t('notes.actions.createFirst')}</Text.S>
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <NotesGrid>
           {visibleNotes.map((note) => {

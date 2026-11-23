@@ -1,6 +1,6 @@
 // import { Api } from '@/api/api';
 // import { AddMemberDto, CreateGroupDto } from '@/api/generated';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useModal } from '@repo/shared/components';
 import { useQueryClient, useMutation } from '@tanstack/react-query';

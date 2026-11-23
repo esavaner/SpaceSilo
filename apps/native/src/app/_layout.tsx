@@ -11,8 +11,8 @@ import { FilesProvider } from '@/providers/FilesProvider';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '@/providers/UserProvider';
 import { ServerProvider } from '@/providers/ServerProvider';
-import { Toaster } from '@/lib/toast';
 import { ModalProvider, ThemeModeProvider, useThemeColors, type ThemeMode } from '@repo/shared/components';
+import { Toaster } from '@repo/shared/toast';
 import { storage } from '@/utils/storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

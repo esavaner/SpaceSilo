@@ -1,4 +1,4 @@
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type CreateNoteRequest, type NoteResponse, type UpdateNoteRequest } from '@repo/shared';

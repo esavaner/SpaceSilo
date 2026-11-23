@@ -9,7 +9,7 @@ import { FileAddDropdown } from './dropdowns/FileAdd.dropdown';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { FileSortDropdown } from './dropdowns/FileSort.dropdown';
 import { FileFilterDropdown } from './dropdowns/FileFilter.dropdown';
-import { Checkbox, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Checkbox, EmptyState, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { type FileListItem } from '@/hooks/useFileList';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
@@ -173,7 +173,7 @@ export const FileList = () => {
       </Toolbar>
       <List keyboardShouldPersistTaps="handled">
         <ListContent>
-          {items.length === 0 && <Text center>{t('files.empty')}</Text>}
+          {items.length === 0 && <EmptyState bordered={false} description={t('files.empty')} />}
           {items.map((item) => {
             const itemKey = `${item.serverId}:${item.groupId}:${item.uri}`;
             const isSelected = selectedItems.find((i) => i.uri === item.uri);

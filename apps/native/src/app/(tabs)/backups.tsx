@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { type BackupResponse, type CreateBackupRequest, type UpdateBackupRequest } from '@repo/shared';
-import { Button, Icon, Input, Select, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Button, EmptyState, Icon, Input, Select, Text, theme, useThemeColors } from '@repo/shared/components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import { ServerType } from '@/api/_client';
 import { tApiErr } from '@/i18n/translate';
 import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { type ServerConnectionWithClient, useServerContext } from '@/providers/ServerProvider';
 import { createId } from '@/utils/common';
 import { useTranslation } from 'react-i18next';
@@ -82,12 +82,6 @@ const FormActions = styled.View`
 `;
 const ListSection = styled.View`
   gap: ${theme.spacing[300]};
-`;
-const EmptyState = styled.View`
-  gap: ${theme.spacing[100]};
-  padding: ${theme.spacing[600]};
-  border: 1px dashed ${theme.colors.border.default};
-  border-radius: ${theme.radius[400]};
 `;
 const BackupList = styled.View`
   flex-direction: row;
@@ -636,10 +630,11 @@ export default function BackupsPage() {
         </FormHeader>
 
         {adminServers.length < 2 && !currentEditingBackup ? (
-          <EmptyState>
-            <OptionTitle>{t('backups.form.needTwoServersTitle')}</OptionTitle>
-            <SmallText>{t('backups.form.needTwoServersDescription')}</SmallText>
-          </EmptyState>
+          <EmptyState
+            center={false}
+            title={<OptionTitle>{t('backups.form.needTwoServersTitle')}</OptionTitle>}
+            description={<SmallText>{t('backups.form.needTwoServersDescription')}</SmallText>}
+          />
         ) : null}
 
         <FormSection>
@@ -729,19 +724,21 @@ export default function BackupsPage() {
         <Text.H3>{t('backups.list.title')}</Text.H3>
         <SmallText>{t('backups.list.description')}</SmallText>
         {adminServers.length === 0 ? (
-          <EmptyState>
-            <Text.H3>{t('backups.list.noServersTitle')}</Text.H3>
-            <MutedText>{t('backups.list.noServersDescription')}</MutedText>
-          </EmptyState>
+          <EmptyState
+            center={false}
+            title={t('backups.list.noServersTitle')}
+            description={<MutedText>{t('backups.list.noServersDescription')}</MutedText>}
+          />
         ) : isLoading ? (
           <Panel>
             <MutedText>{t('backups.list.loading')}</MutedText>
           </Panel>
         ) : outgoingBackups.length === 0 ? (
-          <EmptyState>
-            <Text.H3>{t('backups.list.emptyTitle')}</Text.H3>
-            <MutedText>{t('backups.list.emptyDescription')}</MutedText>
-          </EmptyState>
+          <EmptyState
+            center={false}
+            title={t('backups.list.emptyTitle')}
+            description={<MutedText>{t('backups.list.emptyDescription')}</MutedText>}
+          />
         ) : (
           <BackupList>
             {outgoingBackups.map((backup) => {

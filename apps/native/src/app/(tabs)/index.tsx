@@ -23,13 +23,19 @@ import {
   ModalTitle,
   Select,
   Dropdown,
+  EmptyState,
+  ListRow,
   SideDrawer,
+  Skeleton,
+  Switch,
+  Tabs,
   baseColors,
   theme,
   useModal,
   useThemeMode,
   type ThemeMode,
 } from '@repo/shared/components';
+import { toast } from '@repo/shared/toast';
 import styled from 'styled-components/native';
 
 const Section = styled.View`
@@ -129,6 +135,8 @@ export default function IndexPage() {
   const [lastAction, setLastAction] = useState('');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const colorOptions = [
     { label: 'Blue', value: 'blue' },
     { label: 'Green', value: 'green' },
@@ -425,6 +433,79 @@ export default function IndexPage() {
           <SectionHeader>Loader</SectionHeader>
           <Loader block />
           <Button onPress={() => setShowFullPageLoader(true)}>Show full page loader</Button>
+        </Section>
+        <Section>
+          <SectionHeader>Toast</SectionHeader>
+          <Row>
+            <Button onPress={() => toast.success('Changes saved')}>Success toast</Button>
+            <Button variant="secondary" onPress={() => toast.info('A useful update')}>
+              Info toast
+            </Button>
+            <Button variant="secondary" onPress={() => toast.warning('Check this setting')}>
+              Warning toast
+            </Button>
+            <Button variant="destructive" onPress={() => toast.error('Unable to save')}>
+              Error toast
+            </Button>
+          </Row>
+        </Section>
+        <Section>
+          <SectionHeader>Tabs</SectionHeader>
+          <Tabs
+            accessibilityLabel="Example sections"
+            items={[
+              { label: 'Overview', value: 'overview' },
+              { label: 'Activity', value: 'activity' },
+              { label: 'Archived', value: 'archived', disabled: true },
+            ]}
+            value={activeTab}
+            onValueChange={setActiveTab}
+          />
+          <Text.S>Active tab: {activeTab}</Text.S>
+        </Section>
+        <Section>
+          <SectionHeader>Switch</SectionHeader>
+          <Switch
+            label="Enable notifications"
+            info="This preference can be changed later."
+            checked={notificationsEnabled}
+            onValueChange={setNotificationsEnabled}
+          />
+          <Switch label="Disabled switch" disabled checked />
+          <Switch label="Invalid switch" error="Choose another value." />
+        </Section>
+        <Section>
+          <SectionHeader>Empty state</SectionHeader>
+          <EmptyState
+            icon={<Icon.Folder size={32} color={colors.text.secondary} aria-hidden />}
+            title="No projects yet"
+            description="Create the first project to start organizing your files."
+            action={<Button variant="secondary">Create project</Button>}
+          />
+        </Section>
+        <Section>
+          <SectionHeader>Skeleton</SectionHeader>
+          <Row>
+            <Skeleton circle width={48} height={48} />
+            <Skeleton width="70%" height={20} />
+            <Skeleton width="45%" height={12} />
+          </Row>
+        </Section>
+        <Section>
+          <SectionHeader>List row</SectionHeader>
+          <ListRow
+            leading={<Avatar alt="Ada Lovelace" />}
+            title="Ada Lovelace"
+            description="ada@example.com"
+            trailing={<Icon.ChevronRight size={18} color={colors.text.secondary} aria-hidden />}
+            onPress={() => setLastAction('list row')}
+          />
+          <ListRow
+            title="Selected row"
+            description="Use selected for active list items."
+            selected
+            trailing={<Icon.Check size={18} color={colors.text.brand} aria-hidden />}
+          />
         </Section>
         <Section>
           <SectionHeader>Pagination</SectionHeader>

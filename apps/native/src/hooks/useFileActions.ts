@@ -1,6 +1,6 @@
 // import { Api } from '@/api/api';
 // import { CopyFileDto, CreateFolderDto, MoveFileDto, RemoveFileDto } from '@/api/generated';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useFilesContext } from '@/providers/FilesProvider';
 import { useServerContext } from '@/providers/ServerProvider';
 import { useModal } from '@repo/shared/components';

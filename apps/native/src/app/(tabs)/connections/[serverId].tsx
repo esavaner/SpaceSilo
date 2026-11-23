@@ -4,7 +4,7 @@ import { ApiError } from '@/api/_client';
 import { BaseLayout } from '@/components/base-layout';
 import { serverIcons } from '@/constants/server-icons';
 import { useValidators } from '@/hooks/useValidators';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useServerContext } from '@/providers/ServerProvider';
 import { fileSize } from '@/utils/common';
 import { yupResolver } from '@hookform/resolvers/yup';

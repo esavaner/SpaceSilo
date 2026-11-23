@@ -1,7 +1,7 @@
 import { ApiError } from '@/api/_client';
 import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
 import { tApiErr } from '@/i18n/translate';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { type SessionResponse } from '@repo/shared';
 import { Button, Text, theme } from '@repo/shared/components';

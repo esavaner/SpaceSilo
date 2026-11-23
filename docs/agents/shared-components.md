@@ -8,7 +8,7 @@ Convert UI components in `apps/shared/src/components` from their original plain 
 
 - **Native first is the most important rule.** The components must work correctly on a real Expo device.
 - **Web must still work.** These components were already tested on web, so keep their web behavior and visual design. Web-only extras (hover, cursor, outline, resize, and so on) can stay as bonus behavior.
-- **One component per file.** Don't split components into `.native.tsx` and `.web.tsx` files. `text.tsx` is the reference example.
+- **One component per file.** Don't split components into `.native.tsx` and `.web.tsx` files. `text.tsx` is the reference example. `Toast` is the exception: `@repo/shared/toast` uses Sonner on web and Sonner Native on devices.
 - Use `styled-components/native` (styled-components 7 prerelease). If a style or prop isn't supported on one platform but doesn't cause an error, keep it.
 - Ignore `apps/docs`.
 - Use the ponytail skill: make the smallest complete change, and end each reply with what was skipped or remains risky.

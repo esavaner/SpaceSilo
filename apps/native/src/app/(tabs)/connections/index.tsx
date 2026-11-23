@@ -2,8 +2,8 @@ import { BaseLayout, BaseLayoutHeading } from '@/components/base-layout';
 import { ServerLogo } from '@/components/general/server-logo';
 import { ServerType } from '@/api/_client';
 import { useValidators } from '@/hooks/useValidators';
-import { toast } from '@/lib/toast';
 import { useServerContext } from '@/providers/ServerProvider';
+import { toast } from '@repo/shared/toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { tApiErr } from '@/i18n/translate';
 import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components/native';
-import { Button, Input, Text, theme } from '@repo/shared/components';
+import { Button, EmptyState, Input, Switch, Text, theme } from '@repo/shared/components';
 import * as yup from 'yup';
 
 const providerMeta = {
@@ -107,6 +107,10 @@ const ExistingGrid = styled.View`
   gap: ${theme.spacing[300]};
 `;
 
+const NoConnections = styled(EmptyState)`
+  margin-top: ${theme.spacing[800]};
+`;
+
 const ServerCard = styled.View`
   flex: 1;
   min-width: 240px;
@@ -120,12 +124,6 @@ const ServerActions = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   gap: ${theme.spacing[200]};
-`;
-
-const EmptyState = styled(Text.S)`
-  align-self: center;
-  margin-top: ${theme.spacing[800]};
-  color: ${theme.colors.text.secondary};
 `;
 
 export default function ConnectionsPage() {
@@ -337,14 +335,20 @@ export default function ConnectionsPage() {
       </AddPanel>
       <ExistingHeading>{t('connections.existing')}</ExistingHeading>
       {allServers.length === 0 ? (
-        <EmptyState>{t('connections.messages.none')}</EmptyState>
+        <NoConnections
+          bordered={false}
+          description={
+            <Text.S center color={theme.colors.text.secondary}>
+              {t('connections.messages.none')}
+            </Text.S>
+          }
+        />
       ) : (
         <ExistingGrid>
           {allServers.map((server) => (
             <ServerCard key={server.id}>
               <Text.H3>{server.label}</Text.H3>
               <Text.S color={theme.colors.text.secondary}>{server.baseUrl}</Text.S>
-              <Text.S>{server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}</Text.S>
               <ServerActions>
                 <Button
                   variant="secondary"
@@ -352,13 +356,12 @@ export default function ConnectionsPage() {
                 >
                   {t('common.actions.details')}
                 </Button>
-                <Button
-                  variant="secondary"
-                  onPress={() => onToggleCoreServer(server.id, server.disabled)}
-                  loading={busyServerId === server.id}
-                >
-                  {server.disabled ? t('connections.actions.enable') : t('connections.actions.disable')}
-                </Button>
+                <Switch
+                  label={server.disabled ? t('connections.status.disabled') : t('connections.status.enabled')}
+                  checked={!server.disabled}
+                  disabled={busyServerId === server.id}
+                  onValueChange={(enabled) => void onToggleCoreServer(server.id, enabled)}
+                />
                 <Button
                   variant="destructive"
                   onPress={() => onRemoveCoreServer(server.id)}

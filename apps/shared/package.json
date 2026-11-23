@@ -17,6 +17,12 @@
       "types": "./dist/components/index.d.ts",
       "default": "./dist/components/index.js"
     },
+    "./toast": {
+      "types": "./dist/components/toast.d.ts",
+      "react-native": "./dist/components/toast.native.js",
+      "browser": "./dist/components/toast.web.js",
+      "default": "./dist/components/toast.web.js"
+    },
     "./style": {
       "types": "./dist/config/style.d.ts",
       "default": "./dist/config/style.js"
@@ -43,6 +49,8 @@
     "dotenv": "17.2.3",
     "lucide-react-native": "^1.66.0",
     "pg": "8.17.2",
+    "sonner": "2.0.8",
+    "sonner-native": "0.27.0",
     "styled-components": "7.0.0-prerelease-20261110053101",
     "zod": "^3.25.76"
   },

@@ -1,7 +1,7 @@
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { type NoteListItem } from '@/hooks/useNoteList';
 import { useNoteActions } from '@/hooks/useNoteActions';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Modal, ModalButtons, ModalTitle, Select, Text, Textarea, theme, useModal } from '@repo/shared/components';

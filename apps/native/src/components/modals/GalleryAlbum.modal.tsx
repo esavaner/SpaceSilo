@@ -1,4 +1,4 @@
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type AlbumResponse } from '@repo/shared';

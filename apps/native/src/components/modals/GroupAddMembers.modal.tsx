@@ -6,6 +6,7 @@ import {
   DropdownOption,
   Icon,
   Input,
+  ListRow,
   Modal,
   ModalButtons,
   ModalTitle,
@@ -33,14 +34,14 @@ type Props = {
   group: GroupWithMembers;
 };
 
-const MemberRow = styled.View`
+const MemberName = styled(Text.M)`
+  flex: 1;
+`;
+
+const MemberActions = styled.View`
   flex-direction: row;
   align-items: center;
   gap: ${theme.spacing[200]};
-`;
-
-const MemberName = styled(Text.M)`
-  flex: 1;
 `;
 
 const AccessField = styled.View`
@@ -87,45 +88,44 @@ export const GroupAddMembersModal = ({ group }: Props) => {
   return (
     <Modal closeLabel={t('common.actions.close')} accessibilityLabel={t('groups.membersModal.title')}>
       <ModalTitle>{t('groups.membersModal.title')}</ModalTitle>
-      {selectedMembers.length > 0 && (
-        <Text.S>{`${selectedMembers.length} ${t('common.nouns.members')}`}</Text.S>
-      )}
+      {selectedMembers.length > 0 && <Text.S>{`${selectedMembers.length} ${t('common.nouns.members')}`}</Text.S>}
       {selectedMembers.map((member) => (
-        <MemberRow key={member.id}>
-          <MemberName>{member.name}</MemberName>
-          <AccessField>
-            <Select
-              label={t('groups.membersModal.access')}
-              hideLabel
-              closeLabel={t('common.actions.close')}
-              value={member.access}
-              options={accessOptions}
-              onOptionChange={(option) => {
-                const access = accessOptions.find((item) => item.value === option.value);
-                if (access) {
-                  setSelectedMembers((current) =>
-                    current.map((item) => (item.id === member.id ? { ...item, access: access.value } : item))
-                  );
-                }
-              }}
-            />
-          </AccessField>
-          <Button
-            variant="tertiary"
-            size="small"
-            accessibilityLabel={t('groups.details.removeMember', { name: member.name })}
-            onPress={() => setSelectedMembers((current) => current.filter((item) => item.id !== member.id))}
-          >
-            <Icon.X size={18} color={colors.text.brand} aria-hidden />
-          </Button>
-        </MemberRow>
+        <ListRow
+          key={member.id}
+          bordered={false}
+          title={<MemberName>{member.name}</MemberName>}
+          trailing={
+            <MemberActions>
+              <AccessField>
+                <Select
+                  label={t('groups.membersModal.access')}
+                  hideLabel
+                  closeLabel={t('common.actions.close')}
+                  value={member.access}
+                  options={accessOptions}
+                  onOptionChange={(option) => {
+                    const access = accessOptions.find((item) => item.value === option.value);
+                    if (access) {
+                      setSelectedMembers((current) =>
+                        current.map((item) => (item.id === member.id ? { ...item, access: access.value } : item))
+                      );
+                    }
+                  }}
+                />
+              </AccessField>
+              <Button
+                variant="tertiary"
+                size="small"
+                accessibilityLabel={t('groups.details.removeMember', { name: member.name })}
+                onPress={() => setSelectedMembers((current) => current.filter((item) => item.id !== member.id))}
+              >
+                <Icon.X size={18} color={colors.text.brand} aria-hidden />
+              </Button>
+            </MemberActions>
+          }
+        />
       ))}
-      <Input
-        hideLabel
-        label={t('common.labels.search')}
-        value={query}
-        onChangeText={searchUsers}
-      />
+      <Input hideLabel label={t('common.labels.search')} value={query} onChangeText={searchUsers} />
       {options.map((user) => (
         <DropdownOption
           key={user.id}

@@ -1,7 +1,7 @@
 import { useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import styled from 'styled-components/native';
-import { Avatar, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
+import { Avatar, EmptyState, Icon, Text, theme, useThemeColors } from '@repo/shared/components';
 import { GroupOptionsDropdown } from './dropdowns/GroupOptions.dropdown';
 import { type GroupListItem } from '@/hooks/useGroupList';
 import { useTranslation } from 'react-i18next';
@@ -91,13 +91,6 @@ const ColorSwatch = styled.View<{ $color?: string }>`
   background-color: ${({ $color }) => $color ?? 'transparent'};
 `;
 
-const Empty = styled.View`
-  width: 100%;
-  padding: ${theme.spacing[600]};
-  border: ${theme.borderWeight[25]} dashed ${theme.colors.border.default};
-  border-radius: ${theme.radius[300]};
-`;
-
 const GroupBadge = ({ label, accent = false }: { label: string; accent?: boolean }) => (
   <Badge $accent={accent}>
     <Text.Caption color={accent ? theme.colors.text.brand : theme.colors.text.secondary}>{label}</Text.Caption>
@@ -116,53 +109,62 @@ export const GroupList = ({ groups, emptyText, scrollable = true, viewerIds = []
     return `${value} ${t(`common.nouns.${nounKey}`)}`;
   };
 
-  const content = groups && groups.length > 0 ? (
-    <Grid>
-      {groups.map((group) => {
-        const isOwnedByViewer = viewerIds.includes(group.ownerId);
-        const key = `${group.serverId}:${group.id}`;
+  const content =
+    groups && groups.length > 0 ? (
+      <Grid>
+        {groups.map((group) => {
+          const isOwnedByViewer = viewerIds.includes(group.ownerId);
+          const key = `${group.serverId}:${group.id}`;
 
-        return (
-          <CardSlot key={key} $columns={columns} $menuOpen={openMenu === key}>
-            <Options>
-              <GroupOptionsDropdown
-                group={group}
-                canManage={isOwnedByViewer}
-                onOpenChange={(open) => setOpenMenu(open ? key : null)}
-              />
-            </Options>
-            <Link href={{ pathname: '/group/[groupId]', params: { groupId: group.id, serverId: group.serverId } }} asChild>
-              <Card $owned={isOwnedByViewer}>
-                <Row>
-                  <Avatar alt={group.name} color={group.color ?? undefined} />
-                  <CardHeading>
-                    <Text.L style={{ flexShrink: 1 }}>{group.name}</Text.L>
-                    {isOwnedByViewer && <GroupBadge label={t('groups.badges.owned')} accent />}
-                  </CardHeading>
-                </Row>
-                <Badges>
-                  <GroupBadge label={formatCount(group.members?.length ?? 0, 'member')} />
-                  <GroupBadge label={formatCount(group.albumIds?.length ?? 0, 'album')} />
-                  <GroupBadge label={formatCount(group.photoIds?.length ?? 0, 'photo')} />
-                </Badges>
-                <CardFooter>
-                  <ColorSwatch $color={group.color ?? undefined} />
+          return (
+            <CardSlot key={key} $columns={columns} $menuOpen={openMenu === key}>
+              <Options>
+                <GroupOptionsDropdown
+                  group={group}
+                  canManage={isOwnedByViewer}
+                  onOpenChange={(open) => setOpenMenu(open ? key : null)}
+                />
+              </Options>
+              <Link
+                href={{ pathname: '/group/[groupId]', params: { groupId: group.id, serverId: group.serverId } }}
+                asChild
+              >
+                <Card $owned={isOwnedByViewer}>
                   <Row>
-                    <Text.Caption color={theme.colors.text.secondary}>#{group.id.slice(0, 8)}</Text.Caption>
-                    <Icon.ChevronRight size={16} color={colors.text.secondary} aria-hidden />
+                    <Avatar alt={group.name} color={group.color ?? undefined} />
+                    <CardHeading>
+                      <Text.L style={{ flexShrink: 1 }}>{group.name}</Text.L>
+                      {isOwnedByViewer && <GroupBadge label={t('groups.badges.owned')} accent />}
+                    </CardHeading>
                   </Row>
-                </CardFooter>
-              </Card>
-            </Link>
-          </CardSlot>
-        );
-      })}
-    </Grid>
-  ) : (
-    <Empty>
-      <Text center color={theme.colors.text.secondary}>{emptyText ?? t('groups.emptyFiltered')}</Text>
-    </Empty>
-  );
+                  <Badges>
+                    <GroupBadge label={formatCount(group.members?.length ?? 0, 'member')} />
+                    <GroupBadge label={formatCount(group.albumIds?.length ?? 0, 'album')} />
+                    <GroupBadge label={formatCount(group.photoIds?.length ?? 0, 'photo')} />
+                  </Badges>
+                  <CardFooter>
+                    <ColorSwatch $color={group.color ?? undefined} />
+                    <Row>
+                      <Text.Caption color={theme.colors.text.secondary}>#{group.id.slice(0, 8)}</Text.Caption>
+                      <Icon.ChevronRight size={16} color={colors.text.secondary} aria-hidden />
+                    </Row>
+                  </CardFooter>
+                </Card>
+              </Link>
+            </CardSlot>
+          );
+        })}
+      </Grid>
+    ) : (
+      <EmptyState
+        description={
+          <Text center color={theme.colors.text.secondary}>
+            {emptyText ?? t('groups.emptyFiltered')}
+          </Text>
+        }
+        style={{ width: '100%' }}
+      />
+    );
 
   return scrollable ? <ListScroller>{content}</ListScroller> : content;
 };

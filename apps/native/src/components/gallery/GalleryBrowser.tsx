@@ -8,7 +8,7 @@ import {
   type GalleryPhotoItem,
 } from '@/components/gallery/GalleryBrowserGrid';
 import { GalleryAddToAlbumModal, GalleryCreateAlbumModal } from '@/components/modals/GalleryAlbum.modal';
-import { toast } from '@/lib/toast';
+import { toast } from '@repo/shared/toast';
 import { resolveAppLanguage } from '@/i18n';
 import { useServerContext, type ServerConnectionWithClient } from '@/providers/ServerProvider';
 import { useAlbumSearch, type AlbumSearchItem } from '@/hooks/useAlbumSearch';
